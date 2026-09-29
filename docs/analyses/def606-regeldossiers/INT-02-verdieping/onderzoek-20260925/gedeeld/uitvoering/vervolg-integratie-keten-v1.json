@@ -1,0 +1,263 @@
+{
+  "C83": {
+    "route_a": {
+      "status": "review_required",
+      "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–100 (tekenposities, nulgebaseerd, einde exclusief).",
+      "signalen": [
+        "\\bnaar\\s+eigen\\s+inzicht\\b",
+        "\\bredelijk\\s+acht\\b"
+      ],
+      "deel": null,
+      "ui_tekst": true,
+      "ui_waarschuwing": false,
+      "fouten": [],
+      "issues_projectie_int02": [],
+      "record_bevat_int02": false,
+      "definition_metadata_bevat_int02": false,
+      "experttab_zonder_hervalidatie": null,
+      "tweede_validatie": {
+        "status": "review_required",
+        "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–100 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signalen": [
+          "\\bnaar\\s+eigen\\s+inzicht\\b",
+          "\\bredelijk\\s+acht\\b"
+        ],
+        "deel": null
+      },
+      "vaststelpoort": {
+        "status": "blocked",
+        "reasons": [
+          "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de brongezag/toepasselijkheid kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+          "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de betekenissteun kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+          "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de verwijskwaliteit kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+          "Geen validatieresultaat beschikbaar (eerst (her)valideren)"
+        ]
+      },
+      "vaststelpoort_noemt_int02": false,
+      "export_gate_False": {
+        "bevat_int02": false
+      },
+      "export_gate_True": {
+        "fout": "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
+      },
+      "exportgate_int02": {
+        "status": "review_required",
+        "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–100 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signalen": [
+          "\\bnaar\\s+eigen\\s+inzicht\\b",
+          "\\bredelijk\\s+acht\\b"
+        ],
+        "deel": null
+      },
+      "exportgate_acceptance_noemt_int02": false
+    },
+    "route_b": {
+      "voorstel": {
+        "status": "proposed",
+        "message": "Voorstel beschikbaar; de oorspronkelijke tekst is ongewijzigd.",
+        "error": null
+      },
+      "toepassing": {
+        "status": "applied",
+        "message": "Voorstel toegepast en opnieuw getoetst."
+      },
+      "uitgevoerd": true,
+      "vers": {
+        "status": "review_required",
+        "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–100 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signalen": [
+          "\\bnaar\\s+eigen\\s+inzicht\\b",
+          "\\bredelijk\\s+acht\\b"
+        ],
+        "deel": null
+      },
+      "registratie_teruggelezen": {
+        "status": "review_required",
+        "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–100 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signalen": [
+          "\\bnaar\\s+eigen\\s+inzicht\\b",
+          "\\bredelijk\\s+acht\\b"
+        ],
+        "deel": null
+      },
+      "expertlezing": {
+        "status": null,
+        "reden": null,
+        "signalen": [],
+        "deel": null
+      },
+      "fouten": [],
+      "export_record_zonder_gate": {
+        "bevat_int02": false
+      },
+      "export_met_toetsresultaten_zonder_gate": {
+        "bevat_int02": true
+      }
+    }
+  },
+  "C105": {
+    "route_a": {
+      "status": "review_required",
+      "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+      "signalen": [],
+      "deel": null,
+      "ui_tekst": true,
+      "ui_waarschuwing": false,
+      "fouten": [],
+      "issues_projectie_int02": [],
+      "record_bevat_int02": false,
+      "definition_metadata_bevat_int02": false,
+      "experttab_zonder_hervalidatie": null,
+      "tweede_validatie": {
+        "status": "review_required",
+        "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+        "signalen": [],
+        "deel": null
+      },
+      "vaststelpoort": {
+        "status": "blocked",
+        "reasons": [
+          "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de brongezag/toepasselijkheid kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+          "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de betekenissteun kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+          "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de verwijskwaliteit kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+          "Geen validatieresultaat beschikbaar (eerst (her)valideren)"
+        ]
+      },
+      "vaststelpoort_noemt_int02": false,
+      "export_gate_False": {
+        "bevat_int02": false
+      },
+      "export_gate_True": {
+        "fout": "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
+      },
+      "exportgate_int02": {
+        "status": "review_required",
+        "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+        "signalen": [],
+        "deel": null
+      },
+      "exportgate_acceptance_noemt_int02": false
+    },
+    "route_b": {
+      "voorstel": {
+        "status": "proposed",
+        "message": "Voorstel beschikbaar; de oorspronkelijke tekst is ongewijzigd.",
+        "error": null
+      },
+      "toepassing": {
+        "status": "applied",
+        "message": "Voorstel toegepast en opnieuw getoetst."
+      },
+      "uitgevoerd": true,
+      "vers": {
+        "status": "review_required",
+        "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+        "signalen": [],
+        "deel": null
+      },
+      "registratie_teruggelezen": {
+        "status": "review_required",
+        "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+        "signalen": [],
+        "deel": null
+      },
+      "expertlezing": {
+        "status": null,
+        "reden": null,
+        "signalen": [],
+        "deel": null
+      },
+      "fouten": [],
+      "export_record_zonder_gate": {
+        "bevat_int02": false
+      },
+      "export_met_toetsresultaten_zonder_gate": {
+        "bevat_int02": true
+      }
+    }
+  },
+  "C56": {
+    "route_a": {
+      "status": "not_evaluated",
+      "reden": null,
+      "signalen": [],
+      "deel": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+      "ui_tekst": false,
+      "ui_waarschuwing": true,
+      "fouten": [],
+      "issues_projectie_int02": [],
+      "record_bevat_int02": false,
+      "definition_metadata_bevat_int02": false,
+      "experttab_zonder_hervalidatie": null,
+      "tweede_validatie": {
+        "status": "not_evaluated",
+        "reden": null,
+        "signalen": [],
+        "deel": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "vaststelpoort": {
+        "status": "blocked",
+        "reasons": [
+          "Geen context vastgelegd bij het record (CON-01, B-01); vaststellen is niet mogelijk zonder context",
+          "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de brongezag/toepasselijkheid kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+          "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de betekenissteun kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+          "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de verwijskwaliteit kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+          "Geen context ingevuld (minimaal één vereist)",
+          "Geen validatieresultaat beschikbaar (eerst (her)valideren)"
+        ]
+      },
+      "vaststelpoort_noemt_int02": false,
+      "export_gate_False": {
+        "bevat_int02": false
+      },
+      "export_gate_True": {
+        "fout": "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
+      },
+      "exportgate_int02": {
+        "status": "not_evaluated",
+        "reden": null,
+        "signalen": [],
+        "deel": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "exportgate_acceptance_noemt_int02": false
+    },
+    "route_b": {
+      "voorstel": {
+        "status": "proposed",
+        "message": "Voorstel beschikbaar; de oorspronkelijke tekst is ongewijzigd.",
+        "error": null
+      },
+      "toepassing": {
+        "status": "applied",
+        "message": "Voorstel toegepast en opnieuw getoetst."
+      },
+      "uitgevoerd": true,
+      "vers": {
+        "status": "not_evaluated",
+        "reden": null,
+        "signalen": [],
+        "deel": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "registratie_teruggelezen": {
+        "status": "not_evaluated",
+        "reden": null,
+        "signalen": [],
+        "deel": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "expertlezing": {
+        "status": null,
+        "reden": null,
+        "signalen": [],
+        "deel": null
+      },
+      "fouten": [],
+      "export_record_zonder_gate": {
+        "bevat_int02": false
+      },
+      "export_met_toetsresultaten_zonder_gate": {
+        "bevat_int02": true
+      }
+    }
+  },
+  "exitstatus": 0
+}

@@ -1,0 +1,153 @@
+# Aanvullend: overige schemaconsumenten; v1 faalde op ontbrekende 'timeout' (exit 127)
+$ .venv/bin/python -m pytest tests/unit/services/validation/test_def624_factory_schema.py tests/unit/services/validation/test_def624_reviewcorrecties.py tests/integration/contracts/test_validation_result_schema.py tests/integration/contracts/test_validation_interface.py tests/integration/contracts/test_validation_degraded_contract.py -p no:cacheprovider -q -rA
+........................................................................ [ 66%]
+.....................................                                    [100%]
+==================================== PASSES ====================================
+__________ TestValidationInterfaceContract.test_score_boundaries[0.5] __________
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+_______________ test_fabrieken_leveren_alle_verplichte_sleutels ________________
+------------------------------ Captured log call -------------------------------
+ERROR    services.validation.mappers:mappers.py:305 Creating degraded validation result: boom. begrip=N/A, correlation_id=3f8c1a2e-0000-4000-8000-000000000000
+NoneType: None
+WARNING  services.validation.types:types.py:455 Creating degraded validation result: boom. begrip=N/A, correlation_id=3f8c1a2e-0000-4000-8000-000000000000
+___________ test_afwezig_null_en_mock_verzinsels_blijven_ontbrekend ____________
+------------------------------ Captured log call -------------------------------
+ERROR    services.validation.mappers:mappers.py:273 Context validation failed: Invalid result type MagicMock. Expected dataclass or dict with 'version' and 'system' keys. correlation_id=N/A
+NoneType: None
+ERROR    services.validation.mappers:mappers.py:305 Creating degraded validation result: Invalid result type. begrip=N/A, correlation_id=1cb8dbb2-bfc3-42c5-a646-495bd24f2d31
+NoneType: None
+__________ test_orchestrator_returns_schema_compliant_degraded_result __________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=[test-id])
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:579 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=[test-id])
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:247 Validation failed for begrip='[synthetisch testbegrip]', correlation_id='[test-id]': boom
+ERROR    services.validation.mappers:mappers.py:305 Creating degraded validation result: boom. begrip=[synthetisch testbegrip], correlation_id=[test-id]
+Traceback (most recent call last):
+  File "/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/validation_orchestrator_v2.py", line 232, in validate_text
+    result = await self.validation_service.validate_definition(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+    )
+    ^
+  File "/Users/chrislehnen/Projecten/Definitie-app/tests/integration/contracts/test_validation_degraded_contract.py", line 17, in validate_definition
+    raise RuntimeError(msg)
+RuntimeError: boom
+___________________ test_validation_result_happy_path_schema ___________________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.modular_validation_service:modular_validation_service.py:884 Validatie overgeslagen: regelset dekt het contract niet (0/53 geladen)
+____________________ test_validation_result_degraded_schema ____________________
+------------------------------ Captured log call -------------------------------
+ERROR    services.validation.mappers:mappers.py:305 Creating degraded validation result: Simulated failure. begrip=testbegrip, correlation_id=00000000-0000-0000-0000-000000000001
+NoneType: None
+=========================== short test summary info ============================
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_score_boundaries[0.5]
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_happy_path_text_validation
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_additional_properties_rejected
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_invalid_error_codes_rejected[val-tst-001]
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_degraded_result_on_failure
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_invalid_error_codes_rejected[VAL-TST-1]
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_score_boundaries[0.0]
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_invalid_error_codes_rejected[INVALID]
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_invalid_error_codes_rejected[VAL_TST_001]
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_definition_validation_includes_scores
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_score_boundaries[1.0]
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_invalid_error_codes_rejected[VAL-TOOLONG-001]
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_empty_text_validation
+PASSED tests/integration/contracts/test_validation_interface.py::TestValidationInterfaceContract::test_batch_validation_order_preserved
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_ongeldige_readiness[ready_geen_bool]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_ongeldige_readiness[ids_geen_lijst]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_tegenstrijdige_expliciete_metadata[validated_met_reden]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[validated_met_lege_readiness]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_ongeldige_readiness[extra_veld]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_tegenstrijdige_expliciete_metadata[ongeldige_status_met_tegenstrijdige_reden]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_probe_b_ongeldige_fabriekstatus_wordt_expliciet_onbekend[ok]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_ongeldige_readiness[geen_mapping]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[validated_met_reden]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[readiness_negatief_aantal]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[validated_groen]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[unknown_status_invalid]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[unknown_status_missing]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_none_status_blijft_ontbrekend_en_none_score_blijft_none
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_levert_voor_geldige_combinaties_schemageldige_uitvoer[ongeldige_status_met_passende_reden]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[unknown_zonder_reden]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_ongeldige_readiness[onvolledig]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[readiness_totaal_string]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_ongeldige_readiness[negatief_aantal]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[ruleset_incomplete_zonder_readiness]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[ruleset_incomplete_geldige_readiness]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_levert_voor_geldige_combinaties_schemageldige_uitvoer[validated_met_geldige_readiness]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[unknown_onbekende_reden]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_ongeldige_readiness[leeg]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_tegenstrijdige_expliciete_metadata[unknown_zonder_reden]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_levert_voor_geldige_combinaties_schemageldige_uitvoer[ruleset_incomplete_geldig]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[readiness_ready_geen_bool]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[ruleset_incomplete_onvolledige_readiness]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[unknown_echte_score]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[readiness_aantal_bool]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[status_ontbreekt]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_probe_a2_lege_readiness_bij_ruleset_incomplete_wordt_geweigerd
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[readiness_ids_geen_lijst]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_tegenstrijdige_expliciete_metadata[onbekende_reden]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[validated_met_geldige_readiness]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_tegenstrijdige_expliciete_metadata[ruleset_incomplete_zonder_readiness]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[status_ongeldig]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[readiness_ids_geen_strings]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_probe_b_ongeldige_fabriekstatus_wordt_expliciet_onbekend[1]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[unknown_score_bool]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[readiness_extra_veld]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_levert_voor_geldige_combinaties_schemageldige_uitvoer[validation_error]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_ongeldige_readiness[totaal_string]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_weigert_tegenstrijdige_expliciete_metadata[geen_status_met_tegenstrijdige_reden]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[unknown_groen_oordeel]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[unknown_score_none]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_probe_a1_unknown_met_groen_oordeel_en_echte_score_is_niet_geldig
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_levert_voor_geldige_combinaties_schemageldige_uitvoer[contract_status_missing]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[unknown_validation_error_placeholders]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_probe_b_ongeldige_fabriekstatus_wordt_expliciet_onbekend[True]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_probe_b_ongeldige_fabriekstatus_wordt_expliciet_onbekend[lege_lijst]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_fabriek_levert_voor_geldige_combinaties_schemageldige_uitvoer[contract_status_invalid]
+PASSED tests/unit/services/validation/test_def624_factory_schema.py::test_grensmatrix_is_valid_result_volgt_het_echte_schema[ruleset_incomplete_lege_readiness]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_verplichte_uitvoervelden_zijn_werkelijk_required
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_ui_meldt_een_ongeldige_objectstatus_als_ongeldig
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_fabriek_unknown_met_reden_is_schemageldig_en_valid
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_adapter_dictpad_behoudt_legacy_none_score
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_adapter_schemapad_en_attribuutfallback_behouden_none_score
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_fabriek_weigert_combinaties_waarvoor_geen_schemageldige_uitvoer_bestaat[validated_met_reden]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_is_valid_result_volgt_het_schema_voor_statuscombinaties[unknown_zonder_reden]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_fabriek_weigert_combinaties_waarvoor_geen_schemageldige_uitvoer_bestaat[onbekende_reden]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_fabriek_weigert_combinaties_waarvoor_geen_schemageldige_uitvoer_bestaat[ruleset_incomplete_zonder_readiness]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_ontbrekende_bronbeoordeling_wordt_niet_verzonnen
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_fabriek_zonder_status_blijft_veilig_onbekend
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_fabrieken_leveren_alle_verplichte_sleutels
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_ongeldige_status_is_overal_ongeldig_niet_ontbrekend[True]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_is_valid_result_volgt_het_schema_voor_statuscombinaties[unknown_validation_error]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_is_valid_result_volgt_het_schema_voor_statuscombinaties[ruleset_incomplete_zonder_readiness]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_lege_bronbeoordeling_idempotent_en_bron_ongewijzigd
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_legacy_none_score_wordt_op_geen_enkele_route_een_opslaanbare_nul
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_is_valid_result_volgt_het_schema_voor_statuscombinaties[ruleset_incomplete_met_readiness]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_afwezig_null_en_mock_verzinsels_blijven_ontbrekend
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_expliciete_lege_bronbeoordeling_overleeft_elke_conversie
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_fabriek_ruleset_incomplete_met_readiness_is_schemageldig
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_ongeldige_status_is_overal_ongeldig_niet_ontbrekend[verkeerde_schrijfwijze]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_is_valid_result_volgt_het_schema_voor_statuscombinaties[validated_met_reden]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_adapter_convertertak_behoudt_legacy_none_score
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_fabriek_weigert_combinaties_waarvoor_geen_schemageldige_uitvoer_bestaat[zonder_reden]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_is_valid_result_volgt_het_schema_voor_statuscombinaties[onbekende_reden]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_ongeldige_status_is_overal_ongeldig_niet_ontbrekend[lege_lijst]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_is_valid_result_volgt_het_schema_voor_statuscombinaties[validated]
+PASSED tests/unit/services/validation/test_def624_reviewcorrecties.py::test_ongeldige_status_is_overal_ongeldig_niet_ontbrekend[1]
+PASSED tests/integration/contracts/test_validation_degraded_contract.py::test_orchestrator_returns_schema_compliant_degraded_result
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_validation_result_happy_path_schema
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_dekkingsblok_telt_op_en_sluit_aan_op_de_statussen
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_reviewplicht_is_geen_violation_en_geen_pass
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_schema_wordt_repository_relatief_gelezen
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_incompleet_dekkingsblok_wordt_geweigerd
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_validation_result_degraded_schema
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_ongeldige_resultaatstatus_wordt_geweigerd
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_statusset_heeft_geen_tweede_waarheid
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_nieuwe_velden_zijn_schema_conform
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_alleen_toegestane_resultaatstatussen
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_onbekend_veld_wordt_nog_steeds_geweigerd
+PASSED tests/integration/contracts/test_validation_result_schema.py::test_typeddict_dekt_de_schemavelden
+exit=0

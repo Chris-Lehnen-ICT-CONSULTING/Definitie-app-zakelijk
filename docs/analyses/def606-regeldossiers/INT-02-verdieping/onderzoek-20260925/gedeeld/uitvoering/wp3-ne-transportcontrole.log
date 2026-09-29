@@ -1,0 +1,4 @@
+{"tekst": "Toegang:", "status": "not_evaluated", "interne_reden": "INT-02 — Niet uitgevoerd: kern ontbreekt. Er is geen inhoudelijk oordeel.", "melding_in_publiek_resultaat": false, "publiek_rule_result": null, "publiek_review_item": []}
+{"tekst": "Getal dat even is indien het zonder rest door twee deelbaar is.", "status": "not_evaluated", "interne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.", "melding_in_publiek_resultaat": false, "publiek_rule_result": null, "publiek_review_item": []}
+
+EXITSTATUS=0

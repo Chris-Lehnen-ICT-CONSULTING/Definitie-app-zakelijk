@@ -1,0 +1,75 @@
+{
+  "brede_run": {
+    "passed": 8775,
+    "failed": 5,
+    "errors": 7,
+    "skipped": 75,
+    "xfail": 1,
+    "make_exit": 2
+  },
+  "omgevingshercontrole_passed": 16,
+  "falende_nodes": [
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_contract_bevat_voorbeelden_per_groep[Grens]",
+      "time": "0.001"
+    },
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_skill_md_bevat_gericht_int02_blok[definitie-toetsregels]",
+      "time": "0.001"
+    },
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_contract_draagt_versie_en_datum_gelijk_aan_record",
+      "time": "0.000"
+    },
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_contract_bevat_voorbeelden_per_groep[Positief]",
+      "time": "0.000"
+    },
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_contract_bevat_n_g_t_h_en_geen_herstelroute",
+      "time": "0.000"
+    },
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_contract_publiceert_de_s1_markers_uit_het_record",
+      "time": "0.000"
+    },
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_contract_bevat_voorbeelden_per_groep[Negatief]",
+      "time": "0.000"
+    },
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_reference_zinnen_vervangen",
+      "time": "0.001"
+    },
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_kopie_in_nederlandse_definities_is_bytegelijk",
+      "time": "0.001"
+    },
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_skill_md_bevat_gericht_int02_blok[definitie-nederlandse-definities]",
+      "time": "0.001"
+    },
+    {
+      "classname": "tests.unit.validation.test_def771_int02_contract",
+      "name": "test_record_teksten_staan_letterlijk_in_het_canonieke_contract",
+      "time": "0.000"
+    },
+    {
+      "classname": "tests.unit.scripts.test_check_root_allowlist",
+      "name": "test_echte_repo_is_schoon",
+      "time": "0.031"
+    }
+  ],
+  "niet_gesloten": [],
+  "aanpak": "De brede run is niet als \u00e9\u00e9n groene gate geclaimd. Alle twaalf omgevingsgebonden foutnodes zijn op bytegelijke bron gericht herhaald met de juiste Git-werkboom en skillbron; eerder geslaagde controles blijven behouden."
+}

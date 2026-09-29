@@ -1,0 +1,50 @@
+# WP3-R1 lint. HEAD d3fc53eaed14e6a303605146b7e5f8b9ea3cef5e tijdstip 2026-09-27T22:23:53Z
+# bestanden: src/services/validation/evaluators/decision_rule_assessment.py tests/unit/validation/test_def835_int02_evaluator.py
+## ruff 0.15.17 check
+SIM401 Use `metadata.get("record_text", ctx.raw_text)` instead of an `if` block
+   --> src/services/validation/evaluators/decision_rule_assessment.py:113:16
+    |
+111 |         # Terugval op raw_text alleen bij een ontbrekende sleutel; een aanwezige
+112 |         # niet-tekst gaat naar de WP1-validatie en wordt `error` (WP3-R1).
+113 |         kern = metadata["record_text"] if "record_text" in metadata else ctx.raw_text
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+114 |         signalen = _signalen(record, kern if isinstance(kern, str) else "", deps)
+115 |         try:
+    |
+help: Replace with `metadata.get("record_text", ctx.raw_text)`
+
+Found 1 error.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).
+# exitcode: 1
+## ruff 0.16.5 check (pre-commit-versie, zonder --fix)
+SIM401 Use `metadata.get("record_text", ctx.raw_text)` instead of an `if` block
+   --> src/services/validation/evaluators/decision_rule_assessment.py:113:16
+    |
+111 |         # Terugval op raw_text alleen bij een ontbrekende sleutel; een aanwezige
+112 |         # niet-tekst gaat naar de WP1-validatie en wordt `error` (WP3-R1).
+113 |         kern = metadata["record_text"] if "record_text" in metadata else ctx.raw_text
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+114 |         signalen = _signalen(record, kern if isinstance(kern, str) else "", deps)
+115 |         try:
+    |
+help: Replace with `metadata.get("record_text", ctx.raw_text)`
+
+Found 1 error.
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).
+# exitcode: 1
+## black, 26.5.1 (compiled: yes) --check
+All done! ✨ 🍰 ✨
+2 files would be left unchanged.
+# exitcode: 0
+
+# ---- Ronde 2 na SIM401-aanpassing, tijdstip 2026-09-27T22:24:11Z ----
+## ruff 0.15.17 check
+All checks passed!
+# exitcode: 0
+## ruff 0.16.5 check (pre-commit-versie, zonder --fix)
+All checks passed!
+# exitcode: 0
+## black --check
+All done! ✨ 🍰 ✨
+2 files would be left unchanged.
+# exitcode: 0

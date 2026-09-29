@@ -1,0 +1,918 @@
+{
+  "soort": "def835-int02-kwalificatie-gevallen/1",
+  "technische_testfixture": true,
+  "goldset": false,
+  "gebruik": "UITSLUITEND technische testfixture voor de offline Q1-runnertests (DEF-835). GEEN goldset, GEEN hold-out en geen geaccepteerde labels: de labels zijn willekeurig toegekend om runnergedrag te toetsen en zeggen niets over INT-02. De runner weigert dit bestand voor echte verzending.",
+  "protocol_sha256": "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f",
+  "freeze": {
+    "status": "bevroren",
+    "geaccepteerd_door": "technische testfixture; geen mens, geen labelacceptatie",
+    "geaccepteerd_op": "2026-09-28",
+    "bron": "Q1-unittest; geen echte freeze of goldset"
+  },
+  "gevallen": [
+    {
+      "id": "C105",
+      "fase": "regressie",
+      "familie": "bekende-regressie",
+      "herkomst": "tests/fixtures/def835_int02_ontwerpgevallen.json (invoer exact)",
+      "invoer": {
+        "begrip": "toelating",
+        "kern": "De medewerker laat de aanvrager toe.",
+        "bedoeling": "opdracht aan medewerker",
+        "organisatorische_context": [
+          "synthetische procedure"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-C105; geen normgrond"
+      }
+    },
+    {
+      "id": "C107",
+      "fase": "regressie",
+      "familie": "bekende-regressie",
+      "herkomst": "tests/fixtures/def835_int02_ontwerpgevallen.json (invoer exact)",
+      "invoer": {
+        "begrip": "voldoende onderbouwde aanvraag",
+        "kern": "Aanvraag die naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "synthetische begrippenstudie"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-C107; geen normgrond"
+      }
+    },
+    {
+      "id": "C112",
+      "fase": "regressie",
+      "familie": "bekende-regressie",
+      "herkomst": "tests/fixtures/def835_int02_ontwerpgevallen.json (invoer exact)",
+      "invoer": {
+        "begrip": "verplichting",
+        "kern": "Verplichting van een partij om de overeengekomen prestatie te verrichten.",
+        "bedoeling": "Synthetische beschrijving van verplichting zelf",
+        "organisatorische_context": [
+          "synthetische begrippenstudie"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-C112; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O01",
+      "fase": "ontwikkeling",
+      "familie": "technisch-criterium",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O01",
+        "kern": "Technische testkern TQ-O01 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O01",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O01; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O02",
+      "fase": "ontwikkeling",
+      "familie": "technisch-normatief-begrip",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O02",
+        "kern": "Technische testkern TQ-O02 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O02",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O02; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O03",
+      "fase": "ontwikkeling",
+      "familie": "technisch-actorvoorschrift",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O03",
+        "kern": "Technische testkern TQ-O03 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O03",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O03; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O04",
+      "fase": "ontwikkeling",
+      "familie": "technisch-betekenisgrond",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O04",
+        "kern": "Technische testkern TQ-O04 zonder inhoudelijke betekenis.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O04; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O05",
+      "fase": "ontwikkeling",
+      "familie": "technisch-criterium",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O05",
+        "kern": "Technische testkern TQ-O05 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O05",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O05; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O06",
+      "fase": "ontwikkeling",
+      "familie": "technisch-normatief-begrip",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O06",
+        "kern": "Technische testkern TQ-O06 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O06",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O06; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O07",
+      "fase": "ontwikkeling",
+      "familie": "technisch-actorvoorschrift",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O07",
+        "kern": "Technische testkern TQ-O07 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O07",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O07; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O08",
+      "fase": "ontwikkeling",
+      "familie": "technisch-betekenisgrond",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O08",
+        "kern": "Technische testkern TQ-O08 zonder inhoudelijke betekenis.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O08; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O09",
+      "fase": "ontwikkeling",
+      "familie": "technisch-criterium",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O09",
+        "kern": "Technische testkern TQ-O09 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O09",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O09; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O10",
+      "fase": "ontwikkeling",
+      "familie": "technisch-normatief-begrip",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O10",
+        "kern": "Technische testkern TQ-O10 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O10",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O10; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O11",
+      "fase": "ontwikkeling",
+      "familie": "technisch-actorvoorschrift",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O11",
+        "kern": "Technische testkern TQ-O11 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O11",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O11; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O12",
+      "fase": "ontwikkeling",
+      "familie": "technisch-betekenisgrond",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O12",
+        "kern": "Technische testkern TQ-O12 zonder inhoudelijke betekenis.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O12; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O13",
+      "fase": "ontwikkeling",
+      "familie": "technisch-criterium",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O13",
+        "kern": "Technische testkern TQ-O13 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O13",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O13; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O14",
+      "fase": "ontwikkeling",
+      "familie": "technisch-normatief-begrip",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O14",
+        "kern": "Technische testkern TQ-O14 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O14",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O14; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O15",
+      "fase": "ontwikkeling",
+      "familie": "technisch-actorvoorschrift",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O15",
+        "kern": "Technische testkern TQ-O15 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O15",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O15; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O16",
+      "fase": "ontwikkeling",
+      "familie": "technisch-betekenisgrond",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O16",
+        "kern": "Technische testkern TQ-O16 zonder inhoudelijke betekenis.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O16; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O17",
+      "fase": "ontwikkeling",
+      "familie": "technisch-criterium",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O17",
+        "kern": "Technische testkern TQ-O17 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O17",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O17; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O18",
+      "fase": "ontwikkeling",
+      "familie": "technisch-normatief-begrip",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O18",
+        "kern": "Technische testkern TQ-O18 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O18",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O18; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O19",
+      "fase": "ontwikkeling",
+      "familie": "technisch-actorvoorschrift",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O19",
+        "kern": "Technische testkern TQ-O19 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O19",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O19; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O20",
+      "fase": "ontwikkeling",
+      "familie": "technisch-betekenisgrond",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O20",
+        "kern": "Technische testkern TQ-O20 zonder inhoudelijke betekenis.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O20; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O21",
+      "fase": "ontwikkeling",
+      "familie": "technisch-criterium",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O21",
+        "kern": "Technische testkern TQ-O21 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O21",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O21; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O22",
+      "fase": "ontwikkeling",
+      "familie": "technisch-normatief-begrip",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O22",
+        "kern": "Technische testkern TQ-O22 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O22",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O22; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O23",
+      "fase": "ontwikkeling",
+      "familie": "technisch-actorvoorschrift",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O23",
+        "kern": "Technische testkern TQ-O23 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-O23",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O23; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-O24",
+      "fase": "ontwikkeling",
+      "familie": "technisch-betekenisgrond",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-O24",
+        "kern": "Technische testkern TQ-O24 zonder inhoudelijke betekenis.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-O24; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H01",
+      "fase": "holdout",
+      "familie": "technisch-criterium",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H01",
+        "kern": "Technische testkern TQ-H01 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H01",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H01; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H02",
+      "fase": "holdout",
+      "familie": "technisch-normatief-begrip",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H02",
+        "kern": "Technische testkern TQ-H02 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H02",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H02; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H03",
+      "fase": "holdout",
+      "familie": "technisch-criterium",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H03",
+        "kern": "Technische testkern TQ-H03 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H03",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H03; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H04",
+      "fase": "holdout",
+      "familie": "technisch-normatief-begrip",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H04",
+        "kern": "Technische testkern TQ-H04 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H04",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H04; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H05",
+      "fase": "holdout",
+      "familie": "technisch-criterium",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H05",
+        "kern": "Technische testkern TQ-H05 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H05",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H05; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H06",
+      "fase": "holdout",
+      "familie": "technisch-normatief-begrip",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H06",
+        "kern": "Technische testkern TQ-H06 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H06",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H06; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H07",
+      "fase": "holdout",
+      "familie": "technisch-criterium",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H07",
+        "kern": "Technische testkern TQ-H07 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H07",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H07; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H08",
+      "fase": "holdout",
+      "familie": "technisch-normatief-begrip",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H08",
+        "kern": "Technische testkern TQ-H08 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H08",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H08; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H09",
+      "fase": "holdout",
+      "familie": "technisch-actorvoorschrift",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H09",
+        "kern": "Technische testkern TQ-H09 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H09",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H09; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H10",
+      "fase": "holdout",
+      "familie": "technisch-actorvoorschrift",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H10",
+        "kern": "Technische testkern TQ-H10 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H10",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H10; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H11",
+      "fase": "holdout",
+      "familie": "technisch-actorvoorschrift",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H11",
+        "kern": "Technische testkern TQ-H11 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H11",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H11; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H12",
+      "fase": "holdout",
+      "familie": "technisch-actorvoorschrift",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H12",
+        "kern": "Technische testkern TQ-H12 zonder inhoudelijke betekenis.",
+        "bedoeling": "testbedoeling TQ-H12",
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H12; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H13",
+      "fase": "holdout",
+      "familie": "technisch-betekenisgrond",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H13",
+        "kern": "Technische testkern TQ-H13 zonder inhoudelijke betekenis.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H13; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H14",
+      "fase": "holdout",
+      "familie": "technisch-betekenisgrond",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H14",
+        "kern": "Technische testkern TQ-H14 zonder inhoudelijke betekenis.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H14; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H15",
+      "fase": "holdout",
+      "familie": "technisch-betekenisgrond",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H15",
+        "kern": "Technische testkern TQ-H15 zonder inhoudelijke betekenis.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H15; geen normgrond"
+      }
+    },
+    {
+      "id": "TQ-H16",
+      "fase": "holdout",
+      "familie": "technisch-betekenisgrond",
+      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
+      "invoer": {
+        "begrip": "testbegrip TQ-H16",
+        "kern": "Technische testkern TQ-H16 zonder inhoudelijke betekenis.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "technische testcontext"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "normgrond": "TECHNISCH-TESTLABEL-TQ-H16; geen normgrond"
+      }
+    }
+  ]
+}

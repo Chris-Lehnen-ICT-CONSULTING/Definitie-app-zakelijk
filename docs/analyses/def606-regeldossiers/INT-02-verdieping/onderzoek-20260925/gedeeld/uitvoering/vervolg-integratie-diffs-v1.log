@@ -1,0 +1,217 @@
+## APP (/Users/chrislehnen/Projecten/Definitie-app)
+$ git rev-parse HEAD MERGE_HEAD
+b56e2878268f744f224e8d1326c9198378b025bc
+076c916671e4e7e9f2843d22669df38eeb79e170
+$ git diff --cached --stat 076c916671e4e7e9f2843d22669df38eeb79e170  (geïntegreerd t.o.v. main)
+ tests/unit/validation/test_v2_golden_int_more.py   |    10 +-
+ tests/unit/validation/test_validation_readiness.py |     5 +-
+ 160 files changed, 75655 insertions(+), 31 deletions(-)
+$ git diff --cached --name-status 076c916671e4e7e9f2843d22669df38eeb79e170
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/akkoord-int02-omvangverruiming-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/akkoord-wp2-wp3-s1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/akkoord-wp3-ne-transport.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/def771-oplevercomment-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2-vervolgissue-concept-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2-vervolgissue-publicatie-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/plan-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/pr-app-concept-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/pr-app-publicatie-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/pr-app-publicatie-v2.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/pr-skills-concept-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/pr-skills-publicatie-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/pr-skills-publicatie-v2.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/processtatus-uitvoering-v2.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/processtatus-uitvoering-v3.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/processtatus-uitvoering-v4.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/processtatus-uitvoering-v5.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/processtatus-uitvoering-v6.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/processtatus-uitvoering.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1-run2.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1-run2.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1-run3.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1-run3.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1.py
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/takenlijst-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/takenlijst-v2.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/takenlijst-v3.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/takenlijst-v4.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/takenlijst-v5.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/takenlijst-v6.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/takenlijst-v8.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-actions-besluit-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-bestaande-tests-v1.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-codex-correctiereview-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-codex-review-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-codex-slotreview-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-correctieopdracht-claude-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-correctiereviewopdracht-codex-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-negatieve-controle-v1.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-opdracht-claude-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-rapport-v3.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-replay-v3-lint.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-replay-v3.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-replay-v3.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-replay-v3.py
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-reviewopdracht-codex-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-slotcorrectieopdracht-claude-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-slotreviewopdracht-codex-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-oplevering-en-uitrolvoorstel-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/voortgang-wp1-start.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/voortgang-wp1-verificatie.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-1-mcp-config.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-1-opdracht-claude-v2.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-1-opdracht-claude.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-1-sessie-id.txt
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-1-vervolgopdracht-claude.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-2-opdracht-claude.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-3-opdracht-claude.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-3-vervolgopdracht-ne-claude.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-4-opdracht-claude.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-5-correctie-r1-opdracht-claude.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-5-correctie-versieasserties-claude.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-5-opdracht-codex-review-v2.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-5-opdracht-codex-review.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp-5-r1-correctiereview-codex.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-basiscontrole-definition-task.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-bestandidentiteit-voor-formattering.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-contractopbouw.py
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-coordinator-verificatie.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-green-contracttest.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-lint.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-na-formattering-verificatie.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-red-contracttest.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-regressie-aanpalend-v2.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-regressie-aanpalend.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp1-zonder-skillbron-contracttest.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-coordinator-verificatie.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-green-promptnorm-v2.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-green-promptnorm.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-red-promptnorm.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering-int-01-met-voorbeelden.txt
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering-int-01-zonder-voorbeelden.txt
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering-int-02-met-voorbeelden.txt
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering-int-02-zonder-voorbeelden.txt
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering.py
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-vervang-g.py
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-coordinator-tussenverificatie.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-ne-transportcontrole.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-red.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-s1-en-omvang-ter-akkoord.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-s1-voorstel-vindbaarheid.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-schema-basiscontrole.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-transport-behoud.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-transport-green-v2.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-transport-green.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-transport-lint-v2.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-transport-lint.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-transport-nulmeting-c24c25-v2.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-transport-nulmeting-c24c25.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-transport-red-v2.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-transport-red.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp3-transportbesluit-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp4-green-probestatus.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp4-green.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp4-lint.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp4-opdracht-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp4-probestatus.py
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp4-red-probestatus.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp4-red.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-basis-failures.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-basis-failures.xml
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-basis-security-bestanden.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-basis-security-volgorde.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-codex-review-r1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-codex-review-v2.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-config-basiscontrole-met-synthetische-env.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-config-basiscontrole.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-eindverificatie-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-falende-nodeids.txt
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-green.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-lint.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-loginherstel-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-make-test.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-pytest-na-r1-publicatie-v1.xml
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-pytest-na-r1.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-pytest-volledig-publicatie-v1.xml
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-pytest-volledig.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-r1-commit.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-r1-green.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-r1-lint.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-r1-red.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-review-bewijscontrole.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-review-diagnose-passages-na-r1.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-review-diagnose-passages-voor-r1.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-review-startstatus.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-reviewdispositie-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-reviewdispositie-v2.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-skillpublicatiecontrole.json
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp5-testbevindingen-v1.md
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp6-bewijs-commit-v2.log
+A	docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp6-bewijs-publicatieredactie-v1.md
+M	docs/architectuur/contracts/schemas/validation_result.schema.json
+M	docs/architectuur/contracts/validation_result_contract.md
+M	src/services/prompts/modules/json_based_rules_module.py
+M	src/services/validation/evaluators/judgment_review.py
+M	src/services/validation/interfaces.py
+M	src/services/validation/modular_validation_service.py
+M	src/toetsregels/regels/INT-02.json
+M	src/ui/components/validation_view.py
+M	tests/fixtures/toetsregels/runtime_cases.yaml
+M	tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py
+M	tests/unit/services/orchestrators/test_def766_ess03_wrappers.py
+A	tests/unit/services/prompts/test_def771_int02_promptnorm.py
+A	tests/unit/ui/test_def771_int02_validation_view.py
+A	tests/unit/validation/test_def771_int02_contract.py
+A	tests/unit/validation/test_def771_int02_o1.py
+M	tests/unit/validation/test_v2_golden_int_more.py
+M	tests/unit/validation/test_validation_readiness.py
+$ git diff --cached --stat HEAD  (geïntegreerd t.o.v. onze vorige HEAD)
+ 55 files changed, 10957 insertions(+), 175 deletions(-)
+$ git diff --name-only --diff-filter=U
+$ git diff --stat (unstaged getrackt)
+
+## SKILLS (/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills)
+750068253a7389e201daedc5b9aa0afd5c0be032
+770de55ece429fec826c9d53fd873a109ed8e670
+$ git diff --cached --stat 770de55ece429fec826c9d53fd873a109ed8e670
+ .../definitie-nederlandse-definities.zip           | Bin 48179 -> 62826 bytes
+ cowork-exports/definitie-toetsregels.zip           | Bin 48507 -> 63033 bytes
+ skills/definitie-nederlandse-definities/SKILL.md   |   4 +
+ .../definitie-nederlandse-definities/reference.md  |   2 +-
+ .../references/int02-beslisregel.md                | 177 +++++++++++++++++++++
+ skills/definitie-toetsregels/SKILL.md              |   4 +
+ skills/definitie-toetsregels/reference.md          |   2 +-
+ .../references/int02-beslisregel.md                | 177 +++++++++++++++++++++
+ 8 files changed, 364 insertions(+), 2 deletions(-)
+$ git diff --cached --stat HEAD
+ .../definitie-nederlandse-definities.zip           | Bin 60439 -> 62826 bytes
+ cowork-exports/definitie-toetsregels.zip           | Bin 60646 -> 63033 bytes
+ cowork-exports/nederlandse-definities.zip          | Bin 37235 -> 39639 bytes
+ cowork-exports/toetsregels.zip                     | Bin 37966 -> 40358 bytes
+ skills/definitie-nederlandse-definities/SKILL.md   |  29 +++++++++++++++++-
+ .../definitie-nederlandse-definities/reference.md  |   2 +-
+ skills/definitie-toetsregels/SKILL.md              |  33 +++++++++++++++++++--
+ skills/definitie-toetsregels/reference.md          |   2 +-
+ 8 files changed, 61 insertions(+), 5 deletions(-)
+$ git diff --name-only --diff-filter=U
+$ git diff --stat (unstaged getrackt)
+
+## HASHES
+86e949d501f2be2b3685b38c3dc0a01ca2a00d1b096f9f70c113100a8f2b53d8  src/services/prompts/modules/json_based_rules_module.py
+c70798d92ad2b576d7635dd077cb94799313963666351b51c4de5c01d259a23f  src/services/validation/evaluators/judgment_review.py
+d0380e131fd785bc2a393bcfd3aaf429714a30a91c30a2876ca9a5331830df0f  src/services/validation/modular_validation_service.py
+3a8a8600b5b481dc50bec0521de49b10b340e4f547ea91d45ae1333a015b48a4  src/services/validation/interfaces.py
+8fcb8c84fbbf83bf2072e2c3418068c82b7ea22f9617e2e60e42bde1443c85fe  docs/architectuur/contracts/schemas/validation_result.schema.json
+bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md
+bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/references/int02-beslisregel.md
+bba6c03e9b68e8db61ca6122a51581b29d7433da69e90b4a2359389f356a94d7  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/SKILL.md
+4d3d7e7d8173f819d90f9851d0451a06c9247990a3ed50442f3152ec4bcfa053  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/reference.md
+8833579223e7abdb259a4bf84f2a3ec7765fdd00ee29ea8f7dfddcdd2518dc39  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/SKILL.md
+932b9c645be4a16e5f59b00730a5888662c57cf5a5fa34f024f7c72bf004820c  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-nederlandse-definities/reference.md
+5bf7e3ffde4c40cb6da88815bc2d5dd1cf3ed2b8b8e00418b2be935620bdc988  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/cowork-exports/definitie-toetsregels.zip
+e31a50a9e6600d4f1c35c2ac2489d595033add8708249b3140b977f48b014a74  /Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/cowork-exports/definitie-nederlandse-definities.zip
+a40371204fadf4f3c70c29bef1ab94d115d284ebe592a9c5afe6daeb12217ebd  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-integratie-keten-v1.json
+7f76a61f5adbc798e309ccda1f9b4f5d94d72dd702872e8a5b6f3391b48ad6c9  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-integratie-keten-v1.log
+92b14c5fd7b0226b18ff7e68b2397e02b4f5929547b693d9c6384d1d61ee67c9  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-integratie-tests-v1.log

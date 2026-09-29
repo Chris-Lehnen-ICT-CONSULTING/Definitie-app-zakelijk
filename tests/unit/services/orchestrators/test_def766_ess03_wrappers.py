@@ -91,8 +91,10 @@ async def test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug():
     )
     assert doorgegeven["attribution"]["model"] == "fake-ess03-model"
     assert result["ess03_assessment"] == doorgegeven
-    # DEF-768: 2.2.0 is additief (ESS-05-velden); ESS-03 ongewijzigd.
-    assert result["version"] == CONTRACT_VERSION == "2.2.0"
+    # DEF-771: 2.2.0 (additief: not_evaluated als deeluitkomst); DEF-835:
+    # 2.3.0 (additief: assessment/signals ook voor INT-02); DEF-768: 2.4.0
+    # (additief: ESS-05-velden). ESS-03 ongewijzigd.
+    assert result["version"] == CONTRACT_VERSION == "2.4.0"
 
 
 async def test_validate_definition_gebruikt_recordtekst_en_toelichting():

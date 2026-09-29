@@ -1,0 +1,6 @@
+# WP1 regressie aanpalende suites — 2026-09-25T18:33:09Z
+# commando: .venv/bin/python -m pytest tests/unit/services/prompts tests/unit/validation/test_v2_golden_int_more.py tests/unit/validation/test_rule_runtime_matrix.py tests/unit/validation/test_rule_cache_runtime_contract.py tests/unit/validation/test_evaluator_registry_contract.py tests/unit/validation/test_contractinvarianten_def676.py tests/unit/validation/test_contractconsistentie_def674.py tests/unit/validation/test_root_ssot_contract.py tests/unit/validation/test_rule_loader_failclosed.py tests/unit/validation/test_ruleset_transitions.py tests/unit/validation/test_validation_guard_failclosed.py -q -ra -p no:cacheprovider
+ERROR: file or directory not found: tests/unit/services/prompts tests/unit/validation/test_v2_golden_int_more.py tests/unit/validation/test_rule_runtime_matrix.py tests/unit/validation/test_rule_cache_runtime_contract.py tests/unit/validation/test_evaluator_registry_contract.py tests/unit/validation/test_contractinvarianten_def676.py tests/unit/validation/test_contractconsistentie_def674.py tests/unit/validation/test_root_ssot_contract.py tests/unit/validation/test_rule_loader_failclosed.py tests/unit/validation/test_ruleset_transitions.py tests/unit/validation/test_validation_guard_failclosed.py
+
+
+# exitstatus: 4

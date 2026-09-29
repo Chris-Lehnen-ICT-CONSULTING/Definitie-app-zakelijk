@@ -67,13 +67,31 @@ from services.interfaces import Definition
 # validatie heeft verkregen (contract domain.ess03.contract), of null. Geen
 # bestaande status of veld is van betekenis veranderd: SemVer-minor.
 #
-# 2.2.0 (DEF-768): additief uitgebreid met `ess05_assessment` — de volledige
+# 2.2.0 (DEF-771): additief — een deeluitkomst in rule_results (parts.status)
+# mag `not_evaluated` zijn. INT-02 levert zo bij ontbrekende kern of context
+# de exacte NE-melding als deeluitkomst (score en fingerprint null, geen
+# oordeel). Die NE-uitbreiding voegt geen veld toe en verandert geen bestaande
+# status van betekenis. Daarnaast beschrijft 2.2.0 de bestaande
+# INT-03-runtimevelden `assessment` en `signals` in rule_results['INT-03']
+# (DEF-772, integratie met main); andere regels dragen ze niet.
+#
+# 2.3.0 (DEF-835, additief): rule_results['INT-02'] mag dezelfde optionele
+# velden `assessment` (het INT-02-beoordelingsdocument, contract
+# def835-int02-assessment/1, of null) en `signals` (patroonlijst; leeshulp)
+# dragen als INT-03. Alleen deze twee regels; onbekende velden blijven overal
+# afgewezen. Geen bestaand veld of bestaande status is van betekenis
+# veranderd. Het actieve INT-02-record levert deze velden nog niet (O1); de
+# O2-evaluator decision_rule_assessment is geregistreerd maar niet actief.
+#
+# 2.4.0 (DEF-768): additief uitgebreid met `ess05_assessment` — de volledige
 # AI-onderscheidsbeoordeling (ESS-05) die de async wrapper voor exact deze
 # validatie heeft verkregen (contract domain.ess05.contract), of null — en
 # `ess05_actieve_buren`: de burenlijst (herkomst, bevestiging) waaraan die
 # beoordeling gebonden is, zodat opslag en herbinding zonder databaselookup
-# kunnen controleren. Geen veld is van betekenis veranderd: SemVer-minor.
-CONTRACT_VERSION = "2.2.0"
+# kunnen controleren. Geen veld is van betekenis veranderd: SemVer-minor. Op
+# de branch heette deze uitbreiding 2.2.0; bij de merge met main (die 2.2.0
+# en 2.3.0 al had gepubliceerd) is zij 2.4.0 geworden.
+CONTRACT_VERSION = "2.4.0"
 
 # DEF-621: de uitkomst van een validatie als geheel.
 #
@@ -178,7 +196,7 @@ class ValidationResult(TypedDict, total=False):
     # domain.ess03.contract), of None zonder beoordeling (geen term/tekst).
     ess03_assessment: NotRequired[dict[str, Any] | None]
 
-    # DEF-768 (2.2.0): de volledige AI-onderscheidsbeoordeling (ESS-05) en de
+    # DEF-768 (2.4.0): de volledige AI-onderscheidsbeoordeling (ESS-05) en de
     # actieve burenlijst waaraan zij gebonden is (domain.ess05.contract), of
     # None zonder beoordeling (geen term, tekst of context).
     ess05_assessment: NotRequired[dict[str, Any] | None]
@@ -252,7 +270,10 @@ class RuleResultPart(TypedDict):
     """
 
     id: str
-    status: Literal["pass", "fail", "review_required", "error", "not_applicable"]
+    # DEF-771 (2.2.0): ook `not_evaluated` — de reden zegt wat ontbreekt.
+    status: Literal[
+        "pass", "fail", "review_required", "not_evaluated", "error", "not_applicable"
+    ]
     evidence: str | None
     context_value: str | None
     field: str | None
@@ -275,6 +296,14 @@ class RuleResult(TypedDict):
     fingerprint: str | None
     parts: list[RuleResultPart]
     review: dict[str, Any] | None
+    # DEF-772 (beschreven in 2.2.0): rule_results['INT-03'] — het
+    # beoordelingsdocument (of None) en de vurende patronen (zoekhulp).
+    # DEF-835 (2.3.0): ook rule_results['INT-02'] — het document van
+    # def835-int02-assessment/1, alleen als het als actueel of historisch is
+    # aanvaard (anders None), en de recordpatronen op de actuele kern. Geen
+    # andere regel draagt deze velden.
+    assessment: NotRequired[dict[str, Any] | None]
+    signals: NotRequired[list[str]]
 
 
 class ReviewRequirement(TypedDict):

@@ -8,7 +8,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
@@ -18,9 +18,11 @@ from typing import Any, cast
 
 from services.ai.base_client import (
     AIClientError,
+    AIStructuredOutputUnsupportedError,
     AsyncAIClient,
     ChatMessage,
     ChatResponse,
+    response_schema_sha256,
 )
 from utils.cache import _cache, cache_gpt_call
 
@@ -152,6 +154,15 @@ class AsyncGPTClient:
         # omdat deze methode contractueel alleen de tekst teruggeeft. Geen
         # providerparameter, niet in de cachesleutel, niet naar de provider.
         response_hook = kwargs.pop("response_hook", None)
+        # DEF-836 P1 (opt-in): antwoordschema voor de providerclient. In de
+        # cachesleutel alleen als volgordegevoelige hash en alleen wanneer
+        # gezet, zodat sleutels van andere aanroepen gelijk blijven.
+        response_schema = kwargs.pop("response_schema", None)
+        schemasleutel = (
+            {"response_schema_sha256": response_schema_sha256(response_schema)}
+            if response_schema is not None
+            else {}
+        )
 
         # Check cache first
         if use_cache:
@@ -161,6 +172,7 @@ class AsyncGPTClient:
                 temperature=temperature,
                 max_tokens=max_tokens,
                 system_prompt=system_prompt,
+                **schemasleutel,
                 **kwargs,
             )
 
@@ -197,6 +209,7 @@ class AsyncGPTClient:
                 max_attempts=max_attempts,
                 max_retries=max_retries,
                 response_hook=response_hook,
+                response_schema=response_schema,
                 **kwargs,
             )
 
@@ -225,6 +238,7 @@ class AsyncGPTClient:
         max_attempts: int | None = None,
         max_retries: int | None = None,
         response_hook: Callable[[ChatResponse], None] | None = None,
+        response_schema: Mapping[str, Any] | None = None,
         **kwargs: Any,
     ) -> str:
         """Make API request with exponential backoff retries.
@@ -233,7 +247,8 @@ class AsyncGPTClient:
         retrylus tot dat aantal pogingen (1 = geen herhaling); ``max_retries``
         reist door naar de providerclient als SDK-retries per aanroep;
         ``response_hook`` ontvangt de volledige ``ChatResponse`` van de
-        geslaagde poging (correctieronde 3, F1). Zonder deze argumenten is
+        geslaagde poging (correctieronde 3, F1); ``response_schema`` reist
+        door naar de providerclient (DEF-836 P1). Zonder deze argumenten is
         het gedrag exact het bestaande.
         """
         last_error = None
@@ -245,6 +260,8 @@ class AsyncGPTClient:
         clientopties: dict[str, Any] = (
             {"max_retries": int(max_retries)} if max_retries is not None else {}
         )
+        if response_schema is not None:
+            clientopties["response_schema"] = response_schema
 
         for attempt in range(pogingen):
             try:
@@ -273,6 +290,10 @@ class AsyncGPTClient:
                 # naar Any resolvet (DEF-439). Weghalen zodra die resolutie gefixt is.
                 return cast(str, result)
 
+            except AIStructuredOutputUnsupportedError:
+                # DEF-836 P1: een configuratieweigering vóór verzending is
+                # blijvend; herhalen verandert niets.
+                raise
             except AIClientError as e:
                 last_error = e
                 if attempt < pogingen - 1:

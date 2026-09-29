@@ -1,0 +1,17 @@
+# DEF-835 Q1 F1-F3 GROEN — 2026-09-28T16:25:04Z
+$ git rev-parse HEAD
+f9bb9e6973926a3cf768995f5d879f6edfd6322d
+$ git diff --stat HEAD
+ scripts/analysis/def835_int02_modelproef.py        | 1184 +++++++++++++++++-
+ .../validation/test_def835_int02_modelproef.py     | 1287 ++++++++++++++++++++
+ 2 files changed, 2414 insertions(+), 57 deletions(-)
+$ shasum -a 256 (doelbestanden)
+af59b9e0e2d86d29442a4e17865f8dc42c272ba11cb30e4fcd9ea3f5962373ab  scripts/analysis/def835_int02_modelproef.py
+111a4ef8b478bc8557806904929426bf2936cac03ca912912cd4f94de81e7eb3  tests/unit/validation/test_def835_int02_modelproef.py
+2f50c456756614cc35e78b81f57f4c8afc748b79d4cfcd6da053306e6c8fd7a7  tests/fixtures/def835_int02_kwalificatie_runner.json
+$ env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 .venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -o addopts= -q -ra -p no:cacheprovider
+........................................................................ [ 42%]
+........................................................................ [ 84%]
+...........................                                              [100%]
+171 passed in 28.78s
+exit=0

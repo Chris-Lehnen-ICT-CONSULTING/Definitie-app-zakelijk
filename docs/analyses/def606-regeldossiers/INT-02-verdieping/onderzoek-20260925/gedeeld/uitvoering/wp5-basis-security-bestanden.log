@@ -1,0 +1,98 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0 -- /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python3.13
+cachedir: .pytest_cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+Using --randomly-seed=2523026766
+rootdir: /private/tmp/def771-wp1-basis-1790361228
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, randomly-4.1.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 44 items
+
+tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityMiddleware::test_async_security_pipeline PASSED [  2%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityMiddleware::test_malicious_request_detection_async PASSED [  4%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityMiddleware::test_rate_limiting_async PASSED [  6%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityMiddleware::test_concurrent_request_validation PASSED [  9%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityMiddleware::test_async_request_validation_performance PASSED [ 11%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncRateLimiting::test_distributed_rate_limiting PASSED [ 13%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncRateLimiting::test_burst_protection PASSED [ 15%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityDecorator::test_async_security_decorator PASSED [ 18%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityIntegration::test_async_security_error_handling PASSED [ 20%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityIntegration::test_async_security_with_caching PASSED [ 22%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityPerformance::test_high_concurrency_security PASSED [ 25%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncSecurityPerformance::test_security_latency_distribution PASSED [ 27%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncThreatDetection::test_concurrent_threat_detection PASSED [ 29%]
+tests/unit/test_async_security_comprehensive.py::TestAsyncThreatDetection::test_adaptive_threat_response PASSED [ 31%]
+tests/integration/security/test_security_comprehensive.py::TestContentSanitizer::test_sanitization_performance PASSED [ 34%]
+tests/integration/security/test_security_comprehensive.py::TestContentSanitizer::test_dutch_text_sanitization PASSED [ 36%]
+tests/integration/security/test_security_comprehensive.py::TestContentSanitizer::test_sanitizer_initialization PASSED [ 38%]
+tests/integration/security/test_security_comprehensive.py::TestContentSanitizer::test_government_term_sanitization PASSED [ 40%]
+tests/integration/security/test_security_comprehensive.py::TestContentSanitizer::test_sanitization_statistics PASSED [ 43%]
+tests/integration/security/test_security_comprehensive.py::TestContentSanitizer::test_sql_injection_sanitization PASSED [ 45%]
+tests/integration/security/test_security_comprehensive.py::TestContentSanitizer::test_xss_sanitization PASSED [ 47%]
+tests/integration/security/test_security_comprehensive.py::TestContentSanitizer::test_user_input_sanitization PASSED [ 50%]
+tests/integration/security/test_security_comprehensive.py::TestContentSanitizer::test_malicious_content_detection PASSED [ 52%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityMiddleware::test_ip_blocking PASSED [ 54%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityMiddleware::test_security_report_generation PASSED [ 56%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityMiddleware::test_security_log_export PASSED [ 59%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityMiddleware::test_normal_request_validation PASSED [ 61%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityMiddleware::test_rate_limiting PASSED [ 63%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityMiddleware::test_security_middleware_initialization PASSED [ 65%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityMiddleware::test_xss_attack_detection PASSED [ 68%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityMiddleware::test_sql_injection_detection PASSED [ 70%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityIntegration::test_generation_route_sanitizes_adversarial_request PASSED [ 72%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityIntegration::test_global_security_middleware PASSED [ 75%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityIntegration::test_complete_security_pipeline PASSED [ 77%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityIntegration::test_convenience_functions PASSED [ 79%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityIntegration::test_security_decorator FAILED [ 81%]
+tests/integration/security/test_security_comprehensive.py::TestInputValidation::test_boundary_validation PASSED [ 84%]
+tests/integration/security/test_security_comprehensive.py::TestInputValidation::test_definition_input_validation PASSED [ 86%]
+tests/integration/security/test_security_comprehensive.py::TestInputValidation::test_validator_initialization PASSED [ 88%]
+tests/integration/security/test_security_comprehensive.py::TestInputValidation::test_schema_validation PASSED [ 90%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityPerformance::test_security_validation_performance PASSED [ 93%]
+tests/integration/security/test_security_comprehensive.py::TestSecurityPerformance::test_sanitization_performance PASSED [ 95%]
+tests/integration/security/test_security_comprehensive.py::TestDefaultSanitizationPolicyAdvisory::test_default_sanitize_content_strips_script FAILED [ 97%]
+tests/integration/security/test_security_comprehensive.py::TestDefaultSanitizationPolicyAdvisory::test_default_user_input_strips_script_and_iframe FAILED [100%]
+
+=================================== FAILURES ===================================
+_______________ TestSecurityIntegration.test_security_decorator ________________
+tests/integration/security/test_security_comprehensive.py:519: in test_security_decorator
+    result = asyncio.run(test_function(safe_data))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py:196: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py:119: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py:726: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+src/security/security_middleware.py:636: in wrapper
+    raise ValueError(msg)
+E   ValueError: Security validation failed: IP address is blocked
+_ TestDefaultSanitizationPolicyAdvisory.test_default_sanitize_content_strips_script _
+tests/integration/security/test_security_comprehensive.py:672: in test_default_sanitize_content_strips_script
+    assert "<script>" not in result
+E   AssertionError: assert '<script>' not in '<script>alert(1)</script>'
+E     
+E     '<script>' is contained here:
+E       <script>alert(1)</script>
+E     ? ++++++++
+_ TestDefaultSanitizationPolicyAdvisory.test_default_user_input_strips_script_and_iframe _
+tests/integration/security/test_security_comprehensive.py:665: in test_default_user_input_strips_script_and_iframe
+    assert "<script" not in sanitized_data["begrip"].lower()
+E   AssertionError: assert '<script' not in 'test<script...(1)</script>'
+E     
+E     '<script' is contained here:
+E       test<script>alert(1)</script>
+E     ?    +++++++
+=========================== short test summary info ============================
+FAILED tests/integration/security/test_security_comprehensive.py::TestSecurityIntegration::test_security_decorator
+FAILED tests/integration/security/test_security_comprehensive.py::TestDefaultSanitizationPolicyAdvisory::test_default_sanitize_content_strips_script
+FAILED tests/integration/security/test_security_comprehensive.py::TestDefaultSanitizationPolicyAdvisory::test_default_user_input_strips_script_and_iframe
+========================= 3 failed, 41 passed in 0.98s =========================
+EXITSTATUS=1

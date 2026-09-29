@@ -1,0 +1,414 @@
+{
+  "contract": "def835-int02-assessment/1",
+  "norm": "def771-int02/2",
+  "gebruik": "Ontwikkel- en regressiegevallen voor het contractgedrag (DEF-835 WP1). Geen goldset en geen hold-out. De modelresponsen zijn handmatig ingevuld om contractgedrag te toetsen; zij zijn geen goldlabel en bewijzen niet dat een model de juiste functie kiest.",
+  "labelregel": "Een betekenisafhankelijk referentielabel geldt alleen voor de exacte kern met de hier vastgelegde bedoeling en context (register v5: referentieoordelen voor voorschrift/discretie zijn conditioneel). Een label op de verkorte casuszin alleen is geen algemene labelclaim.",
+  "bronbasis": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/",
+  "bronbestanden": {
+    "gedeeld/gezamenlijk-casusregister-v5.md": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734",
+    "gedeeld/gezamenlijke-synthese-v5.md": "cc0c89007c39f67aa25fadc9ed22910ad285a140e077189517c666d8dd9ee9b3",
+    "a-claude-cli/bewijs/p1-invoer.json": "1dfcb7ebc12f14c17f98eaa397527f8a0710119204db537bbaa8f368b91aca49",
+    "b-codex-cli/bewijs/proeven-b-v1.py": "ab96c3a1243cdb385d311ad05099adfbc970fd3012e43c28e49aabf864c6a503",
+    "c-codex-app/bewijs/proefopzet-v1.json": "ec6b1ff8179ed554ed4d034020b3541e2126a7e0bc41cc9b6b496aed0d50b553",
+    "c-codex-app/casusregister-c-v1.md": "72325dcc5558c3c129b4b145284a8d4d41eacbeef26fdeb97efa39278f6b8b12"
+  },
+  "gevallen": [
+    {
+      "id": "C06",
+      "herkomst": "a-claude-cli/bewijs/p1-invoer.json, id INT02-C06 (begrip, tekst en context exact); register v5 rij C06",
+      "aanvullingen": [],
+      "referentie": "NE (geen kern). De A-P1-invoer heeft ook geen context, dus beide ontbreken.",
+      "invoer": {
+        "begrip": "leeg",
+        "kern": "",
+        "bedoeling": null,
+        "organisatorische_context": [],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "not_executed", "foutcategorie": null},
+      "modelrespons": null,
+      "verwacht": {"status": "not_evaluated", "reden": null, "ontbreekt": "kern en context"}
+    },
+    {
+      "id": "C23",
+      "herkomst": "a-claude-cli/bewijs/p1-invoer.json, id INT02-C23 (begrip, tekst en context exact); register v5 rij C23",
+      "aanvullingen": [],
+      "referentie": "NE: alleen een termlabel, geen kern. De A-P1-invoer heeft ook geen context.",
+      "invoer": {
+        "begrip": "toegang",
+        "kern": "Toegang:",
+        "bedoeling": null,
+        "organisatorische_context": [],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "not_executed", "foutcategorie": null},
+      "modelrespons": null,
+      "verwacht": {"status": "not_evaluated", "reden": null, "ontbreekt": "kern en context"}
+    },
+    {
+      "id": "C56",
+      "herkomst": "b-codex-cli/bewijs/proeven-b-v1.py regel 28, INT02-C56 (begrip, tekst en lege context exact); register v5 rij C56",
+      "aanvullingen": [],
+      "referentie": "NE gewenst (K-9): context ontbreekt.",
+      "invoer": {
+        "begrip": "stelselmatige dader",
+        "kern": "Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+        "bedoeling": null,
+        "organisatorische_context": [],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "not_executed", "foutcategorie": null},
+      "modelrespons": null,
+      "verwacht": {"status": "not_evaluated", "reden": null, "ontbreekt": "context"}
+    },
+    {
+      "id": "C105",
+      "herkomst": "c-codex-app/bewijs/proefopzet-v1.json, gevallen INT02-C105 (term, tekst, organisatorische context en bedoeling exact); register v5 rij C105",
+      "aanvullingen": [],
+      "referentie": "N-breed VN op functie uit de bevestigde bedoeling 'opdracht aan medewerker'; nul signaalwoorden.",
+      "invoer": {
+        "begrip": "toelating",
+        "kern": "De medewerker laat de aanvrager toe.",
+        "bedoeling": "opdracht aan medewerker",
+        "organisatorische_context": ["synthetische procedure"],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "completed", "foutcategorie": null},
+      "modelrespons": {
+        "verdict": "fail",
+        "passages": [
+          {
+            "quote": "De medewerker laat de aanvrager toe.",
+            "start": 0,
+            "end": 36,
+            "function": "actor_prescription",
+            "ground": {"field": "bedoeling", "ref": null, "quote": "opdracht aan medewerker", "start": 0, "end": 23}
+          }
+        ],
+        "reason": "De kern schrijft een medewerker voor de aanvrager toe te laten in plaats van het begrip af te bakenen.",
+        "question": null,
+        "uncertainty": "none",
+        "scope_reason": null,
+        "coverage": "complete"
+      },
+      "verwacht": {"status": "fail", "reden": null}
+    },
+    {
+      "id": "C107",
+      "herkomst": "c-codex-app/casusregister-c-v1.md rij INT02-C107 (tekst exact); register v5 rij C107",
+      "aanvullingen": [
+        "begrip 'voldoende onderbouwde aanvraag' is een ontwerpaanvulling (bron noemt geen term)",
+        "organisatorische context 'synthetische begrippenstudie' is een ontwerpaanvulling (bron noemt geen context)",
+        "bedoeling expliciet onbekend: het label O geldt voor de lezing met onduidelijke functie; bij bevestigd opdrachtkarakter zou het VN zijn, bij bevestigd kenmerk geen afkeur op de woorden"
+      ],
+      "referentie": "O bij onduidelijke functie van het constitutieve oordeel; geen verzonnen numerieke grens.",
+      "invoer": {
+        "begrip": "voldoende onderbouwde aanvraag",
+        "kern": "Aanvraag die naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is.",
+        "bedoeling": null,
+        "organisatorische_context": ["synthetische begrippenstudie"],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "completed", "foutcategorie": null},
+      "modelrespons": {
+        "verdict": "insufficient_information",
+        "passages": [
+          {
+            "quote": "naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd",
+            "start": 13,
+            "end": 82,
+            "function": "unclear",
+            "ground": {"field": "kern", "ref": null, "quote": null, "start": null, "end": null}
+          }
+        ],
+        "reason": "De bedoeling is onbekend; uit de kern blijkt niet of het oordeel een kenmerk van de aanvraag beschrijft of de beoordelaar een afweging voorschrijft.",
+        "question": "Beschrijft het gemotiveerde oordeel van de beoordelaar een kenmerk van de aanvraag, of schrijft de definitie de beoordelaar voor hoe hij moet afwegen?",
+        "uncertainty": "decisive",
+        "scope_reason": null,
+        "coverage": "complete"
+      },
+      "verwacht": {"status": "review_required", "reden": "insufficient_information"}
+    },
+    {
+      "id": "C112",
+      "herkomst": "c-codex-app/casusregister-c-v1.md rij INT02-C112 (tekst en bedoeling exact); register v5 rij C112",
+      "aanvullingen": [
+        "begrip 'verplichting' is een ontwerpaanvulling",
+        "organisatorische context 'synthetische begrippenstudie' is een ontwerpaanvulling"
+      ],
+      "referentie": "V bij beschrijvende bedoeling: definitie van een normatieve zaak is geen gedragsopdracht.",
+      "invoer": {
+        "begrip": "verplichting",
+        "kern": "Verplichting van een partij om de overeengekomen prestatie te verrichten.",
+        "bedoeling": "Synthetische beschrijving van verplichting zelf",
+        "organisatorische_context": ["synthetische begrippenstudie"],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "completed", "foutcategorie": null},
+      "modelrespons": {
+        "verdict": "pass",
+        "passages": [
+          {
+            "quote": "Verplichting van een partij om de overeengekomen prestatie te verrichten",
+            "start": 0,
+            "end": 72,
+            "function": "criterion",
+            "ground": {"field": "bedoeling", "ref": null, "quote": "Synthetische beschrijving van verplichting zelf", "start": 0, "end": 47}
+          }
+        ],
+        "reason": "De kern beschrijft wat een verplichting is; zij draagt niemand op de prestatie te verrichten.",
+        "question": null,
+        "uncertainty": "none",
+        "scope_reason": null,
+        "coverage": "complete"
+      },
+      "verwacht": {"status": "pass", "reden": null}
+    },
+    {
+      "id": "C115",
+      "herkomst": "c-codex-app/casusregister-c-v1.md rij INT02-C115 (tekst exact; bedoeling uit 'Bedoeld is uitsluitend noodzakelijke voorwaarde, voldoende voorwaarden onbekend'); register v5 rij C115",
+      "aanvullingen": [
+        "begrip 'toegelaten lid' is een ontwerpaanvulling",
+        "organisatorische context 'synthetische begrippenstudie' is een ontwerpaanvulling"
+      ],
+      "referentie": "Geen VN wegens 'alleen als'; bij de bevestigde bedoeling als noodzakelijke voorwaarde een begripscriterium. Volledigheid is ESS-05/STR-04, niet INT-02.",
+      "invoer": {
+        "begrip": "toegelaten lid",
+        "kern": "Een lid is toegelaten alleen als de bijdrage betaald is.",
+        "bedoeling": "uitsluitend noodzakelijke voorwaarde, voldoende voorwaarden onbekend",
+        "organisatorische_context": ["synthetische begrippenstudie"],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "completed", "foutcategorie": null},
+      "modelrespons": {
+        "verdict": "pass",
+        "passages": [
+          {
+            "quote": "alleen als de bijdrage betaald is",
+            "start": 22,
+            "end": 55,
+            "function": "criterion",
+            "ground": {"field": "bedoeling", "ref": null, "quote": "uitsluitend noodzakelijke voorwaarde, voldoende voorwaarden onbekend", "start": 0, "end": 68}
+          }
+        ],
+        "reason": "De passage noemt een noodzakelijke voorwaarde voor lidmaatschap van de klasse toegelaten leden.",
+        "question": null,
+        "uncertainty": "none",
+        "scope_reason": null,
+        "coverage": "complete"
+      },
+      "verwacht": {"status": "pass", "reden": null}
+    },
+    {
+      "id": "C116",
+      "herkomst": "c-codex-app/casusregister-c-v1.md rij INT02-C116 (tekst exact; bedoeling uit 'Bedoeld afgeleid feit; berekening definieert de grootheid, niet een werkinstructie'); register v5 rij C116",
+      "aanvullingen": [
+        "begrip 'dagtotaal' is een ontwerpaanvulling",
+        "organisatorische context 'synthetische begrippenstudie' is een ontwerpaanvulling"
+      ],
+      "referentie": "V: deterministische afleiding van een afgeleide grootheid; geen 'niet van toepassing'.",
+      "invoer": {
+        "begrip": "dagtotaal",
+        "kern": "Dagtotaal dat gelijk is aan de som van de bedragen van de verkopen op die dag.",
+        "bedoeling": "afgeleid feit; berekening definieert de grootheid, niet een werkinstructie",
+        "organisatorische_context": ["synthetische begrippenstudie"],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "completed", "foutcategorie": null},
+      "modelrespons": {
+        "verdict": "pass",
+        "passages": [
+          {
+            "quote": "gelijk is aan de som van de bedragen van de verkopen op die dag",
+            "start": 14,
+            "end": 77,
+            "function": "derivation",
+            "ground": {"field": "bedoeling", "ref": null, "quote": "afgeleid feit; berekening definieert de grootheid, niet een werkinstructie", "start": 0, "end": 74}
+          }
+        ],
+        "reason": "De passage leidt de grootheid deterministisch af uit de verkopen op die dag.",
+        "question": null,
+        "uncertainty": "none",
+        "scope_reason": null,
+        "coverage": "complete"
+      },
+      "verwacht": {"status": "pass", "reden": null}
+    },
+    {
+      "id": "C117",
+      "variant": "verzonnen-citaat",
+      "herkomst": "invoer: c-codex-app/bewijs/proefopzet-v1.json, gevallen INT02-C100 (term, tekst, organisatorische context en bedoeling exact); scenario: casusregister-c-v1.md rij INT02-C117; register v5 rij C117",
+      "aanvullingen": ["de modelrespons met het niet-bestaande citaat 'twee maal wegens een misdrijf' is een ontwerpaanvulling"],
+      "referentie": "E: citaat staat niet in de invoer; geen V/VN/O, geen herstelmodelcall.",
+      "invoer": {
+        "begrip": "stelselmatige dader",
+        "kern": "Persoon die stelselmatige dader is op een dag indien die persoon in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+        "bedoeling": "deterministische afleiding, naar ASTRA; geen actueel recht",
+        "organisatorische_context": ["synthetische begrippenstudie"],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "completed", "foutcategorie": null},
+      "modelrespons": {
+        "verdict": "pass",
+        "passages": [
+          {
+            "quote": "twee maal wegens een misdrijf",
+            "start": 125,
+            "end": 154,
+            "function": "derivation",
+            "ground": {"field": "bedoeling", "ref": null, "quote": null, "start": null, "end": null}
+          }
+        ],
+        "reason": "Afleiding uit het aantal veroordelingen.",
+        "question": null,
+        "uncertainty": "none",
+        "scope_reason": null,
+        "coverage": "complete"
+      },
+      "verwacht": {"status": "error", "reden": null, "foutcategorie": "invalid_citation"}
+    },
+    {
+      "id": "C117",
+      "variant": "timeout",
+      "herkomst": "invoer: c-codex-app/bewijs/proefopzet-v1.json, gevallen INT02-C100; scenario: casusregister-c-v1.md rij INT02-C117 ('of een timeout'); register v5 rij C117",
+      "aanvullingen": [],
+      "referentie": "E: technische fout zonder inhoudelijk oordeel.",
+      "invoer": {
+        "begrip": "stelselmatige dader",
+        "kern": "Persoon die stelselmatige dader is op een dag indien die persoon in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+        "bedoeling": "deterministische afleiding, naar ASTRA; geen actueel recht",
+        "organisatorische_context": ["synthetische begrippenstudie"],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "failed", "foutcategorie": "timeout"},
+      "modelrespons": null,
+      "verwacht": {"status": "error", "reden": null, "foutcategorie": "timeout"}
+    },
+    {
+      "id": "C101",
+      "herkomst": "c-codex-app/bewijs/proefopzet-v1.json, gevallen INT02-C101 (term, tekst, organisatorische context en bedoeling exact); register v5 rij C101. Aanvullend ontwerpgeval voor de discretievariant van de VN-melding.",
+      "aanvullingen": [],
+      "referentie": "VN onder beide varianten bij de premisse 'discretionair handelingsvoorschrift'; niet alleen wegens 'tenzij'.",
+      "invoer": {
+        "begrip": "weigering",
+        "kern": "De autoriteit weigert het document, tenzij hij van oordeel is dat de aanvrager onevenredig wordt benadeeld.",
+        "bedoeling": "discretionair handelingsvoorschrift, verkorte ASTRA-Ppw-illustratie",
+        "organisatorische_context": ["synthetische begrippenstudie"],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "uitvoering": {"actor": "ai", "status": "completed", "foutcategorie": null},
+      "modelrespons": {
+        "verdict": "fail",
+        "passages": [
+          {
+            "quote": "tenzij hij van oordeel is dat de aanvrager onevenredig wordt benadeeld",
+            "start": 36,
+            "end": 106,
+            "function": "discretionary_decision_rule",
+            "ground": {"field": "bedoeling", "ref": null, "quote": "discretionair handelingsvoorschrift, verkorte ASTRA-Ppw-illustratie", "start": 0, "end": 67}
+          }
+        ],
+        "reason": "De passage laat de weigering afhangen van een afweging van de autoriteit.",
+        "question": null,
+        "uncertainty": "none",
+        "scope_reason": null,
+        "coverage": "complete"
+      },
+      "verwacht": {"status": "fail", "reden": null}
+    },
+    {
+      "id": "C118",
+      "herkomst": "scenario: casusregister-c-v1.md rij INT02-C118; versie 1 = tekst C106 (casusregister-c-v1.md rij INT02-C106, eerste tekst van het paar); versie 2 = C102 uit c-codex-app/bewijs/proefopzet-v1.json (term, tekst, context en bedoeling exact); register v5 rij C118",
+      "aanvullingen": [
+        "begrip 'even getal' en organisatorische context 'synthetische begrippenstudie' van versie 1 zijn ontwerpaanvullingen",
+        "bedoeling van versie 1 uit 'Paar met expliciet bevestigde equivalentie op gehele getallen'"
+      ],
+      "referentie": "Oud V voor versie 1 niet toepassen op versie 2; opnieuw beoordelen. Recordidentiteit is geen tekstidentiteit.",
+      "versies": [
+        {
+          "invoer": {
+            "begrip": "even getal",
+            "kern": "Geheel getal dat even is dan en slechts dan als het zonder rest door twee deelbaar is.",
+            "bedoeling": "expliciet bevestigde equivalentie op gehele getallen",
+            "organisatorische_context": ["synthetische begrippenstudie"],
+            "juridische_context": [],
+            "wettelijke_basis": [],
+            "bronnen": []
+          },
+          "uitvoering": {"actor": "human", "status": "completed", "foutcategorie": null},
+          "modelrespons": {
+            "verdict": "pass",
+            "passages": [
+              {
+                "quote": "dan en slechts dan als het zonder rest door twee deelbaar is",
+                "start": 25,
+                "end": 85,
+                "function": "criterion",
+                "ground": {"field": "bedoeling", "ref": null, "quote": "expliciet bevestigde equivalentie op gehele getallen", "start": 0, "end": 52}
+              }
+            ],
+            "reason": "De passage bakent de klasse af met een noodzakelijk en voldoende criterium.",
+            "question": null,
+            "uncertainty": "none",
+            "scope_reason": null,
+            "coverage": "complete"
+          },
+          "verwacht": {"status": "pass", "reden": null}
+        },
+        {
+          "invoer": {
+            "begrip": "afwijzing",
+            "kern": "De medewerker wijst de aanvraag af indien de bijlage ontbreekt.",
+            "bedoeling": "gebonden handelingsvoorschrift zonder discretionaire afweging",
+            "organisatorische_context": ["synthetische procedure"],
+            "juridische_context": [],
+            "wettelijke_basis": [],
+            "bronnen": []
+          },
+          "uitvoering": {"actor": "ai", "status": "completed", "foutcategorie": null},
+          "modelrespons": {
+            "verdict": "fail",
+            "passages": [
+              {
+                "quote": "De medewerker wijst de aanvraag af indien de bijlage ontbreekt.",
+                "start": 0,
+                "end": 63,
+                "function": "actor_prescription",
+                "ground": {"field": "bedoeling", "ref": null, "quote": "gebonden handelingsvoorschrift zonder discretionaire afweging", "start": 0, "end": 61}
+              }
+            ],
+            "reason": "De kern draagt de medewerker een gebonden handeling op.",
+            "question": null,
+            "uncertainty": "none",
+            "scope_reason": null,
+            "coverage": "complete"
+          },
+          "verwacht": {"status": "fail", "reden": null}
+        }
+      ],
+      "verwacht_replay": {"status": "review_required", "reden": "historical"}
+    }
+  ]
+}

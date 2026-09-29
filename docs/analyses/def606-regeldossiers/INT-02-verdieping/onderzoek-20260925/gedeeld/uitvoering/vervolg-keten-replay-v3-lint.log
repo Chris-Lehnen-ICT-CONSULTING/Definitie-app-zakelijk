@@ -1,0 +1,13 @@
+$ ruff check docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-replay-v3.py
+All checks passed!
+exit=0
+$ black --check docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-replay-v3.py
+All done! ✨ 🍰 ✨
+1 file would be left unchanged.
+exit=0
+$ omvang v2→v3
+v1 code 273 v2 code 288 toegevoegd 21 verwijderd 6
+fysieke regels:      333
+$ diff --stat-achtig
+31
+7

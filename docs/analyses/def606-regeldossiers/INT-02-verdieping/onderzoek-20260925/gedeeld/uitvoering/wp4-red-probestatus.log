@@ -1,0 +1,6 @@
+$ .venv/bin/python docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp4-probestatus.py
+probe: {'begrip': 'korting', 'tekst': 'korting: verlaging indien tijdig betaald'}
+status: not_evaluated
+review_required: []
+rule_results: [{'id': 'invoer', 'status': 'not_evaluated', 'evidence': None, 'context_value': None, 'field': None, 'position': None, 'reason': 'INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.', 'action': 'Lever de ontbrekende context aan en toets opnieuw.'}]
+exit=0

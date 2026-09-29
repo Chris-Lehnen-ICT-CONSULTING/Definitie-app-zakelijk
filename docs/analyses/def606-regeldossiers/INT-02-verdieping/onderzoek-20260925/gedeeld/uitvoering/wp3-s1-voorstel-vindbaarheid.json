@@ -1,0 +1,64 @@
+{
+  "status": "voorstel, niet geïmplementeerd",
+  "patronen": {
+    "van oordeel is": "\\bvan\\s+oordeel\\s+is\\b",
+    "naar eigen inzicht": "\\bnaar\\s+eigen\\s+inzicht\\b",
+    "redelijk acht": "\\bredelijk\\s+acht\\b",
+    "kan … besluiten": "\\bkan\\b[^.!?;\\n]*\\bbesluiten\\b",
+    "moet": "\\bmoet\\b",
+    "dient te": "\\bdient\\s+te\\b"
+  },
+  "uitkomsten": [
+    {
+      "id": "INT02-C02",
+      "tekst": "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "s1_treffers": [
+        "moet"
+      ]
+    },
+    {
+      "id": "INT02-C13",
+      "tekst": "besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.",
+      "s1_treffers": []
+    },
+    {
+      "id": "C83",
+      "tekst": "passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht",
+      "s1_treffers": [
+        "naar eigen inzicht",
+        "redelijk acht"
+      ]
+    },
+    {
+      "id": "C59",
+      "tekst": "beslisregel: Algoritme waarvoor oordeelsvorming nodig is.",
+      "s1_treffers": []
+    },
+    {
+      "id": "C105",
+      "tekst": "De medewerker laat de aanvrager toe.",
+      "s1_treffers": []
+    },
+    {
+      "id": "S1-BESCHRIJVING",
+      "tekst": "Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is.",
+      "s1_treffers": [
+        "naar eigen inzicht",
+        "kan … besluiten"
+      ]
+    },
+    {
+      "id": "S1-PLICHTBEGRIP",
+      "tekst": "Verplichting die een partij moet nakomen.",
+      "s1_treffers": [
+        "moet"
+      ]
+    },
+    {
+      "id": "S1-FUNCTIE",
+      "tekst": "Voorwerp dat dient als ondersteuning.",
+      "s1_treffers": []
+    }
+  ],
+  "grens": "alleen regexvindbaarheid; geen normuitkomst of evaluatorbewijs"
+}

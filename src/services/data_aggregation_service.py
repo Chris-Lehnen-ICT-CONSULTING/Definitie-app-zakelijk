@@ -6,6 +6,7 @@ Dit elimineert de directe afhankelijkheid van services op UI session state.
 """
 
 import logging
+from collections.abc import Callable
 from copy import deepcopy
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -13,6 +14,8 @@ from typing import Any
 
 from database.definitie_repository import DefinitieRecord, DefinitieRepository
 from database.models import splits_definitietekst
+from domain.int03.contract import Beoordelingsbinding as Int03Binding
+from domain.int03.opslag import exportdocument as int03_exportdocument
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +38,14 @@ _CONTRACT_METADATA: tuple[str, ...] = (
     "peildatum",
 )
 _CONTRACT_CONTEXT: tuple[str, ...] = ("organisatorisch", "juridisch", "wettelijk")
+
+#: DEF-772: de contextlijsten van de uitvoer (`context_dict`) onder de
+#: contractsleutels waaraan de INT-03-beoordeling is gebonden.
+_INT03_CONTEXTVELDEN: dict[str, str] = {
+    "organisatorische_context": "organisatorisch",
+    "juridische_context": "juridisch",
+    "wettelijke_basis": "wettelijk",
+}
 
 #: Sleutels van het exporteerbare bronbewijs (DEF-743 §5 persistentiecontract).
 _BRONBEWIJS_LEEG: dict[str, Any] = {
@@ -269,6 +280,11 @@ class DefinitieExportData:
     # binding aan kern en versie) met `applied`; None = niet opgeslagen.
     int01_beoordeling: dict[str, Any] | None = None
 
+    # DEF-772: de opgeslagen INT-03-beoordeling als gestructureerde
+    # exportuitkomst (replay met actuele binding, `applied`, verwijzingen,
+    # herkomst, volledig document); None = niet opgeslagen (nooit stil pass).
+    int03_beoordeling: dict[str, Any] | None = None
+
     # Technische metadata
     marker: str | None = None
     prompt_text: str | None = None
@@ -288,10 +304,90 @@ class DataAggregationService:
     Zonder directe afhankelijkheid van UI session state.
     """
 
-    def __init__(self, repository: DefinitieRepository):
-        """Initialiseer data aggregation service."""
+    def __init__(
+        self,
+        repository: DefinitieRepository,
+        *,
+        int03_binding: Int03Binding | Callable[[], Int03Binding | None] | None = None,
+    ):
+        """Initialiseer data aggregation service.
+
+        Args:
+            repository: de definitierepository.
+            int03_binding: DEF-772 — de actuele INT-03-beoordelingsbinding
+                (promptversie, norm, provider/model) waaraan de export de
+                opgeslagen beoordeling bindt, als waarde of als lazy
+                resolver. `None` = bepaal haar uit code, regelrecord en
+                configuratie (`int03_assessment_service.actuele_binding`).
+        """
         self.repository = repository
+        self._int03_binding = int03_binding
         logger.info("DataAggregationService geïnitialiseerd")
+
+    def _int03_bindingswaarde(self) -> Int03Binding | None:
+        """De actuele INT-03-binding voor de replay; None = onbekend (de replay
+        benoemt dat en past geen opgeslagen beoordeling toe)."""
+        binding = self._int03_binding
+        if binding is None:
+            from services.validation.int03_assessment_service import actuele_binding
+
+            return actuele_binding()
+        if callable(binding):
+            try:
+                return binding()
+            except Exception as exc:
+                logger.warning(
+                    "INT-03-beoordelingsbinding voor export niet beschikbaar: %s",
+                    type(exc).__name__,
+                )
+                return None
+        return binding
+
+    def _int03_exportdocument(
+        self, definitie_record: DefinitieRecord, export_data: DefinitieExportData
+    ) -> dict[str, Any] | None:
+        """De opgeslagen INT-03-beoordeling, herbonden aan exact de kandidaat
+        die de export draagt en aan de actuele binding.
+
+        Ná de definitieve samenstelling (review v1): begrip, de geëxporteerde
+        tekst (`definitie_aangepast` als die er is — zoals ook de validatiegate
+        haar toetst —, anders `definitie_origineel`), de drie contextlijsten
+        van de uitvoer en de uiteindelijke toelichting (`explanation`,
+        aanvullende data of expliciet leeg). Wijkt die kandidaat af van de
+        beoordeelde, dan is de beoordeling zichtbaar historisch; het document
+        blijft als bewijs in de uitvoer en op het record.
+        """
+        document = definitie_record.get_int03_assessment()
+        if not isinstance(document, dict):
+            return None  # afwezig, of geen echt record (vervanger in tests)
+        historie = definitie_record.get_int03_assessment_history()
+        tekstveld = (
+            "definitie_aangepast"
+            if export_data.definitie_aangepast
+            else "definitie_origineel"
+        )
+        context = export_data.context_dict
+        toelichting = export_data.toelichting
+        return int03_exportdocument(
+            export_data.begrip or "",
+            getattr(export_data, tekstveld) or "",
+            {
+                contract: list(
+                    (context.get(uitvoer) if isinstance(context, dict) else None) or []
+                )
+                for contract, uitvoer in _INT03_CONTEXTVELDEN.items()
+            },
+            toelichting if isinstance(toelichting, str) else None,
+            assessment=document,
+            binding=self._int03_bindingswaarde(),
+            history_count=len(historie) if isinstance(historie, list) else 0,
+            kandidaatvelden={
+                "begrip": "begrip",
+                "text": tekstveld,
+                "toelichting": "toelichting",
+                "context": "context_dict",
+            },
+        )
 
     def aggregate_definitie_for_export(
         self,
@@ -412,6 +508,8 @@ class DataAggregationService:
                     export_data.bronnen = bronregels_uit_bewijs(export_data.bronbewijs)
                 # DEF-770: uitsluitend van het record, nooit uit aanvullende data.
                 export_data.int01_beoordeling = definitie_record.get_int01_beoordeling()
+                # DEF-772: de INT-03-replay volgt onderaan, ná de definitieve
+                # samenstelling van tekst, context en toelichting.
 
             # Timestamps
             export_data.created_at = definitie_record.created_at
@@ -495,6 +593,17 @@ class DataAggregationService:
                 export_data.toelichting = toelichting_aangepast
         if ingebedde_toelichting and not export_data.toelichting:
             export_data.toelichting = ingebedde_toelichting
+
+        # DEF-772 (review v1): de INT-03-actualiteit wordt pas nu bepaald —
+        # gebonden aan exact de kandidaat die de export draagt (begrip, tekst,
+        # context, uiteindelijke toelichting), nooit aan het record vóór
+        # aanvullende data. Uitsluitend van het record; aanvullende data kan
+        # het document niet vervangen, alleen de kandidaat waaraan het wordt
+        # herbonden.
+        if isinstance(definitie_record, DefinitieRecord):
+            export_data.int03_beoordeling = self._int03_exportdocument(
+                definitie_record, export_data
+            )
 
         logger.debug(f"Geaggregeerde export data voor begrip '{export_data.begrip}'")
         return export_data
@@ -670,6 +779,7 @@ class DataAggregationService:
             "expert_review": export_data.expert_review,
             "bronbewijs": export_data.bronbewijs,
             "int01_beoordeling": export_data.int01_beoordeling,  # DEF-770
+            "int03_beoordeling": export_data.int03_beoordeling,  # DEF-772
             "marker": export_data.marker,
             "prompt_text": export_data.prompt_text,
         }

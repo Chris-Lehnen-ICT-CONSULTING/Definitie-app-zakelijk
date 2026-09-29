@@ -1,0 +1,7 @@
+# Publicatiekopie schemaconsumentenlog — definitieve v2
+
+De normale secretscanner blokkeerde de eerste logcommit met twee generic-api-key-treffers in vervolg-schema-consumenten-v2.log, regels 24–25. Beide regels betreffen de synthetische test `test_orchestrator_returns_schema_compliant_degraded_result` (tests/integration/contracts/test_validation_degraded_contract.py:37): testbegrip authenticatie, correlatiemetadata en de opzettelijke fout boom uit FailingValidationService. Geen credentialincident aangetoond. De diagnose gebruikte dezelfde gepinde binary en configuratie en volledig geredigeerde scanneruitvoer.
+
+De eerste publicatiekopie schermde alleen de UUID af; de scanner meldde daarna nog één treffer op de combinatie van het woord authenticatie en de volgende veldnaam. Daarom zijn in de definitieve kopie vervolg-schema-consumenten-publicatie-v2.log uitsluitend de synthetische term en dezelfde vier correlatie-UUID-vermeldingen vervangen door [synthetisch testbegrip] respectievelijk [test-id]. De fout, testuitslagen en exitcode blijven ongewijzigd. De oorspronkelijke log en eerste kopie blijven lokaal behouden.
+
+Verwijzingen naar vervolg-schema-consumenten-v2.log in het uitvoerdersrapport horen in de PR bij deze definitieve publicatiekopie. Geen scannerconfiguratie, uitzondering of hook gewijzigd. De derde commitpoging gebruikt de normale controles. De eerste twee logcommitpogingen zijn geblokkeerd; er is geen bypass toegepast.

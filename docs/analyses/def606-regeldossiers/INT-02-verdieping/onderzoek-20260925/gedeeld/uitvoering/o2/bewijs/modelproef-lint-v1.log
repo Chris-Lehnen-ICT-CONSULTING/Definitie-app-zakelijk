@@ -1,0 +1,14 @@
+# DEF-835 modelproef LINT — 2026-09-28T09:46:30Z
+$ /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/black --check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py
+All done! ✨ 🍰 ✨
+2 files would be left unchanged.
+exit=0
+$ /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/ruff check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py   # ruff 0.15.17
+All checks passed!
+exit=0
+$ uvx ruff@0.16.5 check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py   # hookversie .pre-commit-config.yaml
+All checks passed!
+exit=0
+$ uvx ruff@0.16.5 format --check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py
+2 files already formatted
+exit=0 (informatief; de hook gebruikt black als formatter)

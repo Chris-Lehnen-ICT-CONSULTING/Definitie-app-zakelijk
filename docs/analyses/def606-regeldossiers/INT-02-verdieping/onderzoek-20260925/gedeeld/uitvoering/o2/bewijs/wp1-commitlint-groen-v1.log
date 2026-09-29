@@ -1,0 +1,29 @@
+# DEF-835 WP1 commitlint - GREEN (echte pre-commit ruff-hook, Black-check, WP1-testmodule)
+# tijdstip: 2026-09-26T21:50:13Z  werkboom: /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2
+# branch: feature/DEF-835-int02-o2  HEAD: 314b817aabcaaa9f5a00d74a7633155ec74b799c
+# pre-commit: pre-commit 4.3.0
+# SHA-256:
+#   7c581491801ded0b0ab20e46ef54c8c477d930480dc93dc1fbe40256e8e961cb  src/domain/int02/__init__.py
+#   4791cc0692dcc12981c6529b9a7446cce5f440cec72f9fc767f972dc19c39896  src/domain/int02/contract.py
+#   368401797e216de4cbcdb8373a9815e9d3f338b4116a485fe3c61971a14d7e97  tests/unit/domain/test_def835_int02_contract.py
+#   e18adb97279fa0fe75889df3541186c9341051c33348d1dd848526867239867d  tests/fixtures/def835_int02_ontwerpgevallen.json
+#   6e00cdef89c9d11680d80249ef3934ac53f08b39a1bbf4e7140b2eac18c32bf4  docs/architectuur/contracts/int02_assessment_contract_v1.md
+# LETTERLIJKE_MELDINGEN sha256: 6f221672472c213da1cd0819476b500510331d5399ac92e0b8b28a043497ec41 sleutels: ['fail-discretie', 'fail-handeling', 'pass'] (voor fix: 6f221672472c213da1cd0819476b500510331d5399ac92e0b8b28a043497ec41)
+# echte index sha256 (onaangeroerd): 61a5d6622e7604b3ffc31b8f116218fe4e0696547e88813fde23f22f9185cd2e
+# De fix staat niet-gestaged bovenop de gestagede versie. Om de echte index niet te wijzigen draait de hook met GIT_INDEX_FILE=/tmp/def835_tijdelijke_index (kopie van de echte index met alleen dit testbestand bijgewerkt), zodat pre-commit niets stasht en het actuele bestand toetst.
+# commando 1: GIT_INDEX_FILE=/tmp/def835_tijdelijke_index /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/pre-commit run ruff --files tests/unit/domain/test_def835_int02_contract.py
+# --- uitvoer 1 ---
+Ruff linting.............................................................Passed
+# exitcode 1: 0
+# commando 2: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m black --check src/domain/int02 tests/unit/domain/test_def835_int02_contract.py
+All done! ✨ 🍰 ✨
+3 files would be left unchanged.
+# exitcode 2: 0
+# commando 3: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/domain/test_def835_int02_contract.py -o addopts= -q -ra
+........................................................................ [ 40%]
+........................................................................ [ 81%]
+.................................                                        [100%]
+177 passed in 0.59s
+# exitcode 3: 0
+# testbestand na hook (ongewijzigd door --fix?): 368401797e216de4cbcdb8373a9815e9d3f338b4116a485fe3c61971a14d7e97  tests/unit/domain/test_def835_int02_contract.py
+# echte index na: 61a5d6622e7604b3ffc31b8f116218fe4e0696547e88813fde23f22f9185cd2e

@@ -1,0 +1,3142 @@
+diff --git a/scripts/analysis/def835_int02_modelproef.py b/scripts/analysis/def835_int02_modelproef.py
+index 323faba5d..24e5de32b 100644
+--- a/scripts/analysis/def835_int02_modelproef.py
++++ b/scripts/analysis/def835_int02_modelproef.py
+@@ -32,6 +32,17 @@ ze onbekend. Monitoring en cache van de keten
+ schrijven in een tijdelijke werkmap. Provider-foutteksten worden niet
+ gelogd of bewaard: alleen type en categorie. Geen retentieclaim over de
+ provider. Fixture: alleen het veld `invoer` van C105, C107 en C112.
++
++Kwalificatieprofiel (Q1, kwalificatieprotocol-v1). Naast de driecasusmodus
++leest `--kwalificatie` een bevroren extern gevallenmanifest (regressie 3,
++ontwikkeling 24, hold-out 16) met labels die nooit in een verzoek komen. Het
++eigen manifest, akkoord en profiel-ID staan los van de driecallproef: een oud
++akkoord of manifest wordt geweigerd. Elke run voert precies één fase uit, in
++vaste volgorde. Een alleen-toevoegend grootboek in de proefmap legt elke
++reservering vóór het transport duurzaam vast; tellers, budget en looptijd
++lopen daarmee door over runs van hetzelfde manifest. Een onafgesloten fase
++blokkeert verdere runs (geen hervatting). De runner beoordeelt alleen de
++hoofdstatus mechanisch; passagegronden beoordeelt Chris.
+ """
+ 
+ from __future__ import annotations
+@@ -43,6 +54,7 @@ import hashlib
+ import importlib
+ import json
+ import logging
++import math
+ import os
+ import platform
+ import re
+@@ -50,7 +62,7 @@ import sys
+ import tempfile
+ import time
+ from collections.abc import Callable, Iterator
+-from dataclasses import asdict, dataclass
++from dataclasses import asdict, dataclass, field
+ from datetime import UTC, date, datetime
+ from pathlib import Path
+ from typing import Any, NoReturn
+@@ -231,6 +243,91 @@ class Limieten:
+ 
+ LIMIETEN = Limieten()
+ 
++# --- kwalificatieprofiel (Q1) -------------------------------------------------------
++
++KWALIFICATIE_PROFIEL_ID = "def835-kwalificatieproef-opus5-v1"
++#: kwalificatieprotocol-v1.md, geaccordeerd op 28-09-2026 (vervolg-akkoord-v1).
++PROTOCOL_SHA256 = "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f"
++GEVALLEN_SOORT = "def835-int02-kwalificatie-gevallen/1"
++KWALIFICATIE_MANIFEST_SOORT = "def835-int02-kwalificatie-manifest/1"
++KWALIFICATIE_AKKOORD_SOORT = "def835-int02-kwalificatie-akkoord/1"
++KWALIFICATIE_RESULTAAT_SOORT = "def835-int02-kwalificatie-resultaat/1"
++GROOTBOEK_SOORT = "def835-int02-kwalificatie-grootboek/1"
++GROOTBOEK_NAAM = "grootboek.jsonl"
++KWALIFICATIE_AKKOORDVELDEN = (
++    "soort",
++    "manifest_sha256",
++    "gevallenmanifest_sha256",
++    "protocol_sha256",
++    "profiel_id",
++    "geen_def815_kwalificatie",
++    "live_verzending_toegestaan",
++    "max_inferenties",
++    "max_tokenmetingen",
++    "budget_usd",
++    "akkoord_door",
++    "akkoord_op",
++    "akkoord_bron",
++)
++KWALIFICATIE_CLAIM = (
++    "Kwalificatieproef van het bestaande INT-02-profiel volgens "
++    "kwalificatieprotocol-v1: mechanische vergelijking van de hoofdstatus met "
++    "vooraf bevroren labels. Inhoudelijke passagegronden beoordeelt Chris; geen "
++    "DEF-815-kwalificatie of activering. Kosten = gemelde usage x routerprijzen, "
++    "een onzekere call telt voor de volle reservering; geen providerfactuurplafond."
++)
++FASEN = ("regressie", "ontwikkeling", "holdout")
++LABELSTATUSSEN = frozenset({"pass", "fail", "review_required"})
++#: Mechanische toelatingsgrenzen per fase (protocol §2). `min_juist_per_label`
++#: en `verdeling` gelden voor de hold-out; een andere verdeling vraagt een
++#: nieuw protocolbesluit en wordt geweigerd.
++FASECRITERIA: dict[str, dict[str, Any]] = {
++    "regressie": {
++        "aantal": 3,
++        "min_juist": 3,
++        "min_juist_per_label": {},
++        "max_false_pass": 0,
++        "verdeling": None,
++    },
++    "ontwikkeling": {
++        "aantal": 24,
++        "min_juist": 21,
++        "min_juist_per_label": {},
++        "max_false_pass": None,
++        "verdeling": None,
++    },
++    "holdout": {
++        "aantal": 16,
++        "min_juist": 14,
++        "min_juist_per_label": {"fail": 4, "pass": 7, "review_required": 3},
++        "max_false_pass": 0,
++        "verdeling": {"fail": 4, "pass": 8, "review_required": 4},
++    },
++}
++INHOUDELIJK_OPEN = {
++    "status": "open",
++    "beoordelaar": "Chris (acceptatie-eigenaar)",
++    "toelichting": (
++        "Passagegronden, normgrond en relevantie van de vraag zijn niet "
++        "mechanisch vastgesteld; de runner vult hier geen akkoord in."
++    ),
++}
++_MANIFESTVELDEN = frozenset(
++    {"soort", "technische_testfixture", "goldset", "protocol_sha256", "freeze"}
++    | {"gevallen", "gebruik"}
++)
++_FREEZEVELDEN = frozenset({"status", "geaccepteerd_door", "geaccepteerd_op", "bron"})
++_GEVALVELDEN = frozenset({"id", "fase", "familie", "herkomst", "invoer", "label"})
++_LABELVELDEN = frozenset({"status", "reden", "passages", "normgrond"})
++
++#: 43 inferenties en tokenmetingen, 6.000 s en US$12 cumulatief over de fasen.
++KWALIFICATIELIMIETEN = Limieten(
++    max_inferentie=43,
++    max_telverzoeken=43,
++    totale_looptijd_seconden=6000.0,
++    budget_usd=12.0,
++)
++
+ 
+ class ProefGeweigerdError(Exception):
+     """De proef start niet (geen verzending); `reden` is een code."""
+@@ -329,6 +426,149 @@ def _bevat_sleutel(waarde: Any, sleutel: str) -> bool:
+     return False
+ 
+ 
++def _bedrag(waarde: Any) -> bool:
++    return (
++        isinstance(waarde, int | float)
++        and not isinstance(waarde, bool)
++        and math.isfinite(waarde)
++        and waarde >= 0
++    )
++
++
++def _reservering(grens: Limieten, prijzen: dict[str, float]) -> float:
++    """Conservatieve kosten van één call bij de tokenmaxima."""
++    return (
++        grens.max_geschatte_invoertokens * prijzen["input"]
++        + grens.max_uitvoertokens * prijzen["output"]
++    )
++
++
++# --- het grootboek van een kwalificatiemandaat ---------------------------------------
++
++
++class Grootboek:
++    """Alleen-toevoegend, duurzaam register van één kwalificatiemanifest.
++
++    Eén JSON-regel per gebeurtenis, na elke regel flush en fsync. Tel- en
++    inferentiereserveringen staan erin vóór het transport; een reservering
++    zonder betrouwbare boeking telt voor het volle gereserveerde bedrag.
++    Borging is procedureel: wie grootboek of proefmap verwijdert, verwijdert
++    bewijs; dat kan de runner niet voorkomen.
++    """
++
++    def __init__(self, pad: Path, regels: list[dict[str, Any]]) -> None:
++        self.pad = pad
++        self.regels = regels
++
++    @classmethod
++    def nieuw(cls, proefmap: Path, manifest_sha: str, akkoord_sha: str) -> Grootboek:
++        try:
++            proefmap.mkdir(parents=True, exist_ok=False)
++        except FileExistsError:
++            raise ProefGeweigerdError("proefmap_bestaat") from None
++        boek = cls(proefmap / GROOTBOEK_NAAM, [])
++        boek.schrijf(
++            {
++                "gebeurtenis": "mandaat",
++                "soort": GROOTBOEK_SOORT,
++                "manifest_sha256": manifest_sha,
++                "akkoord_sha256": akkoord_sha,
++            }
++        )
++        return boek
++
++    @classmethod
++    def lees(cls, pad: Path, manifest_sha: str) -> Grootboek:
++        try:
++            regels = [json.loads(r) for r in pad.read_text("utf-8").splitlines()]
++        except (OSError, ValueError):
++            raise ProefGeweigerdError("grootboek_ongeldig") from None
++        kop = regels[0] if regels else None
++        if not (
++            isinstance(kop, dict)
++            and kop.get("gebeurtenis") == "mandaat"
++            and kop.get("soort") == GROOTBOEK_SOORT
++            and kop.get("manifest_sha256") == manifest_sha
++        ):
++            raise ProefGeweigerdError("grootboek_ongeldig")
++        boek = cls(pad, regels)
++        boek.stand()  # valideert elke regel
++        return boek
++
++    def schrijf(self, regel: dict[str, Any]) -> None:
++        regel = {"tijd": _nu(), **regel}
++        with self.pad.open("a", encoding="utf-8") as bestand:
++            bestand.write(json.dumps(regel, ensure_ascii=False, sort_keys=True) + "\n")
++            bestand.flush()
++            os.fsync(bestand.fileno())
++        self.regels.append(regel)
++
++    def stand(self) -> dict[str, Any]:
++        """Cumulatieve tellers, conservatieve besteding en fasestatus."""
++        reserveringen: dict[int, float] = {}
++        kosten: dict[int, float | None] = {}
++        stand: dict[str, Any] = {
++            "telverzoeken": 0,
++            "looptijd_seconden": 0.0,
++            "fasen": {},
++            "open_fase": None,
++        }
++        for regel in self.regels[1:]:
++            if not (
++                isinstance(regel, dict)
++                and self._verwerk(regel, stand, reserveringen, kosten)
++            ):
++                raise ProefGeweigerdError("grootboek_ongeldig")
++        stand["inferenties"] = len(reserveringen)
++        stand["onzekere_calls"] = sorted(
++            c for c in reserveringen if kosten.get(c) is None
++        )
++        stand["besteed_usd"] = sum(
++            b if (b := kosten.get(c)) is not None else r
++            for c, r in reserveringen.items()
++        )
++        return stand
++
++    @staticmethod
++    def _verwerk(
++        regel: dict[str, Any],
++        stand: dict[str, Any],
++        reserveringen: dict[int, float],
++        kosten: dict[int, float | None],
++    ) -> bool:
++        soort, fase = regel.get("gebeurtenis"), regel.get("fase")
++        call, duur = regel.get("call"), regel.get("looptijd_seconden")
++        if soort == "tel_reservering":
++            stand["telverzoeken"] += 1
++        elif soort == "inferentie_reservering":
++            if not (_geheel(call) and call not in reserveringen):
++                return False
++            if not _bedrag(regel.get("reservering_usd")):
++                return False
++            reserveringen[call] = float(regel["reservering_usd"])
++        elif soort == "inferentie_boeking":
++            if call not in reserveringen or call in kosten:
++                return False
++            bedrag = regel.get("kosten_usd")
++            kosten[call] = float(bedrag) if _bedrag(bedrag) else None
++        elif soort == "fase_start":
++            if fase not in FASEN or stand["open_fase"] or fase in stand["fasen"]:
++                return False
++            stand["open_fase"] = fase
++        elif soort == "fase_einde":
++            geslaagd = regel.get("mechanisch_geslaagd")
++            if fase != stand["open_fase"] or not isinstance(geslaagd, bool):
++                return False
++            if not _bedrag(duur):
++                return False
++            stand["fasen"][fase] = geslaagd
++            stand["looptijd_seconden"] += float(duur)
++            stand["open_fase"] = None
++        else:
++            return False
++        return True
++
++
+ # --- de waarnemer aan de httpx-grens --------------------------------------------
+ 
+ 
+@@ -358,6 +598,19 @@ class Waarnemer(httpx.AsyncBaseTransport):
+         self.headernamen: set[str] = set()
+         self.metingen: dict[str, dict[str, Any]] = {}
+         self.antwoorden: dict[str, str] = {}
++        #: Kwalificatie: reserveringen en boekingen gaan duurzaam naar hier.
++        self.grootboek: Grootboek | None = None
++
++    def neem_stand_over(self, stand: dict[str, Any]) -> None:
++        """Kwalificatie: tellers en besteding lopen door over runs heen."""
++        self.inferenties = stand["inferenties"]
++        self.telverzoeken = stand["telverzoeken"]
++        self.besteed_usd = stand["besteed_usd"]
++
++    def _registreer(self, regel: dict[str, Any]) -> None:
++        """Vóór een transport: faalt het schrijven, dan volgt geen verzending."""
++        if self.grootboek is not None:
++            self.grootboek.schrijf({"geval": self.huidig, **regel})
+ 
+     @property
+     def kosten_onzeker(self) -> list[str]:
+@@ -389,14 +642,30 @@ class Waarnemer(httpx.AsyncBaseTransport):
+             self._stop("payload_hash_mismatch")
+         if await self._tel(request, payload, meting) > grens.max_geschatte_invoertokens:
+             self._stop("invoerschatting_te_hoog")
+-        reservering = (
+-            grens.max_geschatte_invoertokens * self._prijzen["input"]
+-            + grens.max_uitvoertokens * self._prijzen["output"]
+-        )
++        reservering = _reservering(grens, self._prijzen)
+         meting["reservering_usd"] = reservering
+         if self.besteed_usd + reservering > grens.budget_usd:
+             self._stop("budget_ontoereikend")
+-        return await self._verstuur(request, meting)
++        call = self.inferenties + 1
++        self._registreer(
++            {
++                "gebeurtenis": "inferentie_reservering",
++                "call": call,
++                "reservering_usd": reservering,
++            }
++        )
++        try:
++            return await self._verstuur(request, meting)
++        finally:
++            # Ook bij een fout of afbreking; zonder kosten telt de reservering.
++            self._registreer(
++                {
++                    "gebeurtenis": "inferentie_boeking",
++                    "call": call,
++                    "kosten_usd": meting.get("kosten_usd"),
++                    "usage": meting.get("usage"),
++                }
++            )
+ 
+     def _controleer(self, request: httpx.Request, body: bytes) -> dict[str, Any]:
+         url = request.url
+@@ -452,6 +721,9 @@ class Waarnemer(httpx.AsyncBaseTransport):
+             json={k: payload[k] for k in TELVELDEN if k in payload},
+         )
+         meting["telpayload_sha256"] = _sha(verzoek.content)
++        self._registreer(
++            {"gebeurtenis": "tel_reservering", "tel": self.telverzoeken + 1}
++        )
+         self.telverzoeken += 1
+         status, data = None, None
+         try:
+@@ -664,7 +936,11 @@ def _bouw_router() -> Any:
+ 
+ 
+ def _bouw_dienst(
+-    router: Any, waarnemer: Waarnemer, sleutel: str, kwalificatie: str
++    router: Any,
++    waarnemer: Waarnemer,
++    sleutel: str,
++    kwalificatie: str,
++    profiel_id: str = PROFIEL_ID,
+ ) -> tuple[Any, httpx.AsyncClient]:
+     from anthropic import AsyncAnthropic
+ 
+@@ -722,7 +998,7 @@ def _bouw_dienst(
+     dienst = Int02AssessmentService(
+         ai,
+         router,
+-        profiel=Modelprofiel(PROFIEL_ID, PROVIDER, MODEL, kwalificatie),
++        profiel=Modelprofiel(profiel_id, PROVIDER, MODEL, kwalificatie),
+         budget=Budget(
+             max_uitvoertokens=grens.max_uitvoertokens,
+             deadline_seconden=grens.deadline_seconden,
+@@ -740,21 +1016,12 @@ class _Voorbereiding:
+     payloads: list[dict[str, str]]
+     router: Any
+     gevallen: list[tuple[str, Any]]
++    #: Kwalificatie: per geval-ID fase en label (alleen lokale evaluatie).
++    kwalgevallen: dict[str, _Kwalgeval] = field(default_factory=dict)
+ 
+ 
+-async def _bereken(limieten: Limieten) -> _Voorbereiding:
+-    """Offline: vang via de echte keten de exacte payload per geval op."""
+-    import anthropic
+-
+-    from services.validation.int02_assessment_service import (
+-        PROMPT_VERSION,
+-        T_TEKST,
+-        TASK_TYPE,
+-        bouw_int02_prompt,
+-        laad_int02_norm,
+-    )
+-
+-    router = _bouw_router()
++def _prijzen(router: Any, limieten: Limieten) -> dict[str, float]:
++    """Routerprijzen van het proefmodel; het plafond dekt alle calls vooraf."""
+     prijzen = router.get_active_pricing().get(MODEL)
+     if not (
+         isinstance(prijzen, dict)
+@@ -765,15 +1032,22 @@ async def _bereken(limieten: Limieten) -> _Voorbereiding:
+     ):
+         raise ProefGeweigerdError("prijs_onbekend")
+     prijzen = {"input": prijzen["input"], "output": prijzen["output"]}
+-    maximum = limieten.max_inferentie * (
+-        limieten.max_geschatte_invoertokens * prijzen["input"]
+-        + limieten.max_uitvoertokens * prijzen["output"]
+-    )
+-    if maximum > limieten.budget_usd:
++    if limieten.max_inferentie * _reservering(limieten, prijzen) > limieten.budget_usd:
+         raise ProefGeweigerdError("budget_ontoereikend")
+-    gevallen = _lees_gevallen()
++    return prijzen
++
++
++async def _vang(
++    router: Any,
++    limieten: Limieten,
++    gevallen: list[tuple[str, Any]],
++    profiel_id: str,
++) -> Waarnemer:
++    """Dry-run door de echte keten: de exacte payload per geval, zonder netwerk."""
+     waarnemer = Waarnemer(modus="dry-run", limieten=limieten)
+-    dienst, http = _bouw_dienst(router, waarnemer, DRYRUN_SLEUTEL, DRYRUN_KWALIFICATIE)
++    dienst, http = _bouw_dienst(
++        router, waarnemer, DRYRUN_SLEUTEL, DRYRUN_KWALIFICATIE, profiel_id
++    )
+     try:
+         with _stil(["services.validation.int02_assessment_service"]):
+             for geval_id, invoer in gevallen:
+@@ -783,31 +1057,62 @@ async def _bereken(limieten: Limieten) -> _Voorbereiding:
+                     raise ProefGeweigerdError(waarnemer.stopreden or "geen_payload")
+     finally:
+         await http.aclose()
++    return waarnemer
++
++
++def _gevalhashes(geval_id: str, invoer: Any, waarnemer: Waarnemer) -> dict[str, Any]:
++    from services.validation.int02_assessment_service import (
++        bouw_int02_prompt,
++        laad_int02_norm,
++    )
++
++    systeem, data = bouw_int02_prompt(invoer, laad_int02_norm(NORM_PAD))
++    return {
++        "id": geval_id,
++        "invoer_sha256": hash_json(invoer.als_dict()),
++        "systeemprompt_sha256": _sha(systeem.encode("utf-8")),
++        "dataprompt_sha256": _sha(data.encode("utf-8")),
++        "payload_sha256": _sha(waarnemer.opgevangen[geval_id]),
++        "payload_bytes": len(waarnemer.opgevangen[geval_id]),
++    }
++
++
++def _payloads(gevallen: list[tuple[str, Any]], waarnemer: Waarnemer) -> list[dict]:
++    return [
++        {"id": geval_id, "payload": waarnemer.opgevangen[geval_id].decode("utf-8")}
++        for geval_id, _ in gevallen
++    ]
++
++
++def _profiel(profiel_id: str, **soort: bool) -> dict[str, Any]:
++    from services.validation.int02_assessment_service import PROMPT_VERSION, TASK_TYPE
++
++    return {
++        "profiel_id": profiel_id,
++        "provider": PROVIDER,
++        "model": MODEL,
++        "task_type": TASK_TYPE,
++        "promptversie": PROMPT_VERSION,
++        **soort,
++        "def815_kwalificatie": False,
++    }
++
++
++def _ketenidentiteit(
++    router: Any, prijzen: dict[str, float], limieten: Limieten, waarnemer: Waarnemer
++) -> dict[str, Any]:
++    """Limieten, prijzen, router, transport, norm/T, bronhashes en versies."""
++    import anthropic
++
++    from services.validation.int02_assessment_service import (
++        T_TEKST,
++        TASK_TYPE,
++        laad_int02_norm,
++    )
++
+     norm = laad_int02_norm(NORM_PAD)
+     provider, model = router.get_model(TASK_TYPE)
+-    per_geval = []
+-    for geval_id, invoer in gevallen:
+-        systeem, data = bouw_int02_prompt(invoer, norm)
+-        per_geval.append(
+-            {
+-                "id": geval_id,
+-                "invoer_sha256": hash_json(invoer.als_dict()),
+-                "systeemprompt_sha256": _sha(systeem.encode("utf-8")),
+-                "dataprompt_sha256": _sha(data.encode("utf-8")),
+-                "payload_sha256": _sha(waarnemer.opgevangen[geval_id]),
+-                "payload_bytes": len(waarnemer.opgevangen[geval_id]),
+-            }
+-        )
+-    identiteit = {
+-        "profiel": {
+-            "profiel_id": PROFIEL_ID,
+-            "provider": PROVIDER,
+-            "model": MODEL,
+-            "task_type": TASK_TYPE,
+-            "promptversie": PROMPT_VERSION,
+-            "experimenteel": True,
+-            "def815_kwalificatie": False,
+-        },
++    return {
+         "limieten": asdict(limieten),
+         "dienstbudget": dict(DIENSTBUDGET),
+         "prijzen_per_token": prijzen,
+@@ -830,13 +1135,170 @@ async def _bereken(limieten: Limieten) -> _Voorbereiding:
+             "anthropic": anthropic.__version__,
+             "httpx": httpx.__version__,
+         },
+-        "gevallen": per_geval,
+     }
+-    payloads = [
+-        {"id": geval_id, "payload": waarnemer.opgevangen[geval_id].decode("utf-8")}
+-        for geval_id, _ in gevallen
+-    ]
+-    return _Voorbereiding(identiteit, payloads, router, gevallen)
++
++
++async def _bereken(limieten: Limieten) -> _Voorbereiding:
++    """Driecasusmodus, offline: de exacte payload per geval via de echte keten."""
++    router = _bouw_router()
++    prijzen = _prijzen(router, limieten)
++    gevallen = _lees_gevallen()
++    waarnemer = await _vang(router, limieten, gevallen, PROFIEL_ID)
++    identiteit = {
++        "profiel": _profiel(PROFIEL_ID, experimenteel=True),
++        **_ketenidentiteit(router, prijzen, limieten, waarnemer),
++        "gevallen": [_gevalhashes(g, invoer, waarnemer) for g, invoer in gevallen],
++    }
++    return _Voorbereiding(identiteit, _payloads(gevallen, waarnemer), router, gevallen)
++
++
++# --- kwalificatie: het bevroren gevallenmanifest ------------------------------------------
++
++
++@dataclass(frozen=True)
++class _Kwalgeval:
++    id: str
++    fase: str
++    invoer: Any
++    label: dict[str, Any]
++
++
++def _bevroren(freeze: Any) -> bool:
++    if not (isinstance(freeze, dict) and set(freeze) == _FREEZEVELDEN):
++        return False
++    try:
++        date.fromisoformat(freeze["geaccepteerd_op"])
++    except (TypeError, ValueError):
++        return False
++    return (
++        freeze["status"] == "bevroren"
++        and _gevuld(freeze["geaccepteerd_door"])
++        and _gevuld(freeze["bron"])
++    )
++
++
++def _kwalgeval(ruw: Any, gezien: set[str]) -> _Kwalgeval:
++    """Eén geval: gesloten velden, geldig label, contractinvoer met kern en context."""
++    from domain.int02.contract import ontbrekende_invoer
++
++    ongeldig = ProefGeweigerdError("gevallenmanifest_ongeldig")
++    if not (
++        isinstance(ruw, dict)
++        and {"id", "fase", "invoer", "label"} <= set(ruw) <= _GEVALVELDEN
++        and _gevuld(ruw["id"])
++        and ruw["id"] not in gezien
++    ):
++        raise ongeldig
++    label = ruw["label"]
++    if not (
++        isinstance(label, dict)
++        and set(label) <= _LABELVELDEN
++        and label.get("status") in LABELSTATUSSEN
++    ):
++        raise ongeldig
++    if ruw["fase"] not in FASEN:
++        raise ProefGeweigerdError("splitsing_ongeldig")
++    try:
++        invoer = lees_invoer(ruw["invoer"])
++    except (TypeError, ValueError):
++        raise ongeldig from None
++    if ontbrekende_invoer(invoer) is not None:
++        raise ongeldig  # NE: geen modelaanroep, dus niet kwalificeerbaar
++    gezien.add(ruw["id"])
++    return _Kwalgeval(ruw["id"], ruw["fase"], invoer, label)
++
++
++def _eis_splitsing(gevallen: list[_Kwalgeval]) -> None:
++    """Aantallen per fase, de drie bekende regressies en de hold-outverdeling."""
++    ontwerp = {
++        g["id"]: g for g in json.loads(FIXTURE_PAD.read_text("utf-8"))["gevallen"]
++    }
++    per_fase = {f: [g for g in gevallen if g.fase == f] for f in FASEN}
++    regressie = per_fase["regressie"]
++    if any(len(per_fase[f]) != FASECRITERIA[f]["aantal"] for f in FASEN) or [
++        g.id for g in regressie
++    ] != list(GEVAL_IDS):
++        raise ProefGeweigerdError("splitsing_ongeldig")
++    for geval in regressie:
++        bekend = ontwerp[geval.id]
++        if (
++            geval.invoer.als_dict() != bekend["invoer"]
++            or geval.label["status"] != bekend["verwacht"]["status"]
++        ):
++            raise ProefGeweigerdError("splitsing_ongeldig")
++    for fase in FASEN:
++        verdeling = FASECRITERIA[fase]["verdeling"]
++        telling = dict.fromkeys(sorted(LABELSTATUSSEN), 0)
++        for geval in per_fase[fase]:
++            telling[geval.label["status"]] += 1
++        if verdeling is not None and telling != verdeling:
++            raise ProefGeweigerdError("verdeling_afwijkend")
++
++
++def _lees_kwalificatiegevallen(
++    pad: Path,
++) -> tuple[bytes, dict[str, Any], list[_Kwalgeval]]:
++    """Het volledige, bevroren externe manifest; weigert elke afwijking."""
++    bron = pad.read_bytes()
++    data = _json(bron)
++    if not (isinstance(data, dict) and data.get("soort") == GEVALLEN_SOORT):
++        raise ProefGeweigerdError("gevallenmanifest_ongeldig")
++    if not _bevroren(data.get("freeze")):
++        raise ProefGeweigerdError("freeze_ontbreekt")
++    if data.get("protocol_sha256") != PROTOCOL_SHA256:
++        raise ProefGeweigerdError("protocol_afwijkend")
++    vlaggen = (data.get("goldset"), data.get("technische_testfixture"))
++    if not (
++        set(data) <= _MANIFESTVELDEN
++        and all(isinstance(v, bool) for v in vlaggen)
++        and vlaggen[0] is not vlaggen[1]
++        and isinstance(data.get("gevallen"), list)
++    ):
++        raise ProefGeweigerdError("gevallenmanifest_ongeldig")
++    gezien: set[str] = set()
++    gevallen = [_kwalgeval(ruw, gezien) for ruw in data["gevallen"]]
++    _eis_splitsing(gevallen)
++    return bron, data, gevallen
++
++
++async def _bereken_kwalificatie(
++    limieten: Limieten, gevallen_pad: Path, proefmap: Path
++) -> _Voorbereiding:
++    """Kwalificatie, offline: identiteit over invoer, labels, splitsing en keten."""
++    bron, data, kwalgevallen = _lees_kwalificatiegevallen(gevallen_pad)
++    router = _bouw_router()
++    prijzen = _prijzen(router, limieten)
++    gevallen = [(g.id, g.invoer) for g in kwalgevallen]
++    waarnemer = await _vang(router, limieten, gevallen, KWALIFICATIE_PROFIEL_ID)
++    identiteit = {
++        "profiel": _profiel(KWALIFICATIE_PROFIEL_ID, kwalificatieproef=True),
++        **_ketenidentiteit(router, prijzen, limieten, waarnemer),
++        "protocol_sha256": PROTOCOL_SHA256,
++        "gevallenmanifest": {
++            "sha256": _sha(bron),
++            "goldset": data["goldset"],
++            "technische_testfixture": data["technische_testfixture"],
++            "freeze": data["freeze"],
++        },
++        "fasen": {f: [g.id for g in kwalgevallen if g.fase == f] for f in FASEN},
++        "criteria": FASECRITERIA,
++        "proefmap": str(proefmap),
++        "gevallen": [
++            {
++                **_gevalhashes(g.id, g.invoer, waarnemer),
++                "fase": g.fase,
++                "label_sha256": hash_json(g.label),
++            }
++            for g in kwalgevallen
++        ],
++    }
++    return _Voorbereiding(
++        identiteit,
++        _payloads(gevallen, waarnemer),
++        router,
++        gevallen,
++        {g.id: g for g in kwalgevallen},
++    )
+ 
+ 
+ def _schrijf_nieuw(pad: Path, data: Any) -> None:
+@@ -1063,9 +1525,459 @@ async def voer_live_uit(
+     return data
+ 
+ 
++# --- kwalificatie: voorbereiding en fasen ---------------------------------------------------
++
++
++async def voorbereid_kwalificatie(
++    gevallen_pad: Path,
++    proefmap: Path,
++    manifest_pad: Path,
++    *,
++    payloads_pad: Path | None = None,
++    limieten: Limieten = KWALIFICATIELIMIETEN,
++) -> dict[str, Any]:
++    """Offline kwalificatiemanifest (pending); geen netwerk, sleutel of proefmap."""
++    gevallen_pad = Path(gevallen_pad).resolve()
++    proefmap = Path(proefmap).resolve()
++    manifest_pad = Path(manifest_pad).resolve()
++    payloads_pad = Path(payloads_pad).resolve() if payloads_pad else None
++    _eis_nieuw(manifest_pad, payloads_pad)
++    if proefmap.exists():
++        raise ProefGeweigerdError("proefmap_bestaat")
++    with _proefomgeving():
++        voorbereiding = await _bereken_kwalificatie(limieten, gevallen_pad, proefmap)
++    identiteit = voorbereiding.identiteit
++    manifest = {
++        "soort": KWALIFICATIE_MANIFEST_SOORT,
++        "toestemming": "pending",
++        "aangemaakt": _nu(),
++        "claim": KWALIFICATIE_CLAIM,
++        "akkoordvelden": list(KWALIFICATIE_AKKOORDVELDEN),
++        "controlemomenten": CONTROLEMOMENTEN,
++        "identiteit_sha256": hash_json(identiteit),
++        "identiteit": identiteit,
++    }
++    _schrijf_nieuw(manifest_pad, manifest)
++    if payloads_pad is not None:
++        _schrijf_nieuw(
++            payloads_pad,
++            {
++                "soort": PAYLOAD_SOORT,
++                "synthetisch": True,
++                "identiteit_sha256": manifest["identiteit_sha256"],
++                "gevallen": voorbereiding.payloads,
++            },
++        )
++    return manifest
++
++
++def _gelijk_getal(waarde: Any, verwacht: Any) -> bool:
++    return _bedrag(waarde) and _bedrag(verwacht) and waarde == verwacht
++
++
++def _controleer_kwalificatieakkoord(
++    akkoord: Any, manifest_bytes: bytes, manifest: Any, gevallen_bytes: bytes
++) -> None:
++    """Nieuw, strikt akkoord; een oud driecallakkoord of -manifest past nooit."""
++    identiteit = manifest.get("identiteit") if isinstance(manifest, dict) else None
++    grens = identiteit.get("limieten") if isinstance(identiteit, dict) else None
++    geldig = (
++        isinstance(akkoord, dict)
++        and isinstance(grens, dict)
++        and tuple(sorted(akkoord)) == tuple(sorted(KWALIFICATIE_AKKOORDVELDEN))
++        and manifest.get("soort") == KWALIFICATIE_MANIFEST_SOORT
++        and manifest.get("toestemming") == "pending"
++        and akkoord["soort"] == KWALIFICATIE_AKKOORD_SOORT
++        and akkoord["manifest_sha256"] == _sha(manifest_bytes)
++        and akkoord["gevallenmanifest_sha256"] == _sha(gevallen_bytes)
++        and akkoord["protocol_sha256"] == PROTOCOL_SHA256
++        and akkoord["profiel_id"] == KWALIFICATIE_PROFIEL_ID
++        and akkoord["geen_def815_kwalificatie"] is True
++        and akkoord["live_verzending_toegestaan"] is True
++        and _gelijk_getal(akkoord["max_inferenties"], grens.get("max_inferentie"))
++        and _gelijk_getal(akkoord["max_tokenmetingen"], grens.get("max_telverzoeken"))
++        and _gelijk_getal(akkoord["budget_usd"], grens.get("budget_usd"))
++        and _gevuld(akkoord["akkoord_door"])
++        and _gevuld(akkoord["akkoord_bron"])
++        and isinstance(akkoord["akkoord_op"], str)
++    )
++    if geldig:
++        try:
++            date.fromisoformat(akkoord["akkoord_op"])
++        except ValueError:
++            geldig = False
++    if not geldig:
++        raise ProefGeweigerdError("akkoord_ongeldig")
++
++
++def _eis_toelaatbaar(stand: dict[str, Any], fase: str) -> None:
++    """Vaste volgorde; elke fase één keer; een open fase blokkeert alles."""
++    if stand["open_fase"] is not None:
++        raise ProefGeweigerdError("grootboek_open")
++    if fase in stand["fasen"]:
++        raise ProefGeweigerdError("fase_al_uitgevoerd")
++    if any(stand["fasen"].get(v) is not True for v in FASEN[: FASEN.index(fase)]):
++        raise ProefGeweigerdError("fasevolgorde")
++
++
++def _stand_voor_fase(proefmap: Path, manifest_sha: str, fase: str) -> dict[str, Any]:
++    """Alleen lezen: is `fase` nu toelaatbaar, en wat is al verbruikt?"""
++    if fase == FASEN[0]:
++        if proefmap.exists():
++            raise ProefGeweigerdError("proefmap_bestaat")
++        return {
++            "inferenties": 0,
++            "telverzoeken": 0,
++            "besteed_usd": 0.0,
++            "onzekere_calls": [],
++            "looptijd_seconden": 0.0,
++            "fasen": {},
++            "open_fase": None,
++        }
++    boekpad = proefmap / GROOTBOEK_NAAM
++    if not boekpad.exists():
++        raise ProefGeweigerdError("fasevolgorde")
++    stand = Grootboek.lees(boekpad, manifest_sha).stand()
++    _eis_toelaatbaar(stand, fase)
++    return stand
++
++
++def _eis_ruimte(
++    stand: dict[str, Any], gepland: int, grens: Limieten, prijzen: dict[str, float]
++) -> None:
++    """Resterende calls, budget en looptijd dekken de hele fase vooraf."""
++    if (
++        stand["inferenties"] + gepland > grens.max_inferentie
++        or stand["telverzoeken"] + gepland > grens.max_telverzoeken
++    ):
++        raise ProefGeweigerdError("calllimiet_ontoereikend")
++    if stand["besteed_usd"] + gepland * _reservering(grens, prijzen) > grens.budget_usd:
++        raise ProefGeweigerdError("budget_ontoereikend")
++    resterend = grens.totale_looptijd_seconden - stand["looptijd_seconden"]
++    if resterend < gepland * grens.deadline_seconden:
++        raise ProefGeweigerdError("looptijd_ontoereikend")
++
++
++def _evalueer(verwacht: str, beoordeling: Any) -> dict[str, Any]:
++    """Alleen lokaal: hoofdstatus tegen het bevroren label."""
++    from domain.int02.contract import FOUT_CITAAT
++
++    status = beoordeling.status
++    fout = status == "error"
++    citaat = fout and beoordeling.document.foutcategorie == FOUT_CITAAT
++    return {
++        "verwacht": verwacht,
++        "waargenomen": status,
++        "juist": status == verwacht,
++        "technische_fout": bool(beoordeling.gecachet) or (fout and not citaat),
++        "citaatfout": citaat,
++        "kritieke_false_pass": verwacht == "fail" and status == "pass",
++    }
++
++
++#: Teller per categorie: (noemer, teller) als functies van (verwacht, waargenomen).
++_TELLERS: dict[str, tuple[Callable[[str, str], bool], Callable[[str, str], bool]]] = {
++    "juist": (lambda v, w: True, lambda v, w: v == w),
++    "false_pass": (lambda v, w: v != "pass", lambda v, w: w == "pass"),
++    "kritieke_false_pass": (lambda v, w: v == "fail", lambda v, w: w == "pass"),
++    "false_fail": (lambda v, w: v != "fail", lambda v, w: w == "fail"),
++    "gemiste_overtreding": (lambda v, w: v == "fail", lambda v, w: w != "fail"),
++    "gepaste_onthouding": (
++        lambda v, w: v == "review_required",
++        lambda v, w: w == "review_required",
++    ),
++    "onterechte_onthouding": (
++        lambda v, w: v != "review_required",
++        lambda v, w: w == "review_required",
++    ),
++    "onzekerheid": (lambda v, w: True, lambda v, w: w == "review_required"),
++}
++
++
++def _tellers(uitkomsten: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
++    paren = [(u["verwacht"], u["waargenomen"]) for u in uitkomsten]
++    tellers = {}
++    for naam, (noemer, teller) in _TELLERS.items():
++        binnen = [p for p in paren if noemer(*p)]
++        tellers[naam] = {
++            "teller": sum(teller(*p) for p in binnen),
++            "noemer": len(binnen),
++        }
++    for status in sorted(LABELSTATUSSEN):
++        binnen = [p for p in paren if p[0] == status]
++        tellers[f"juist_{status}"] = {
++            "teller": sum(v == w for v, w in binnen),
++            "noemer": len(binnen),
++        }
++    for soort in ("technische_fout", "citaatfout"):
++        tellers[soort] = {
++            "teller": sum(bool(u[soort]) for u in uitkomsten),
++            "noemer": len(uitkomsten),
++        }
++    return tellers
++
++
++def _beoordeel_fase(
++    fase: str, uitkomsten: list[dict[str, Any]], stopreden: str | None, voltooid: bool
++) -> dict[str, Any]:
++    """Mechanische toelatingsgrenzen; het inhoudelijke oordeel blijft open."""
++    criteria = FASECRITERIA[fase]
++    tellers = _tellers(uitkomsten)
++    redenen = []
++    if not voltooid or stopreden is not None or len(uitkomsten) != criteria["aantal"]:
++        redenen.append("niet_volledig_uitgevoerd")
++    if tellers["technische_fout"]["teller"] or tellers["citaatfout"]["teller"]:
++        redenen.append("technische_of_citaatfout")
++    if tellers["kritieke_false_pass"]["teller"]:
++        redenen.append("kritieke_false_pass")
++    maximum = criteria["max_false_pass"]
++    if maximum is not None and tellers["false_pass"]["teller"] > maximum:
++        redenen.append("onterechte_goedkeuring")
++    if tellers["juist"]["teller"] < criteria["min_juist"]:
++        redenen.append("te_weinig_juist")
++    for status, minimum in criteria["min_juist_per_label"].items():
++        if tellers[f"juist_{status}"]["teller"] < minimum:
++            redenen.append(f"te_weinig_juist_{status}")
++    return {
++        "mechanisch_geslaagd": not redenen,
++        "redenen": redenen,
++        "tellers": tellers,
++        "criteria": criteria,
++    }
++
++
++def _latentie(resultaten: list[dict[str, Any]]) -> dict[str, int | None]:
++    duren = sorted(d for r in resultaten if _geheel(d := r["meting"].get("duur_ms")))
++    if not duren:
++        return {"max_ms": None, "p95_ms": None}
++    return {"max_ms": duren[-1], "p95_ms": duren[math.ceil(0.95 * len(duren)) - 1]}
++
++
++async def _draai_fase(
++    dienst: Any,
++    waarnemer: Waarnemer,
++    voorbereiding: _Voorbereiding,
++    fase: str,
++    resterend: Callable[[], float],
++) -> tuple[list[dict[str, Any]], str | None]:
++    """Eén fase, sequentieel; stopt direct bij fout of kritieke false-pass."""
++    resultaten: list[dict[str, Any]] = []
++    for geval_id, invoer in voorbereiding.gevallen:
++        if voorbereiding.kwalgevallen[geval_id].fase != fase:
++            continue
++        label = voorbereiding.kwalgevallen[geval_id].label
++        if resterend() < waarnemer.limieten.deadline_seconden:
++            return resultaten, "looptijd_ontoereikend"
++        waarnemer.huidig = geval_id
++        beoordeling = await dienst.assess(
++            invoer, correlation_id=f"def835-kwalificatie-{geval_id}"
++        )
++        evaluatie = _evalueer(label["status"], beoordeling)
++        resultaten.append(
++            {
++                **_samenvatting(geval_id, beoordeling, waarnemer),
++                "fase": fase,
++                "label_status": label["status"],
++                "evaluatie": evaluatie,
++            }
++        )
++        stopreden = waarnemer.stopreden or _stopreden(beoordeling)
++        if stopreden is None and evaluatie["kritieke_false_pass"]:
++            stopreden = "kritieke_false_pass"
++        if stopreden is not None:
++            return resultaten, stopreden
++    return resultaten, None
++
++
++async def voer_kwalificatie_uit(
++    manifest_pad: Path,
++    akkoord_pad: Path,
++    gevallen_pad: Path,
++    fase: str,
++    *,
++    sleutel: Callable[[], str | None] = _lees_sleutel,
++    binnen: httpx.AsyncBaseTransport | None = None,
++    limieten: Limieten = KWALIFICATIELIMIETEN,
++) -> dict[str, Any]:
++    """Precies één kwalificatiefase na akkoord; geen overgang naar de volgende."""
++    start, gestart = time.monotonic(), _nu()
++    if fase not in FASEN:
++        raise ProefGeweigerdError("fase_onbekend")
++    try:
++        akkoord_bytes = Path(akkoord_pad).read_bytes()
++    except FileNotFoundError:
++        raise ProefGeweigerdError("akkoord_ontbreekt") from None
++    manifest_bytes = Path(manifest_pad).read_bytes()
++    gevallen_pad = Path(gevallen_pad).resolve()
++    manifest = _json(manifest_bytes)
++    _controleer_kwalificatieakkoord(
++        _json(akkoord_bytes), manifest_bytes, manifest, gevallen_pad.read_bytes()
++    )
++    manifest_sha, akkoord_sha = _sha(manifest_bytes), _sha(akkoord_bytes)
++    proefmap = Path(manifest["identiteit"]["proefmap"])
++    stand = _stand_voor_fase(proefmap, manifest_sha, fase)
++    with _proefomgeving():
++        voorbereiding = await _bereken_kwalificatie(limieten, gevallen_pad, proefmap)
++        identiteit = voorbereiding.identiteit
++        if identiteit != manifest.get("identiteit") or hash_json(
++            identiteit
++        ) != manifest.get("identiteit_sha256"):
++            raise ProefGeweigerdError("identiteit_gewijzigd")
++        prijzen = identiteit["prijzen_per_token"]
++        _eis_ruimte(stand, len(identiteit["fasen"][fase]), limieten, prijzen)
++        if binnen is None and identiteit["gevallenmanifest"]["technische_testfixture"]:
++            raise ProefGeweigerdError("testfixture_niet_live")
++        api_sleutel = sleutel()
++        if not _gevuld(api_sleutel):
++            raise ProefGeweigerdError("sleutel_ontbreekt")
++        waarnemer = Waarnemer(
++            modus="live",
++            limieten=limieten,
++            binnen=binnen or httpx.AsyncHTTPTransport(retries=0),
++            verwacht={g["id"]: g["payload_sha256"] for g in identiteit["gevallen"]},
++            prijzen=prijzen,
++        )
++        kwalificatie = f"kwalificatieproef:akkoord:{akkoord_sha}:geen-DEF-815"
++        dienst, http = _bouw_dienst(
++            voorbereiding.router,
++            waarnemer,
++            str(api_sleutel),
++            kwalificatie,
++            KWALIFICATIE_PROFIEL_ID,
++        )
++        try:
++            # Vanaf hier kan verzending volgen: eerst het grootboek.
++            if fase == FASEN[0]:
++                boek = Grootboek.nieuw(proefmap, manifest_sha, akkoord_sha)
++            else:
++                boek = Grootboek.lees(proefmap / GROOTBOEK_NAAM, manifest_sha)
++            begin = boek.stand()
++            _eis_toelaatbaar(begin, fase)
++            waarnemer.neem_stand_over(begin)
++            waarnemer.grootboek = boek
++            boek.schrijf(
++                {
++                    "gebeurtenis": "fase_start",
++                    "fase": fase,
++                    "akkoord_sha256": akkoord_sha,
++                }
++            )
++            resultaten: list[dict[str, Any]] = []
++            stopreden: str | None = None
++            voltooid = False
++
++            def resterend() -> float:
++                verbruikt = begin["looptijd_seconden"] + time.monotonic() - start
++                return limieten.totale_looptijd_seconden - verbruikt
++
++            try:
++                async with asyncio.timeout(resterend()):
++                    resultaten, stopreden = await _draai_fase(
++                        dienst, waarnemer, voorbereiding, fase, resterend
++                    )
++                voltooid = True
++            except TimeoutError:
++                stopreden = waarnemer.stopreden or "totale_looptijd"
++            finally:
++                evaluatie = _beoordeel_fase(
++                    fase, [r["evaluatie"] for r in resultaten], stopreden, voltooid
++                )
++                boek.schrijf(
++                    {
++                        "gebeurtenis": "fase_einde",
++                        "fase": fase,
++                        "looptijd_seconden": round(time.monotonic() - start, 3),
++                        "stopreden": stopreden,
++                        "mechanisch_geslaagd": evaluatie["mechanisch_geslaagd"],
++                    }
++                )
++        finally:
++            await http.aclose()
++    eind = boek.stand()
++    data = {
++        "soort": KWALIFICATIE_RESULTAAT_SOORT,
++        "claim": KWALIFICATIE_CLAIM,
++        "fase": fase,
++        "manifest_sha256": manifest_sha,
++        "akkoord_sha256": akkoord_sha,
++        "identiteit_sha256": manifest["identiteit_sha256"],
++        "gevallenmanifest_sha256": identiteit["gevallenmanifest"]["sha256"],
++        "technische_testfixture": identiteit["gevallenmanifest"][
++            "technische_testfixture"
++        ],
++        "gestart": gestart,
++        "beeindigd": _nu(),
++        "looptijd_seconden": round(time.monotonic() - start, 3),
++        "stopreden": stopreden,
++        "tellingen": {
++            "inferenties": eind["inferenties"] - begin["inferenties"],
++            "telverzoeken": eind["telverzoeken"] - begin["telverzoeken"],
++        },
++        "cumulatief": {
++            "inferenties": eind["inferenties"],
++            "telverzoeken": eind["telverzoeken"],
++            "kosten_usd_conservatief": eind["besteed_usd"],
++            "onzekere_calls": eind["onzekere_calls"],
++            "looptijd_seconden": eind["looptijd_seconden"],
++        },
++        "kosten_onzeker": waarnemer.kosten_onzeker,
++        "evaluatie": evaluatie,
++        "inhoudelijke_beoordeling": INHOUDELIJK_OPEN,
++        "latentie": _latentie(resultaten),
++        "gevallen": resultaten,
++    }
++    data = json.loads(json.dumps(data, ensure_ascii=False))
++    _schrijf_nieuw(proefmap / f"{fase}-resultaat.json", data)
++    fase_ids = set(identiteit["fasen"][fase])
++    _schrijf_nieuw(
++        proefmap / f"{fase}-bundel.json",
++        {
++            "soort": PAYLOAD_SOORT,
++            "synthetisch": True,
++            "fase": fase,
++            "identiteit_sha256": manifest["identiteit_sha256"],
++            "gevallen": [p for p in voorbereiding.payloads if p["id"] in fase_ids],
++            "antwoorden": waarnemer.antwoorden,
++        },
++    )
++    return data
++
++
+ # --- CLI ----------------------------------------------------------------------------------
+ 
+ 
++def _main_kwalificatie(
++    parser: argparse.ArgumentParser, args: argparse.Namespace
++) -> int:
++    if not args.live:
++        if args.proefmap is None:
++            parser.error("--kwalificatie vereist --proefmap")
++        manifest = asyncio.run(
++            voorbereid_kwalificatie(
++                args.kwalificatie,
++                args.proefmap,
++                args.manifest,
++                payloads_pad=args.payloads,
++            )
++        )
++        logger.info("kwalificatiemanifest (pending): %s", manifest["identiteit_sha256"])
++        return 0
++    if args.akkoord is None or args.fase is None:
++        parser.error("--live --kwalificatie vereist --akkoord en --fase")
++    data = asyncio.run(
++        voer_kwalificatie_uit(args.manifest, args.akkoord, args.kwalificatie, args.fase)
++    )
++    geslaagd = data["evaluatie"]["mechanisch_geslaagd"]
++    logger.info(
++        "fase %s: stopreden %s; mechanisch geslaagd %s; cumulatief %s",
++        data["fase"],
++        data["stopreden"],
++        geslaagd,
++        data["cumulatief"],
++    )
++    return 0 if geslaagd else 3
++
++
+ def main(argv: list[str] | None = None) -> int:
+     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+     parser.add_argument("--manifest", type=Path, required=True)
+@@ -1073,12 +1985,22 @@ def main(argv: list[str] | None = None) -> int:
+     parser.add_argument("--live", action="store_true", help="echte verzending")
+     parser.add_argument("--akkoord", type=Path)
+     parser.add_argument("--resultaat", type=Path)
++    parser.add_argument(
++        "--kwalificatie",
++        type=Path,
++        metavar="GEVALLEN",
++        help="bevroren gevallenmanifest: kwalificatieprofiel i.p.v. driecasusmodus",
++    )
++    parser.add_argument("--proefmap", type=Path, help="nieuwe proefmap (voorbereiding)")
++    parser.add_argument("--fase", help="kwalificatiefase: " + ", ".join(FASEN))
+     args = parser.parse_args(argv)
+     logging.basicConfig(level=logging.WARNING, format="%(message)s")
+     logger.setLevel(logging.INFO)
+     if str(SRC) not in sys.path:
+         sys.path.insert(0, str(SRC))
+     try:
++        if args.kwalificatie is not None:
++            return _main_kwalificatie(parser, args)
+         if not args.live:
+             manifest = asyncio.run(
+                 voorbereid(args.manifest, payloads_pad=args.payloads)
+diff --git a/tests/unit/validation/test_def835_int02_modelproef.py b/tests/unit/validation/test_def835_int02_modelproef.py
+index 8958c5415..ef0591cfe 100644
+--- a/tests/unit/validation/test_def835_int02_modelproef.py
++++ b/tests/unit/validation/test_def835_int02_modelproef.py
+@@ -907,3 +907,1042 @@ async def test_deadline_breekt_hangende_inferentie_af_zonder_vervolgcall(
+     assert geval["meting"]["fouttype"] == "CancelledError"
+     assert GEHEIM not in resultaat.read_text("utf-8")
+     assert SLEUTEL not in caplog.text
++
++
++# --- Q1: kwalificatieprofiel op een bevroren extern gevallenmanifest -------------------
++#
++# De fixture `def835_int02_kwalificatie_runner.json` is uitsluitend technisch:
++# geen goldset, geen hold-out, willekeurige labels. Zij toetst de runner, nooit
++# het model. Elke fase draait de echte keten met een nep-provider.
++
++KWALFIXTURE = ROOT / "tests" / "fixtures" / "def835_int02_kwalificatie_runner.json"
++KWAL = json.loads(KWALFIXTURE.read_text("utf-8"))
++KWAL_PER_ID = {g["id"]: g for g in KWAL["gevallen"]}
++PER_KERN = {g["invoer"]["kern"]: g["id"] for g in KWAL["gevallen"]}
++FASE_IDS = {
++    fase: [g["id"] for g in KWAL["gevallen"] if g["fase"] == fase]
++    for fase in ("regressie", "ontwikkeling", "holdout")
++}
++LABELMERKTEKENS = [g["label"]["normgrond"] for g in KWAL["gevallen"]]
++KOSTEN_PER_CALL = 1500 * 0.000005 + 400 * 0.000025
++RESERVERING_PER_CALL = 16000 * 0.000005 + 6000 * 0.000025
++OUDE_IDENTITEITSVELDEN = {
++    "profiel",
++    "limieten",
++    "dienstbudget",
++    "prijzen_per_token",
++    "router",
++    "transport",
++    "normhash",
++    "t_tekst_sha256",
++    "bestanden",
++    "versies",
++    "gevallen",
++}
++
++
++def test_kwalificatiefixture_is_zichtbaar_geen_goldset():
++    assert KWAL["technische_testfixture"] is True
++    assert KWAL["goldset"] is False
++    assert "GEEN goldset" in KWAL["gebruik"]
++    assert [len(FASE_IDS[f]) for f in FASE_IDS] == [3, 24, 16]
++    assert FASE_IDS["regressie"] == ["C105", "C107", "C112"]
++    for geval_id in FASE_IDS["regressie"]:
++        assert KWAL_PER_ID[geval_id]["invoer"] == GEVALLEN[geval_id]["invoer"]
++
++
++def _oordeel(invoer: dict, soort: str) -> str:
++    """Geldig WP1-antwoord met het gevraagde verdict (of een citaatfout)."""
++    if soort == "review_required":
++        return json.dumps(
++            {
++                "verdict": "insufficient_information",
++                "passages": [],
++                "reason": "Offline: betekenisgrond ontbreekt.",
++                "question": "Welke bedoeling geldt?",
++                "uncertainty": "decisive",
++                "scope_reason": None,
++                "coverage": "partial",
++            }
++        )
++    kern = invoer["kern"]
++    grond = {"field": "kern", "ref": None, "quote": None, "start": None, "end": None}
++    passage = {
++        "quote": kern,
++        "start": 1 if soort == "citaatfout" else 0,
++        "end": len(kern),
++        "function": "actor_prescription" if soort == "fail" else "criterion",
++        "ground": grond,
++    }
++    return json.dumps(
++        {
++            "verdict": "fail" if soort == "fail" else "pass",
++            "passages": [passage],
++            "reason": "Offline nep-oordeel.",
++            "question": None,
++            "uncertainty": "none",
++            "scope_reason": None,
++            "coverage": "complete",
++        }
++    )
++
++
++class KwalProvider:
++    """Nep-provider: antwoordt per geval volgens het label, tenzij afwijkend.
++
++    Het geval wordt uit de verzonden invoer herkend (de kern), nooit uit een
++    label: het verzoek bevat geen labels. Met `grootboek` wordt bij elk
++    verzoek de dan geldende laatste grootboekregel vastgelegd.
++    """
++
++    def __init__(self, afwijkend=None, *, telling=1200, grootboek=None, usage=None):
++        self.verzoeken: list[dict] = []
++        self.afwijkend = dict(afwijkend or {})
++        self.telling = telling
++        self.grootboek = grootboek
++        self.usage = usage
++        self.boekstand: list[tuple[str, str, dict]] = []
++
++    def __call__(self, request: httpx.Request) -> httpx.Response:
++        body = json.loads(request.content)
++        invoer = json.loads(body["messages"][0]["content"])["invoer"]
++        geval = PER_KERN[invoer["kern"]]
++        self.verzoeken.append({"pad": request.url.path, "geval": geval, "ruw": request})
++        if self.grootboek is not None:
++            laatste = self.grootboek.read_text("utf-8").splitlines()[-1]
++            self.boekstand.append((request.url.path, geval, json.loads(laatste)))
++        if request.url.path.endswith("/count_tokens"):
++            return httpx.Response(200, json={"input_tokens": self.telling})
++        actie = self.afwijkend.get(geval, KWAL_PER_ID[geval]["label"]["status"])
++        if callable(actie):
++            return actie(request)
++        return httpx.Response(
++            200, json=_bericht(_oordeel(invoer, actie), usage=self.usage)
++        )
++
++    def paden(self):
++        return [v["pad"] for v in self.verzoeken]
++
++    def inferenties(self):
++        return [v["geval"] for v in self.verzoeken if v["pad"] == "/v1/messages"]
++
++    def ruw(self) -> str:
++        return "".join(v["ruw"].content.decode("utf-8") for v in self.verzoeken)
++
++
++class Kwal:
++    def __init__(self, tmp_path: Path, gevallen: Path) -> None:
++        self.tmp = tmp_path
++        self.gevallen = gevallen
++        self.proefmap = tmp_path / "proef"
++        self.manifest = tmp_path / "kwal-manifest.json"
++        self.payloads = tmp_path / "kwal-payloads.json"
++
++    @property
++    def grootboek(self) -> Path:
++        return self.proefmap / "grootboek.jsonl"
++
++    def stand(self) -> dict:
++        boek = m.Grootboek.lees(self.grootboek, _sha(self.manifest.read_bytes()))
++        return boek.stand()
++
++
++def _submap(tmp_path: Path, naam: str) -> Path:
++    pad = tmp_path / naam
++    pad.mkdir()
++    return pad
++
++
++def _gevallenbestand(tmp_path: Path, wijzig=None, naam="gevallen.json") -> Path:
++    data = json.loads(json.dumps(KWAL))
++    if wijzig is not None:
++        wijzig(data)
++    pad = tmp_path / naam
++    pad.write_text(json.dumps(data, ensure_ascii=False), "utf-8")
++    return pad
++
++
++async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
++    k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
++    await m.voorbereid_kwalificatie(
++        k.gevallen,
++        k.proefmap,
++        k.manifest,
++        payloads_pad=k.payloads,
++        limieten=limieten or m.KWALIFICATIELIMIETEN,
++    )
++    return k
++
++
++def _kwalakkoord(pad: Path, k: Kwal, **over) -> Path:
++    grens = json.loads(k.manifest.read_text("utf-8"))["identiteit"]["limieten"]
++    data = {
++        "soort": m.KWALIFICATIE_AKKOORD_SOORT,
++        "manifest_sha256": _sha(k.manifest.read_bytes()),
++        "gevallenmanifest_sha256": _sha(k.gevallen.read_bytes()),
++        "protocol_sha256": m.PROTOCOL_SHA256,
++        "profiel_id": m.KWALIFICATIE_PROFIEL_ID,
++        "geen_def815_kwalificatie": True,
++        "live_verzending_toegestaan": True,
++        "max_inferenties": grens["max_inferentie"],
++        "max_tokenmetingen": grens["max_telverzoeken"],
++        "budget_usd": grens["budget_usd"],
++        "akkoord_door": "offline testbeoordelaar",
++        "akkoord_op": "2026-09-28",
++        "akkoord_bron": "offline unittest; geen echte toestemming",
++    }
++    data.update(over)
++    data = {k2: v for k2, v in data.items() if v is not ...}
++    pad.write_text(json.dumps(data), "utf-8")
++    return pad
++
++
++async def _fase(k: Kwal, fase: str, provider, *, akkoord=None, **kw):
++    if akkoord is None:
++        akkoord = k.tmp / "kwal-akkoord.json"
++        if not akkoord.exists():
++            _kwalakkoord(akkoord, k)
++    kw.setdefault("sleutel", lambda: SLEUTEL)
++    kw.setdefault("limieten", m.KWALIFICATIELIMIETEN)
++    return await m.voer_kwalificatie_uit(
++        k.manifest,
++        akkoord,
++        k.gevallen,
++        fase,
++        binnen=httpx.MockTransport(provider),
++        **kw,
++    )
++
++
++async def _tot_en_met(k: Kwal, laatste: str) -> None:
++    for fase in ("regressie", "ontwikkeling", "holdout"):
++        data = await _fase(k, fase, KwalProvider())
++        assert data["evaluatie"]["mechanisch_geslaagd"] is True
++        if fase == laatste:
++            return
++
++
++# --- Q1: voorbereiding en freeze --------------------------------------------------------
++
++
++async def test_kwal_voorbereiding_bindt_invoer_labels_splitsing_en_profiel(
++    tmp_path, monkeypatch
++):
++    def geen_sleutel():
++        raise AssertionError("voorbereiding leest geen sleutel")
++
++    monkeypatch.setattr(m, "_lees_sleutel", geen_sleutel)
++    k = await _kwal(tmp_path)
++    data = json.loads(k.manifest.read_text("utf-8"))
++    assert data["soort"] == m.KWALIFICATIE_MANIFEST_SOORT != m.MANIFEST_SOORT
++    assert data["toestemming"] == "pending"
++    identiteit = data["identiteit"]
++    assert data["identiteit_sha256"] == m.hash_json(identiteit)
++    profiel = identiteit["profiel"]
++    assert profiel["profiel_id"] == m.KWALIFICATIE_PROFIEL_ID != m.PROFIEL_ID
++    assert (profiel["provider"], profiel["model"]) == ("anthropic", "claude-opus-5")
++    assert profiel["def815_kwalificatie"] is False
++    assert identiteit["limieten"] == {
++        "max_inferentie": 43,
++        "max_telverzoeken": 43,
++        "max_uitvoertokens": 6000,
++        "max_geschatte_invoertokens": 16000,
++        "deadline_seconden": 120.0,
++        "totale_looptijd_seconden": 6000.0,
++        "budget_usd": 12.0,
++    }
++    assert identiteit["protocol_sha256"] == (
++        "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f"
++    )
++    assert identiteit["gevallenmanifest"]["sha256"] == _sha(k.gevallen.read_bytes())
++    assert identiteit["gevallenmanifest"]["technische_testfixture"] is True
++    assert identiteit["gevallenmanifest"]["freeze"] == KWAL["freeze"]
++    assert identiteit["fasen"] == FASE_IDS
++    assert identiteit["proefmap"] == str(k.proefmap.resolve())
++    assert identiteit["router"]["uitkomst"] == ["anthropic", "claude-opus-5"]
++    assert "scripts/analysis/def835_int02_modelproef.py" in identiteit["bestanden"]
++    per_geval = {g["id"]: g for g in identiteit["gevallen"]}
++    assert list(per_geval) == [g["id"] for g in KWAL["gevallen"]]
++    for geval_id, geval in per_geval.items():
++        bron = KWAL_PER_ID[geval_id]
++        assert geval["fase"] == bron["fase"]
++        assert geval["invoer_sha256"] == m.hash_json(bron["invoer"])
++        assert geval["label_sha256"] == m.hash_json(bron["label"])
++    # Offline: geen proefmap, geen grootboek, alleen manifest en payloads.
++    assert not k.proefmap.exists()
++    assert sorted(p.name for p in tmp_path.iterdir()) == [
++        "gevallen.json",
++        "kwal-manifest.json",
++        "kwal-payloads.json",
++    ]
++    tekst = k.manifest.read_text("utf-8") + k.payloads.read_text("utf-8")
++    assert all(merk not in tekst for merk in LABELMERKTEKENS)
++
++
++async def test_kwal_labels_raken_payload_niet_maar_wel_de_identiteit(tmp_path):
++    een = await _kwal(_submap(tmp_path, "a"))
++
++    def ander_label(data):
++        for geval in data["gevallen"]:
++            if geval["id"] == "TQ-O01":
++                geval["label"] = {"status": "fail", "normgrond": "ANDER-LABEL"}
++
++    twee = await _kwal(_submap(tmp_path, "b"), wijzig=ander_label)
++    i1 = json.loads(een.manifest.read_text("utf-8"))["identiteit"]
++    i2 = json.loads(twee.manifest.read_text("utf-8"))["identiteit"]
++    p1 = [g["payload_sha256"] for g in i1["gevallen"]]
++    p2 = [g["payload_sha256"] for g in i2["gevallen"]]
++    assert p1 == p2  # het verzoek hangt niet van labels af
++    l1 = {g["id"]: g["label_sha256"] for g in i1["gevallen"]}
++    l2 = {g["id"]: g["label_sha256"] for g in i2["gevallen"]}
++    assert [i for i in l1 if l1[i] != l2[i]] == ["TQ-O01"]
++    assert m.hash_json(i1) != m.hash_json(i2)
++    payloads = json.loads(een.payloads.read_text("utf-8"))["gevallen"]
++    for vast in payloads:
++        body = json.loads(vast["payload"])
++        [bericht] = body["messages"]
++        assert json.loads(bericht["content"]) == {
++            "invoer": KWAL_PER_ID[vast["id"]]["invoer"]
++        }
++        assert "TECHNISCH-TESTLABEL" not in vast["payload"]
++        assert "normgrond" not in vast["payload"]
++
++
++def _zet(geval_id, veld, waarde):
++    def wijzig(data):
++        for geval in data["gevallen"]:
++            if geval["id"] == geval_id:
++                geval[veld] = waarde
++
++    return wijzig
++
++
++def _zonder(veld):
++    def wijzig(data):
++        del data[veld]
++
++    return wijzig
++
++
++def _topveld(veld, waarde):
++    def wijzig(data):
++        data[veld] = waarde
++
++    return wijzig
++
++
++def _dubbel(data):
++    data["gevallen"].append(dict(data["gevallen"][5]))
++
++
++def _holdout_naar_ontwikkeling(data):
++    data["gevallen"][-1]["fase"] = "ontwikkeling"
++
++
++_BASISINVOER = KWAL_PER_ID["TQ-O01"]["invoer"]
++
++
++@pytest.mark.parametrize(
++    ("wijzig", "reden"),
++    [
++        (_zonder("freeze"), "freeze_ontbreekt"),
++        (
++            _topveld("freeze", {**KWAL["freeze"], "status": "concept"}),
++            "freeze_ontbreekt",
++        ),
++        (
++            _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
++            "freeze_ontbreekt",
++        ),
++        (
++            _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
++            "freeze_ontbreekt",
++        ),
++        (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
++        (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
++        (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
++        (_dubbel, "gevallenmanifest_ongeldig"),
++        (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
++        (
++            _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
++            "gevallenmanifest_ongeldig",
++        ),
++        (
++            _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
++            "gevallenmanifest_ongeldig",
++        ),
++        (
++            _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
++            "gevallenmanifest_ongeldig",
++        ),
++        (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
++        (
++            _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
++            "splitsing_ongeldig",
++        ),
++        (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
++        (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
++        (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
++        (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
++        (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
++    ],
++    ids=[
++        "geen-freeze",
++        "freeze-concept",
++        "freeze-zonder-acceptant",
++        "freeze-datum",
++        "protocol",
++        "oud-manifestsoort",
++        "goldsetvlag",
++        "dubbel-id",
++        "labelstatus",
++        "labelveld",
++        "label-in-invoer",
++        "ne-invoer",
++        "onbekend-gevalveld",
++        "regressie-invoer",
++        "regressie-label",
++        "regressie-fase",
++        "onbekende-fase",
++        "aantallen",
++        "holdoutverdeling",
++    ],
++)
++async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
++    tmp_path, wijzig, reden
++):
++    gevallen = _gevallenbestand(tmp_path, wijzig)
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await m.voorbereid_kwalificatie(
++            gevallen, tmp_path / "proef", tmp_path / "manifest.json"
++        )
++    assert fout.value.reden == reden
++    assert not (tmp_path / "manifest.json").exists()
++
++
++async def test_kwal_dryrun_gebruikt_geen_echt_transport(tmp_path, monkeypatch):
++    async def verboden(self, request):
++        raise AssertionError("dry-run verstuurt niets")
++
++    monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", verboden)
++    k = await _kwal(tmp_path)
++    assert json.loads(k.manifest.read_text("utf-8"))["toestemming"] == "pending"
++
++
++async def test_driecasusmodus_identiteitsvorm_ongewijzigd(tmp_path):
++    data = await m.voorbereid(tmp_path / "manifest.json")
++    assert data["soort"] == "def835-int02-modelproef-manifest/1"
++    assert set(data["identiteit"]) == OUDE_IDENTITEITSVELDEN
++    assert m.PROFIEL_ID == "def835-technische-proef-opus5-v1"
++    assert (m.LIMIETEN.max_inferentie, m.LIMIETEN.budget_usd) == (3, 1.0)
++    assert m.AKKOORD_SOORT == "def835-int02-modelproef-akkoord/1"
++
++
++# --- Q1: akkoord, oud mandaat en identiteit ------------------------------------------------
++
++
++@pytest.mark.parametrize(
++    "over",
++    [
++        {"manifest_sha256": "0" * 64},
++        {"gevallenmanifest_sha256": "0" * 64},
++        {"protocol_sha256": "0" * 64},
++        {"profiel_id": "def835-technische-proef-opus5-v1"},
++        {"soort": "def835-int02-modelproef-akkoord/1"},
++        {"max_inferenties": 44},
++        {"max_tokenmetingen": ...},
++        {"budget_usd": 13.0},
++        {"live_verzending_toegestaan": "ja"},
++        {"geen_def815_kwalificatie": False},
++        {"akkoord_door": " "},
++        {"akkoord_op": "gisteren"},
++        {"extra": "veld"},
++    ],
++    ids=lambda o: next(iter(o)),
++)
++async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
++    tmp_path, over
++):
++    k = await _kwal(tmp_path)
++    provider = KwalProvider()
++    gelezen = []
++    akkoord = _kwalakkoord(tmp_path / "ander-akkoord.json", k, **over)
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(
++            k,
++            "regressie",
++            provider,
++            akkoord=akkoord,
++            sleutel=lambda: gelezen.append(1) or SLEUTEL,
++        )
++    assert fout.value.reden == "akkoord_ongeldig"
++    assert provider.verzoeken == [] and gelezen == []
++    assert not k.proefmap.exists()
++
++
++async def test_kwal_weigert_ontbrekend_akkoord(tmp_path):
++    k = await _kwal(tmp_path)
++    provider = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "regressie", provider, akkoord=tmp_path / "bestaat-niet.json")
++    assert fout.value.reden == "akkoord_ontbreekt"
++    assert provider.verzoeken == []
++    assert not k.proefmap.exists()
++
++
++async def test_kwal_oud_driecallmandaat_telt_nooit_als_kwalificatieakkoord(
++    tmp_path, manifest
++):
++    k = await _kwal(tmp_path)
++    provider = KwalProvider()
++    # (a) Een oud driecallakkoord, zelfs op het nieuwe manifest gericht.
++    oud = _akkoord(tmp_path / "oud-akkoord.json", k.manifest)
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "regressie", provider, akkoord=oud)
++    assert fout.value.reden == "akkoord_ongeldig"
++    # (b) Het oude driecasusmanifest met een kwalificatieakkoord erop.
++    oude_k = Kwal(tmp_path, k.gevallen)
++    oude_k.manifest = manifest
++    akkoord = tmp_path / "kwal-op-oud.json"
++    akkoord.write_text(
++        json.dumps(
++            {
++                **json.loads(_kwalakkoord(tmp_path / "hulp.json", k).read_text()),
++                "manifest_sha256": _sha(manifest.read_bytes()),
++            }
++        ),
++        "utf-8",
++    )
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(oude_k, "regressie", provider, akkoord=akkoord)
++    assert fout.value.reden == "akkoord_ongeldig"
++    # (c) Een kwalificatieakkoord opent de oude driecasusmodus niet.
++    oude_provider = NepProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _live(tmp_path, manifest, oude_provider, akkoord=akkoord)
++    assert fout.value.reden == "akkoord_ongeldig"
++    assert provider.verzoeken == [] and oude_provider.verzoeken == []
++    assert not k.proefmap.exists()
++
++
++def _wijzig_invoer(data):
++    for geval in data["gevallen"]:
++        if geval["id"] == "TQ-O02":
++            geval["invoer"] = {**geval["invoer"], "kern": "Andere technische kern."}
++
++
++def _wijzig_label(data):
++    for geval in data["gevallen"]:
++        if geval["id"] == "TQ-O02":
++            geval["label"] = {**geval["label"], "status": "fail"}
++
++
++def _wissel_splitsing(data):
++    """TQ-O01 (pass) en TQ-H01 (pass) wisselen van fase; aantallen blijven."""
++    for geval in data["gevallen"]:
++        if geval["id"] == "TQ-O01":
++            geval["fase"] = "holdout"
++        elif geval["id"] == "TQ-H01":
++            geval["fase"] = "ontwikkeling"
++
++
++def _wijzig_freeze(data):
++    data["freeze"] = {**data["freeze"], "bron": "andere freeze"}
++
++
++@pytest.mark.parametrize(
++    "wijzig",
++    [_wijzig_invoer, _wijzig_label, _wissel_splitsing, _wijzig_freeze],
++    ids=["invoer", "label", "splitsing", "freeze"],
++)
++async def test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord(
++    tmp_path, wijzig
++):
++    k = await _kwal(tmp_path)
++    provider = KwalProvider()
++    # Een akkoord op het oude gevallenbestand past niet meer.
++    oud_akkoord = _kwalakkoord(tmp_path / "akkoord-oud.json", k)
++    data = json.loads(k.gevallen.read_text("utf-8"))
++    wijzig(data)
++    k.gevallen.write_text(json.dumps(data, ensure_ascii=False), "utf-8")
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "regressie", provider, akkoord=oud_akkoord)
++    assert fout.value.reden == "akkoord_ongeldig"
++    # Ook een akkoord dat het gewijzigde bestand noemt, past niet bij het manifest.
++    nieuw_akkoord = _kwalakkoord(tmp_path / "akkoord-nieuw.json", k)
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "regressie", provider, akkoord=nieuw_akkoord)
++    assert fout.value.reden == "identiteit_gewijzigd"
++    assert provider.verzoeken == []
++    assert not k.proefmap.exists()
++
++
++async def test_kwal_gewijzigde_configuratie_weigert(tmp_path):
++    k = await _kwal(tmp_path)
++    provider = KwalProvider()
++    ander = m.Limieten(**{**m.KWALIFICATIELIMIETEN.__dict__, "deadline_seconden": 90.0})
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "regressie", provider, limieten=ander)
++    assert fout.value.reden == "identiteit_gewijzigd"
++    assert provider.verzoeken == []
++
++
++async def test_kwal_testfixture_gaat_nooit_echt_live(tmp_path):
++    k = await _kwal(tmp_path)
++    gelezen = []
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await m.voer_kwalificatie_uit(
++            k.manifest,
++            _kwalakkoord(tmp_path / "akkoord.json", k),
++            k.gevallen,
++            "regressie",
++            sleutel=lambda: gelezen.append(1) or SLEUTEL,
++            binnen=None,
++        )
++    assert fout.value.reden == "testfixture_niet_live"
++    assert gelezen == []
++    assert not k.proefmap.exists()
++
++
++# --- Q1: fasen, grootboek en stops ------------------------------------------------------
++
++
++async def test_kwal_regressiefase_precies_drie_calls_en_duurzaam_grootboek(
++    tmp_path, caplog
++):
++    caplog.set_level(logging.DEBUG)
++    k = await _kwal(tmp_path)
++    provider = KwalProvider(grootboek=k.grootboek)
++    data = await _fase(k, "regressie", provider)
++    # Geen verborgen overgang: alleen de drie regressiegevallen.
++    assert provider.paden() == ["/v1/messages/count_tokens", "/v1/messages"] * 3
++    assert provider.inferenties() == ["C105", "C107", "C112"]
++    assert data["fase"] == "regressie"
++    assert data["stopreden"] is None
++    assert data["tellingen"] == {"inferenties": 3, "telverzoeken": 3}
++    assert data["evaluatie"]["mechanisch_geslaagd"] is True
++    tellers = data["evaluatie"]["tellers"]
++    assert tellers["juist"] == {"teller": 3, "noemer": 3}
++    assert tellers["false_pass"] == {"teller": 0, "noemer": 2}
++    assert tellers["citaatfout"] == {"teller": 0, "noemer": 3}
++    assert data["inhoudelijke_beoordeling"]["status"] == "open"
++    assert "Chris" in data["inhoudelijke_beoordeling"]["beoordelaar"]
++    assert [g["label_status"] for g in data["gevallen"]] == [
++        "fail",
++        "review_required",
++        "pass",
++    ]
++    # Reservering staat vóór elk transport duurzaam in het grootboek.
++    for pad, geval, laatste in provider.boekstand:
++        verwacht = (
++            "tel_reservering"
++            if pad.endswith("count_tokens")
++            else "inferentie_reservering"
++        )
++        assert (laatste["gebeurtenis"], laatste["geval"]) == (verwacht, geval)
++    stand = k.stand()
++    assert stand["inferenties"] == 3 and stand["telverzoeken"] == 3
++    assert stand["besteed_usd"] == pytest.approx(3 * KOSTEN_PER_CALL)
++    assert stand["onzekere_calls"] == []
++    assert stand["fasen"] == {"regressie": True}
++    assert stand["open_fase"] is None
++    resultaat = k.proefmap / "regressie-resultaat.json"
++    assert json.loads(resultaat.read_text("utf-8")) == data
++    bundel = json.loads((k.proefmap / "regressie-bundel.json").read_text("utf-8"))
++    assert [g["id"] for g in bundel["gevallen"]] == ["C105", "C107", "C112"]
++    # Geen labels in verzoeken; geen sleutel of kerntekst in logs of bewijs.
++    assert all(merk not in provider.ruw() for merk in LABELMERKTEKENS)
++    assert "review_required" not in json.dumps(
++        [json.loads(v["ruw"].content)["messages"] for v in provider.verzoeken]
++    )
++    assert SLEUTEL not in caplog.text
++    assert all(g["invoer"]["kern"] not in caplog.text for g in KWAL["gevallen"])
++    assert SLEUTEL not in k.grootboek.read_text("utf-8")
++    assert SLEUTEL not in resultaat.read_text("utf-8")
++
++
++async def test_kwal_drie_fasen_in_volgorde_cumulatief_binnen_43_calls(tmp_path):
++    k = await _kwal(tmp_path)
++    await _fase(k, "regressie", KwalProvider())
++    provider = KwalProvider()
++    ontwikkeling = await _fase(k, "ontwikkeling", provider)
++    assert provider.inferenties() == FASE_IDS["ontwikkeling"]
++    assert ontwikkeling["evaluatie"]["mechanisch_geslaagd"] is True
++    assert ontwikkeling["cumulatief"]["inferenties"] == 27
++    provider = KwalProvider()
++    holdout = await _fase(k, "holdout", provider)
++    assert provider.inferenties() == FASE_IDS["holdout"]
++    assert holdout["evaluatie"]["mechanisch_geslaagd"] is True
++    assert holdout["evaluatie"]["tellers"]["juist"] == {"teller": 16, "noemer": 16}
++    assert holdout["cumulatief"]["inferenties"] == 43
++    assert holdout["cumulatief"]["telverzoeken"] == 43
++    assert holdout["cumulatief"]["kosten_usd_conservatief"] == pytest.approx(
++        43 * KOSTEN_PER_CALL
++    )
++    stand = k.stand()
++    assert stand["fasen"] == {"regressie": True, "ontwikkeling": True, "holdout": True}
++    # Na de laatste fase is geen enkele fase opnieuw te starten.
++    for fase in ("regressie", "ontwikkeling", "holdout"):
++        provider = KwalProvider()
++        with pytest.raises(m.ProefGeweigerdError) as fout:
++            await _fase(k, fase, provider)
++        assert fout.value.reden in {"proefmap_bestaat", "fase_al_uitgevoerd"}
++        assert provider.verzoeken == []
++
++
++@pytest.mark.parametrize(
++    ("voorafgaand", "fase", "reden"),
++    [
++        (None, "ontwikkeling", "fasevolgorde"),
++        (None, "holdout", "fasevolgorde"),
++        ("regressie", "holdout", "fasevolgorde"),
++        ("regressie", "regressie", "proefmap_bestaat"),
++        ("ontwikkeling", "ontwikkeling", "fase_al_uitgevoerd"),
++        (None, "training", "fase_onbekend"),
++    ],
++)
++async def test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls(
++    tmp_path, voorafgaand, fase, reden
++):
++    k = await _kwal(tmp_path)
++    if voorafgaand is not None:
++        await _tot_en_met(k, voorafgaand)
++    provider = KwalProvider()
++    gelezen = []
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, fase, provider, sleutel=lambda: gelezen.append(1) or SLEUTEL)
++    assert fout.value.reden == reden
++    assert provider.verzoeken == [] and gelezen == []
++
++
++async def test_kwal_nieuw_akkoord_op_zelfde_manifest_reset_de_administratie_niet(
++    tmp_path,
++):
++    k = await _kwal(tmp_path)
++    await _fase(k, "regressie", KwalProvider())
++    tweede = _kwalakkoord(tmp_path / "tweede.json", k, akkoord_door="iemand anders")
++    provider = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "regressie", provider, akkoord=tweede)
++    assert fout.value.reden == "proefmap_bestaat"
++    data = await _fase(k, "ontwikkeling", provider, akkoord=tweede)
++    assert data["tellingen"]["inferenties"] == 24
++    assert data["cumulatief"]["inferenties"] == 27
++
++
++async def test_kwal_onjuiste_regressiestatus_blokkeert_volgende_fase(tmp_path):
++    k = await _kwal(tmp_path)
++    # De historische bevinding: C107 fail in plaats van review_required.
++    provider = KwalProvider({"C107": "fail"})
++    data = await _fase(k, "regressie", provider)
++    assert provider.inferenties() == ["C105", "C107", "C112"]
++    assert data["stopreden"] is None
++    assert data["evaluatie"]["mechanisch_geslaagd"] is False
++    assert data["evaluatie"]["tellers"]["juist"] == {"teller": 2, "noemer": 3}
++    assert k.stand()["fasen"] == {"regressie": False}
++    volgende = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "ontwikkeling", volgende)
++    assert fout.value.reden == "fasevolgorde"
++    assert volgende.verzoeken == []
++
++
++def _overbelast(request):
++    return httpx.Response(
++        529, json={"type": "error", "error": {"type": "overloaded_error"}}
++    )
++
++
++@pytest.mark.parametrize(
++    ("fase", "afwijkend", "calls", "reden"),
++    [
++        ("regressie", {"C105": "pass"}, 1, "kritieke_false_pass"),
++        ("regressie", {"C112": "citaatfout"}, 3, "invalid_citation"),
++        ("ontwikkeling", {"TQ-O02": "citaatfout"}, 2, "invalid_citation"),
++        ("ontwikkeling", {"TQ-O03": "pass"}, 3, "kritieke_false_pass"),
++        ("ontwikkeling", {"TQ-O01": _overbelast}, 1, "providerfout"),
++        ("holdout", {"TQ-H09": "pass"}, 9, "kritieke_false_pass"),
++    ],
++    ids=[
++        "regressie-false-pass",
++        "regressie-citaat",
++        "ontwikkeling-citaat",
++        "ontwikkeling-false-pass",
++        "ontwikkeling-providerfout",
++        "holdout-false-pass",
++    ],
++)
++async def test_kwal_fout_of_kritieke_false_pass_stopt_direct(
++    tmp_path, fase, afwijkend, calls, reden
++):
++    k = await _kwal(tmp_path)
++    vorige = {"regressie": None, "ontwikkeling": "regressie", "holdout": "ontwikkeling"}
++    if vorige[fase] is not None:
++        await _tot_en_met(k, vorige[fase])
++    provider = KwalProvider(afwijkend)
++    data = await _fase(k, fase, provider)
++    assert len(provider.inferenties()) == calls  # geen retry, geen vervolgcall
++    assert data["stopreden"] == reden
++    assert data["evaluatie"]["mechanisch_geslaagd"] is False
++    assert k.stand()["fasen"][fase] is False
++    assert k.stand()["open_fase"] is None
++
++
++@pytest.mark.parametrize(
++    ("afwijkend", "geslaagd"),
++    [
++        ({"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass"}, True),
++        (
++            {"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass", "TQ-O05": "fail"},
++            False,
++        ),
++    ],
++    ids=["21-van-24", "20-van-24"],
++)
++async def test_kwal_ontwikkelcriterium_21_van_24(tmp_path, afwijkend, geslaagd):
++    k = await _kwal(tmp_path)
++    await _tot_en_met(k, "regressie")
++    provider = KwalProvider(afwijkend)
++    data = await _fase(k, "ontwikkeling", provider)
++    assert len(provider.inferenties()) == 24  # alle gevallen gerapporteerd
++    assert data["stopreden"] is None
++    assert data["evaluatie"]["mechanisch_geslaagd"] is geslaagd
++    tellers = data["evaluatie"]["tellers"]
++    assert tellers["juist"]["noemer"] == 24
++    assert tellers["false_pass"]["teller"] == 1  # onterechte pass op review_required
++    assert tellers["kritieke_false_pass"]["teller"] == 0
++
++
++H_PASS = [i for i in FASE_IDS["holdout"] if KWAL_PER_ID[i]["label"]["status"] == "pass"]
++H_FAIL = [i for i in FASE_IDS["holdout"] if KWAL_PER_ID[i]["label"]["status"] == "fail"]
++H_RR = [
++    i
++    for i in FASE_IDS["holdout"]
++    if KWAL_PER_ID[i]["label"]["status"] == "review_required"
++]
++
++
++@pytest.mark.parametrize(
++    ("afwijkend", "geslaagd"),
++    [
++        ({}, True),
++        ({H_PASS[0]: "fail", H_RR[0]: "fail"}, True),  # 7/8 pass, 3/4 RR, 14/16
++        ({H_PASS[0]: "review_required", H_PASS[1]: "fail"}, False),  # 6/8 pass
++        ({H_RR[0]: "fail", H_RR[1]: "fail"}, False),  # 2/4 RR
++        ({H_FAIL[0]: "review_required"}, False),  # 3/4 fail
++        ({H_RR[0]: "pass"}, False),  # onterechte goedkeuring
++    ],
++    ids=[
++        "alles-juist",
++        "14-van-16",
++        "pass-6-van-8",
++        "rr-2-van-4",
++        "fail-3-van-4",
++        "rr-pass",
++    ],
++)
++async def test_kwal_holdoutcriteria(tmp_path, afwijkend, geslaagd):
++    k = await _kwal(tmp_path)
++    await _tot_en_met(k, "ontwikkeling")
++    provider = KwalProvider(afwijkend)
++    data = await _fase(k, "holdout", provider)
++    assert len(provider.inferenties()) == 16
++    assert data["stopreden"] is None
++    assert data["evaluatie"]["mechanisch_geslaagd"] is geslaagd
++
++
++# --- Q1: limieten en onzekere calls -----------------------------------------------------
++
++
++def _boekregel(k: Kwal, regel: dict) -> None:
++    with k.grootboek.open("a", encoding="utf-8") as bestand:
++        bestand.write(json.dumps(regel) + "\n")
++
++
++async def test_kwal_open_fase_in_grootboek_blokkeert_hergebruik(tmp_path):
++    k = await _kwal(tmp_path)
++    await _fase(k, "regressie", KwalProvider())
++    # Een afgebroken proces: fase gestart, reservering zonder boeking en einde.
++    _boekregel(k, {"gebeurtenis": "fase_start", "fase": "ontwikkeling"})
++    _boekregel(
++        k,
++        {
++            "gebeurtenis": "inferentie_reservering",
++            "call": 4,
++            "geval": "TQ-O01",
++            "reservering_usd": RESERVERING_PER_CALL,
++        },
++    )
++    stand = k.stand()
++    assert stand["open_fase"] == "ontwikkeling"
++    assert stand["onzekere_calls"] == [4]
++    assert stand["besteed_usd"] == pytest.approx(
++        3 * KOSTEN_PER_CALL + RESERVERING_PER_CALL
++    )
++    provider = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "ontwikkeling", provider)
++    assert fout.value.reden == "grootboek_open"
++    assert provider.verzoeken == []
++
++
++async def test_kwal_mislukte_call_telt_mee_tegen_volle_reservering(tmp_path):
++    k = await _kwal(tmp_path)
++    await _tot_en_met(k, "regressie")
++
++    def transportfout(request):
++        raise httpx.ConnectError(GEHEIM, request=request)
++
++    data = await _fase(k, "ontwikkeling", KwalProvider({"TQ-O01": transportfout}))
++    assert data["stopreden"] == "transportfout"
++    stand = k.stand()
++    assert stand["inferenties"] == 4
++    assert stand["onzekere_calls"] == [4]
++    assert stand["besteed_usd"] == pytest.approx(
++        3 * KOSTEN_PER_CALL + RESERVERING_PER_CALL
++    )
++    assert data["cumulatief"]["kosten_usd_conservatief"] == pytest.approx(
++        stand["besteed_usd"]
++    )
++    assert GEHEIM not in k.grootboek.read_text("utf-8")
++
++
++@pytest.mark.parametrize(
++    "vervalsing",
++    ["ander-manifest", "onbekende-gebeurtenis", "onleesbaar"],
++)
++async def test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert(
++    tmp_path, vervalsing
++):
++    k = await _kwal(tmp_path)
++    await _fase(k, "regressie", KwalProvider())
++    regels = k.grootboek.read_text("utf-8").splitlines()
++    if vervalsing == "ander-manifest":
++        kop = json.loads(regels[0])
++        regels[0] = json.dumps({**kop, "manifest_sha256": "0" * 64})
++    elif vervalsing == "onbekende-gebeurtenis":
++        regels.append(json.dumps({"gebeurtenis": "reset", "fase": "regressie"}))
++    else:
++        regels.append("{afgekapt")
++    k.grootboek.write_text("\n".join(regels) + "\n", "utf-8")
++    provider = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "ontwikkeling", provider)
++    assert fout.value.reden == "grootboek_ongeldig"
++    assert provider.verzoeken == []
++
++
++async def test_kwal_calllimiet_ontoereikend_bij_verbruikte_calls(tmp_path):
++    k = await _kwal(tmp_path)
++    await _fase(k, "regressie", KwalProvider())
++    # Na de afgesloten regressie: extra verbruikte reserveringen (bv. uit
++    # een eerdere afgebroken call) laten minder dan 24 calls over (3+17+24>43).
++    regels = k.grootboek.read_text("utf-8").splitlines()
++    einde = regels.pop()
++    for call in range(4, 21):
++        regels.append(
++            json.dumps(
++                {
++                    "gebeurtenis": "inferentie_reservering",
++                    "call": call,
++                    "geval": "C112",
++                    "fase": "regressie",
++                    "reservering_usd": RESERVERING_PER_CALL,
++                }
++            )
++        )
++    regels.append(einde)
++    k.grootboek.write_text("\n".join(regels) + "\n", "utf-8")
++    provider = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "ontwikkeling", provider)
++    assert fout.value.reden == "calllimiet_ontoereikend"
++    assert provider.verzoeken == []
++
++
++async def test_kwal_cumulatief_budget_weigert_voor_de_fase(tmp_path):
++    k = await _kwal(tmp_path)
++    await _fase(k, "regressie", KwalProvider())
++    regels = [json.loads(r) for r in k.grootboek.read_text("utf-8").splitlines()]
++    for regel in regels:
++        if regel["gebeurtenis"] == "inferentie_boeking":
++            regel["kosten_usd"] = 2.5  # 7,50 besteed: 24 x 0,23 past niet meer
++    k.grootboek.write_text("".join(json.dumps(r) + "\n" for r in regels), "utf-8")
++    provider = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "ontwikkeling", provider)
++    assert fout.value.reden == "budget_ontoereikend"
++    assert provider.verzoeken == []
++
++
++async def test_kwal_budgetplafond_dekt_43_calls_bij_de_voorbereiding(tmp_path):
++    krap = m.Limieten(**{**m.KWALIFICATIELIMIETEN.__dict__, "budget_usd": 9.0})
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await m.voorbereid_kwalificatie(
++            _gevallenbestand(tmp_path),
++            tmp_path / "proef",
++            tmp_path / "m.json",
++            limieten=krap,
++        )
++    assert fout.value.reden == "budget_ontoereikend"
++
++
++async def test_kwal_cumulatieve_looptijd_weigert_voor_de_fase(tmp_path):
++    kort = m.Limieten(
++        **{**m.KWALIFICATIELIMIETEN.__dict__, "totale_looptijd_seconden": 300.0}
++    )
++    k = await _kwal(tmp_path, limieten=kort)
++    provider = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "regressie", provider, limieten=kort)
++    assert fout.value.reden == "looptijd_ontoereikend"  # 3 x 120 s > 300 s
++    assert provider.verzoeken == []
++    assert not k.proefmap.exists()
++
++
++async def test_kwal_tokengrenzen_stoppen_zonder_vervolgcall(tmp_path):
++    k = await _kwal(tmp_path)
++    provider = KwalProvider(telling=16001)
++    data = await _fase(k, "regressie", provider)
++    assert provider.paden() == ["/v1/messages/count_tokens"]
++    assert data["stopreden"] == "invoerschatting_te_hoog"
++    assert k.stand()["telverzoeken"] == 1 and k.stand()["inferenties"] == 0
++    k2 = await _kwal(_submap(tmp_path, "b"))
++    provider = KwalProvider(usage=_usage(output_tokens=6001))
++    data = await _fase(k2, "regressie", provider)
++    assert provider.inferenties() == ["C105"]
++    assert data["stopreden"] == "usage_boven_limiet"
++
++
++async def test_kwal_waarnemer_start_met_cumulatieve_stand(tmp_path):
++    """Budget en calllimiet gelden over runs: de waarnemer erft de stand."""
++    k = await _kwal(tmp_path)
++    await _fase(k, "regressie", KwalProvider())
++    stand = k.stand()
++    waarnemer = m.Waarnemer(
++        modus="live",
++        limieten=m.KWALIFICATIELIMIETEN,
++        binnen=httpx.MockTransport(KwalProvider()),
++        prijzen={"input": 0.000005, "output": 0.000025},
++    )
++    waarnemer.neem_stand_over(stand)
++    assert waarnemer.inferenties == 3 and waarnemer.telverzoeken == 3
++    assert waarnemer.besteed_usd == pytest.approx(stand["besteed_usd"])
++
++
++def test_kwal_cli_voorbereiding(tmp_path):
++    gevallen = _gevallenbestand(tmp_path)
++    code = m.main(
++        [
++            "--kwalificatie",
++            str(gevallen),
++            "--proefmap",
++            str(tmp_path / "proef"),
++            "--manifest",
++            str(tmp_path / "manifest.json"),
++        ]
++    )
++    assert code == 0
++    data = json.loads((tmp_path / "manifest.json").read_text("utf-8"))
++    assert data["soort"] == m.KWALIFICATIE_MANIFEST_SOORT
++    assert not (tmp_path / "proef").exists()
+diff --git a/tests/fixtures/def835_int02_kwalificatie_runner.json b/tests/fixtures/def835_int02_kwalificatie_runner.json
+new file mode 100644
+index 000000000..27bf96810
+--- /dev/null
++++ b/tests/fixtures/def835_int02_kwalificatie_runner.json
+@@ -0,0 +1,918 @@
++{
++  "soort": "def835-int02-kwalificatie-gevallen/1",
++  "technische_testfixture": true,
++  "goldset": false,
++  "gebruik": "UITSLUITEND technische testfixture voor de offline Q1-runnertests (DEF-835). GEEN goldset, GEEN hold-out en geen geaccepteerde labels: de labels zijn willekeurig toegekend om runnergedrag te toetsen en zeggen niets over INT-02. De runner weigert dit bestand voor echte verzending.",
++  "protocol_sha256": "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f",
++  "freeze": {
++    "status": "bevroren",
++    "geaccepteerd_door": "technische testfixture; geen mens, geen labelacceptatie",
++    "geaccepteerd_op": "2026-09-28",
++    "bron": "Q1-unittest; geen echte freeze of goldset"
++  },
++  "gevallen": [
++    {
++      "id": "C105",
++      "fase": "regressie",
++      "familie": "bekende-regressie",
++      "herkomst": "tests/fixtures/def835_int02_ontwerpgevallen.json (invoer exact)",
++      "invoer": {
++        "begrip": "toelating",
++        "kern": "De medewerker laat de aanvrager toe.",
++        "bedoeling": "opdracht aan medewerker",
++        "organisatorische_context": [
++          "synthetische procedure"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-C105; geen normgrond"
++      }
++    },
++    {
++      "id": "C107",
++      "fase": "regressie",
++      "familie": "bekende-regressie",
++      "herkomst": "tests/fixtures/def835_int02_ontwerpgevallen.json (invoer exact)",
++      "invoer": {
++        "begrip": "voldoende onderbouwde aanvraag",
++        "kern": "Aanvraag die naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "synthetische begrippenstudie"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-C107; geen normgrond"
++      }
++    },
++    {
++      "id": "C112",
++      "fase": "regressie",
++      "familie": "bekende-regressie",
++      "herkomst": "tests/fixtures/def835_int02_ontwerpgevallen.json (invoer exact)",
++      "invoer": {
++        "begrip": "verplichting",
++        "kern": "Verplichting van een partij om de overeengekomen prestatie te verrichten.",
++        "bedoeling": "Synthetische beschrijving van verplichting zelf",
++        "organisatorische_context": [
++          "synthetische begrippenstudie"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-C112; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O01",
++      "fase": "ontwikkeling",
++      "familie": "technisch-criterium",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O01",
++        "kern": "Technische testkern TQ-O01 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O01",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O01; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O02",
++      "fase": "ontwikkeling",
++      "familie": "technisch-normatief-begrip",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O02",
++        "kern": "Technische testkern TQ-O02 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O02",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O02; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O03",
++      "fase": "ontwikkeling",
++      "familie": "technisch-actorvoorschrift",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O03",
++        "kern": "Technische testkern TQ-O03 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O03",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O03; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O04",
++      "fase": "ontwikkeling",
++      "familie": "technisch-betekenisgrond",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O04",
++        "kern": "Technische testkern TQ-O04 zonder inhoudelijke betekenis.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O04; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O05",
++      "fase": "ontwikkeling",
++      "familie": "technisch-criterium",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O05",
++        "kern": "Technische testkern TQ-O05 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O05",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O05; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O06",
++      "fase": "ontwikkeling",
++      "familie": "technisch-normatief-begrip",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O06",
++        "kern": "Technische testkern TQ-O06 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O06",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O06; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O07",
++      "fase": "ontwikkeling",
++      "familie": "technisch-actorvoorschrift",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O07",
++        "kern": "Technische testkern TQ-O07 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O07",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O07; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O08",
++      "fase": "ontwikkeling",
++      "familie": "technisch-betekenisgrond",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O08",
++        "kern": "Technische testkern TQ-O08 zonder inhoudelijke betekenis.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O08; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O09",
++      "fase": "ontwikkeling",
++      "familie": "technisch-criterium",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O09",
++        "kern": "Technische testkern TQ-O09 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O09",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O09; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O10",
++      "fase": "ontwikkeling",
++      "familie": "technisch-normatief-begrip",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O10",
++        "kern": "Technische testkern TQ-O10 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O10",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O10; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O11",
++      "fase": "ontwikkeling",
++      "familie": "technisch-actorvoorschrift",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O11",
++        "kern": "Technische testkern TQ-O11 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O11",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O11; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O12",
++      "fase": "ontwikkeling",
++      "familie": "technisch-betekenisgrond",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O12",
++        "kern": "Technische testkern TQ-O12 zonder inhoudelijke betekenis.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O12; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O13",
++      "fase": "ontwikkeling",
++      "familie": "technisch-criterium",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O13",
++        "kern": "Technische testkern TQ-O13 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O13",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O13; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O14",
++      "fase": "ontwikkeling",
++      "familie": "technisch-normatief-begrip",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O14",
++        "kern": "Technische testkern TQ-O14 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O14",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O14; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O15",
++      "fase": "ontwikkeling",
++      "familie": "technisch-actorvoorschrift",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O15",
++        "kern": "Technische testkern TQ-O15 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O15",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O15; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O16",
++      "fase": "ontwikkeling",
++      "familie": "technisch-betekenisgrond",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O16",
++        "kern": "Technische testkern TQ-O16 zonder inhoudelijke betekenis.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O16; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O17",
++      "fase": "ontwikkeling",
++      "familie": "technisch-criterium",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O17",
++        "kern": "Technische testkern TQ-O17 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O17",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O17; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O18",
++      "fase": "ontwikkeling",
++      "familie": "technisch-normatief-begrip",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O18",
++        "kern": "Technische testkern TQ-O18 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O18",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O18; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O19",
++      "fase": "ontwikkeling",
++      "familie": "technisch-actorvoorschrift",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O19",
++        "kern": "Technische testkern TQ-O19 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O19",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O19; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O20",
++      "fase": "ontwikkeling",
++      "familie": "technisch-betekenisgrond",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O20",
++        "kern": "Technische testkern TQ-O20 zonder inhoudelijke betekenis.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O20; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O21",
++      "fase": "ontwikkeling",
++      "familie": "technisch-criterium",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O21",
++        "kern": "Technische testkern TQ-O21 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O21",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O21; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O22",
++      "fase": "ontwikkeling",
++      "familie": "technisch-normatief-begrip",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O22",
++        "kern": "Technische testkern TQ-O22 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O22",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O22; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O23",
++      "fase": "ontwikkeling",
++      "familie": "technisch-actorvoorschrift",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O23",
++        "kern": "Technische testkern TQ-O23 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-O23",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O23; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-O24",
++      "fase": "ontwikkeling",
++      "familie": "technisch-betekenisgrond",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-O24",
++        "kern": "Technische testkern TQ-O24 zonder inhoudelijke betekenis.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-O24; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H01",
++      "fase": "holdout",
++      "familie": "technisch-criterium",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H01",
++        "kern": "Technische testkern TQ-H01 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H01",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H01; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H02",
++      "fase": "holdout",
++      "familie": "technisch-normatief-begrip",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H02",
++        "kern": "Technische testkern TQ-H02 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H02",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H02; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H03",
++      "fase": "holdout",
++      "familie": "technisch-criterium",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H03",
++        "kern": "Technische testkern TQ-H03 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H03",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H03; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H04",
++      "fase": "holdout",
++      "familie": "technisch-normatief-begrip",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H04",
++        "kern": "Technische testkern TQ-H04 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H04",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H04; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H05",
++      "fase": "holdout",
++      "familie": "technisch-criterium",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H05",
++        "kern": "Technische testkern TQ-H05 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H05",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H05; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H06",
++      "fase": "holdout",
++      "familie": "technisch-normatief-begrip",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H06",
++        "kern": "Technische testkern TQ-H06 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H06",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H06; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H07",
++      "fase": "holdout",
++      "familie": "technisch-criterium",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H07",
++        "kern": "Technische testkern TQ-H07 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H07",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H07; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H08",
++      "fase": "holdout",
++      "familie": "technisch-normatief-begrip",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H08",
++        "kern": "Technische testkern TQ-H08 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H08",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "pass",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H08; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H09",
++      "fase": "holdout",
++      "familie": "technisch-actorvoorschrift",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H09",
++        "kern": "Technische testkern TQ-H09 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H09",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H09; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H10",
++      "fase": "holdout",
++      "familie": "technisch-actorvoorschrift",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H10",
++        "kern": "Technische testkern TQ-H10 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H10",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H10; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H11",
++      "fase": "holdout",
++      "familie": "technisch-actorvoorschrift",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H11",
++        "kern": "Technische testkern TQ-H11 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H11",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H11; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H12",
++      "fase": "holdout",
++      "familie": "technisch-actorvoorschrift",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H12",
++        "kern": "Technische testkern TQ-H12 zonder inhoudelijke betekenis.",
++        "bedoeling": "testbedoeling TQ-H12",
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "fail",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H12; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H13",
++      "fase": "holdout",
++      "familie": "technisch-betekenisgrond",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H13",
++        "kern": "Technische testkern TQ-H13 zonder inhoudelijke betekenis.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H13; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H14",
++      "fase": "holdout",
++      "familie": "technisch-betekenisgrond",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H14",
++        "kern": "Technische testkern TQ-H14 zonder inhoudelijke betekenis.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H14; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H15",
++      "fase": "holdout",
++      "familie": "technisch-betekenisgrond",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H15",
++        "kern": "Technische testkern TQ-H15 zonder inhoudelijke betekenis.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H15; geen normgrond"
++      }
++    },
++    {
++      "id": "TQ-H16",
++      "fase": "holdout",
++      "familie": "technisch-betekenisgrond",
++      "herkomst": "technische Q1-testfixture; geen goldset, geen echte casus",
++      "invoer": {
++        "begrip": "testbegrip TQ-H16",
++        "kern": "Technische testkern TQ-H16 zonder inhoudelijke betekenis.",
++        "bedoeling": null,
++        "organisatorische_context": [
++          "technische testcontext"
++        ],
++        "juridische_context": [],
++        "wettelijke_basis": [],
++        "bronnen": []
++      },
++      "label": {
++        "status": "review_required",
++        "normgrond": "TECHNISCH-TESTLABEL-TQ-H16; geen normgrond"
++      }
++    }
++  ]
++}

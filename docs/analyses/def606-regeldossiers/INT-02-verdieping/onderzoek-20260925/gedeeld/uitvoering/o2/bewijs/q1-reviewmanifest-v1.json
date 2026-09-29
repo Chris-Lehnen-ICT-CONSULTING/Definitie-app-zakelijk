@@ -1,0 +1,11 @@
+{
+  "base": "f9bb9e6973926a3cf768995f5d879f6edfd6322d",
+  "review_root": "/Users/chrislehnen/.codex/worktrees/def835-q1-review/Definitie-app",
+  "files": {
+    "scripts/analysis/def835_int02_modelproef.py": "f4d09238998b1233f888eb1c702fa2334eb84b50dcbfd80f32ac53fd879a7f06",
+    "tests/unit/validation/test_def835_int02_modelproef.py": "4a8960ba544aea15220ba2f31f6c8c9ae05731b30ae3101728bd50c0361a0b30",
+    "tests/fixtures/def835_int02_kwalificatie_runner.json": "2f50c456756614cc35e78b81f57f4c8afc748b79d4cfcd6da053306e6c8fd7a7"
+  },
+  "bewijs": "q1-coordinator-v1.json",
+  "goldset_gekopieerd": false
+}

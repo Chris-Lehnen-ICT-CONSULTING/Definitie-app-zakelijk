@@ -1,0 +1,82 @@
+[
+  {
+    "input": "Handeling die moet, na toestemming van de rechter, worden verricht.",
+    "status": "review_required",
+    "passages": [
+      "Handeling die moet, na toestemming van de rechter, worden verricht"
+    ],
+    "positions": [
+      [
+        "0",
+        "66"
+      ]
+    ],
+    "literal_slices": true,
+    "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'Handeling die moet, na toestemming van de rechter, worden verricht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–66 (tekenposities, nulgebaseerd, einde exclusief)."
+  },
+  {
+    "input": "Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid.",
+    "status": "review_required",
+    "passages": [
+      "Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid"
+    ],
+    "positions": [
+      [
+        "0",
+        "77"
+      ]
+    ],
+    "literal_slices": true,
+    "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–77 (tekenposities, nulgebaseerd, einde exclusief)."
+  },
+  {
+    "input": "De bevoegde instantie kan, na afweging van de belangen, besluiten de vergunning in te trekken.",
+    "status": "review_required",
+    "passages": [
+      "De bevoegde instantie kan, na afweging van de belangen, besluiten de vergunning in te trekken"
+    ],
+    "positions": [
+      [
+        "0",
+        "93"
+      ]
+    ],
+    "literal_slices": true,
+    "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'De bevoegde instantie kan, na afweging van de belangen, besluiten de vergunning in te trekken' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–93 (tekenposities, nulgebaseerd, einde exclusief)."
+  },
+  {
+    "input": "Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag.",
+    "status": "review_required",
+    "passages": [
+      "Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag"
+    ],
+    "positions": [
+      [
+        "0",
+        "81"
+      ]
+    ],
+    "literal_slices": true,
+    "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–81 (tekenposities, nulgebaseerd, einde exclusief)."
+  },
+  {
+    "input": "Handeling die moet volgen. Handeling die moet volgen.",
+    "status": "review_required",
+    "passages": [
+      "Handeling die moet volgen",
+      "Handeling die moet volgen"
+    ],
+    "positions": [
+      [
+        "0",
+        "25"
+      ],
+      [
+        "27",
+        "52"
+      ]
+    ],
+    "literal_slices": true,
+    "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'Handeling die moet volgen' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–25 (tekenposities, nulgebaseerd, einde exclusief). INT-02 — Nog te beoordelen. Beschrijft de passage 'Handeling die moet volgen' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 27–52 (tekenposities, nulgebaseerd, einde exclusief)."
+  }
+]

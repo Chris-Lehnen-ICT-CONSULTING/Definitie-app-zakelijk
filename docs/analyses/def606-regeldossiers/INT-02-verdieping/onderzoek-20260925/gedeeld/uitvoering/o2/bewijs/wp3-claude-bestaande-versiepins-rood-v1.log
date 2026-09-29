@@ -1,0 +1,172 @@
+# HEAD 2be81c577653f8efbab6fa2c3794598556d32d13 tijdstip 2026-09-27T22:11:18Z (werkboom met WP3-wijzigingen, ongecommit)
+# Verklaarde oude verwachting: deze bestaande tests pinnen contractversie 2.2.0; ongewijzigd gelaten (niet geaccordeerd). Nulmeting vóór GREEN: wp3-claude-basis-voor-groen-v1.log (alles groen).
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_validation_readiness.py tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py tests/unit/services/orchestrators/test_def772_int03_wrappers.py tests/unit/services/orchestrators/test_def766_ess03_wrappers.py -o addopts= -q -ra
+...................F.....................F................F............. [ 92%]
+.....F                                                                   [100%]
+=================================== FAILURES ===================================
+__________ test_validate_text_verkrijgt_verse_beoordeling_met_binding __________
+
+    async def test_validate_text_verkrijgt_verse_beoordeling_met_binding():
+        service, assessor = _service(), FakeInt03Assessor(scenario="pass")
+        orch = ValidationOrchestratorV2(service, int03_assessment_service=assessor)
+        metadata = {
+            **CONTEXT,
+            "toelichting": "Synthetische toelichting.",
+            # Een meegegeven beoordeling is nooit de bron van waarheid.
+            "int03_assessment": {"status": "assessed", "judgment": {"verdict": "pass"}},
+        }
+        before = deepcopy(metadata)
+    
+        result = await orch.validate_text(
+            BEGRIP, TEKST, context=ValidationContext(metadata=metadata)
+        )
+    
+        assert metadata == before
+        (call,) = assessor.calls
+        assert call["begrip"] == BEGRIP
+        assert call["tekst"] == TEKST
+        assert call["toelichting"] == "Synthetische toelichting."
+        assert call["contexten"]["organisatorische_context"] == ["Synthetische Organisatie"]
+        doorgegeven = service.received["int03_assessment"]
+        assert doorgegeven["status"] == "assessed"
+        assert doorgegeven["contract_version"] == CONTRACTVERSIE
+        assert doorgegeven["fingerprint"] == bereken_int03_vingerafdruk(
+            BEGRIP, TEKST, CONTEXT, "Synthetische toelichting."
+        )
+        assert doorgegeven["attribution"]["model"] == "fake-int03-model"
+        assert service.received["int03_binding"] == BINDING.als_dict()
+        # Geen nieuw top-level veld: de actuele contractversie is 2.2.0 (DEF-771);
+        # die beschrijft ook assessment/signals in rule_results['INT-03'].
+>       assert result["version"] == CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/services/orchestrators/test_def772_int03_wrappers.py:103: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=18e5c4de-2150-463a-b927-5c3894b3a276)
+______ test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug ______
+
+    async def test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug():
+        service, assessor = _service(), FakeAssessor()
+        orch = ValidationOrchestratorV2(service, source_assessment_service=assessor)
+        metadata = {**CONTEXT, "provenance_sources": [BRON], "peildatum": "2026-09-15"}
+        before = deepcopy(metadata)
+    
+        result = await orch.validate_text(
+            BEGRIP, TEKST, context=ValidationContext(metadata=metadata)
+        )
+    
+        assert metadata == before
+        (call,) = assessor.calls
+        assert call["begrip"] == BEGRIP and call["tekst"] == TEKST
+        assert call["bronnen"] == [BRON]
+        assert call["peildatum"] == "2026-09-15"
+        assert call["contexten"]["wettelijke_basis"] == ["Synthetische Bestuurswet"]
+        assert service.received["source_assessment"]["parts"] == {
+            "marker": "vers-verkregen"
+        }
+        assert service.received["provenance_sources"] == [BRON]
+        assert service.received["record_text"] == TEKST
+        assert result["source_assessment"]["status"] == "assessed"
+        assert result["source_assessment"]["fingerprint"] == bereken_bronvingerafdruk(
+            BEGRIP, TEKST, CONTEXT, [BRON], peildatum="2026-09-15"
+        )
+        # DEF-624: 2.0.0 (validation_status verplicht, geen default); DEF-766:
+        # 2.1.0 (additief: not_applicable, ess03_assessment); DEF-771: 2.2.0
+        # (additief: not_evaluated als deeluitkomst). De bronbeoordeling
+        # (1.4.0-veld) reist ongewijzigd mee.
+>       assert result["version"] == CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py:138: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=c5c12d47-7f47-427a-a73e-9b6b086ffc5a)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:579 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=c5c12d47-7f47-427a-a73e-9b6b086ffc5a)
+__________________ test_contractversie_is_verhoogd_naar_2_2_0 __________________
+
+    def test_contractversie_is_verhoogd_naar_2_2_0() -> None:
+        # 1.2.0 (DEF-621) voegde validation_status toe; 1.3.0 (DEF-622) voegt
+        # rule_results toe en maakt overall_score nullable; 1.4.0 (DEF-743) voegt
+        # source_assessment toe (de volledige AI-bronbeoordeling van CON-02).
+        # 2.0.0 (DEF-624): validation_status verplicht en zonder default; een
+        # afwezige status betekent niet langer "validated" (SemVer-major).
+        # 2.1.0 (DEF-766, additief): resultaatstatus not_applicable en
+        # ess03_assessment (de AI-telbaarheidsbeoordeling van ESS-03).
+        # 2.2.0 (DEF-771, additief): deeluitkomststatus not_evaluated.
+>       assert CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/validation/test_validation_readiness.py:188: AssertionError
+______ test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug ______
+
+    async def test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug():
+        service, assessor = _service(), FakeEss03Assessor(scenario="pass")
+        orch = ValidationOrchestratorV2(service, ess03_assessment_service=assessor)
+        metadata = {
+            **CONTEXT,
+            "provenance_sources": [BRON],
+            "toelichting": "Synthetische conventie.",
+            "ontologische_categorie": "type",
+            "ess03_verduidelijking": "Peil P is het zomerpeil.",
+            # Een meegegeven beoordeling is nooit de bron van waarheid.
+            "ess03_assessment": {"status": "assessed", "judgment": {"verdict": "pass"}},
+        }
+        before = deepcopy(metadata)
+    
+        result = await orch.validate_text(
+            BEGRIP, TEKST, context=ValidationContext(metadata=metadata)
+        )
+    
+        assert metadata == before
+        (call,) = assessor.calls
+        assert call["begrip"] == BEGRIP
+        assert call["tekst"] == TEKST
+        assert call["bronnen"] == [BRON]
+        assert call["intentie"] == Intentie(
+            toelichting="Synthetische conventie.",
+            categorie="type",
+            verduidelijking="Peil P is het zomerpeil.",
+        )
+        doorgegeven = service.received["ess03_assessment"]
+        assert doorgegeven["status"] == "assessed"
+        assert doorgegeven["contract_version"] == CONTRACTVERSIE
+        assert doorgegeven["fingerprint"] == bereken_ess03_vingerafdruk(
+            BEGRIP, TEKST, CONTEXT, [BRON], intentie=call["intentie"]
+        )
+        assert doorgegeven["attribution"]["model"] == "fake-ess03-model"
+        assert result["ess03_assessment"] == doorgegeven
+        # DEF-771: 2.2.0 (additief: not_evaluated als deeluitkomst).
+>       assert result["version"] == CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/services/orchestrators/test_def766_ess03_wrappers.py:95: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:414 DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=cce79a1d-7b54-4e2e-a8e3-1cb4ecc5bfa9)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:579 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=cce79a1d-7b54-4e2e-a8e3-1cb4ecc5bfa9)
+=========================== short test summary info ============================
+FAILED tests/unit/services/orchestrators/test_def772_int03_wrappers.py::test_validate_text_verkrijgt_verse_beoordeling_met_binding
+FAILED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug
+FAILED tests/unit/validation/test_validation_readiness.py::test_contractversie_is_verhoogd_naar_2_2_0
+FAILED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug
+4 failed, 74 passed in 0.77s
+
+# exitcode: 1

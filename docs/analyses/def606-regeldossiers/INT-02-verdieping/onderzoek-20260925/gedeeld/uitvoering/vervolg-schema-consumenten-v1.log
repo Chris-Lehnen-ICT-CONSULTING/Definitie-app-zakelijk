@@ -1,0 +1,4 @@
+# Aanvullend: overige schemaconsumenten (rg 'validation_result.schema.json')
+$ .venv/bin/python -m pytest tests/unit/services/validation/test_def624_factory_schema.py tests/unit/services/validation/test_def624_reviewcorrecties.py tests/integration/contracts/test_validation_result_schema.py tests/integration/contracts/test_validation_interface.py tests/integration/contracts/test_validation_degraded_contract.py -p no:cacheprovider -q -rA
+(eval):1: command not found: timeout
+exit=127

@@ -1,0 +1,6 @@
+HEAD dff713fd45a2c87b6d3b646e500e108b5cd61b03
+$ /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -p no:cacheprovider --tb=short
+........................................                                 [100%]
+40 passed in 2.07s
+
+exit=0

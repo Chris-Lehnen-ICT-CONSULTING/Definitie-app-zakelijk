@@ -1,0 +1,12 @@
+# DEF-835 modelproef REGRESSIE v2 (zelfde set als v1, mét samenvattingsregel) — 2026-09-28T09:46:53Z
+$ /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py tests/unit/domain/test_def835_int02_contract.py tests/unit/validation/test_def835_int02_assessment_service.py tests/unit/validation/test_def835_int02_evaluator.py tests/unit/services/ai/test_anthropic_client.py tests/unit/services/ai/test_anthropic_client_thinking_guard.py tests/unit/services/ai/test_anthropic_client_temperature_guard.py tests/unit/services/ai/test_anthropic_client_stop_reason.py tests/unit/services/test_def766_ai_route_optins.py tests/unit/test_ai_service_v2_routing.py tests/unit/test_ai_clients.py -p no:cacheprovider --tb=short
+........................................................................ [ 13%]
+........................................................................ [ 27%]
+........................................................................ [ 41%]
+........................................................................ [ 55%]
+........................................................................ [ 69%]
+........................................................................ [ 83%]
+........................................................................ [ 97%]
+..............                                                           [100%]
+518 passed in 3.53s
+exit=0

@@ -26,19 +26,39 @@ Dit document definieert het bindende contract voor `ValidationResult` objecten i
 ## Scope & Status
 
 - **Scope**: Alle validation responses van ValidationOrchestratorV2
-- **Versie**: 2.0.0 (SemVer)
+- **Versie**: 2.4.0 (SemVer)
 - **Backward Compatibility**: Gegarandeerd binnen major version. De overgang 1.x → 2.0.0 is een betekenisverandering (zie tabel); legacy-invoer blijft leesbaar via de normalisatie in `services.validation.result_contract`, maar levert nooit een oordeel.
 
 ### Wijzigingen
 
 | Versie | Wijziging |
 | --- | --- |
+| 2.4.0 | DEF-768 (merge met main, 29-09-2026): additief de top-level velden `ess05_assessment` (de volledige AI-onderscheidsbeoordeling van ESS-05, contract `domain.ess05.contract`, of `null`) en `ess05_actieve_buren` (de burenlijst — herkomst, bevestiging — waaraan die beoordeling gebonden is, of `null`). Beide optioneel; geen bestaand veld of bestaande status is van betekenis veranderd. Op de featurebranch heette deze uitbreiding 2.2.0; omdat main 2.2.0 (DEF-771) en 2.3.0 (DEF-835) al had gepubliceerd, is zij bij de merge 2.4.0 geworden. |
+| 2.3.0 | DEF-835 (WP3, 27-09-2026): `rule_results['INT-02']` mag dezelfde optionele velden dragen als INT-03: `assessment` (het INT-02-beoordelingsdocument, contract `def835-int02-assessment/1`, of `null`) en `signals` (lijst van vurende recordpatronen; leeshulp, geen oordeel). Alleen INT-02 en INT-03; elke andere regeluitkomst en elk onbekend veld blijft afgewezen (`unevaluatedProperties: false`). Additief: geen bestaand veld of bestaande status is van betekenis veranderd en bestaande 2.2.0-uitkomsten blijven geldig. De nieuwe evaluator `decision_rule_assessment` is geregistreerd maar door geen actief record gekozen: INT-02 blijft O1 (`judgment_review`). Zie "INT-02 O2-deeluitkomst (2.3.0)". |
+| 2.2.0 | DEF-771 (26-09-2026): een deeluitkomst in `rule_results` (`parts[].status`) mag `not_evaluated` zijn. INT-02 boekt bij ontbrekende kern of context `rule_results['INT-02']` met status `not_evaluated`, `score` en `fingerprint` `null`, `contract_version` uit het regelrecord en één onderdeel `invoer` met de exacte melding "INT-02 — Niet uitgevoerd: {kern/context} ontbreekt. Er is geen inhoudelijk oordeel." Geen oordeel, score, reviewpunt of poort; `rule_statuses` en de dekking blijven zoals ze waren. Deze NE-uitbreiding is additief en voegt geen veld toe. Daarnaast beschrijft 2.2.0 (integratie met main, DEF-772) de bestaande INT-03-runtimevelden in `rule_results['INT-03']`: `assessment` (het volledige beoordelingsdocument, contract `domain.int03.contract`, of `null`) en `signals` (lijst van vurende patronen; zoekhulp, geen oordeel). Die velden zijn alleen voor INT-03 toegestaan; elke regeluitkomst blijft onbekende velden afwijzen (`unevaluatedProperties: false` op de gedeelde definitie `#regeluitkomst`). Geen nieuwe norm en geen gedragswijziging. |
 | 2.0.0 | DEF-624 (deellevering 1, 16-09-2026): `validation_status` is verplicht in de canonieke uitvoervorm en heeft geen `default: validated` meer. Een afwezige, null of ongeldige status betekent niet langer "uitgevoerde run" maar wordt aan de invoergrens (dict, legacy object, fabriek, adapter) `validation_unknown` met reden `contract_status_missing` / `contract_status_invalid`; een degraded result is `validation_unknown` met `validation_error`. `validation_readiness` is alleen bij `ruleset_incomplete` verplicht (alleen dan gemeten). Bij `validation_unknown` is `is_acceptable` altijd `false` en `overall_score` 0 of null. Conversies verzinnen geen geslaagde regels (de oude `BASIC-00x`-default vervalt) en maken van een `None`-score geen 0.0 (ook niet via de legacy-sleutel `score`). In de TypedDict-binding zijn de schemaverplichte velden `Required[...]` (`ValidationResult.__required_keys__` == `required`); een expliciet `source_assessment: null` reist bij conversie mee en een aanwezige ongeldige status wordt als `contract_status_invalid` (niet als ontbrekend) gemeld. `services.validation.types` voert geen eigen versie meer maar herexporteert dit contract; de fabriek normaliseert een afwezige/ongeldige status via de centrale statusbepaling (AC 1) en weigert alleen tegenstrijdige expliciete metadata (reden bij validated, expliciete unknown zonder contractuele reden, `ruleset_incomplete` zonder volledige readiness, readiness buiten de schemavorm); `is_valid_result` volgt de conditionele schema-eisen incl. de unknown-placeholders en de readinessvorm. Vorige versie gepind als `schemas/validation_result_v1.4.0.schema.json`. |
 | 1.4.0 | DEF-743: `source_assessment` (volledige AI-bronbeoordeling CON-02, of null) toegevoegd. Additief. |
 | 1.3.0 | DEF-622: `rule_results` toegevoegd; `overall_score` en categoriescores mogen `null` zijn (geen noemer zonder CON-01). Additief. |
 | 1.2.0 | DEF-621: `validation_status`, `unknown_reason` (`ruleset_incomplete`) en `validation_readiness` toegevoegd. Additief. |
 | 1.1.0 | DEF-624: `rule_statuses`, `evaluation_coverage` en `review_required` toegevoegd. Additief; geen veld verdwenen of van betekenis veranderd. `additionalProperties` blijft bewust `false` — een nieuw veld mag niet stil binnenglippen. |
 | 1.0.0 | Initieel contract. Gepind als `schemas/validation_result_v1.0.0.schema.json`. |
+
+### INT-02 O2-deeluitkomst (2.3.0)
+
+De evaluator `decision_rule_assessment` (`services.validation.evaluators.decision_rule_assessment`) is synchroon en doet geen modelaanroep. Hij past een getypeerd `domain.int02.contract.Beoordelingsdocument` toe op de actuele invoer en configuratie, uitsluitend via `toets_actualiteit` (WP1). Getypeerde metadata-aansluiting in `EvaluationContext.metadata`:
+
+| Sleutel | Type | Betekenis |
+| --- | --- | --- |
+| `record_text` | `str` | exacte kern; zonder deze sleutel geldt de aangeleverde tekst |
+| `organisatorische_context`, `juridische_context`, `wettelijke_basis` | lijst van teksten | afwezig of `null` = leeg |
+| `int02_bedoeling` | `str` of `null`/afwezig | `null` = expliciet onbekend |
+| `int02_bronnen` | lijst van `{id, tekst}` | afwezig of `null` = geen |
+| `int02_configuratie` | `Configuratie` | actuele norm-, prompt-, routerings- en modelconfiguratie; afwezig = nog niet beoordeeld |
+| `int02_document` | `Beoordelingsdocument` of `null` | elk ander type = `error` |
+
+Deeluitkomst: `score` en `fingerprint` `null`, `contract_version` `def835-int02-assessment/1`, één onderdeel `beoordeling` met de exacte WP1-melding, `review.actuality` (`current`, `historical`, `not_assessed`; `null` bij `not_evaluated` en `error`), `assessment` (alleen een door `toets_actualiteit` aanvaard document, anders `null`) en `signals`. Alle zes statussen zijn mogelijk; ongeldige metadata geeft `error`, nooit een positieve uitkomst. Een `fail` is een adviserende violation (`warning`/`medium`, `metadata.advisory`), zonder poort of herstel.
+
+**Grens.** Evaluator, register en schema zijn gereed. Container, orchestrator, de `ModularValidationService`-boekhouding van deeluitkomsten, UI en opslag zijn nog niet aangesloten (DEF-835 WP5); de volledige appketen voert O2 dus nog niet uit.
 
 ### Runstatus (2.0.0)
 

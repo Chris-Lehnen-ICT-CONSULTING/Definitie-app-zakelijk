@@ -1,0 +1,211 @@
+$ .venv/bin/python -m pytest tests/unit/services/orchestrators/test_def766_ess03_wrappers.py tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py tests/unit/validation/test_validation_readiness.py -p no:cacheprovider -q -rA
+.........................................................                [100%]
+==================================== PASSES ====================================
+_____________ test_fingerprint_wijzigt_bij_elke_bron[regelbestand] _____________
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+_________ test_validate_definition_gebruikt_recordtekst_en_toelichting _________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:395 DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=5088fcfa-9cf2-48f4-a98d-bc03c783b297)
+_______ test_zonder_dienst_is_de_beoordeling_expliciet_niet_beschikbaar ________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=9acb6349-faeb-4084-8eed-97fb7750bf65)
+________________ test_dienstfout_is_technische_fout_nooit_pass _________________
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:514 DEF-766: telbaarheidsbeoordeling mislukt (correlation_id=e93e485b-a712-4838-bb22-853893c2af12): RuntimeError: synthetische storing
+____________ test_dienst_die_geen_document_geeft_is_technische_fout ____________
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:514 DEF-766: telbaarheidsbeoordeling mislukt (correlation_id=bf27c113-530f-4bcd-a3e4-badf645b3a6e): TypeError: beoordelingsdienst gaf str terug
+______ test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug ______
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:395 DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=d850b9bd-0394-4c59-9d1d-18ffa4766c4e)
+_ test_validate_text_normaliseert_de_bronalias_en_faalt_gesloten_bij_conflict[metadata3-error] _
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:98 DEF-743: verschillende bronlijsten onder 'sources' en 'provenance_sources' (correlation_id=bd469b83-4f0e-4bf1-85ec-b91ac0951f64); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=bd469b83-4f0e-4bf1-85ec-b91ac0951f64)
+________ test_wrapper_geeft_de_werkelijke_afkapgrens_van_de_dienst_mee _________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=78c7ce6c-f273-4519-b5fe-6835017204db)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:395 DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=f03316ac-b03f-40b5-9f3b-b44ad948e6ec)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=f03316ac-b03f-40b5-9f3b-b44ad948e6ec)
+_______ test_zonder_dienst_is_de_beoordeling_expliciet_niet_beschikbaar ________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:395 DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=9a3a2330-88d3-4c19-bfd4-3c1980cdbd01)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=9a3a2330-88d3-4c19-bfd4-3c1980cdbd01)
+_ test_validate_text_normaliseert_de_bronalias_en_faalt_gesloten_bij_conflict[metadata2-assessed] _
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=2c176a29-729f-43ad-bf0c-a7fc2f60384a)
+___ test_recordvalidatie_conflict_blijft_gesloten_via_dezelfde_normalisatie ____
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:98 DEF-743: verschillende bronlijsten onder 'sources' en 'provenance_sources' (correlation_id=c7a048fc-8631-40a7-aaad-75960438e1fe); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=c7a048fc-8631-40a7-aaad-75960438e1fe)
+_ test_foutkwitantie_in_recordvalidatie_zonder_bronnen_is_ook_technische_fout __
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:110 DEF-743: kwitantie meldt een verzamelfout (correlation_id=12f3366d-1371-41f9-b46e-f86277bc595d): verzamelfout bij het aanleveren van bronnen (rag: ConnectionError)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=12f3366d-1371-41f9-b46e-f86277bc595d)
+__________ test_expliciete_none_alias_is_afwezigheid[metadata2-True] ___________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=8a208d13-b236-4c9d-8aef-2bfff12a2617)
+_ test_validate_text_normaliseert_de_bronalias_en_faalt_gesloten_bij_conflict[metadata0-assessed] _
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=f3f26025-0984-4f5c-9425-36171055abec)
+_ test_foutkwitantie_zonder_bronnen_is_technische_fout_niet_gewoon_open[bronnen0] _
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:110 DEF-743: kwitantie meldt een verzamelfout (correlation_id=5b1b4e11-c9b4-492a-83ee-b762a4d00b6b): verzamelfout bij het aanleveren van bronnen (rag: ConnectionError)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=5b1b4e11-c9b4-492a-83ee-b762a4d00b6b)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:110 DEF-743: kwitantie meldt een verzamelfout (correlation_id=a34ef9c5-8028-40e6-8458-e30ed2c2c410): verzamelfout bij het aanleveren van bronnen (rag: ConnectionError)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=a34ef9c5-8028-40e6-8458-e30ed2c2c410)
+____ test_validate_definition_zonder_bronsleutels_gebruikt_aanroepercontext ____
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=27a3c7f2-f470-4d32-a6ba-75a8772b21c6)
+_______________ test_dienstfout_wordt_technische_fout_niet_pass ________________
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:428 DEF-743: bronbeoordeling mislukt (correlation_id=d03ba186-2265-4078-a077-9765db7e145c): RuntimeError: kapot
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=d03ba186-2265-4078-a077-9765db7e145c)
+_ test_foutkwitantie_zonder_bronnen_is_technische_fout_niet_gewoon_open[None] __
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:110 DEF-743: kwitantie meldt een verzamelfout (correlation_id=6b1a87ad-b496-455d-891f-63872ea3f32f): verzamelfout bij het aanleveren van bronnen (rag: ConnectionError)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=6b1a87ad-b496-455d-891f-63872ea3f32f)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:110 DEF-743: kwitantie meldt een verzamelfout (correlation_id=71b56fe4-aeaf-4fa5-9408-f393e32daba7): verzamelfout bij het aanleveren van bronnen (rag: ConnectionError)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=71b56fe4-aeaf-4fa5-9408-f393e32daba7)
+_______ test_validate_definition_leest_bronnen_en_review_uit_het_record ________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=1fda8008-9c6e-4c90-aa7f-b135b699ce0a)
+__________ test_expliciete_none_alias_is_afwezigheid[metadata0-False] __________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=613ef76a-e431-4601-b270-837133006f71)
+_ test_validate_text_normaliseert_de_bronalias_en_faalt_gesloten_bij_conflict[metadata1-assessed] _
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=74db7809-c190-45b5-8bde-91eab6353fd6)
+_ test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata4] __
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=8c3bb2d9-8af5-468a-b2a2-7f129f0ef066); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=8c3bb2d9-8af5-468a-b2a2-7f129f0ef066)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=67bfaf4d-e70f-42c0-b4a5-f6bb5a6e0180); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=67bfaf4d-e70f-42c0-b4a5-f6bb5a6e0180)
+_____________ test_aanroeper_beoordeling_is_nooit_een_kortere_weg ______________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=2bd7d754-d9e9-40cd-9547-3efe5aabcc50)
+_ test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata5] __
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=65664b41-5133-44f9-855c-82212a58c676); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=65664b41-5133-44f9-855c-82212a58c676)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=65994c95-2b1f-42c8-94af-6023866032f2); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=65994c95-2b1f-42c8-94af-6023866032f2)
+__________ test_expliciete_none_alias_is_afwezigheid[metadata3-True] ___________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=7e0019e6-bf99-4f02-a87f-da8b5768b56b)
+_ test_foutkwitantie_zonder_bronnen_is_technische_fout_niet_gewoon_open[geen lijst] _
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:110 DEF-743: kwitantie meldt een verzamelfout (correlation_id=85e5d737-d775-4c5e-a1c9-ea488d9f82ed): verzamelfout bij het aanleveren van bronnen (rag: ConnectionError)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=85e5d737-d775-4c5e-a1c9-ea488d9f82ed)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:110 DEF-743: kwitantie meldt een verzamelfout (correlation_id=47656f8f-1b84-4592-95f7-9a1fb251d5d8): verzamelfout bij het aanleveren van bronnen (rag: ConnectionError)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=47656f8f-1b84-4592-95f7-9a1fb251d5d8)
+________________ test_cleaning_verandert_de_bindingstekst_niet _________________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=5696b08d-f2d9-49c3-8139-e8cc950f804e)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=be30c819-7a2c-459b-ae14-aceed31d2c75)
+______ test_zonder_bronnen_geen_ai_aanroep_en_expliciet_geen_beoordeling _______
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=5f56885d-9b83-4965-9c52-457c37491100)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=99a06b89-5bd3-4ec2-bef0-07db0fe670cc)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=e0ec0871-c277-4f3b-827d-4fa1bc61dfb7)
+__________ test_expliciete_none_alias_is_afwezigheid[metadata1-False] __________
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=4cd499d1-4ccc-49c3-ae98-d54d8075f414)
+_ test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata6] __
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=60531f03-c126-4399-a5bd-32edfc765581); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=60531f03-c126-4399-a5bd-32edfc765581)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=215d33ab-bf1d-44da-9dc3-3273cba6088f); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=215d33ab-bf1d-44da-9dc3-3273cba6088f)
+______ test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug ______
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=39a8b6ea-e46c-4fa3-b695-71f21700fff8)
+_ test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata3] __
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=91c6042e-8042-4664-bc87-890411ce3f44); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=91c6042e-8042-4664-bc87-890411ce3f44)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=71f1e0fa-8110-4d52-bc20-ef390dc26963); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=71f1e0fa-8110-4d52-bc20-ef390dc26963)
+_ test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata2] __
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=1f5da829-e51b-4e34-b35b-a3205e107552); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=1f5da829-e51b-4e34-b35b-a3205e107552)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=83315e53-cd80-4404-8d53-46ecf9db6e49); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=83315e53-cd80-4404-8d53-46ecf9db6e49)
+_ test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata0] __
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=77dcbe52-88ae-453e-984e-fa93f440d993); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=77dcbe52-88ae-453e-984e-fa93f440d993)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=204252a3-c67a-427f-90ce-caaeb9d26c3a); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=204252a3-c67a-427f-90ce-caaeb9d26c3a)
+____________ test_conflicterende_bronaliassen_zijn_technische_fout _____________
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:98 DEF-743: verschillende bronlijsten onder 'sources' en 'provenance_sources' (correlation_id=9e4d17f0-3dfa-46bb-b338-ac679901f562); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=9e4d17f0-3dfa-46bb-b338-ac679901f562)
+_ test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata1] __
+------------------------------ Captured log call -------------------------------
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=25b10b92-acc1-4e7a-82da-bd903afbed41); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=25b10b92-acc1-4e7a-82da-bd903afbed41)
+ERROR    services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:88 DEF-743: misvormde bronlijst onder 'sources'/'provenance_sources' (correlation_id=5dab403c-1c63-43fb-afa3-48090c411cca); bronbeoordeling niet uitgevoerd
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:478 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=5dab403c-1c63-43fb-afa3-48090c411cca)
+=========================== short test summary info ============================
+PASSED tests/unit/validation/test_validation_readiness.py::test_fingerprint_wijzigt_bij_elke_bron[regelbestand]
+PASSED tests/unit/validation/test_validation_readiness.py::test_schemaomschrijving_noemt_de_actuele_contractversie
+PASSED tests/unit/validation/test_validation_readiness.py::test_incompleet_readinessobject_is_schema_ongeldig
+PASSED tests/unit/validation/test_validation_readiness.py::test_unknown_zonder_reden_is_schema_ongeldig
+PASSED tests/unit/validation/test_validation_readiness.py::test_unknown_met_echte_score_is_schema_ongeldig
+PASSED tests/unit/validation/test_validation_readiness.py::test_readiness_vergelijkt_verzamelingen_niet_aantallen[52 gevonden met een verkeerd ID-geladen2-False-2-1]
+PASSED tests/unit/validation/test_validation_readiness.py::test_validated_resultaat_met_score_blijft_geldig
+PASSED tests/unit/validation/test_validation_readiness.py::test_fingerprint_wijzigt_bij_elke_bron[contract_ssot]
+PASSED tests/unit/validation/test_validation_readiness.py::test_fingerprint_wijzigt_bij_verdwenen_en_hersteld_bestand
+PASSED tests/unit/validation/test_validation_readiness.py::test_readiness_vergelijkt_verzamelingen_niet_aantallen[volledig 53/53-geladen0-True-0-0]
+PASSED tests/unit/validation/test_validation_readiness.py::test_readiness_vergelijkt_verzamelingen_niet_aantallen[52 van 53-geladen1-False-1-0]
+PASSED tests/unit/validation/test_validation_readiness.py::test_readiness_vergelijkt_verzamelingen_niet_aantallen[fallback 7 van 53-geladen3-False-46-0]
+PASSED tests/unit/validation/test_validation_readiness.py::test_unknown_resultaat_is_schemageldig
+PASSED tests/unit/validation/test_validation_readiness.py::test_contractversie_is_verhoogd_naar_2_2_0
+PASSED tests/unit/validation/test_validation_readiness.py::test_readiness_normaliseert_schrijfwijzen
+PASSED tests/unit/validation/test_validation_readiness.py::test_readiness_vergelijkt_verzamelingen_niet_aantallen[superset 54-geladen4-False-0-1]
+PASSED tests/unit/validation/test_validation_readiness.py::test_lege_contractset_is_nooit_compleet
+PASSED tests/unit/validation/test_validation_readiness.py::test_fingerprint_is_stabiel_zonder_wijziging
+PASSED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_validate_definition_gebruikt_recordtekst_en_toelichting
+PASSED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_definition_orchestrator_bouwt_de_dienst_lazy_op_de_ai_service
+PASSED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_container_levert_een_gedeelde_dienst
+PASSED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_zonder_dienst_is_de_beoordeling_expliciet_niet_beschikbaar
+PASSED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_dienstfout_is_technische_fout_nooit_pass
+PASSED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_definition_orchestrator_injecteert_de_dienst_in_de_wrapper
+PASSED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_dienst_die_geen_document_geeft_is_technische_fout
+PASSED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_zonder_term_of_tekst_geen_modelaanroep
+PASSED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_validate_text_normaliseert_de_bronalias_en_faalt_gesloten_bij_conflict[metadata3-error]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_wrapper_geeft_de_werkelijke_afkapgrens_van_de_dienst_mee
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_zonder_dienst_is_de_beoordeling_expliciet_niet_beschikbaar
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_validate_text_normaliseert_de_bronalias_en_faalt_gesloten_bij_conflict[metadata2-assessed]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_recordvalidatie_conflict_blijft_gesloten_via_dezelfde_normalisatie
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_foutkwitantie_in_recordvalidatie_zonder_bronnen_is_ook_technische_fout
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_expliciete_none_alias_is_afwezigheid[metadata2-True]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_validate_text_normaliseert_de_bronalias_en_faalt_gesloten_bij_conflict[metadata0-assessed]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_foutkwitantie_zonder_bronnen_is_technische_fout_niet_gewoon_open[bronnen0]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_validate_definition_zonder_bronsleutels_gebruikt_aanroepercontext
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_dienstfout_wordt_technische_fout_niet_pass
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_foutkwitantie_zonder_bronnen_is_technische_fout_niet_gewoon_open[None]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_validate_definition_leest_bronnen_en_review_uit_het_record
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_expliciete_none_alias_is_afwezigheid[metadata0-False]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_validate_text_normaliseert_de_bronalias_en_faalt_gesloten_bij_conflict[metadata1-assessed]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata4]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_aanroeper_beoordeling_is_nooit_een_kortere_weg
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata5]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_expliciete_none_alias_is_afwezigheid[metadata3-True]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_foutkwitantie_zonder_bronnen_is_technische_fout_niet_gewoon_open[geen lijst]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_cleaning_verandert_de_bindingstekst_niet
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_zonder_bronnen_geen_ai_aanroep_en_expliciet_geen_beoordeling
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_expliciete_none_alias_is_afwezigheid[metadata1-False]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata6]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata3]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata2]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata0]
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_conflicterende_bronaliassen_zijn_technische_fout
+PASSED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_aanwezige_misvormde_alias_is_technische_fout_geen_omzeiling[metadata1]
+exit=0

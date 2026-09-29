@@ -1,0 +1,3864 @@
+# DEF-835 Q1 ROOD — 2026-09-28T15:57:34Z
+$ git rev-parse HEAD
+f9bb9e6973926a3cf768995f5d879f6edfd6322d
+$ shasum -a 256 (doelbestanden)
+61ce9c5c187faab7e278540060cb2a25fe9017a921ded81fad1ee93e7badfe7a  scripts/analysis/def835_int02_modelproef.py
+3d42ddbb7f9449e092e5a2861b79dbce959eeac3344a0f0fba23720d884185f0  tests/unit/validation/test_def835_int02_modelproef.py
+2f50c456756614cc35e78b81f57f4c8afc748b79d4cfcd6da053306e6c8fd7a7  tests/fixtures/def835_int02_kwalificatie_runner.json
+$ env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 .venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -o addopts= -q -ra -p no:cacheprovider
+FFFF.F..FFFFFFF..FFF.F.F..F..F.........FFF...FFFF.FFF....FFFF.FFF...F.FF [ 46%]
+.FF.FFFF..FF..F.FF...F..FFF.F....F.FFF.F..F....F.FFFFFF..F..F.FFFF..F..F [ 92%]
+.FF......F..                                                             [100%]
+=================================== FAILURES ===================================
+_________ test_kwal_drie_fasen_in_volgorde_cumulatief_binnen_43_calls __________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_drie_fasen_in_volgor0')
+
+    async def test_kwal_drie_fasen_in_volgorde_cumulatief_binnen_43_calls(tmp_path):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1563: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_drie_fasen_in_volgor0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+_____________ test_kwal_cumulatieve_looptijd_weigert_voor_de_fase ______________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_cumulatieve_looptijd0')
+
+    async def test_kwal_cumulatieve_looptijd_weigert_voor_de_fase(tmp_path):
+        kort = m.Limieten(
+>           **{**m.KWALIFICATIELIMIETEN.__dict__, "totale_looptijd_seconden": 300.0}
+                 ^^^^^^^^^^^^^^^^^^^^^^
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'KWALIFICATIELIMIETEN'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1880: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[label-in-invoer] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger0')
+wijzig = <function _zet.<locals>.wijzig at 0x10defe160>
+reden = 'gevallenmanifest_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[soort] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk0')
+over = {'soort': 'def835-int02-modelproef-akkoord/1'}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+____ test_kwal_fout_of_kritieke_false_pass_stopt_direct[holdout-false-pass] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal0')
+fase = 'holdout', afwijkend = {'TQ-H09': 'pass'}, calls = 9
+reden = 'kritieke_false_pass'
+
+    @pytest.mark.parametrize(
+        ("fase", "afwijkend", "calls", "reden"),
+        [
+            ("regressie", {"C105": "pass"}, 1, "kritieke_false_pass"),
+            ("regressie", {"C112": "citaatfout"}, 3, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O02": "citaatfout"}, 2, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O03": "pass"}, 3, "kritieke_false_pass"),
+            ("ontwikkeling", {"TQ-O01": _overbelast}, 1, "providerfout"),
+            ("holdout", {"TQ-H09": "pass"}, 9, "kritieke_false_pass"),
+        ],
+        ids=[
+            "regressie-false-pass",
+            "regressie-citaat",
+            "ontwikkeling-citaat",
+            "ontwikkeling-false-pass",
+            "ontwikkeling-providerfout",
+            "holdout-false-pass",
+        ],
+    )
+    async def test_kwal_fout_of_kritieke_false_pass_stopt_direct(
+        tmp_path, fase, afwijkend, calls, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1676: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_______ test_kwal_voorbereiding_bindt_invoer_labels_splitsing_en_profiel _______
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_bindt_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10ec502d0>
+
+    async def test_kwal_voorbereiding_bindt_invoer_labels_splitsing_en_profiel(
+        tmp_path, monkeypatch
+    ):
+        def geen_sleutel():
+            raise AssertionError("voorbereiding leest geen sleutel")
+    
+        monkeypatch.setattr(m, "_lees_sleutel", geen_sleutel)
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_bindt_0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_______________ test_kwal_waarnemer_start_met_cumulatieve_stand ________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_waarnemer_start_met_0')
+
+    async def test_kwal_waarnemer_start_met_cumulatieve_stand(tmp_path):
+        """Budget en calllimiet gelden over runs: de waarnemer erft de stand."""
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1907: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_waarnemer_start_met_0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+______________ test_kwal_ontwikkelcriterium_21_van_24[20-van-24] _______________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_ontwikkelcriterium_20')
+afwijkend = {'TQ-O01': 'fail', 'TQ-O02': 'fail', 'TQ-O04': 'pass', 'TQ-O05': 'fail'}
+geslaagd = False
+
+    @pytest.mark.parametrize(
+        ("afwijkend", "geslaagd"),
+        [
+            ({"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass"}, True),
+            ({"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass", "TQ-O05": "fail"}, False),
+        ],
+        ids=["21-van-24", "20-van-24"],
+    )
+    async def test_kwal_ontwikkelcriterium_21_van_24(tmp_path, afwijkend, geslaagd):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1698: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_ontwikkelcriterium_20')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[regressie-label] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger1')
+wijzig = <function _zet.<locals>.wijzig at 0x10defe3e0>
+reden = 'splitsing_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[profiel_id] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk1')
+over = {'profiel_id': 'def835-technische-proef-opus5-v1'}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk1')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+__ test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord[invoer] __
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_gewijzigd_gevallenma0')
+wijzig = <function _wijzig_invoer at 0x10defec00>
+
+    @pytest.mark.parametrize(
+        "wijzig",
+        [_wijzig_invoer, _wijzig_label, _wissel_splitsing, _wijzig_freeze],
+        ids=["invoer", "label", "splitsing", "freeze"],
+    )
+    async def test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord(
+        tmp_path, wijzig
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1457: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_gewijzigd_gevallenma0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[protocol_sha256] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk2')
+over = {'protocol_sha256': '0000000000000000000000000000000000000000000000000000000000000000'}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk2')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[freeze-concept] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger2')
+wijzig = <function _topveld.<locals>.wijzig at 0x10defdc60>
+reden = 'freeze_ontbreekt'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+__________________ test_kwal_gewijzigde_configuratie_weigert ___________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_gewijzigde_configura0')
+
+    async def test_kwal_gewijzigde_configuratie_weigert(tmp_path):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1481: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_gewijzigde_configura0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+______________ test_kwal_ontwikkelcriterium_21_van_24[21-van-24] _______________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_ontwikkelcriterium_21')
+afwijkend = {'TQ-O01': 'fail', 'TQ-O02': 'fail', 'TQ-O04': 'pass'}
+geslaagd = True
+
+    @pytest.mark.parametrize(
+        ("afwijkend", "geslaagd"),
+        [
+            ({"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass"}, True),
+            ({"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass", "TQ-O05": "fail"}, False),
+        ],
+        ids=["21-van-24", "20-van-24"],
+    )
+    async def test_kwal_ontwikkelcriterium_21_van_24(tmp_path, afwijkend, geslaagd):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1698: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_ontwikkelcriterium_21')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+__ test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord[label] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_gewijzigd_gevallenma1')
+wijzig = <function _wijzig_label at 0x10defeca0>
+
+    @pytest.mark.parametrize(
+        "wijzig",
+        [_wijzig_invoer, _wijzig_label, _wissel_splitsing, _wijzig_freeze],
+        ids=["invoer", "label", "splitsing", "freeze"],
+    )
+    async def test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord(
+        tmp_path, wijzig
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1457: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_gewijzigd_gevallenma1')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+__________________ test_kwal_testfixture_gaat_nooit_echt_live __________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_testfixture_gaat_noo0')
+
+    async def test_kwal_testfixture_gaat_nooit_echt_live(tmp_path):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1491: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_testfixture_gaat_noo0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+____________ test_kwal_calllimiet_ontoereikend_bij_verbruikte_calls ____________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_calllimiet_ontoereik0')
+
+    async def test_kwal_calllimiet_ontoereikend_bij_verbruikte_calls(tmp_path):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1824: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_calllimiet_ontoereik0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[onbekend-gevalveld] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger3')
+wijzig = <function _zet.<locals>.wijzig at 0x10defe2a0>
+reden = 'gevallenmanifest_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_ test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[ontwikkeling-ontwikkeling-fase_al_uitgevoerd] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor0')
+voorafgaand = 'ontwikkeling', fase = 'ontwikkeling'
+reden = 'fase_al_uitgevoerd'
+
+    @pytest.mark.parametrize(
+        ("voorafgaand", "fase", "reden"),
+        [
+            (None, "ontwikkeling", "fasevolgorde"),
+            (None, "holdout", "fasevolgorde"),
+            ("regressie", "holdout", "fasevolgorde"),
+            ("regressie", "regressie", "proefmap_bestaat"),
+            ("ontwikkeling", "ontwikkeling", "fase_al_uitgevoerd"),
+            (None, "training", "fase_onbekend"),
+        ],
+    )
+    async def test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls(
+        tmp_path, voorafgaand, fase, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1605: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[regressie-regressie-proefmap_bestaat] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor1')
+voorafgaand = 'regressie', fase = 'regressie', reden = 'proefmap_bestaat'
+
+    @pytest.mark.parametrize(
+        ("voorafgaand", "fase", "reden"),
+        [
+            (None, "ontwikkeling", "fasevolgorde"),
+            (None, "holdout", "fasevolgorde"),
+            ("regressie", "holdout", "fasevolgorde"),
+            ("regressie", "regressie", "proefmap_bestaat"),
+            ("ontwikkeling", "ontwikkeling", "fase_al_uitgevoerd"),
+            (None, "training", "fase_onbekend"),
+        ],
+    )
+    async def test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls(
+        tmp_path, voorafgaand, fase, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1605: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor1')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+___ test_kwal_fout_of_kritieke_false_pass_stopt_direct[ontwikkeling-citaat] ____
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal1')
+fase = 'ontwikkeling', afwijkend = {'TQ-O02': 'citaatfout'}, calls = 2
+reden = 'invalid_citation'
+
+    @pytest.mark.parametrize(
+        ("fase", "afwijkend", "calls", "reden"),
+        [
+            ("regressie", {"C105": "pass"}, 1, "kritieke_false_pass"),
+            ("regressie", {"C112": "citaatfout"}, 3, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O02": "citaatfout"}, 2, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O03": "pass"}, 3, "kritieke_false_pass"),
+            ("ontwikkeling", {"TQ-O01": _overbelast}, 1, "providerfout"),
+            ("holdout", {"TQ-H09": "pass"}, 9, "kritieke_false_pass"),
+        ],
+        ids=[
+            "regressie-false-pass",
+            "regressie-citaat",
+            "ontwikkeling-citaat",
+            "ontwikkeling-false-pass",
+            "ontwikkeling-providerfout",
+            "holdout-false-pass",
+        ],
+    )
+    async def test_kwal_fout_of_kritieke_false_pass_stopt_direct(
+        tmp_path, fase, afwijkend, calls, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1676: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal1')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[regressie-holdout-fasevolgorde] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor2')
+voorafgaand = 'regressie', fase = 'holdout', reden = 'fasevolgorde'
+
+    @pytest.mark.parametrize(
+        ("voorafgaand", "fase", "reden"),
+        [
+            (None, "ontwikkeling", "fasevolgorde"),
+            (None, "holdout", "fasevolgorde"),
+            ("regressie", "holdout", "fasevolgorde"),
+            ("regressie", "regressie", "proefmap_bestaat"),
+            ("ontwikkeling", "ontwikkeling", "fase_al_uitgevoerd"),
+            (None, "training", "fase_onbekend"),
+        ],
+    )
+    async def test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls(
+        tmp_path, voorafgaand, fase, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1605: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor2')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[live_verzending_toegestaan] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk3')
+over = {'live_verzending_toegestaan': 'ja'}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk3')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[geen_def815_kwalificatie] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk4')
+over = {'geen_def815_kwalificatie': False}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk4')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_____________________ test_kwal_holdoutcriteria[14-van-16] _____________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_14_v0')
+afwijkend = {'TQ-H01': 'fail', 'TQ-H13': 'fail'}, geslaagd = True
+
+    @pytest.mark.parametrize(
+        ("afwijkend", "geslaagd"),
+        [
+            ({}, True),
+            ({H_PASS[0]: "fail", H_RR[0]: "fail"}, True),  # 7/8 pass, 3/4 RR, 14/16
+            ({H_PASS[0]: "review_required", H_PASS[1]: "fail"}, False),  # 6/8 pass
+            ({H_RR[0]: "fail", H_RR[1]: "fail"}, False),  # 2/4 RR
+            ({H_FAIL[0]: "review_required"}, False),  # 3/4 fail
+            ({H_RR[0]: "pass"}, False),  # onterechte goedkeuring
+        ],
+        ids=["alles-juist", "14-van-16", "pass-6-van-8", "rr-2-van-4", "fail-3-van-4", "rr-pass"],
+    )
+    async def test_kwal_holdoutcriteria(tmp_path, afwijkend, geslaagd):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_14_v0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[freeze-datum] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger4')
+wijzig = <function _topveld.<locals>.wijzig at 0x10defdda0>
+reden = 'freeze_ontbreekt'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[oud-manifestsoort] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger5')
+wijzig = <function _topveld.<locals>.wijzig at 0x10defdee0>
+reden = 'gevallenmanifest_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+__________ test_kwal_labels_raken_payload_niet_maar_wel_de_identiteit __________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_labels_raken_payload0')
+
+    async def test_kwal_labels_raken_payload_niet_maar_wel_de_identiteit(tmp_path):
+>       een = await _kwal(_submap(tmp_path, "a"))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1183: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_labels_raken_payload0/a')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+________________ test_kwal_dryrun_gebruikt_geen_echt_transport _________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_dryrun_gebruikt_geen0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10eb7c9f0>
+
+    async def test_kwal_dryrun_gebruikt_geen_echt_transport(tmp_path, monkeypatch):
+        async def verboden(self, request):
+            raise AssertionError("dry-run verstuurt niets")
+    
+        monkeypatch.setattr(httpx.AsyncHTTPTransport, "handle_async_request", verboden)
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1324: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_dryrun_gebruikt_geen0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+___________ test_kwal_mislukte_call_telt_mee_tegen_volle_reservering ___________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_mislukte_call_telt_m0')
+
+    async def test_kwal_mislukte_call_telt_mee_tegen_volle_reservering(tmp_path):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1778: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_mislukte_call_telt_m0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[max_inferenties] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk5')
+over = {'max_inferenties': 44}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk5')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert[onbekende-gebeurtenis] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_grootboek_van_ander_0')
+vervalsing = 'onbekende-gebeurtenis'
+
+    @pytest.mark.parametrize(
+        "vervalsing",
+        ["ander-manifest", "onbekende-gebeurtenis", "onleesbaar"],
+    )
+    async def test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert(
+        tmp_path, vervalsing
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1805: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_grootboek_van_ander_0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[labelstatus] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger6')
+wijzig = <function _zet.<locals>.wijzig at 0x10defe020>
+reden = 'gevallenmanifest_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_ test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[None-ontwikkeling-fasevolgorde] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor3')
+voorafgaand = None, fase = 'ontwikkeling', reden = 'fasevolgorde'
+
+    @pytest.mark.parametrize(
+        ("voorafgaand", "fase", "reden"),
+        [
+            (None, "ontwikkeling", "fasevolgorde"),
+            (None, "holdout", "fasevolgorde"),
+            ("regressie", "holdout", "fasevolgorde"),
+            ("regressie", "regressie", "proefmap_bestaat"),
+            ("ontwikkeling", "ontwikkeling", "fase_al_uitgevoerd"),
+            (None, "training", "fase_onbekend"),
+        ],
+    )
+    async def test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls(
+        tmp_path, voorafgaand, fase, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1605: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor3')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+____________________ test_kwal_holdoutcriteria[alles-juist] ____________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_alle0')
+afwijkend = {}, geslaagd = True
+
+    @pytest.mark.parametrize(
+        ("afwijkend", "geslaagd"),
+        [
+            ({}, True),
+            ({H_PASS[0]: "fail", H_RR[0]: "fail"}, True),  # 7/8 pass, 3/4 RR, 14/16
+            ({H_PASS[0]: "review_required", H_PASS[1]: "fail"}, False),  # 6/8 pass
+            ({H_RR[0]: "fail", H_RR[1]: "fail"}, False),  # 2/4 RR
+            ({H_FAIL[0]: "review_required"}, False),  # 3/4 fail
+            ({H_RR[0]: "pass"}, False),  # onterechte goedkeuring
+        ],
+        ids=["alles-juist", "14-van-16", "pass-6-van-8", "rr-2-van-4", "fail-3-van-4", "rr-pass"],
+    )
+    async def test_kwal_holdoutcriteria(tmp_path, afwijkend, geslaagd):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_alle0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[budget_usd] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk6')
+over = {'budget_usd': 13.0}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk6')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[freeze-zonder-acceptant] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger7')
+wijzig = <function _topveld.<locals>.wijzig at 0x10defdd00>
+reden = 'freeze_ontbreekt'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[akkoord_op] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk7')
+over = {'akkoord_op': 'gisteren'}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk7')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[holdoutverdeling] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger8')
+wijzig = <function _zet.<locals>.wijzig at 0x10defe5c0>
+reden = 'verdeling_afwijkend'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+____________ test_kwal_open_fase_in_grootboek_blokkeert_hergebruik _____________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_open_fase_in_grootbo0')
+
+    async def test_kwal_open_fase_in_grootboek_blokkeert_hergebruik(tmp_path):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1751: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_open_fase_in_grootbo0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+__________ test_kwal_budgetplafond_dekt_43_calls_bij_de_voorbereiding __________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_budgetplafond_dekt_40')
+
+    async def test_kwal_budgetplafond_dekt_43_calls_bij_de_voorbereiding(tmp_path):
+>       krap = m.Limieten(**{**m.KWALIFICATIELIMIETEN.__dict__, "budget_usd": 9.0})
+                               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'KWALIFICATIELIMIETEN'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1869: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[gevallenmanifest_sha256] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk8')
+over = {'gevallenmanifest_sha256': '0000000000000000000000000000000000000000000000000000000000000000'}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk8')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[regressie-invoer] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger9')
+wijzig = <function _zet.<locals>.wijzig at 0x10defe340>
+reden = 'splitsing_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_ test_kwal_fout_of_kritieke_false_pass_stopt_direct[ontwikkeling-providerfout] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal2')
+fase = 'ontwikkeling'
+afwijkend = {'TQ-O01': <function _overbelast at 0x10deff380>}, calls = 1
+reden = 'providerfout'
+
+    @pytest.mark.parametrize(
+        ("fase", "afwijkend", "calls", "reden"),
+        [
+            ("regressie", {"C105": "pass"}, 1, "kritieke_false_pass"),
+            ("regressie", {"C112": "citaatfout"}, 3, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O02": "citaatfout"}, 2, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O03": "pass"}, 3, "kritieke_false_pass"),
+            ("ontwikkeling", {"TQ-O01": _overbelast}, 1, "providerfout"),
+            ("holdout", {"TQ-H09": "pass"}, 9, "kritieke_false_pass"),
+        ],
+        ids=[
+            "regressie-false-pass",
+            "regressie-citaat",
+            "ontwikkeling-citaat",
+            "ontwikkeling-false-pass",
+            "ontwikkeling-providerfout",
+            "holdout-false-pass",
+        ],
+    )
+    async def test_kwal_fout_of_kritieke_false_pass_stopt_direct(
+        tmp_path, fase, afwijkend, calls, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1676: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal2')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[goldsetvlag] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger10')
+wijzig = <function _topveld.<locals>.wijzig at 0x10defdf80>
+reden = 'gevallenmanifest_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+______________ test_kwal_tokengrenzen_stoppen_zonder_vervolgcall _______________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_tokengrenzen_stoppen0')
+
+    async def test_kwal_tokengrenzen_stoppen_zonder_vervolgcall(tmp_path):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1892: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_tokengrenzen_stoppen0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+___________________ test_kwal_holdoutcriteria[fail-3-van-4] ____________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_fail0')
+afwijkend = {'TQ-H09': 'review_required'}, geslaagd = False
+
+    @pytest.mark.parametrize(
+        ("afwijkend", "geslaagd"),
+        [
+            ({}, True),
+            ({H_PASS[0]: "fail", H_RR[0]: "fail"}, True),  # 7/8 pass, 3/4 RR, 14/16
+            ({H_PASS[0]: "review_required", H_PASS[1]: "fail"}, False),  # 6/8 pass
+            ({H_RR[0]: "fail", H_RR[1]: "fail"}, False),  # 2/4 RR
+            ({H_FAIL[0]: "review_required"}, False),  # 3/4 fail
+            ({H_RR[0]: "pass"}, False),  # onterechte goedkeuring
+        ],
+        ids=["alles-juist", "14-van-16", "pass-6-van-8", "rr-2-van-4", "fail-3-van-4", "rr-pass"],
+    )
+    async def test_kwal_holdoutcriteria(tmp_path, afwijkend, geslaagd):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_fail0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[None-holdout-fasevolgorde] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor4')
+voorafgaand = None, fase = 'holdout', reden = 'fasevolgorde'
+
+    @pytest.mark.parametrize(
+        ("voorafgaand", "fase", "reden"),
+        [
+            (None, "ontwikkeling", "fasevolgorde"),
+            (None, "holdout", "fasevolgorde"),
+            ("regressie", "holdout", "fasevolgorde"),
+            ("regressie", "regressie", "proefmap_bestaat"),
+            ("ontwikkeling", "ontwikkeling", "fase_al_uitgevoerd"),
+            (None, "training", "fase_onbekend"),
+        ],
+    )
+    async def test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls(
+        tmp_path, voorafgaand, fase, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1605: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor4')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_____________________ test_kwal_weigert_ontbrekend_akkoord _____________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ontbrekend_a0')
+
+    async def test_kwal_weigert_ontbrekend_akkoord(tmp_path):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1380: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ontbrekend_a0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[manifest_sha256] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk9')
+over = {'manifest_sha256': '0000000000000000000000000000000000000000000000000000000000000000'}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk9')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[labelveld] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger11')
+wijzig = <function _zet.<locals>.wijzig at 0x10defe0c0>
+reden = 'gevallenmanifest_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+______________________ test_kwal_holdoutcriteria[rr-pass] ______________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_rr_p0')
+afwijkend = {'TQ-H13': 'pass'}, geslaagd = False
+
+    @pytest.mark.parametrize(
+        ("afwijkend", "geslaagd"),
+        [
+            ({}, True),
+            ({H_PASS[0]: "fail", H_RR[0]: "fail"}, True),  # 7/8 pass, 3/4 RR, 14/16
+            ({H_PASS[0]: "review_required", H_PASS[1]: "fail"}, False),  # 6/8 pass
+            ({H_RR[0]: "fail", H_RR[1]: "fail"}, False),  # 2/4 RR
+            ({H_FAIL[0]: "review_required"}, False),  # 3/4 fail
+            ({H_RR[0]: "pass"}, False),  # onterechte goedkeuring
+        ],
+        ids=["alles-juist", "14-van-16", "pass-6-van-8", "rr-2-van-4", "fail-3-van-4", "rr-pass"],
+    )
+    async def test_kwal_holdoutcriteria(tmp_path, afwijkend, geslaagd):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_rr_p0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[akkoord_door] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk10')
+over = {'akkoord_door': ' '}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk10')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[extra] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk11')
+over = {'extra': 'veld'}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk11')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+__________ test_kwal_onjuiste_regressiestatus_blokkeert_volgende_fase __________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_onjuiste_regressiest0')
+
+    async def test_kwal_onjuiste_regressiestatus_blokkeert_volgende_fase(tmp_path):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1632: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_onjuiste_regressiest0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_______ test_kwal_regressiefase_precies_drie_calls_en_duurzaam_grootboek _______
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_regressiefase_precie0')
+caplog = <_pytest.logging.LogCaptureFixture object at 0x10ed18950>
+
+    async def test_kwal_regressiefase_precies_drie_calls_en_duurzaam_grootboek(
+        tmp_path, caplog
+    ):
+        caplog.set_level(logging.DEBUG)
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1514: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_regressiefase_precie0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[geen-freeze] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger12')
+wijzig = <function _zonder.<locals>.wijzig at 0x10defdbc0>
+reden = 'freeze_ontbreekt'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[regressie-fase] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger13')
+wijzig = <function _zet.<locals>.wijzig at 0x10defe480>
+reden = 'splitsing_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_ test_kwal_fout_of_kritieke_false_pass_stopt_direct[ontwikkeling-false-pass] __
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal3')
+fase = 'ontwikkeling', afwijkend = {'TQ-O03': 'pass'}, calls = 3
+reden = 'kritieke_false_pass'
+
+    @pytest.mark.parametrize(
+        ("fase", "afwijkend", "calls", "reden"),
+        [
+            ("regressie", {"C105": "pass"}, 1, "kritieke_false_pass"),
+            ("regressie", {"C112": "citaatfout"}, 3, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O02": "citaatfout"}, 2, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O03": "pass"}, 3, "kritieke_false_pass"),
+            ("ontwikkeling", {"TQ-O01": _overbelast}, 1, "providerfout"),
+            ("holdout", {"TQ-H09": "pass"}, 9, "kritieke_false_pass"),
+        ],
+        ids=[
+            "regressie-false-pass",
+            "regressie-citaat",
+            "ontwikkeling-citaat",
+            "ontwikkeling-false-pass",
+            "ontwikkeling-providerfout",
+            "holdout-false-pass",
+        ],
+    )
+    async def test_kwal_fout_of_kritieke_false_pass_stopt_direct(
+        tmp_path, fase, afwijkend, calls, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1676: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal3')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+__ test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord[freeze] __
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_gewijzigd_gevallenma2')
+wijzig = <function _wijzig_freeze at 0x10defede0>
+
+    @pytest.mark.parametrize(
+        "wijzig",
+        [_wijzig_invoer, _wijzig_label, _wissel_splitsing, _wijzig_freeze],
+        ids=["invoer", "label", "splitsing", "freeze"],
+    )
+    async def test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord(
+        tmp_path, wijzig
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1457: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_gewijzigd_gevallenma2')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[protocol] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger14')
+wijzig = <function _topveld.<locals>.wijzig at 0x10defde40>
+reden = 'protocol_afwijkend'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_______ test_kwal_oud_driecallmandaat_telt_nooit_als_kwalificatieakkoord _______
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_oud_driecallmandaat_0')
+manifest = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_oud_driecallmandaat_0/manifest.json')
+
+    async def test_kwal_oud_driecallmandaat_telt_nooit_als_kwalificatieakkoord(
+        tmp_path, manifest
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1392: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_oud_driecallmandaat_0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord[splitsing] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_gewijzigd_gevallenma3')
+wijzig = <function _wissel_splitsing at 0x10defed40>
+
+    @pytest.mark.parametrize(
+        "wijzig",
+        [_wijzig_invoer, _wijzig_label, _wissel_splitsing, _wijzig_freeze],
+        ids=["invoer", "label", "splitsing", "freeze"],
+    )
+    async def test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord(
+        tmp_path, wijzig
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1457: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_gewijzigd_gevallenma3')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[max_tokenmetingen] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk12')
+over = {'max_tokenmetingen': Ellipsis}
+
+    @pytest.mark.parametrize(
+        "over",
+        [
+            {"manifest_sha256": "0" * 64},
+            {"gevallenmanifest_sha256": "0" * 64},
+            {"protocol_sha256": "0" * 64},
+            {"profiel_id": "def835-technische-proef-opus5-v1"},
+            {"soort": "def835-int02-modelproef-akkoord/1"},
+            {"max_inferenties": 44},
+            {"max_tokenmetingen": ...},
+            {"budget_usd": 13.0},
+            {"live_verzending_toegestaan": "ja"},
+            {"geen_def815_kwalificatie": False},
+            {"akkoord_door": " "},
+            {"akkoord_op": "gisteren"},
+            {"extra": "veld"},
+        ],
+        ids=lambda o: next(iter(o)),
+    )
+    async def test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap(
+        tmp_path, over
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1362: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_weigert_ongeldig_akk12')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[dubbel-id] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger15')
+wijzig = <function _dubbel at 0x10defda80>, reden = 'gevallenmanifest_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+____ test_kwal_nieuw_akkoord_op_zelfde_manifest_reset_de_administratie_niet ____
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_nieuw_akkoord_op_zel0')
+
+    async def test_kwal_nieuw_akkoord_op_zelfde_manifest_reset_de_administratie_niet(
+        tmp_path,
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1619: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_nieuw_akkoord_op_zel0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[aantallen] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger16')
+wijzig = <function _holdout_naar_ontwikkeling at 0x10defdb20>
+reden = 'splitsing_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+___ test_kwal_fout_of_kritieke_false_pass_stopt_direct[regressie-false-pass] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal4')
+fase = 'regressie', afwijkend = {'C105': 'pass'}, calls = 1
+reden = 'kritieke_false_pass'
+
+    @pytest.mark.parametrize(
+        ("fase", "afwijkend", "calls", "reden"),
+        [
+            ("regressie", {"C105": "pass"}, 1, "kritieke_false_pass"),
+            ("regressie", {"C112": "citaatfout"}, 3, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O02": "citaatfout"}, 2, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O03": "pass"}, 3, "kritieke_false_pass"),
+            ("ontwikkeling", {"TQ-O01": _overbelast}, 1, "providerfout"),
+            ("holdout", {"TQ-H09": "pass"}, 9, "kritieke_false_pass"),
+        ],
+        ids=[
+            "regressie-false-pass",
+            "regressie-citaat",
+            "ontwikkeling-citaat",
+            "ontwikkeling-false-pass",
+            "ontwikkeling-providerfout",
+            "holdout-false-pass",
+        ],
+    )
+    async def test_kwal_fout_of_kritieke_false_pass_stopt_direct(
+        tmp_path, fase, afwijkend, calls, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1676: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal4')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[None-training-fase_onbekend] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor5')
+voorafgaand = None, fase = 'training', reden = 'fase_onbekend'
+
+    @pytest.mark.parametrize(
+        ("voorafgaand", "fase", "reden"),
+        [
+            (None, "ontwikkeling", "fasevolgorde"),
+            (None, "holdout", "fasevolgorde"),
+            ("regressie", "holdout", "fasevolgorde"),
+            ("regressie", "regressie", "proefmap_bestaat"),
+            ("ontwikkeling", "ontwikkeling", "fase_al_uitgevoerd"),
+            (None, "training", "fase_onbekend"),
+        ],
+    )
+    async def test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls(
+        tmp_path, voorafgaand, fase, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1605: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_verkeerde_fasevolgor5')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_____ test_kwal_fout_of_kritieke_false_pass_stopt_direct[regressie-citaat] _____
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal5')
+fase = 'regressie', afwijkend = {'C112': 'citaatfout'}, calls = 3
+reden = 'invalid_citation'
+
+    @pytest.mark.parametrize(
+        ("fase", "afwijkend", "calls", "reden"),
+        [
+            ("regressie", {"C105": "pass"}, 1, "kritieke_false_pass"),
+            ("regressie", {"C112": "citaatfout"}, 3, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O02": "citaatfout"}, 2, "invalid_citation"),
+            ("ontwikkeling", {"TQ-O03": "pass"}, 3, "kritieke_false_pass"),
+            ("ontwikkeling", {"TQ-O01": _overbelast}, 1, "providerfout"),
+            ("holdout", {"TQ-H09": "pass"}, 9, "kritieke_false_pass"),
+        ],
+        ids=[
+            "regressie-false-pass",
+            "regressie-citaat",
+            "ontwikkeling-citaat",
+            "ontwikkeling-false-pass",
+            "ontwikkeling-providerfout",
+            "holdout-false-pass",
+        ],
+    )
+    async def test_kwal_fout_of_kritieke_false_pass_stopt_direct(
+        tmp_path, fase, afwijkend, calls, reden
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1676: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_fout_of_kritieke_fal5')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert[ander-manifest] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_grootboek_van_ander_1')
+vervalsing = 'ander-manifest'
+
+    @pytest.mark.parametrize(
+        "vervalsing",
+        ["ander-manifest", "onbekende-gebeurtenis", "onleesbaar"],
+    )
+    async def test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert(
+        tmp_path, vervalsing
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1805: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_grootboek_van_ander_1')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[onbekende-fase] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger17')
+wijzig = <function _zet.<locals>.wijzig at 0x10defe520>
+reden = 'splitsing_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+_________________________ test_kwal_cli_voorbereiding __________________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_cli_voorbereiding0')
+
+    def test_kwal_cli_voorbereiding(tmp_path):
+        gevallen = _gevallenbestand(tmp_path)
+>       code = m.main(
+            [
+                "--kwalificatie",
+                str(gevallen),
+                "--proefmap",
+                str(tmp_path / "proef"),
+                "--manifest",
+                str(tmp_path / "manifest.json"),
+            ]
+        )
+
+tests/unit/validation/test_def835_int02_modelproef.py:1923: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+scripts/analysis/def835_int02_modelproef.py:1076: in main
+    args = parser.parse_args(argv)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/argparse.py:1930: in parse_args
+    self.error(msg)
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/argparse.py:2686: in error
+    self.exit(2, _('%(prog)s: error: %(message)s\n') % args)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ArgumentParser(prog='__main__.py', usage=None, description='DEF-835 — technische proefrunner voor INT-02 (experimenteel).', formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)
+status = 2
+message = '__main__.py: error: unrecognized arguments: --kwalificatie /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/d...zg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_cli_voorbereiding0/proef\n'
+
+    def exit(self, status=0, message=None):
+        if message:
+            self._print_message(message, _sys.stderr)
+>       _sys.exit(status)
+E       SystemExit: 2
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/argparse.py:2673: SystemExit
+----------------------------- Captured stderr call -----------------------------
+usage: __main__.py [-h] --manifest MANIFEST [--payloads PAYLOADS] [--live]
+                   [--akkoord AKKOORD] [--resultaat RESULTAAT]
+__main__.py: error: unrecognized arguments: --kwalificatie /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_cli_voorbereiding0/gevallen.json --proefmap /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_cli_voorbereiding0/proef
+____________________ test_kwal_holdoutcriteria[rr-2-van-4] _____________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_rr_20')
+afwijkend = {'TQ-H13': 'fail', 'TQ-H14': 'fail'}, geslaagd = False
+
+    @pytest.mark.parametrize(
+        ("afwijkend", "geslaagd"),
+        [
+            ({}, True),
+            ({H_PASS[0]: "fail", H_RR[0]: "fail"}, True),  # 7/8 pass, 3/4 RR, 14/16
+            ({H_PASS[0]: "review_required", H_PASS[1]: "fail"}, False),  # 6/8 pass
+            ({H_RR[0]: "fail", H_RR[1]: "fail"}, False),  # 2/4 RR
+            ({H_FAIL[0]: "review_required"}, False),  # 3/4 fail
+            ({H_RR[0]: "pass"}, False),  # onterechte goedkeuring
+        ],
+        ids=["alles-juist", "14-van-16", "pass-6-van-8", "rr-2-van-4", "fail-3-van-4", "rr-pass"],
+    )
+    async def test_kwal_holdoutcriteria(tmp_path, afwijkend, geslaagd):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_rr_20')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_______________ test_kwal_cumulatief_budget_weigert_voor_de_fase _______________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_cumulatief_budget_we0')
+
+    async def test_kwal_cumulatief_budget_weigert_voor_de_fase(tmp_path):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1852: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_cumulatief_budget_we0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+___ test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert[onleesbaar] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_grootboek_van_ander_2')
+vervalsing = 'onleesbaar'
+
+    @pytest.mark.parametrize(
+        "vervalsing",
+        ["ander-manifest", "onbekende-gebeurtenis", "onleesbaar"],
+    )
+    async def test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert(
+        tmp_path, vervalsing
+    ):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1805: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_grootboek_van_ander_2')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+_ test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[ne-invoer] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_voorbereiding_weiger18')
+wijzig = <function _zet.<locals>.wijzig at 0x10defe200>
+reden = 'gevallenmanifest_ongeldig'
+
+    @pytest.mark.parametrize(
+        ("wijzig", "reden"),
+        [
+            (_zonder("freeze"), "freeze_ontbreekt"),
+            (_topveld("freeze", {**KWAL["freeze"], "status": "concept"}), "freeze_ontbreekt"),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_door": " "}),
+                "freeze_ontbreekt",
+            ),
+            (
+                _topveld("freeze", {**KWAL["freeze"], "geaccepteerd_op": "morgen"}),
+                "freeze_ontbreekt",
+            ),
+            (_topveld("protocol_sha256", "0" * 64), "protocol_afwijkend"),
+            (_topveld("soort", m.MANIFEST_SOORT), "gevallenmanifest_ongeldig"),
+            (_topveld("goldset", "nee"), "gevallenmanifest_ongeldig"),
+            (_dubbel, "gevallenmanifest_ongeldig"),
+            (_zet("TQ-O01", "label", {"status": "misschien"}), "gevallenmanifest_ongeldig"),
+            (
+                _zet("TQ-O01", "label", {"status": "pass", "extra": 1}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "label": "pass"}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (
+                _zet("TQ-O01", "invoer", {**_BASISINVOER, "organisatorische_context": []}),
+                "gevallenmanifest_ongeldig",
+            ),
+            (_zet("TQ-O01", "verwacht", "pass"), "gevallenmanifest_ongeldig"),
+            (
+                _zet("C107", "invoer", {**GEVALLEN["C107"]["invoer"], "bedoeling": "x"}),
+                "splitsing_ongeldig",
+            ),
+            (_zet("C107", "label", {"status": "fail"}), "splitsing_ongeldig"),
+            (_zet("C105", "fase", "ontwikkeling"), "splitsing_ongeldig"),
+            (_zet("TQ-O01", "fase", "training"), "splitsing_ongeldig"),
+            (_holdout_naar_ontwikkeling, "splitsing_ongeldig"),
+            (_zet("TQ-H01", "label", {"status": "fail"}), "verdeling_afwijkend"),
+        ],
+        ids=[
+            "geen-freeze",
+            "freeze-concept",
+            "freeze-zonder-acceptant",
+            "freeze-datum",
+            "protocol",
+            "oud-manifestsoort",
+            "goldsetvlag",
+            "dubbel-id",
+            "labelstatus",
+            "labelveld",
+            "label-in-invoer",
+            "ne-invoer",
+            "onbekend-gevalveld",
+            "regressie-invoer",
+            "regressie-label",
+            "regressie-fase",
+            "onbekende-fase",
+            "aantallen",
+            "holdoutverdeling",
+        ],
+    )
+    async def test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest(
+        tmp_path, wijzig, reden
+    ):
+        gevallen = _gevallenbestand(tmp_path, wijzig)
+        with pytest.raises(m.ProefGeweigerdError) as fout:
+>           await m.voorbereid_kwalificatie(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+                gevallen, tmp_path / "proef", tmp_path / "manifest.json"
+            )
+E           AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1312: AttributeError
+___________________ test_kwal_holdoutcriteria[pass-6-van-8] ____________________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_pass0')
+afwijkend = {'TQ-H01': 'review_required', 'TQ-H02': 'fail'}, geslaagd = False
+
+    @pytest.mark.parametrize(
+        ("afwijkend", "geslaagd"),
+        [
+            ({}, True),
+            ({H_PASS[0]: "fail", H_RR[0]: "fail"}, True),  # 7/8 pass, 3/4 RR, 14/16
+            ({H_PASS[0]: "review_required", H_PASS[1]: "fail"}, False),  # 6/8 pass
+            ({H_RR[0]: "fail", H_RR[1]: "fail"}, False),  # 2/4 RR
+            ({H_FAIL[0]: "review_required"}, False),  # 3/4 fail
+            ({H_RR[0]: "pass"}, False),  # onterechte goedkeuring
+        ],
+        ids=["alles-juist", "14-van-16", "pass-6-van-8", "rr-2-van-4", "fail-3-van-4", "rr-pass"],
+    )
+    async def test_kwal_holdoutcriteria(tmp_path, afwijkend, geslaagd):
+>       k = await _kwal(tmp_path)
+            ^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:1733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-n00sk4kq/tempfiles/pytest-of-chrislehnen/pytest-0/test_kwal_holdoutcriteria_pass0')
+
+    async def _kwal(tmp_path: Path, *, limieten=None, wijzig=None) -> Kwal:
+        k = Kwal(tmp_path, _gevallenbestand(tmp_path, wijzig))
+>       await m.voorbereid_kwalificatie(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+            k.gevallen,
+            k.proefmap,
+            k.manifest,
+            payloads_pad=k.payloads,
+            limieten=limieten or m.KWALIFICATIELIMIETEN,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'voorbereid_kwalificatie'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1067: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_drie_fasen_in_volgorde_cumulatief_binnen_43_calls
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_cumulatieve_looptijd_weigert_voor_de_fase
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[label-in-invoer]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[soort]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[holdout-false-pass]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_bindt_invoer_labels_splitsing_en_profiel
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_waarnemer_start_met_cumulatieve_stand
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_ontwikkelcriterium_21_van_24[20-van-24]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[regressie-label]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[profiel_id]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord[invoer]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[protocol_sha256]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[freeze-concept]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_gewijzigde_configuratie_weigert
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_ontwikkelcriterium_21_van_24[21-van-24]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord[label]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_testfixture_gaat_nooit_echt_live
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_calllimiet_ontoereikend_bij_verbruikte_calls
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[onbekend-gevalveld]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[ontwikkeling-ontwikkeling-fase_al_uitgevoerd]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[regressie-regressie-proefmap_bestaat]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[ontwikkeling-citaat]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[regressie-holdout-fasevolgorde]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[live_verzending_toegestaan]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[geen_def815_kwalificatie]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[14-van-16]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[freeze-datum]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[oud-manifestsoort]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_labels_raken_payload_niet_maar_wel_de_identiteit
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_dryrun_gebruikt_geen_echt_transport
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_mislukte_call_telt_mee_tegen_volle_reservering
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[max_inferenties]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert[onbekende-gebeurtenis]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[labelstatus]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[None-ontwikkeling-fasevolgorde]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[alles-juist]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[budget_usd]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[freeze-zonder-acceptant]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[akkoord_op]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[holdoutverdeling]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_open_fase_in_grootboek_blokkeert_hergebruik
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_budgetplafond_dekt_43_calls_bij_de_voorbereiding
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[gevallenmanifest_sha256]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[regressie-invoer]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[ontwikkeling-providerfout]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[goldsetvlag]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_tokengrenzen_stoppen_zonder_vervolgcall
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[fail-3-van-4]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[None-holdout-fasevolgorde]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ontbrekend_akkoord
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[manifest_sha256]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[labelveld]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[rr-pass]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[akkoord_door]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[extra]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_onjuiste_regressiestatus_blokkeert_volgende_fase
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_regressiefase_precies_drie_calls_en_duurzaam_grootboek
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[geen-freeze]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[regressie-fase]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[ontwikkeling-false-pass]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord[freeze]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[protocol]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_oud_driecallmandaat_telt_nooit_als_kwalificatieakkoord
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_gewijzigd_gevallenmanifest_weigert_ook_met_nieuw_akkoord[splitsing]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[max_tokenmetingen]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[dubbel-id]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_nieuw_akkoord_op_zelfde_manifest_reset_de_administratie_niet
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[aantallen]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[regressie-false-pass]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[None-training-fase_onbekend]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[regressie-citaat]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert[ander-manifest]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[onbekende-fase]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_cli_voorbereiding
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[rr-2-van-4]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_cumulatief_budget_weigert_voor_de_fase
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_grootboek_van_ander_manifest_of_onleesbaar_weigert[onleesbaar]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[ne-invoer]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[pass-6-van-8]
+79 failed, 77 passed in 6.23s
+exit=1

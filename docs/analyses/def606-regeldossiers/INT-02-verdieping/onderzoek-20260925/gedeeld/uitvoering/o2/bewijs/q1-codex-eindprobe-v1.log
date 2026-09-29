@@ -1,0 +1,1 @@
+{"probe": "F3_fsync_na_flush_verse_runner", "resultaat": "geslaagd", "geinjecteerde_fout": "[Errno 5] geinjecteerde fsync-fout op fase_einde na flush", "regressiecalls": 3, "leesbare_succesregel": true, "verse_runner": "review_fresh_f3_final", "weigering": "afronding_onvolledig", "vervolgtransporten": 0, "sleutel_gelezen": false, "open_blijft": true, "voltooid_aanwezig": false}

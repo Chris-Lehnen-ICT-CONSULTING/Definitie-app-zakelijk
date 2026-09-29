@@ -1,0 +1,26 @@
+{
+  "base": "f9bb9e6973926a3cf768995f5d879f6edfd6322d",
+  "before": {
+    "scripts/analysis/def835_int02_modelproef.py": "94adea36ffa555a8d9fee790f5eb96ce54ece96efd107adf25dd147ccb1a637f",
+    "tests/unit/validation/test_def835_int02_modelproef.py": "60b2c420f3b7ff80582ec4e42dda80f77c986bf351e6c538637048bc2d61b79e",
+    "tests/fixtures/def835_int02_kwalificatie_runner.json": "2f50c456756614cc35e78b81f57f4c8afc748b79d4cfcd6da053306e6c8fd7a7"
+  },
+  "after": {
+    "scripts/analysis/def835_int02_modelproef.py": "94adea36ffa555a8d9fee790f5eb96ce54ece96efd107adf25dd147ccb1a637f",
+    "tests/unit/validation/test_def835_int02_modelproef.py": "60b2c420f3b7ff80582ec4e42dda80f77c986bf351e6c538637048bc2d61b79e",
+    "tests/fixtures/def835_int02_kwalificatie_runner.json": "2f50c456756614cc35e78b81f57f4c8afc748b79d4cfcd6da053306e6c8fd7a7"
+  },
+  "unchanged": true,
+  "results": [
+    {
+      "cmd": [
+        "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+        "-c",
+        "from tests.offline_bootstrap import install; install(); import pytest; raise SystemExit(pytest.main(['tests/unit/validation/test_def835_int02_modelproef.py','-k','test_f3_','-o','addopts=','-q','-ra']))"
+      ],
+      "exit": 0
+    }
+  ],
+  "retained_full_run": "q1-F3-fsync-green-v1.log",
+  "retained_lint": "q1-F3-fsync-lint-v1.log"
+}

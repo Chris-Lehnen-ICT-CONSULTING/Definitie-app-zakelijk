@@ -1,0 +1,25 @@
+# DEF-835 modelproef RED — 2026-09-28T09:37:33Z
+$ git rev-parse HEAD
+558b50c3f161f819cda6c445f7f81b70888918ac
+$ ls scripts/analysis/def835_int02_modelproef.py
+ls: scripts/analysis/def835_int02_modelproef.py: No such file or directory
+$ /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -p no:cacheprovider -q --tb=short
+
+==================================== ERRORS ====================================
+____ ERROR collecting tests/unit/validation/test_def835_int02_modelproef.py ____
+tests/unit/validation/test_def835_int02_modelproef.py:56: in <module>
+    m = _laad_runner()
+        ^^^^^^^^^^^^^^
+tests/unit/validation/test_def835_int02_modelproef.py:52: in _laad_runner
+    spec.loader.exec_module(module)
+<frozen importlib._bootstrap_external>:1019: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1156: in get_code
+    ???
+<frozen importlib._bootstrap_external>:1214: in get_data
+    ???
+E   FileNotFoundError: [Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/scripts/analysis/def835_int02_modelproef.py'
+=========================== short test summary info ============================
+ERROR tests/unit/validation/test_def835_int02_modelproef.py - FileNotFoundErr...
+!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+exit=2

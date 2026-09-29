@@ -306,3 +306,221 @@ def test_typeddict_dekt_de_schemavelden():
     assert set(ReviewRequirement.__annotations__) == set(
         schema["properties"]["review_required"]["items"]["properties"]
     )
+
+
+# ---------------------------------------------------------------------------
+# DEF-835 WP3 (contract 2.3.0): de echte INT-02 O2-evaluatoruitkomst tegen het
+# echte schema. `assessment` en `signals` zijn alleen voor INT-02 en de al
+# bestaande INT-03 toegestaan; andere regels en onbekende velden blijven dicht.
+# ---------------------------------------------------------------------------
+
+CONTRACTDOC = SCHEMA_MAP.parent / "validation_result_contract.md"
+REGELS_MAP = Path(__file__).resolve().parents[3] / "src" / "toetsregels" / "regels"
+O2_SCENARIO_S = (
+    "pass",
+    "fail",
+    "fail_discretie",
+    "insufficient",
+    "not_applicable",
+    "niet_beoordeeld",
+    "historisch",
+    "niet_uitgevoerd",
+    "fout",
+)
+
+
+def _schemafouten(rule_results: dict) -> list:
+    from jsonschema import Draft202012Validator
+
+    validator = Draft202012Validator(_schema()["properties"]["rule_results"])
+    return list(validator.iter_errors(json.loads(json.dumps(rule_results))))
+
+
+def _o2_detail(scenario: str) -> dict:
+    """Het echte `rule_result` van de O2-evaluator (DEF-835 WP3)."""
+    from tests.unit.validation.test_def835_int02_evaluator import o2_uitkomsten
+
+    detail = o2_uitkomsten()[scenario].metadata.get("rule_result")
+    assert isinstance(detail, dict), f"{scenario}: evaluator levert geen rule_result"
+    return detail
+
+
+@pytest.mark.contract
+def test_contractversie_2_4_0_is_de_centrale_publieke_versie():
+    """Merge met main: DEF-768 (ESS-05) volgt als 2.4.0 op DEF-835 (2.3.0)."""
+    from services.validation.interfaces import CONTRACT_VERSION
+
+    assert CONTRACT_VERSION == "2.4.0"
+    assert "Contractversie 2.4.0" in _schema()["description"]
+    tekst = CONTRACTDOC.read_text(encoding="utf-8")
+    assert "- **Versie**: 2.4.0 (SemVer)" in tekst
+    assert "\n| 2.4.0 |" in tekst
+    assert "\n| 2.3.0 |" in tekst
+
+
+@pytest.mark.contract
+@pytest.mark.parametrize("scenario", O2_SCENARIO_S)
+def test_echte_int02_o2_uitkomst_past_in_het_schema(scenario):
+    detail = _o2_detail(scenario)
+    assert {"assessment", "signals"} <= set(detail)
+    assert detail["score"] is None
+    assert _schemafouten({"INT-02": detail}) == []
+
+
+@pytest.mark.contract
+def test_o2_schemadekking_omvat_alle_zes_statussen():
+    statussen = {_o2_detail(s)["status"] for s in O2_SCENARIO_S}
+    assert statussen == {
+        "pass",
+        "fail",
+        "review_required",
+        "not_evaluated",
+        "error",
+        "not_applicable",
+    }
+
+
+@pytest.mark.contract
+@pytest.mark.parametrize(
+    ("veld", "waarde"),
+    [
+        ("signals", "\\bmoet\\b"),
+        ("signals", [1]),
+        ("signals", None),
+        ("assessment", "beoordeeld"),
+        ("assessment", ["pass"]),
+        ("score", 0.0),
+    ],
+)
+def test_int02_velden_hebben_expliciete_typen(veld, waarde):
+    detail = _o2_detail("fail")
+    assert _schemafouten({"INT-02": detail}) == []
+    assert _schemafouten({"INT-02": {**detail, veld: waarde}}), (veld, waarde)
+
+
+@pytest.mark.contract
+@pytest.mark.parametrize("assessment", [None, {}], ids=["null", "object"])
+def test_schema_staat_int02_assessment_en_signals_toe(assessment):
+    # Los van de evaluator: het schema zelf moet de 2.3.0-velden voor INT-02
+    # aanvaarden (naast de echte uitvoer hierboven).
+    uitkomst = {
+        "status": "review_required",
+        "score": None,
+        "contract_version": None,
+        "fingerprint": None,
+        "parts": [],
+        "review": None,
+        "assessment": assessment,
+        "signals": [],
+    }
+    assert _schemafouten({"INT-02": uitkomst}) == []
+
+
+@pytest.mark.contract
+def test_int02_assessment_null_en_lege_signalen_zijn_geldig():
+    detail = _o2_detail("niet_beoordeeld")
+    assert detail["assessment"] is None
+    assert _schemafouten({"INT-02": {**detail, "signals": []}}) == []
+
+
+@pytest.mark.contract
+def test_onbekend_veld_in_int02_uitkomst_blijft_geweigerd():
+    detail = _o2_detail("pass")
+    fouten = _schemafouten({"INT-02": {**detail, "verzonnen_veld": True}})
+    assert any("verzonnen_veld" in fout.message for fout in fouten)
+
+
+@pytest.mark.contract
+@pytest.mark.parametrize("regel", ["CON-01", "ESS-04", "INT-01"])
+def test_assessment_en_signals_blijven_dicht_voor_andere_regels(regel):
+    basis = {
+        "status": "review_required",
+        "score": None,
+        "contract_version": None,
+        "fingerprint": None,
+        "parts": [],
+        "review": None,
+    }
+    assert _schemafouten({regel: basis}) == []
+    for veld, waarde in (("assessment", None), ("assessment", {}), ("signals", [])):
+        assert _schemafouten({regel: {**basis, veld: waarde}}), (regel, veld)
+
+
+@pytest.mark.contract
+def test_echte_int02_uitkomst_onder_andere_regel_wordt_geweigerd():
+    detail = _o2_detail("pass")
+    assert _schemafouten({"ESS-04": detail})
+    zonder = {k: v for k, v in detail.items() if k not in ("assessment", "signals")}
+    assert _schemafouten({"ESS-04": zonder}) == []
+
+
+@pytest.mark.contract
+@pytest.mark.asyncio
+async def test_bestaande_regeluitkomsten_blijven_geldig():
+    resultaat = await _echt_resultaat()
+    assert _schemafouten(resultaat["rule_results"]) == []
+
+
+@pytest.mark.contract
+def test_bestaande_int03_uitkomst_met_beoordeling_blijft_geldig():
+    from services.validation.evaluators.base import EvaluationDeps
+    from services.validation.evaluators.pronoun_reference_assessment import (
+        PronounReferenceAssessmentEvaluator,
+    )
+    from services.validation.types_internal import EvaluationContext
+    from tests.fixtures.def772_fakes import BINDING, bouw_int03_beoordeling
+    from toetsregels.runtime_contract import (
+        RequiredInput,
+        build_rule_record,
+        lees_regelbestand,
+    )
+
+    tekst = "Voorziening die een gebeurtenis vastlegt zodat die kan worden nagegaan."
+    context = {"organisatorische_context": ["Synthetische Organisatie"]}
+    record = build_rule_record("INT-03", lees_regelbestand(REGELS_MAP / "INT-03.json"))
+    metadata = {
+        **context,
+        "record_text": tekst,
+        "definition": {"toelichting": "Synthetische toelichting."},
+        "int03_assessment": bouw_int03_beoordeling(
+            "proefbegrip", tekst, context, "Synthetische toelichting."
+        ),
+        "int03_binding": BINDING.als_dict(),
+    }
+    uitkomst = PronounReferenceAssessmentEvaluator().evaluate(
+        record,
+        EvaluationContext(
+            raw_text=tekst, cleaned_text=tekst, begrip="proefbegrip", metadata=metadata
+        ),
+        EvaluationDeps(support=None, available_inputs=frozenset(RequiredInput)),
+    )
+    detail = uitkomst.metadata["rule_result"]
+    assert isinstance(detail["assessment"], dict)
+    assert _schemafouten({"INT-03": detail}) == []
+
+
+@pytest.mark.contract
+def test_o1_ne_uitkomst_van_int02_blijft_geldig():
+    from services.validation.evaluators.judgment_review import (
+        int02_niet_uitgevoerd,
+        int02_niet_uitgevoerd_uitkomst,
+    )
+    from toetsregels.runtime_contract import build_rule_record, lees_regelbestand
+
+    record = build_rule_record("INT-02", lees_regelbestand(REGELS_MAP / "INT-02.json"))
+    melding = int02_niet_uitgevoerd("", True)
+    assert melding is not None
+    detail = int02_niet_uitgevoerd_uitkomst(melding, record).metadata["rule_result"]
+    assert _schemafouten({"INT-02": detail}) == []
+
+
+@pytest.mark.contract
+def test_typeddict_documenteert_int02_assessment_en_signals():
+    import inspect
+
+    from services.validation.interfaces import RuleResult
+
+    assert {"assessment", "signals"} <= set(RuleResult.__annotations__)
+    bron = inspect.getsource(RuleResult)
+    assert "INT-02" in bron
+    assert "INT-03" in bron

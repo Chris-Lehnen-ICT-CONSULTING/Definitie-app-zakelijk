@@ -1,0 +1,198 @@
+# DEF-835 merge cwd MUTANTPROEF — 2026-09-29T08:59:28Z
+# plugin: bewijs/mergevoorbereiding-v1/merge-cwd-mutant-v1.py; runnerbron ongewijzigd
+63bf07a24c638d22a94d03b4ecdec5cd05778bc5e8f82c41411cca091e653834  tests/unit/validation/test_def835_int02_modelproef.py
+94adea36ffa555a8d9fee790f5eb96ce54ece96efd107adf25dd147ccb1a637f  scripts/analysis/def835_int02_modelproef.py
+a920e15dc460a35e63eb0a0d6237ca6f87b2c9b0744a6ddd51da7e07ad29f71d  /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/mergevoorbereiding-v1/merge-cwd-mutant-v1.py
+## mutant herstel_naar_repo
+$ cd /tmp/def835-cwd-mutant-403t && env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 MERGE_CWD_MUTANT=herstel_naar_repo PYTHONPATH=/tmp/def835-cwd-plugin-Zm78 /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py -o addopts= -q -rA -p no:cacheprovider -p merge_cwd_mutant -k test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage[buiten-repository] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-xgoev8pr/tempfiles/pytest-of-chrislehnen/pytest-0/test_live_keten_drie_tellingen0')
+manifest = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-xgoev8pr/tempfiles/pytest-of-chrislehnen/pytest-0/test_live_keten_drie_tellingen0/manifest.json')
+caplog = <_pytest.logging.LogCaptureFixture object at 0x10efa3b60>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10e7a3100>
+startmap = 'buiten-repository'
+
+    @pytest.mark.parametrize("startmap", ["repository", "buiten-repository"])
+    async def test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage(
+        tmp_path, manifest, caplog, monkeypatch, startmap
+    ):
+        # De runner werkt in een tijdelijke map en moet daarna de werkelijk
+        # oorspronkelijke cwd herstellen, welke map dat ook was (de canonieke
+        # unitgate start pytest bewust buiten de repository).
+        if startmap == "repository":
+            monkeypatch.chdir(ROOT)
+        else:
+            werkmap = tmp_path / "werkmap"
+            werkmap.mkdir()
+            monkeypatch.chdir(werkmap)
+            assert ROOT not in Path.cwd().parents and Path.cwd() != ROOT
+        oorspronkelijk = Path.cwd()
+        caplog.set_level(logging.DEBUG)
+        provider = NepProvider()
+        data, resultaat = await _live(tmp_path, manifest, provider)
+        assert provider.paden() == ["/v1/messages/count_tokens", "/v1/messages"] * 3
+        identiteit = json.loads(manifest.read_text("utf-8"))["identiteit"]
+        for verzoek, geval in zip(
+            provider.inferenties(), identiteit["gevallen"], strict=True
+        ):
+            assert _sha(verzoek["ruw"]) == geval["payload_sha256"]
+            assert verzoek["headers"]["x-stainless-retry-count"] == "0"
+            assert "anthropic-beta" not in verzoek["headers"]
+            assert verzoek["headers"]["x-api-key"] == SLEUTEL
+            assert Path(verzoek["cwd"]) != ROOT
+            assert Path(verzoek["cwd"]) != oorspronkelijk
+        for telling, inferentie in zip(
+            provider.verzoeken[::2], provider.inferenties(), strict=True
+        ):
+            # Zelfde inhoud (zonder max_tokens/temperature) en zelfde authenticatie.
+            velden = ("model", "system", "messages", "thinking")
+            body = inferentie["body"]
+            assert telling["body"] == {k: body[k] for k in velden if k in body}
+            for header in ("x-api-key", "anthropic-version"):
+                assert telling["headers"][header] == inferentie["headers"][header]
+            # R2: telling en inference delen exact de authenticatiecontext.
+            assert "authorization" not in telling["headers"]
+            assert "authorization" not in inferentie["headers"]
+            assert sorted(inferentie["headers"]) == STANDAARDHEADERNAMEN
+            assert set(telling["headers"]) <= set(STANDAARDHEADERNAMEN)
+>       assert Path.cwd() == oorspronkelijk
+E       AssertionError: assert PosixPath('/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2') == PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-xgoev8pr/tempfiles/pytest-of-chrislehnen/pytest-0/test_live_keten_drie_tellingen0/werkmap')
+E        +  where PosixPath('/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2') = cwd()
+E        +    where cwd = Path.cwd
+
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:393: AssertionError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: High Error Rate - 1.000 gt 0.1 (Severity: error)
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:105 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: 13ad20ba) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:209 ModelRouter singleton created
+==================================== PASSES ====================================
+_ test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage[repository] __
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:105 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: d0bc7c5a) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:209 ModelRouter singleton created
+=========================== short test summary info ============================
+PASSED ../../../Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py::test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage[repository]
+FAILED ../../../Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py::test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage[buiten-repository]
+1 failed, 1 passed, 175 deselected in 1.08s
+exit=1
+## mutant geen_herstel
+$ cd /tmp/def835-cwd-mutant-Goka && env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 MERGE_CWD_MUTANT=geen_herstel PYTHONPATH=/tmp/def835-cwd-plugin-Zm78 /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py -o addopts= -q -rA -p no:cacheprovider -p merge_cwd_mutant -k test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage
+FE                                                                       [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage[buiten-repository] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-jytaojss/tempfiles/pytest-of-chrislehnen/pytest-0/test_live_keten_drie_tellingen1')
+
+    @pytest.fixture
+    async def manifest(tmp_path) -> Path:
+        pad = tmp_path / "manifest.json"
+>       await m.voorbereid(pad, payloads_pad=tmp_path / "payloads.json")
+
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:180: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/scripts/analysis/def835_int02_modelproef.py:1345: in voorbereid
+    with _proefomgeving():
+         ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/scripts/analysis/def835_int02_modelproef.py:891: in _proefomgeving
+    vorige = Path.cwd()
+             ^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py:746: in cwd
+    return cls('').absolute()
+           ^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('.')
+
+    def absolute(self):
+        """Return an absolute version of this path
+        No normalization or symlink resolution is performed.
+    
+        Use resolve() to resolve symlinks and remove '..' segments.
+        """
+        if self.is_absolute():
+            return self
+        if self.root:
+            drive = os.path.splitroot(os.getcwd())[0]
+            return self._from_parsed_parts(drive, self.root, self._tail)
+        if self.drive:
+            # There is a CWD on each drive-letter drive.
+            cwd = os.path.abspath(self.drive)
+        else:
+>           cwd = os.getcwd()
+                  ^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:649: FileNotFoundError
+=================================== FAILURES ===================================
+_ test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage[repository] __
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-jytaojss/tempfiles/pytest-of-chrislehnen/pytest-0/test_live_keten_drie_tellingen0')
+manifest = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-jytaojss/tempfiles/pytest-of-chrislehnen/pytest-0/test_live_keten_drie_tellingen0/manifest.json')
+caplog = <_pytest.logging.LogCaptureFixture object at 0x10eca7b60>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10e4af100>
+startmap = 'repository'
+
+    @pytest.mark.parametrize("startmap", ["repository", "buiten-repository"])
+    async def test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage(
+        tmp_path, manifest, caplog, monkeypatch, startmap
+    ):
+        # De runner werkt in een tijdelijke map en moet daarna de werkelijk
+        # oorspronkelijke cwd herstellen, welke map dat ook was (de canonieke
+        # unitgate start pytest bewust buiten de repository).
+        if startmap == "repository":
+>           monkeypatch.chdir(ROOT)
+
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:358: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <_pytest.monkeypatch.MonkeyPatch object at 0x10e4af100>
+path = PosixPath('/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2')
+
+    def chdir(self, path: str | os.PathLike[str]) -> None:
+        """Change the current working directory to the specified path.
+    
+        :param path:
+            The path to change into.
+        """
+        if self._cwd is None:
+>           self._cwd = os.getcwd()
+                        ^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory
+
+/Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/_pytest/monkeypatch.py:391: FileNotFoundError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: High Error Rate - 1.000 gt 0.1 (Severity: error)
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+=========================== short test summary info ============================
+ERROR ../../../Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py::test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage[buiten-repository]
+FAILED ../../../Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py::test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage[repository]
+1 failed, 175 deselected, 1 error in 0.99s
+exit=1

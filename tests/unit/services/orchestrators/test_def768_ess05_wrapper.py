@@ -81,7 +81,7 @@ def _orch(service, assessor=None, burenbron=None):
 
 
 async def test_ess05_velden_zijn_schemaconform():
-    """Contract 2.2.0: beoordeling en burenlijst passen in hun eigen subschema."""
+    """Contract 2.4.0: beoordeling en burenlijst passen in hun eigen subschema."""
     import json
     from pathlib import Path
 
@@ -103,7 +103,9 @@ async def test_ess05_velden_zijn_schemaconform():
         ontologische_categorie="type",
         context=ValidationContext(metadata=dict(CONTEXT)),
     )
-    assert result["version"] == "2.2.0"
+    # Merge met main: de ESS-05-uitbreiding is contractversie 2.4.0 (na 2.2.0
+    # DEF-771 en 2.3.0 DEF-835); op de branch heette zij 2.2.0.
+    assert result["version"] == "2.4.0"
     for veld in ("ess05_assessment", "ess05_actieve_buren"):
         assert result[veld] is not None
         validate(instance=result[veld], schema=schema["properties"][veld])

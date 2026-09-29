@@ -60,6 +60,12 @@ if TYPE_CHECKING:
     from services.synonym_suggester import SynonymSuggester
     from services.validation.ess03_assessment_service import Ess03AssessmentService
     from services.validation.ess05_assessment_service import Ess05AssessmentService
+    from services.validation.int02_assessment_service import (
+        Budget,
+        Int02AssessmentService,
+        Modelprofiel,
+    )
+    from services.validation.int03_assessment_service import Int03AssessmentService
     from services.validation.interfaces import ValidationOrchestratorInterface
     from services.validation.source_assessment_service import SourceAssessmentService
     from services.web_lookup.synonym_service import JuridischeSynoniemService
@@ -357,6 +363,50 @@ class ServiceContainer:
             "Ess05AssessmentService", self._instances["ess05_assessment_service"]
         )
 
+    def int03_assessment_service(self) -> "Int03AssessmentService":
+        """De AI-verwijzingsbeoordeling voor INT-03 (DEF-772), singleton.
+
+        Zelfde opzet als de telbaarheidsbeoordeling: op de gedeelde AIServiceV2
+        en de ModelRouter (taak `validation`); één instantie (en één interne
+        cache) voor editor en generatie.
+        """
+        if "int03_assessment_service" not in self._instances:
+            from services.validation.int03_assessment_service import (
+                Int03AssessmentService,
+            )
+
+            self._instances["int03_assessment_service"] = Int03AssessmentService(
+                self.ai_service(), model_router=self.model_router()
+            )
+        return cast(
+            "Int03AssessmentService", self._instances["int03_assessment_service"]
+        )
+
+    def int02_assessment_service(
+        self, *, profiel: "Modelprofiel", budget: "Budget"
+    ) -> "Int02AssessmentService":
+        """De INT-02-beoordeling (O2, DEF-835 WP5a) — alleen op expliciet verzoek.
+
+        Profiel en budget zijn verplicht en worden nooit afgeleid (geen
+        default, geen routerdefault, geen profiel van een andere regel). Geen
+        singleton en geen bedrading in `orchestrator()`: de actieve route
+        blijft O1. De aanroeper injecteert de dienst zelf, bijvoorbeeld in
+        `DefinitionOrchestratorV2(int02_assessment_service=...)`.
+        """
+        from services.validation.int02_assessment_service import (
+            Budget,
+            Int02AssessmentService,
+            Int02ServiceConfigError,
+            Modelprofiel,
+        )
+
+        if not isinstance(profiel, Modelprofiel) or not isinstance(budget, Budget):
+            msg = "INT-02: een expliciet Modelprofiel en Budget zijn vereist"
+            raise Int02ServiceConfigError(msg)
+        return Int02AssessmentService(
+            self.ai_service(), self.model_router(), profiel=profiel, budget=budget
+        )
+
     def orchestrator(self) -> DefinitionOrchestratorInterface:
         """
         Get of create DefinitionOrchestrator instance.
@@ -428,6 +478,8 @@ class ServiceContainer:
                 ess03_assessment_service=self.ess03_assessment_service(),
                 # DEF-768: gedeelde AI-onderscheidsbeoordeling (ESS-05)
                 ess05_assessment_service=self.ess05_assessment_service(),
+                # DEF-772: gedeelde AI-verwijzingsbeoordeling (INT-03)
+                int03_assessment_service=self.int03_assessment_service(),
             )
             logger.debug("DefinitionOrchestratorV2 instance created")
 
@@ -761,7 +813,11 @@ class ServiceContainer:
             # Use existing repository instance
             repo = self.repository()
             self._lazy_instances["data_aggregation_service"] = DataAggregationService(
-                cast("DefinitieRepository", repo)  # DEF-439: zie workflow-service
+                cast("DefinitieRepository", repo),  # DEF-439: zie workflow-service
+                # DEF-772: de export bindt de opgeslagen INT-03-beoordeling aan
+                # dezelfde actuele binding als editor en generatie (lazy: de
+                # dienst wordt pas bij de eerste export aangemaakt).
+                int03_binding=lambda: self.int03_assessment_service().binding(),
             )
             logger.info("⚡ DataAggregationService lazy-loaded")
         return cast(

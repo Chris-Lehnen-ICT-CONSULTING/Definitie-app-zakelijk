@@ -1,0 +1,54 @@
+# WP2 GREEN v2 (na opmaakcorrectie test + renderscript; v1: wp2-green-promptnorm.log) — 2026-09-25T21:10:34Z
+# app HEAD 0d26f0f4f5b2ebebe1c7d71fbff5e4ddb66b8c0d + ongecommitte WP1/WP2-werkboom
+
+## 1. commando: .venv/bin/python -m pytest tests/unit/services/prompts/test_def771_int02_promptnorm.py tests/unit/services/prompts/test_def770_int01_promptnorm.py -v -ra -p no:cacheprovider
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+Using --randomly-seed=2768907898
+rootdir: /Users/chrislehnen/Projecten/Definitie-app
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, randomly-4.1.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 6 items
+
+tests/unit/services/prompts/test_def771_int02_promptnorm.py ....         [ 66%]
+tests/unit/services/prompts/test_def770_int01_promptnorm.py ..           [100%]
+
+============================== 6 passed in 0.59s ===============================
+# exitstatus 1: 0
+## 2. commando: .venv/bin/python -m ruff check src/services/prompts/modules/json_based_rules_module.py tests/unit/services/prompts/test_def771_int02_promptnorm.py docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering.py
+All checks passed!
+# exitstatus 2: 0
+## 3. commando: .venv/bin/python -m black --check src/services/prompts/modules/json_based_rules_module.py tests/unit/services/prompts/test_def771_int02_promptnorm.py docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering.py
+All done! ✨ 🍰 ✨
+3 files would be left unchanged.
+# exitstatus 3: 0
+## 4. commando: make lint
+[lint] Ruff check on src/ and config/
+All checks passed!
+[lint] Black check on src/ and config/
+All done! ✨ 🍰 ✨
+405 files would be left unchanged.
+# exitstatus 4: 0
+## 5. reproductie rendering: .venv/bin/python docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering.py /tmp/def771-wp2-rendering-1790370634 ; cmp met bewaarde secties
+/tmp/def771-wp2-rendering-1790370634/wp2-rendering-int-01-met-voorbeelden.txt
+/tmp/def771-wp2-rendering-1790370634/wp2-rendering-int-02-met-voorbeelden.txt
+/tmp/def771-wp2-rendering-1790370634/wp2-rendering-int-01-zonder-voorbeelden.txt
+/tmp/def771-wp2-rendering-1790370634/wp2-rendering-int-02-zonder-voorbeelden.txt
+# exitstatus 5a: 0
+# cmp wp2-rendering-int-01-met-voorbeelden.txt: 0
+# cmp wp2-rendering-int-01-zonder-voorbeelden.txt: 0
+# cmp wp2-rendering-int-02-met-voorbeelden.txt: 0
+# cmp wp2-rendering-int-02-zonder-voorbeelden.txt: 0
+## 6. SHA-256
+2bc2dfacac8efaf519d7caaf5587d1cc0d5efdc9f72a3030ccc64a00b1358e80  src/services/prompts/modules/json_based_rules_module.py
+737c1d4387c8b5467692b2ac4f1484b0dbe0edbbd25c07833baa03c643408444  tests/unit/services/prompts/test_def771_int02_promptnorm.py
+b2264665eeb269d1df5cb862f8df5900c4e1c29f78e9e2d76a75b4af2eb84516  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering.py
+2d497a6da0ae16aab870dd59993d905ff5cc5d476cabd903d17394986fb9f9f8  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering-int-01-met-voorbeelden.txt
+41d50ab9c5e993dea0d72009719326b3d839e21419c3ac2ccb3f396601eb9109  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering-int-01-zonder-voorbeelden.txt
+a25ffb6a71302357c20c2a8682e4017f46ca178e98296f4a3fccb5d536547b50  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering-int-02-met-voorbeelden.txt
+afcb501bdf278d01d6a716a953474322073d9f2efc7edc49f277e880cff1f2e9  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp2-rendering-int-02-zonder-voorbeelden.txt

@@ -63,8 +63,8 @@ async def test_text_transports_context_metadata_without_mutating_input():
     )
     supplied = service.validate_definition.call_args.kwargs["context"]
     # Alles uit metadata komt aan; daarnaast reist de exacte invoertekst mee.
-    # DEF-766: zonder geïnjecteerde ESS-03-dienst reist ook een expliciet
-    # `unavailable`-document mee (nooit stil een pass).
+    # DEF-766/772: zonder geïnjecteerde ESS-03-/INT-03-dienst reist per regel
+    # ook een expliciet `unavailable`-document mee (nooit stil een pass).
     ontvangen = dict(service.received)
     assert ontvangen.pop("ess03_assessment")["status"] == "unavailable"
     # DEF-768: idem voor ESS-05, met de (hier lege) burenlijst en afgewezen
@@ -72,6 +72,7 @@ async def test_text_transports_context_metadata_without_mutating_input():
     assert ontvangen.pop("ess05_assessment")["status"] == "unavailable"
     assert ontvangen.pop("ess05_actieve_buren") == []
     assert ontvangen.pop("ess05_uitgesloten_termen") == []
+    assert ontvangen.pop("int03_assessment")["status"] == "unavailable"
     assert ontvangen == {**metadata, "record_text": "kwaliteitsmerk"}
     # De dubbel heeft `supplied` in de diepte gemuteerd; de aanroeper mag
     # daar niets van merken.

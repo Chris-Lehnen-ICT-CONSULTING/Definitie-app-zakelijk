@@ -1,0 +1,757 @@
+# Bestaande RED ook in vervolg-integratie-tests-v1.log (zelfde bron, ongewijzigde werkboom); hier opnieuw plus nieuwe regressietests, vóór schemawijziging.
+DEF771_SKILLS_ROOT=/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills
+$ .venv/bin/python -m pytest tests/unit/services/orchestrators/test_def772_int03_wrappers.py::test_validate_text_verkrijgt_verse_beoordeling_met_binding tests/unit/validation/test_def771_int02_o1.py -p no:cacheprovider -q -rA
+F.F.......F...F........F.F..F.F...FFF.....FF                             [100%]
+=================================== FAILURES ===================================
+__________ test_validate_text_verkrijgt_verse_beoordeling_met_binding __________
+
+    async def test_validate_text_verkrijgt_verse_beoordeling_met_binding():
+        service, assessor = _service(), FakeInt03Assessor(scenario="pass")
+        orch = ValidationOrchestratorV2(service, int03_assessment_service=assessor)
+        metadata = {
+            **CONTEXT,
+            "toelichting": "Synthetische toelichting.",
+            # Een meegegeven beoordeling is nooit de bron van waarheid.
+            "int03_assessment": {"status": "assessed", "judgment": {"verdict": "pass"}},
+        }
+        before = deepcopy(metadata)
+    
+        result = await orch.validate_text(
+            BEGRIP, TEKST, context=ValidationContext(metadata=metadata)
+        )
+    
+        assert metadata == before
+        (call,) = assessor.calls
+        assert call["begrip"] == BEGRIP
+        assert call["tekst"] == TEKST
+        assert call["toelichting"] == "Synthetische toelichting."
+        assert call["contexten"]["organisatorische_context"] == ["Synthetische Organisatie"]
+        doorgegeven = service.received["int03_assessment"]
+        assert doorgegeven["status"] == "assessed"
+        assert doorgegeven["contract_version"] == CONTRACTVERSIE
+        assert doorgegeven["fingerprint"] == bereken_int03_vingerafdruk(
+            BEGRIP, TEKST, CONTEXT, "Synthetische toelichting."
+        )
+        assert doorgegeven["attribution"]["model"] == "fake-int03-model"
+        assert service.received["int03_binding"] == BINDING.als_dict()
+        # Geen nieuw extern veld: het contract blijft 2.1.0.
+>       assert result["version"] == CONTRACT_VERSION == "2.1.0"
+E       AssertionError: assert '2.2.0' == '2.1.0'
+E         
+E         - 2.1.0
+E         ?   ^
+E         + 2.2.0
+E         ?   ^
+
+tests/unit/services/orchestrators/test_def772_int03_wrappers.py:102: AssertionError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=5eecca9d-e763-41fb-b459-3a162c711663)
+________ test_onbekende_velden_en_int03_velden_elders_blijven_afgewezen ________
+
+    async def test_onbekende_velden_en_int03_velden_elders_blijven_afgewezen():
+        met = await _met_int03_beoordeling("pass")
+        ne = await _publiek(C50, {})
+>       assert _fouten(met["rule_results"]) == []
+E       assert [<ValidationE...unexpected)">] == []
+E         
+E         Left contains one more item: <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:367: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=8ac1e48c-61ef-4f5a-85b7-ed1986ccefce)
+__________ test_int03_velden_hebben_expliciete_typen[signals-waarde1] __________
+
+veld = 'signals', waarde = [1]
+
+    @pytest.mark.parametrize(
+        ("veld", "waarde"),
+        [
+            ("signals", "\\bdie\\b"),
+            ("signals", [1]),
+            ("signals", None),
+            ("assessment", "beoordeeld"),
+            ("assessment", ["assessed"]),
+        ],
+    )
+    async def test_int03_velden_hebben_expliciete_typen(veld, waarde):
+        resultaat = await _met_int03_beoordeling("pass")
+        rule_results = resultaat["rule_results"]
+>       assert _fouten(rule_results) == []
+E       assert [<ValidationE...unexpected)">] == []
+E         
+E         Left contains one more item: <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:359: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=8aea4f98-0938-45b8-8110-a1ba419d9591)
+__ test_ne_resultaat_past_in_schema_en_conversie[C23-Toegang:-context1-kern] ___
+
+casus = 'C23', tekst = 'Toegang:'
+context = {'organisatorische_context': ['Synthetisch loket']}, grond = 'kern'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_resultaat_past_in_schema_en_conversie(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+        assert CONTRACT_VERSION == "2.2.0"
+        assert resultaat["version"] == CONTRACT_VERSION
+>       _valideer_rule_results(resultaat)
+
+tests/unit/validation/test_def771_int02_o1.py:293: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def771_int02_o1.py:266: in _valideer_rule_results
+    Draft202012Validator(SCHEMA["properties"]["rule_results"]).validate(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Draft202012Validator(schema={'additionalProperties': {'additionalProperties': False, 'properties': {'contract_version'...ructuree... altijd null.', 'propertyNames': {'minLength': 1, 'type': 'string'}, 'type': 'object'}, format_checker=None)
+args = ({'CON-01': {'contract_version': 'con01/1', 'fingerprint': '7272bacf400a0511a2f9d5e58b5ad9d37a3345666e45c764a931c1cb16...ordeel en verzin er geen.', 'context_value': None, 'evidence': None, 'field': None, ...}], 'review': None, ...}, ...},)
+kwargs = {}
+error = <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+
+    def validate(self, *args, **kwargs):
+        for error in self.iter_errors(*args, **kwargs):
+>           raise error
+E           jsonschema.exceptions.ValidationError: Additional properties are not allowed ('assessment', 'signals' were unexpected)
+E           
+E           Failed validating 'additionalProperties' in schema['additionalProperties']:
+E               {'type': 'object',
+E                'required': ['status', 'score', 'fingerprint', 'parts'],
+E                'properties': {'status': {'type': 'string',
+E                                          'enum': ['pass',
+E                                                   'fail',
+E                                                   'review_required',
+E                                                   'not_evaluated',
+E                                                   'error',
+E                                                   'not_applicable']},
+E                               'score': {'type': 'null',
+E                                         'description': 'Bewust altijd null: deze '
+E                                                        'regel geeft geen cijfer '
+E                                                        '(B-06)'},
+E                               'contract_version': {'type': ['string', 'null']},
+E                               'fingerprint': {'type': ['string', 'null'],
+E                                               'description': 'Bindt een beoordeling '
+E                                                              'aan term, exacte '
+E                                                              'tekst, canonieke '
+E                                                              'context en '
+E                                                              'contractversie'},
+E                               'parts': {'type': 'array',
+E                                         'items': {'type': 'object',
+E                                                   'required': ['id',
+E                                                                'status',
+E                                                                'reason',
+E                                                                'action'],
+E                                                   'properties': {'id': {'type': 'string',
+E                                                                         'minLength': 1},
+E                                                                  'status': {'type': 'string',
+E                                                                             'enum': ['pass',
+E                                                                                      'fail',
+E                                                                                      'review_required',
+E                                                                                      'not_evaluated',
+E                                                                                      'error',
+E                                                                                      'not_applicable'],
+E                                                                             'description': 'DEF-771 '
+E                                                                                            '(2.2.0): '
+E                                                                                            'not_evaluated '
+E                                                                                            '= '
+E                                                                                            'niet '
+E                                                                                            'uitgevoerd; '
+E                                                                                            'reason '
+E                                                                                            'noemt '
+E                                                                                            'wat '
+E                                                                                            'ontbreekt '
+E                                                                                            '(INT-02: '
+E                                                                                            'kern '
+E                                                                                            'en/of '
+E                                                                                            'context). '
+E                                                                                            'Geen '
+E                                                                                            'oordeel.'},
+E                                                                  'evidence': {'type': ['string',
+E                                                                                        'null'],
+E                                                                               'description': 'De '
+E                                                                                              'werkelijk '
+E                                                                                              'gevonden '
+E                                                                                              'tekst '
+E                                                                                              'die '
+E                                                                                              'aanleiding '
+E                                                                                              'gaf'},
+E                                                                  'context_value': {'type': ['string',
+E                                                                                             'null'],
+E                                                                                    'description': 'De '
+E                                                                                                   'geselecteerde '
+E                                                                                                   'contextwaarde, '
+E                                                                                                   'apart '
+E                                                                                                   'van '
+E                                                                                                   'de '
+E                                                                                                   'gevonden '
+E                                                                                                   'schrijfwijze'},
+E                                                                  'field': {'type': ['string',
+E                                                                                     'null']},
+E                                                                  'position': {'type': ['integer',
+E                                                                                        'null'],
+E                                                                               'minimum': 0},
+E                                                                  'reason': {'type': 'string'},
+E                                                                  'action': {'type': 'string'}},
+E                                                   'additionalProperties': False}},
+E                               'review': {'type': ['object', 'null'],
+E                                          'description': 'Samenvatting van de '
+E                                                         'aangeleverde menselijke '
+E                                                         'beoordeling en of zij is '
+E                                                         'toegepast'}},
+E                'additionalProperties': False}
+E           
+E           On instance['INT-03']:
+E               {'status': 'review_required',
+E                'score': None,
+E                'contract_version': 'int03/1',
+E                'fingerprint': 'a30f40fdf39f9d3978bab2aa1f6f46ddd2336d521bacbba3bf3b031f2640516c',
+E                'parts': [{'id': 'pronoun_reference',
+E                           'status': 'review_required',
+E                           'evidence': None,
+E                           'context_value': None,
+E                           'field': None,
+E                           'position': None,
+E                           'reason': 'De verwijzingen zijn niet beoordeeld: '
+E                                     'AI-beoordeling niet uitgevoerd (geen '
+E                                     'beoordeling aangeleverd).',
+E                           'action': 'Valideer opnieuw; de INT-03-beoordeling wordt '
+E                                     'daarbij automatisch uitgevoerd.'}],
+E                'review': {'assessment': {'applied': False,
+E                                          'historical': False,
+E                                          'invalid': False,
+E                                          'status': None,
+E                                          'reason': 'AI-beoordeling niet uitgevoerd '
+E                                                    '(geen beoordeling aangeleverd)',
+E                                          'model': None,
+E                                          'provider': None,
+E                                          'prompt_version': None,
+E                                          'norm_sha256': None,
+E                                          'expected_binding': None,
+E                                          'verdict': None,
+E                                          'finding': None,
+E                                          'question': None,
+E                                          'rejected': 0}},
+E                'assessment': None,
+E                'signals': []}
+
+.venv/lib/python3.13/site-packages/jsonschema/validators.py:450: ValidationError
+________ test_int03_velden_hebben_expliciete_typen[assessment-waarde4] _________
+
+veld = 'assessment', waarde = ['assessed']
+
+    @pytest.mark.parametrize(
+        ("veld", "waarde"),
+        [
+            ("signals", "\\bdie\\b"),
+            ("signals", [1]),
+            ("signals", None),
+            ("assessment", "beoordeeld"),
+            ("assessment", ["assessed"]),
+        ],
+    )
+    async def test_int03_velden_hebben_expliciete_typen(veld, waarde):
+        resultaat = await _met_int03_beoordeling("pass")
+        rule_results = resultaat["rule_results"]
+>       assert _fouten(rule_results) == []
+E       assert [<ValidationE...unexpected)">] == []
+E         
+E         Left contains one more item: <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:359: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=f55f1c28-fcae-43c5-b80c-c0d4fbf633fa)
+_ test_int03_uitkomst_met_en_zonder_beoordeling_past_in_schema[zonder_dienst] __
+
+bron = 'zonder_dienst'
+
+    @pytest.mark.parametrize("bron", ["zonder_dienst", "pass", "fail"])
+    async def test_int03_uitkomst_met_en_zonder_beoordeling_past_in_schema(bron):
+        if bron == "zonder_dienst":
+            resultaat = await _publiek(C50, CONTEXT)
+            assert resultaat["rule_results"]["INT-03"]["assessment"] is None
+        else:
+            resultaat = await _met_int03_beoordeling(bron)
+            assessment = resultaat["rule_results"]["INT-03"]["assessment"]
+            assert assessment["status"] == "assessed"
+        assert resultaat["rule_results"]["INT-03"]["signals"]
+>       assert _fouten(resultaat["rule_results"]) == []
+E       assert [<ValidationE...unexpected)">] == []
+E         
+E         Left contains one more item: <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:339: AssertionError
+_ test_ne_resultaat_past_in_schema_en_conversie[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context] _
+
+casus = 'C56'
+tekst = 'Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.'
+context = {}, grond = 'context'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_resultaat_past_in_schema_en_conversie(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+        assert CONTRACT_VERSION == "2.2.0"
+        assert resultaat["version"] == CONTRACT_VERSION
+>       _valideer_rule_results(resultaat)
+
+tests/unit/validation/test_def771_int02_o1.py:293: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def771_int02_o1.py:266: in _valideer_rule_results
+    Draft202012Validator(SCHEMA["properties"]["rule_results"]).validate(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Draft202012Validator(schema={'additionalProperties': {'additionalProperties': False, 'properties': {'contract_version'...ructuree... altijd null.', 'propertyNames': {'minLength': 1, 'type': 'string'}, 'type': 'object'}, format_checker=None)
+args = ({'CON-01': {'contract_version': 'con01/1', 'fingerprint': '27338e3f15b299394b40ea0bd476b1b03ab9061272d911dbd4aa0ece2f...ordeel en verzin er geen.', 'context_value': None, 'evidence': None, 'field': None, ...}], 'review': None, ...}, ...},)
+kwargs = {}
+error = <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+
+    def validate(self, *args, **kwargs):
+        for error in self.iter_errors(*args, **kwargs):
+>           raise error
+E           jsonschema.exceptions.ValidationError: Additional properties are not allowed ('assessment', 'signals' were unexpected)
+E           
+E           Failed validating 'additionalProperties' in schema['additionalProperties']:
+E               {'type': 'object',
+E                'required': ['status', 'score', 'fingerprint', 'parts'],
+E                'properties': {'status': {'type': 'string',
+E                                          'enum': ['pass',
+E                                                   'fail',
+E                                                   'review_required',
+E                                                   'not_evaluated',
+E                                                   'error',
+E                                                   'not_applicable']},
+E                               'score': {'type': 'null',
+E                                         'description': 'Bewust altijd null: deze '
+E                                                        'regel geeft geen cijfer '
+E                                                        '(B-06)'},
+E                               'contract_version': {'type': ['string', 'null']},
+E                               'fingerprint': {'type': ['string', 'null'],
+E                                               'description': 'Bindt een beoordeling '
+E                                                              'aan term, exacte '
+E                                                              'tekst, canonieke '
+E                                                              'context en '
+E                                                              'contractversie'},
+E                               'parts': {'type': 'array',
+E                                         'items': {'type': 'object',
+E                                                   'required': ['id',
+E                                                                'status',
+E                                                                'reason',
+E                                                                'action'],
+E                                                   'properties': {'id': {'type': 'string',
+E                                                                         'minLength': 1},
+E                                                                  'status': {'type': 'string',
+E                                                                             'enum': ['pass',
+E                                                                                      'fail',
+E                                                                                      'review_required',
+E                                                                                      'not_evaluated',
+E                                                                                      'error',
+E                                                                                      'not_applicable'],
+E                                                                             'description': 'DEF-771 '
+E                                                                                            '(2.2.0): '
+E                                                                                            'not_evaluated '
+E                                                                                            '= '
+E                                                                                            'niet '
+E                                                                                            'uitgevoerd; '
+E                                                                                            'reason '
+E                                                                                            'noemt '
+E                                                                                            'wat '
+E                                                                                            'ontbreekt '
+E                                                                                            '(INT-02: '
+E                                                                                            'kern '
+E                                                                                            'en/of '
+E                                                                                            'context). '
+E                                                                                            'Geen '
+E                                                                                            'oordeel.'},
+E                                                                  'evidence': {'type': ['string',
+E                                                                                        'null'],
+E                                                                               'description': 'De '
+E                                                                                              'werkelijk '
+E                                                                                              'gevonden '
+E                                                                                              'tekst '
+E                                                                                              'die '
+E                                                                                              'aanleiding '
+E                                                                                              'gaf'},
+E                                                                  'context_value': {'type': ['string',
+E                                                                                             'null'],
+E                                                                                    'description': 'De '
+E                                                                                                   'geselecteerde '
+E                                                                                                   'contextwaarde, '
+E                                                                                                   'apart '
+E                                                                                                   'van '
+E                                                                                                   'de '
+E                                                                                                   'gevonden '
+E                                                                                                   'schrijfwijze'},
+E                                                                  'field': {'type': ['string',
+E                                                                                     'null']},
+E                                                                  'position': {'type': ['integer',
+E                                                                                        'null'],
+E                                                                               'minimum': 0},
+E                                                                  'reason': {'type': 'string'},
+E                                                                  'action': {'type': 'string'}},
+E                                                   'additionalProperties': False}},
+E                               'review': {'type': ['object', 'null'],
+E                                          'description': 'Samenvatting van de '
+E                                                         'aangeleverde menselijke '
+E                                                         'beoordeling en of zij is '
+E                                                         'toegepast'}},
+E                'additionalProperties': False}
+E           
+E           On instance['INT-03']:
+E               {'status': 'review_required',
+E                'score': None,
+E                'contract_version': 'int03/1',
+E                'fingerprint': 'e2515dd3050f760d3662d461197780fce38cd589a16594f9082fa884f107131a',
+E                'parts': [{'id': 'pronoun_reference',
+E                           'status': 'review_required',
+E                           'evidence': None,
+E                           'context_value': None,
+E                           'field': None,
+E                           'position': None,
+E                           'reason': 'De verwijzingen zijn niet beoordeeld: '
+E                                     'AI-beoordeling niet uitgevoerd (geen '
+E                                     'beoordeling aangeleverd).',
+E                           'action': 'Valideer opnieuw; de INT-03-beoordeling wordt '
+E                                     'daarbij automatisch uitgevoerd.'}],
+E                'review': {'assessment': {'applied': False,
+E                                          'historical': False,
+E                                          'invalid': False,
+E                                          'status': None,
+E                                          'reason': 'AI-beoordeling niet uitgevoerd '
+E                                                    '(geen beoordeling aangeleverd)',
+E                                          'model': None,
+E                                          'provider': None,
+E                                          'prompt_version': None,
+E                                          'norm_sha256': None,
+E                                          'expected_binding': None,
+E                                          'verdict': None,
+E                                          'finding': None,
+E                                          'question': None,
+E                                          'rejected': 0}},
+E                'assessment': None,
+E                'signals': ['\\bdie\\b(?!\\s+(begrip|definitie|regel))',
+E                            '\\bhet\\b',
+E                            '\\bhij\\b']}
+
+.venv/lib/python3.13/site-packages/jsonschema/validators.py:450: ValidationError
+________ test_rr_boekt_geen_int02_deeluitkomst_en_andere_regels_blijven ________
+
+    async def test_rr_boekt_geen_int02_deeluitkomst_en_andere_regels_blijven():
+        met = await _publiek(C50, CONTEXT)
+        zonder = await _publiek(C50, {})
+        assert "INT-02" not in met["rule_results"]
+        assert set(zonder["rule_results"]) - {"INT-02"} == set(met["rule_results"])
+>       _valideer_rule_results(met)
+
+tests/unit/validation/test_def771_int02_o1.py:304: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def771_int02_o1.py:266: in _valideer_rule_results
+    Draft202012Validator(SCHEMA["properties"]["rule_results"]).validate(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Draft202012Validator(schema={'additionalProperties': {'additionalProperties': False, 'properties': {'contract_version'...ructuree... altijd null.', 'propertyNames': {'minLength': 1, 'type': 'string'}, 'type': 'object'}, format_checker=None)
+args = ({'CON-01': {'contract_version': 'con01/1', 'fingerprint': 'd7453dd1fae69465a82a4f35a3a3b213e3c451db732a8e8f4535483732...ordeel en verzin er geen.', 'context_value': None, 'evidence': None, 'field': None, ...}], 'review': None, ...}, ...},)
+kwargs = {}
+error = <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+
+    def validate(self, *args, **kwargs):
+        for error in self.iter_errors(*args, **kwargs):
+>           raise error
+E           jsonschema.exceptions.ValidationError: Additional properties are not allowed ('assessment', 'signals' were unexpected)
+E           
+E           Failed validating 'additionalProperties' in schema['additionalProperties']:
+E               {'type': 'object',
+E                'required': ['status', 'score', 'fingerprint', 'parts'],
+E                'properties': {'status': {'type': 'string',
+E                                          'enum': ['pass',
+E                                                   'fail',
+E                                                   'review_required',
+E                                                   'not_evaluated',
+E                                                   'error',
+E                                                   'not_applicable']},
+E                               'score': {'type': 'null',
+E                                         'description': 'Bewust altijd null: deze '
+E                                                        'regel geeft geen cijfer '
+E                                                        '(B-06)'},
+E                               'contract_version': {'type': ['string', 'null']},
+E                               'fingerprint': {'type': ['string', 'null'],
+E                                               'description': 'Bindt een beoordeling '
+E                                                              'aan term, exacte '
+E                                                              'tekst, canonieke '
+E                                                              'context en '
+E                                                              'contractversie'},
+E                               'parts': {'type': 'array',
+E                                         'items': {'type': 'object',
+E                                                   'required': ['id',
+E                                                                'status',
+E                                                                'reason',
+E                                                                'action'],
+E                                                   'properties': {'id': {'type': 'string',
+E                                                                         'minLength': 1},
+E                                                                  'status': {'type': 'string',
+E                                                                             'enum': ['pass',
+E                                                                                      'fail',
+E                                                                                      'review_required',
+E                                                                                      'not_evaluated',
+E                                                                                      'error',
+E                                                                                      'not_applicable'],
+E                                                                             'description': 'DEF-771 '
+E                                                                                            '(2.2.0): '
+E                                                                                            'not_evaluated '
+E                                                                                            '= '
+E                                                                                            'niet '
+E                                                                                            'uitgevoerd; '
+E                                                                                            'reason '
+E                                                                                            'noemt '
+E                                                                                            'wat '
+E                                                                                            'ontbreekt '
+E                                                                                            '(INT-02: '
+E                                                                                            'kern '
+E                                                                                            'en/of '
+E                                                                                            'context). '
+E                                                                                            'Geen '
+E                                                                                            'oordeel.'},
+E                                                                  'evidence': {'type': ['string',
+E                                                                                        'null'],
+E                                                                               'description': 'De '
+E                                                                                              'werkelijk '
+E                                                                                              'gevonden '
+E                                                                                              'tekst '
+E                                                                                              'die '
+E                                                                                              'aanleiding '
+E                                                                                              'gaf'},
+E                                                                  'context_value': {'type': ['string',
+E                                                                                             'null'],
+E                                                                                    'description': 'De '
+E                                                                                                   'geselecteerde '
+E                                                                                                   'contextwaarde, '
+E                                                                                                   'apart '
+E                                                                                                   'van '
+E                                                                                                   'de '
+E                                                                                                   'gevonden '
+E                                                                                                   'schrijfwijze'},
+E                                                                  'field': {'type': ['string',
+E                                                                                     'null']},
+E                                                                  'position': {'type': ['integer',
+E                                                                                        'null'],
+E                                                                               'minimum': 0},
+E                                                                  'reason': {'type': 'string'},
+E                                                                  'action': {'type': 'string'}},
+E                                                   'additionalProperties': False}},
+E                               'review': {'type': ['object', 'null'],
+E                                          'description': 'Samenvatting van de '
+E                                                         'aangeleverde menselijke '
+E                                                         'beoordeling en of zij is '
+E                                                         'toegepast'}},
+E                'additionalProperties': False}
+E           
+E           On instance['INT-03']:
+E               {'status': 'review_required',
+E                'score': None,
+E                'contract_version': 'int03/1',
+E                'fingerprint': '61e78e0872aa53870a253dc1e90fa2e72f6ff0d9ee0c7085e739c52da42d4621',
+E                'parts': [{'id': 'pronoun_reference',
+E                           'status': 'review_required',
+E                           'evidence': None,
+E                           'context_value': None,
+E                           'field': None,
+E                           'position': None,
+E                           'reason': 'De verwijzingen zijn niet beoordeeld: '
+E                                     'AI-beoordeling niet uitgevoerd (geen '
+E                                     'beoordeling aangeleverd).',
+E                           'action': 'Valideer opnieuw; de INT-03-beoordeling wordt '
+E                                     'daarbij automatisch uitgevoerd.'}],
+E                'review': {'assessment': {'applied': False,
+E                                          'historical': False,
+E                                          'invalid': False,
+E                                          'status': None,
+E                                          'reason': 'AI-beoordeling niet uitgevoerd '
+E                                                    '(geen beoordeling aangeleverd)',
+E                                          'model': None,
+E                                          'provider': None,
+E                                          'prompt_version': None,
+E                                          'norm_sha256': None,
+E                                          'expected_binding': None,
+E                                          'verdict': None,
+E                                          'finding': None,
+E                                          'question': None,
+E                                          'rejected': 0}},
+E                'assessment': None,
+E                'signals': ['\\bdie\\b(?!\\s+(begrip|definitie|regel))',
+E                            '\\bhet\\b',
+E                            '\\bhij\\b']}
+
+.venv/lib/python3.13/site-packages/jsonschema/validators.py:450: ValidationError
+___________ test_int03_velden_hebben_expliciete_typen[signals-None] ____________
+
+veld = 'signals', waarde = None
+
+    @pytest.mark.parametrize(
+        ("veld", "waarde"),
+        [
+            ("signals", "\\bdie\\b"),
+            ("signals", [1]),
+            ("signals", None),
+            ("assessment", "beoordeeld"),
+            ("assessment", ["assessed"]),
+        ],
+    )
+    async def test_int03_velden_hebben_expliciete_typen(veld, waarde):
+        resultaat = await _met_int03_beoordeling("pass")
+        rule_results = resultaat["rule_results"]
+>       assert _fouten(rule_results) == []
+E       assert [<ValidationE...unexpected)">] == []
+E         
+E         Left contains one more item: <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:359: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=a64ae759-033b-4ae9-9df2-3c546e9d5fd4)
+______ test_int03_uitkomst_met_en_zonder_beoordeling_past_in_schema[pass] ______
+
+bron = 'pass'
+
+    @pytest.mark.parametrize("bron", ["zonder_dienst", "pass", "fail"])
+    async def test_int03_uitkomst_met_en_zonder_beoordeling_past_in_schema(bron):
+        if bron == "zonder_dienst":
+            resultaat = await _publiek(C50, CONTEXT)
+            assert resultaat["rule_results"]["INT-03"]["assessment"] is None
+        else:
+            resultaat = await _met_int03_beoordeling(bron)
+            assessment = resultaat["rule_results"]["INT-03"]["assessment"]
+            assert assessment["status"] == "assessed"
+        assert resultaat["rule_results"]["INT-03"]["signals"]
+>       assert _fouten(resultaat["rule_results"]) == []
+E       assert [<ValidationE...unexpected)">] == []
+E         
+E         Left contains one more item: <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:339: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=43fbb29d-a5f6-4dea-a52d-d02ef86b68e7)
+_________ test_int03_velden_hebben_expliciete_typen[signals-\\bdie\\b] _________
+
+veld = 'signals', waarde = '\\bdie\\b'
+
+    @pytest.mark.parametrize(
+        ("veld", "waarde"),
+        [
+            ("signals", "\\bdie\\b"),
+            ("signals", [1]),
+            ("signals", None),
+            ("assessment", "beoordeeld"),
+            ("assessment", ["assessed"]),
+        ],
+    )
+    async def test_int03_velden_hebben_expliciete_typen(veld, waarde):
+        resultaat = await _met_int03_beoordeling("pass")
+        rule_results = resultaat["rule_results"]
+>       assert _fouten(rule_results) == []
+E       assert [<ValidationE...unexpected)">] == []
+E         
+E         Left contains one more item: <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:359: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=d86e24b2-849b-43e0-b0f7-eb878392e9a6)
+______ test_int03_uitkomst_met_en_zonder_beoordeling_past_in_schema[fail] ______
+
+bron = 'fail'
+
+    @pytest.mark.parametrize("bron", ["zonder_dienst", "pass", "fail"])
+    async def test_int03_uitkomst_met_en_zonder_beoordeling_past_in_schema(bron):
+        if bron == "zonder_dienst":
+            resultaat = await _publiek(C50, CONTEXT)
+            assert resultaat["rule_results"]["INT-03"]["assessment"] is None
+        else:
+            resultaat = await _met_int03_beoordeling(bron)
+            assessment = resultaat["rule_results"]["INT-03"]["assessment"]
+            assert assessment["status"] == "assessed"
+        assert resultaat["rule_results"]["INT-03"]["signals"]
+>       assert _fouten(resultaat["rule_results"]) == []
+E       assert [<ValidationE...unexpected)">] == []
+E         
+E         Left contains one more item: <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:339: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=d7e8466a-44f8-401d-b908-6df906121a5e)
+_______ test_int03_velden_hebben_expliciete_typen[assessment-beoordeeld] _______
+
+veld = 'assessment', waarde = 'beoordeeld'
+
+    @pytest.mark.parametrize(
+        ("veld", "waarde"),
+        [
+            ("signals", "\\bdie\\b"),
+            ("signals", [1]),
+            ("signals", None),
+            ("assessment", "beoordeeld"),
+            ("assessment", ["assessed"]),
+        ],
+    )
+    async def test_int03_velden_hebben_expliciete_typen(veld, waarde):
+        resultaat = await _met_int03_beoordeling("pass")
+        rule_results = resultaat["rule_results"]
+>       assert _fouten(rule_results) == []
+E       assert [<ValidationE...unexpected)">] == []
+E         
+E         Left contains one more item: <ValidationError: "Additional properties are not allowed ('assessment', 'signals' were unexpected)">
+E         Use -v to get more diff
+
+tests/unit/validation/test_def771_int02_o1.py:359: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=42b0036f-fd35-44df-bdd1-af863324f0b2)
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-signalen1-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[beslisregel: Algoritme waarvoor oordeelsvorming nodig is.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_onzekere_grens_citeert_de_volledige_kern
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-False-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C23-Toegang:-context1-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Lid dat stemgerechtigd is alleen als het v\xf3\xf3r 1 januari is ingeschreven.-signalen2-Lid dat stemgerechtigd is alleen als het v\xf3\xf3r 1 januari is ingeschreven]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_herhaalde_passage_blijft_onderscheidbaar
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C06--context0-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[Toegang:-True-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.-signalen3-transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C06--context0-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid.-signalen8-Aanvraag die moet worden beoordeeld op: volledigheid, juistheid en tijdigheid]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht-signalen4-passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[Voorwerp dat dient als ondersteuning.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_record_s1_en_leeshulp
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Handeling die moet, na toestemming van de rechter, worden verricht.-signalen7-Handeling die moet, na toestemming van de rechter, worden verricht]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C23-Toegang:-context1-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_markergrenzen_kan_besluiten_en_dient_te
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Verplichting die een partij moet nakomen.-signalen6-Verplichting die een partij moet nakomen]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_met_context_geeft_passagehulp_zonder_oordeel
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Getal dat even is indien het zonder rest door twee deelbaar is.-signalen0-Getal dat even is indien het zonder rest door twee deelbaar is]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is.-signalen5-Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[-True-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C06--context0-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag.-signalen9-Persoon die, indien het inkomen lager is dan de grens, recht heeft op een toeslag]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_posities_in_getoetste_kern_zonder_broncitaat
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[De medewerker laat de aanvrager toe.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[-False-kern en context]
+FAILED tests/unit/services/orchestrators/test_def772_int03_wrappers.py::test_validate_text_verkrijgt_verse_beoordeling_met_binding
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_onbekende_velden_en_int03_velden_elders_blijven_afgewezen
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_int03_velden_hebben_expliciete_typen[signals-waarde1]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C23-Toegang:-context1-kern]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_int03_velden_hebben_expliciete_typen[assessment-waarde4]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_int03_uitkomst_met_en_zonder_beoordeling_past_in_schema[zonder_dienst]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_rr_boekt_geen_int02_deeluitkomst_en_andere_regels_blijven
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_int03_velden_hebben_expliciete_typen[signals-None]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_int03_uitkomst_met_en_zonder_beoordeling_past_in_schema[pass]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_int03_velden_hebben_expliciete_typen[signals-\\bdie\\b]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_int03_uitkomst_met_en_zonder_beoordeling_past_in_schema[fail]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_int03_velden_hebben_expliciete_typen[assessment-beoordeeld]
+exit=1

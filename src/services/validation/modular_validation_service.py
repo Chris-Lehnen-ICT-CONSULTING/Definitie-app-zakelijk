@@ -19,6 +19,10 @@ from types import MappingProxyType
 from typing import Any
 
 from services.validation.evaluators.base import EvaluationDeps, EvaluationOutcome
+from services.validation.evaluators.judgment_review import (
+    int02_niet_uitgevoerd,
+    int02_niet_uitgevoerd_uitkomst,
+)
 from services.validation.evaluators.lemma_morphology import lemma_is_enkelvoud
 from services.validation.evaluators.registry import get_default_registry
 from services.validation.evaluators.sentence_boundary import (
@@ -93,8 +97,16 @@ _ACCEPTATIE_BLOKKEERDERS: frozenset[str] = frozenset({"DUP_01"})
 # (per onderdeel status, passage en reden) en krijgt geen regelcijfer. Anders
 # dan `no_score` maakt zo een regel de totaalscore niet onbeschikbaar; haar
 # scorepolicy blijft `excluded_from_score`, dus geen zelfstandige blokkade.
+# DEF-772: INT-03 idem — de AI-verwijzingsbeoordeling levert haar uitkomst
+# (inclusief het beoordelingsdocument) in `rule_results`, zonder cijfer.
+# DEF-835 (WP5a): INT-02 in O2 (`decision_rule_assessment`) idem — elke status
+# met het WP1-document in `rule_results`, geen cijfer en geen poort (B5/B6).
 _EVALUATORS_MET_DEELUITKOMST: frozenset[EvaluatorType] = frozenset(
-    {EvaluatorType.SENTENCE_BOUNDARY}
+    {
+        EvaluatorType.SENTENCE_BOUNDARY,
+        EvaluatorType.PRONOUN_REFERENCE_ASSESSMENT,
+        EvaluatorType.DECISION_RULE_ASSESSMENT,
+    }
 )
 
 
@@ -855,6 +867,18 @@ class ModularValidationService:
             "unexpected_rule_ids": list(readiness.unexpected_rule_ids),
         }
 
+    def evaluator_voor(self, code: str) -> EvaluatorType | None:
+        """De evaluator die de actieve regelset voor `code` kiest (DEF-835 WP5a).
+
+        Uit dezelfde, zo nodig ververste snapshot als de evaluatie: het
+        gevalideerde regelrecord, niet een aanroepersleutel. `None` als de
+        regelset niet gereed is of de regel geen record heeft; dan draait er
+        ook geen evaluator die een voorafgaande beoordeling kan gebruiken.
+        """
+        snap = self._ververs_state_indien_nodig()
+        record = snap.rule_records.get(code) if snap.readiness.ready else None
+        return record.evaluator if record is not None else None
+
     async def validate_definition(
         self,
         begrip: str,
@@ -1456,6 +1480,12 @@ class ModularValidationService:
         """
         beschikbaar = self._available_inputs(ctx)
         ontbrekend = missing_inputs(record, beschikbaar)
+        # DEF-835 (WP5a, review F1): de O2-evaluator doet zelf de volledige
+        # WP1-invoercontrole op de oorspronkelijke recordkern — NE in O2-vorm,
+        # ongeldige metadata `error`. Hier onderscheppen zou op `cleaned_text`
+        # en met de O1-NE-vorm beslissen; het O1-pad hieronder blijft gelijk.
+        if record.evaluator is EvaluatorType.DECISION_RULE_ASSESSMENT:
+            ontbrekend = ()
         deps = EvaluationDeps(
             support=self,
             available_inputs=beschikbaar,
@@ -1463,6 +1493,15 @@ class ModularValidationService:
             pattern_cache=state.pattern_cache,
         )
         if ontbrekend:
+            # DEF-771: INT-02 geeft de exacte NE-melding (kern en/of context).
+            if record.rule_id.upper() == "INT-02":
+                melding = int02_niet_uitgevoerd(
+                    ctx.cleaned_text,
+                    RequiredInput.CONTEXT_LISTS not in ontbrekend,
+                )
+                if melding:
+                    return int02_niet_uitgevoerd_uitkomst(melding, record)
+            # DEF-768: overige regels generiek, zo mogelijk gemotiveerd (ESS-05).
             namen = ", ".join(sorted(item.value for item in ontbrekend))
             generiek = EvaluationOutcome.not_evaluated(
                 f"vereiste invoer ontbreekt: {namen}"
@@ -1664,7 +1703,13 @@ class ModularValidationService:
         """
         rule_statuses[code] = outcome.status.value
 
-        if rule_results is not None and geen_cijfer:
+        # DEF-771 (contract 2.2.0): een niet-uitgevoerde regel met een eigen
+        # deeluitkomst (INT-02: de exacte NE-melding) reist publiek mee.
+        ne_met_deeluitkomst = (
+            outcome.status is ResultStatus.NOT_EVALUATED
+            and "rule_result" in outcome.metadata
+        )
+        if rule_results is not None and (geen_cijfer or ne_met_deeluitkomst):
             self._boek_rule_result(code, outcome, rule_results)
 
         if outcome.status is ResultStatus.PASS:

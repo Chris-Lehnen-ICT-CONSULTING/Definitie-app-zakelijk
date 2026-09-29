@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/your-org/definitie-app/schemas/validation_result.schema.json",
   "title": "ValidationResult",
-  "description": "Contract schema for validation results from ValidationOrchestratorV2. Contractversie 2.2.0 (DEF-768, additief): ess05_assessment (de volledige AI-onderscheidsbeoordeling van ESS-05, contract domain.ess05.contract) en ess05_actieve_buren (de burenlijst waaraan zij gebonden is); geen veld of status van betekenis veranderd. 2.1.0 (DEF-766, additief): resultaatstatus not_applicable in rule_statuses, rule_results (incl. parts) en evaluation_coverage.not_applicable — een afgeronde, gemotiveerde niet-toepasselijkheid (ESS-03: geen telbare eenheid bedoeld), geen pass en geen open punt; plus ess03_assessment (de volledige AI-telbaarheidsbeoordeling, contract domain.ess03.contract). Geen bestaande status of veld is van betekenis veranderd. 2.0.0 (DEF-624): validation_status is verplicht in deze canonieke uitvoervorm en heeft geen default meer. Tot 1.4.0 gold een resultaat zonder status via `default: validated` als uitgevoerde run; dat is een betekenisverandering en dus een SemVer-major. Aan de invoergrens (services.validation.result_contract) wordt een afwezige, null of ongeldige status tot validation_unknown met reden contract_status_missing/contract_status_invalid genormaliseerd — legacy-invoer blijft leesbaar maar levert nooit een oordeel. unknown_reason kent naast ruleset_incomplete (DEF-621) nu contract_status_missing, contract_status_invalid en validation_error (degraded result); validation_readiness is alleen bij ruleset_incomplete verplicht (alleen dan is zij gemeten). Bij validation_unknown is is_acceptable altijd false en is overall_score de fail-closed placeholder 0 of null (niet beschikbaar); een unknown-resultaat draagt nooit een oordeel, ook niet via passed_rules of acceptance_gate — die blijven uitsluitend beschikbaar voor uitleg. Het vorige contract blijft gepind als validation_result_v1.4.0.schema.json. Eerdere uitbreidingen: 1.4.0 (DEF-743: source_assessment), 1.3.0 (DEF-622: rule_results; overall_score en categoriescores mogen null zijn — productbesluit: geen noemer zonder CON-01), 1.2.0 (DEF-621: validation_status, unknown_reason, validation_readiness) en 1.1.0 (DEF-624: rule_statuses, evaluation_coverage, review_required). additionalProperties blijft bewust false zodat een nieuw veld niet stil kan binnenglippen.",
+  "description": "Contract schema for validation results from ValidationOrchestratorV2. Contractversie 2.4.0 (DEF-768, additief): ess05_assessment (de volledige AI-onderscheidsbeoordeling van ESS-05, contract domain.ess05.contract) en ess05_actieve_buren (de burenlijst waaraan zij gebonden is); geen veld of status van betekenis veranderd (op de branch 2.2.0 genoemd; bij de merge met main 2.4.0). 2.3.0 (DEF-835, additief): rule_results['INT-02'] mag dezelfde optionele velden assessment (het INT-02-beoordelingsdocument, contract def835-int02-assessment/1, of null) en signals (patroonlijst; leeshulp, geen oordeel) dragen als INT-03. Alleen INT-02 en INT-03; onbekende velden in een regeluitkomst blijven afgewezen. Geen bestaand veld of bestaande status is van betekenis veranderd; het actieve INT-02-record levert deze velden nog niet. 2.2.0 (DEF-771, additief): een deeluitkomst in rule_results (parts.status) mag not_evaluated zijn; INT-02 levert zo bij ontbrekende kern of context de exacte NE-melding (score en fingerprint null, geen oordeel). De NE-uitbreiding voegt geen veld toe en verandert geen bestaande status van betekenis. Daarnaast beschrijft 2.2.0 de bestaande INT-03-runtimevelden assessment (beoordelingsdocument of null) en signals (patroonlijst) in rule_results['INT-03'] (DEF-772, integratie met main): alleen voor die regel toegestaan; onbekende velden in een regeluitkomst blijven afgewezen. 2.1.0 (DEF-766, additief): resultaatstatus not_applicable in rule_statuses, rule_results (incl. parts) en evaluation_coverage.not_applicable — een afgeronde, gemotiveerde niet-toepasselijkheid (ESS-03: geen telbare eenheid bedoeld), geen pass en geen open punt; plus ess03_assessment (de volledige AI-telbaarheidsbeoordeling, contract domain.ess03.contract). Geen bestaande status of veld is van betekenis veranderd. 2.0.0 (DEF-624): validation_status is verplicht in deze canonieke uitvoervorm en heeft geen default meer. Tot 1.4.0 gold een resultaat zonder status via `default: validated` als uitgevoerde run; dat is een betekenisverandering en dus een SemVer-major. Aan de invoergrens (services.validation.result_contract) wordt een afwezige, null of ongeldige status tot validation_unknown met reden contract_status_missing/contract_status_invalid genormaliseerd — legacy-invoer blijft leesbaar maar levert nooit een oordeel. unknown_reason kent naast ruleset_incomplete (DEF-621) nu contract_status_missing, contract_status_invalid en validation_error (degraded result); validation_readiness is alleen bij ruleset_incomplete verplicht (alleen dan is zij gemeten). Bij validation_unknown is is_acceptable altijd false en is overall_score de fail-closed placeholder 0 of null (niet beschikbaar); een unknown-resultaat draagt nooit een oordeel, ook niet via passed_rules of acceptance_gate — die blijven uitsluitend beschikbaar voor uitleg. Het vorige contract blijft gepind als validation_result_v1.4.0.schema.json. Eerdere uitbreidingen: 1.4.0 (DEF-743: source_assessment), 1.3.0 (DEF-622: rule_results; overall_score en categoriescores mogen null zijn — productbesluit: geen noemer zonder CON-01), 1.2.0 (DEF-621: validation_status, unknown_reason, validation_readiness) en 1.1.0 (DEF-624: rule_statuses, evaluation_coverage, review_required). additionalProperties blijft bewust false zodat een nieuw veld niet stil kan binnenglippen.",
   "type": "object",
   "required": [
     "version",
@@ -289,58 +289,97 @@
         "type": "string",
         "minLength": 1
       },
-      "additionalProperties": {
-        "type": "object",
-        "required": ["status", "score", "fingerprint", "parts"],
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": ["pass", "fail", "review_required", "not_evaluated", "error", "not_applicable"]
-          },
-          "score": {
-            "type": "null",
-            "description": "Bewust altijd null: deze regel geeft geen cijfer (B-06)"
-          },
-          "contract_version": {
-            "type": ["string", "null"]
-          },
-          "fingerprint": {
-            "type": ["string", "null"],
-            "description": "Bindt een beoordeling aan term, exacte tekst, canonieke context en contractversie"
-          },
-          "parts": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": ["id", "status", "reason", "action"],
-              "properties": {
-                "id": { "type": "string", "minLength": 1 },
-                "status": {
-                  "type": "string",
-                  "enum": ["pass", "fail", "review_required", "error", "not_applicable"]
+      "$defs": {
+        "regeluitkomst": {
+          "$anchor": "regeluitkomst",
+          "type": "object",
+          "required": ["status", "score", "fingerprint", "parts"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["pass", "fail", "review_required", "not_evaluated", "error", "not_applicable"]
+            },
+            "score": {
+              "type": "null",
+              "description": "Bewust altijd null: deze regel geeft geen cijfer (B-06)"
+            },
+            "contract_version": {
+              "type": ["string", "null"]
+            },
+            "fingerprint": {
+              "type": ["string", "null"],
+              "description": "Bindt een beoordeling aan term, exacte tekst, canonieke context en contractversie"
+            },
+            "parts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "status", "reason", "action"],
+                "properties": {
+                  "id": { "type": "string", "minLength": 1 },
+                  "status": {
+                    "type": "string",
+                    "enum": ["pass", "fail", "review_required", "not_evaluated", "error", "not_applicable"],
+                    "description": "DEF-771 (2.2.0): not_evaluated = niet uitgevoerd; reason noemt wat ontbreekt (INT-02: kern en/of context). Geen oordeel."
+                  },
+                  "evidence": {
+                    "type": ["string", "null"],
+                    "description": "De werkelijk gevonden tekst die aanleiding gaf"
+                  },
+                  "context_value": {
+                    "type": ["string", "null"],
+                    "description": "De geselecteerde contextwaarde, apart van de gevonden schrijfwijze"
+                  },
+                  "field": { "type": ["string", "null"] },
+                  "position": { "type": ["integer", "null"], "minimum": 0 },
+                  "reason": { "type": "string" },
+                  "action": { "type": "string" }
                 },
-                "evidence": {
-                  "type": ["string", "null"],
-                  "description": "De werkelijk gevonden tekst die aanleiding gaf"
-                },
-                "context_value": {
-                  "type": ["string", "null"],
-                  "description": "De geselecteerde contextwaarde, apart van de gevonden schrijfwijze"
-                },
-                "field": { "type": ["string", "null"] },
-                "position": { "type": ["integer", "null"], "minimum": 0 },
-                "reason": { "type": "string" },
-                "action": { "type": "string" }
-              },
-              "additionalProperties": false
+                "additionalProperties": false
+              }
+            },
+            "review": {
+              "type": ["object", "null"],
+              "description": "Samenvatting van de aangeleverde menselijke beoordeling en of zij is toegepast"
+            }
+          }
+        }
+      },
+      "properties": {
+        "INT-02": {
+          "$ref": "#regeluitkomst",
+          "properties": {
+            "assessment": {
+              "type": ["object", "null"],
+              "description": "DEF-835 (2.3.0): het INT-02-beoordelingsdocument (contract def835-int02-assessment/1: invoer, binding, uitvoering, status, melding, oordeel), alleen als het tegen de actuele invoer en configuratie als actueel of historisch is aanvaard; anders null."
+            },
+            "signals": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "DEF-835 (2.3.0): de INT-02-recordpatronen die op de actuele kern vuren — leeshulp, geen oordeel."
             }
           },
-          "review": {
-            "type": ["object", "null"],
-            "description": "Samenvatting van de aangeleverde menselijke beoordeling en of zij is toegepast"
-          }
+          "unevaluatedProperties": false
         },
-        "additionalProperties": false
+        "INT-03": {
+          "$ref": "#regeluitkomst",
+          "properties": {
+            "assessment": {
+              "type": ["object", "null"],
+              "description": "DEF-772 (beschreven in 2.2.0): het volledige INT-03-beoordelingsdocument (contract domain.int03.contract), of null zonder beoordeling."
+            },
+            "signals": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "DEF-772 (beschreven in 2.2.0): de INT-03-patronen die op de tekst vuren — zoekhulp, geen oordeel."
+            }
+          },
+          "unevaluatedProperties": false
+        }
+      },
+      "additionalProperties": {
+        "$ref": "#regeluitkomst",
+        "unevaluatedProperties": false
       }
     },
     "source_assessment": {
@@ -365,7 +404,7 @@
     },
     "ess05_assessment": {
       "type": ["object", "null"],
-      "description": "DEF-768 (ESS-05, 2.2.0): de volledige, gevalideerde AI-onderscheidsbeoordeling die de async wrapper voor exact deze validatie heeft verkregen (contract domain.ess05.contract, contract_version ess05/2 volgens ADR-003: prompt_version en verification_prompt_version, schema_version, verification_schema_version, renderer_version, norm_sha256, fingerprint, status assessed|error|unavailable, error met type en phase assessment|verification, attribution en verification_attribution, input en verification_input, het gesloten conceptoordeel concept, de semantische verificatie verification, judgment als afgeleide weergave met per verwant begrip distinguished|not_distinguished|unclear en een citaat uit de kern, rejected). Het oordeel wordt bij replay steeds opnieuw uit concept plus verificatie afgeleid; judgment is alleen weergave. Een document met contract_version ess05/1 is historie en telt nooit als actueel oordeel. Een error met type semantic_verification_failed is een onbruikbare uitvoering, geen oordeel over de definitie. null wanneer geen beoordeling is uitgevoerd (geen term, tekst of context, of een geldige deskundige bevestiging dat er geen verwante begrippen zijn). Bewust vrij van vorm binnen het object: store-ready document, gebonden via fingerprint aan rule_results.ESS-05.",
+      "description": "DEF-768 (ESS-05, 2.4.0): de volledige, gevalideerde AI-onderscheidsbeoordeling die de async wrapper voor exact deze validatie heeft verkregen (contract domain.ess05.contract, contract_version ess05/2 volgens ADR-003: prompt_version en verification_prompt_version, schema_version, verification_schema_version, renderer_version, norm_sha256, fingerprint, status assessed|error|unavailable, error met type en phase assessment|verification, attribution en verification_attribution, input en verification_input, het gesloten conceptoordeel concept, de semantische verificatie verification, judgment als afgeleide weergave met per verwant begrip distinguished|not_distinguished|unclear en een citaat uit de kern, rejected). Het oordeel wordt bij replay steeds opnieuw uit concept plus verificatie afgeleid; judgment is alleen weergave. Een document met contract_version ess05/1 is historie en telt nooit als actueel oordeel. Een error met type semantic_verification_failed is een onbruikbare uitvoering, geen oordeel over de definitie. null wanneer geen beoordeling is uitgevoerd (geen term, tekst of context, of een geldige deskundige bevestiging dat er geen verwante begrippen zijn). Bewust vrij van vorm binnen het object: store-ready document, gebonden via fingerprint aan rule_results.ESS-05.",
       "properties": {
         "contract_version": {"type": ["string", "null"]},
         "fingerprint": {"type": ["string", "null"]},
@@ -375,7 +414,7 @@
     },
     "ess05_actieve_buren": {
       "type": ["array", "null"],
-      "description": "DEF-768 (ESS-05, 2.2.0): de actieve burenlijst waaraan ess05_assessment gebonden is — per verwant begrip id, term, definitie, herkomst (gebruiker|bron|repository|model|ontologie) en of een deskundige of de gebruiker het bevestigde. Modelvoorstellen staan hier nooit als bevestigd. null wanneer ESS-05 niet is beoordeeld.",
+      "description": "DEF-768 (ESS-05, 2.4.0): de actieve burenlijst waaraan ess05_assessment gebonden is — per verwant begrip id, term, definitie, herkomst (gebruiker|bron|repository|model|ontologie) en of een deskundige of de gebruiker het bevestigde. Modelvoorstellen staan hier nooit als bevestigd. null wanneer ESS-05 niet is beoordeeld.",
       "items": {
         "type": "object",
         "properties": {

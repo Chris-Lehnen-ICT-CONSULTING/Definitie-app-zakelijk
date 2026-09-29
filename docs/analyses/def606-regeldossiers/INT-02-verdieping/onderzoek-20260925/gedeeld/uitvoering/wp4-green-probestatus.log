@@ -1,0 +1,6 @@
+$ .venv/bin/python docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/wp4-probestatus.py
+probe: {'begrip': 'korting', 'tekst': 'korting: verlaging indien tijdig betaald', 'context': {'organisatorische_context': ['Synthetische Organisatie']}}
+status: review_required
+review_required: [['\\bindien\\b']]
+rule_results: None
+exit=0

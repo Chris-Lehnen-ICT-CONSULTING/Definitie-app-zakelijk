@@ -1,0 +1,30 @@
+# Diagnose (buiten de repo, /tmp/wp3_pinprobe2): kopieën van de vijf pin-testbestanden met UITSLUITEND de 2.2.0-pins naar 2.3.0 en de twee INT-02-weigerrijen (test_def771_int02_o1.py:371-372) weggelaten, om de na de pin gemaskeerde asserties uit te voeren. Geen repo-bestand gewijzigd. Generator: wp3-claude-versiepins-diagnose-v1.py. Poging 1 (/tmp/wp3_pinprobe, namen probe_*) collecteerde niets (exit 5).
+# HEAD 2be81c577653f8efbab6fa2c3794598556d32d13 tijdstip 2026-09-27T22:12:19Z
+# commando: .venv/bin/python -m pytest -p tests.conftest /tmp/wp3_pinprobe2 -o addopts= -q -ra --rootdir=/tmp/wp3_pinprobe2 -o asyncio_mode=auto -o pythonpath='src .'
+........................................................................ [ 59%]
+.................................................                        [100%]
+=============================== warnings summary ===============================
+../../../../../../../tmp/wp3_pinprobe2/test_probe_def743_source_assessment_wrappers.py:23
+  /tmp/wp3_pinprobe2/test_probe_def743_source_assessment_wrappers.py:23: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.unit, pytest.mark.asyncio]
+
+../../../../../../../tmp/wp3_pinprobe2/test_probe_def766_ess03_wrappers.py:27
+  /tmp/wp3_pinprobe2/test_probe_def766_ess03_wrappers.py:27: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.unit]
+
+../../../../../../../tmp/wp3_pinprobe2/test_probe_def771_int02_o1.py:37
+  /tmp/wp3_pinprobe2/test_probe_def771_int02_o1.py:37: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.unit]
+
+../../../../../../../tmp/wp3_pinprobe2/test_probe_def772_int03_wrappers.py:46
+  /tmp/wp3_pinprobe2/test_probe_def772_int03_wrappers.py:46: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.unit]
+
+../../../../../../../tmp/wp3_pinprobe2/test_probe_validation_readiness.py:37
+  /tmp/wp3_pinprobe2/test_probe_validation_readiness.py:37: PytestUnknownMarkWarning: Unknown pytest.mark.unit - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    pytestmark = [pytest.mark.unit]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+121 passed, 5 warnings in 1.32s
+
+# exitcode: 0

@@ -1,0 +1,12 @@
+✅ definitie-nederlandse-definities → cowork-exports/definitie-nederlandse-definities.zip
+✅ definitie-toetsregels → cowork-exports/definitie-toetsregels.zip
+
+════════════════════════════════════════════════
+  2 skill(s) geëxporteerd naar: cowork-exports/
+  Upload via: Claude Desktop → Customize → Skills → +
+
+  Tip: draai --diff om te zien welke nog ontbreken in Cowork
+════════════════════════════════════════════════
+pre-commit: cowork-exports/definitie-nederlandse-definities.zip ververst en gestaged
+pre-commit: cowork-exports/definitie-toetsregels.zip ververst en gestaged
+[feature/DEF-771-int02-contract-o1 5ede20b] chore(DEF-771): Integreer INT-03 met INT-02-skills

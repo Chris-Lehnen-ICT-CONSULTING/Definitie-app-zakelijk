@@ -1,0 +1,13 @@
+# DEF-835 Q1 F1-F3 LINT — 2026-09-28T16:25:34Z
+af59b9e0e2d86d29442a4e17865f8dc42c272ba11cb30e4fcd9ea3f5962373ab  scripts/analysis/def835_int02_modelproef.py
+111a4ef8b478bc8557806904929426bf2936cac03ca912912cd4f94de81e7eb3  tests/unit/validation/test_def835_int02_modelproef.py
+$ black --check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py
+All done! ✨ 🍰 ✨
+2 files would be left unchanged.
+exit=0
+$ ruff check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py   # ruff 0.15.17
+All checks passed!
+exit=0
+$ uvx ruff@0.16.5 check scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py   # hookversie
+All checks passed!
+exit=0

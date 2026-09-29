@@ -1,0 +1,1172 @@
+{
+  "proef": "C1 na O1 (DEF-771 WP3)",
+  "commando": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1.py docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/proef-c1-uitvoering-na-o1.json",
+  "commit": "0d26f0f4f5b2ebebe1c7d71fbff5e4ddb66b8c0d",
+  "werkboom_gewijzigd": [
+    " M src/services/prompts/modules/json_based_rules_module.py",
+    " M src/services/validation/evaluators/judgment_review.py",
+    " M src/services/validation/interfaces.py",
+    " M src/services/validation/modular_validation_service.py",
+    " M src/toetsregels/regels/INT-02.json",
+    " M src/ui/components/validation_view.py",
+    "?? tests/unit/services/prompts/test_def771_int02_promptnorm.py",
+    "?? tests/unit/ui/test_def771_int02_validation_view.py",
+    "?? tests/unit/validation/test_def771_int02_contract.py",
+    "?? tests/unit/validation/test_def771_int02_o1.py"
+  ],
+  "hashes_voor_run": {
+    "src/services/validation/evaluators/judgment_review.py": "371d58727de3eace127dbc880442990659129d792a0cceb4557264069be91d04",
+    "src/services/validation/modular_validation_service.py": "8ab3a453712c368673469aa690f791cbd8b29c642d897df2e54fe75faf5f0cf6",
+    "src/services/prompts/modules/json_based_rules_module.py": "2bc2dfacac8efaf519d7caaf5587d1cc0d5efdc9f72a3030ccc64a00b1358e80",
+    "src/toetsregels/regels/INT-02.json": "fd9bde156367745633cf9bd25d0f96bfb6c117690378f317147cf2dee6b9afd5",
+    "script": "f11f357a792c83fc3a3ca3b5fd72f8ac29cb82f1a64c7a27812817b9ce7b6d43",
+    "historische_verwachtingen": "3c67c448e015933b798db4ec5caaa99835744cba72cef77cfbcb81eff2ff3156"
+  },
+  "start_utc": "2026-09-25T22:34:48.203410+00:00",
+  "toetsing": [
+    {
+      "id": "INT02-C01",
+      "casus": "INT02-C01",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C01",
+      "casus": "INT02-C01",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C02",
+      "casus": "INT02-C02",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [
+          "\\bmoet\\b"
+        ],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 15–130 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signals": [
+          "\\bmoet\\b"
+        ],
+        "violation": false,
+        "passages": [
+          [
+            "eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken",
+            15,
+            130
+          ]
+        ]
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C02",
+      "casus": "INT02-C02",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C03",
+      "casus": "INT02-C03",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'Aanvraag die wordt afgewezen indien een bijlage ontbreekt' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–57 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "violation": false,
+        "passages": [
+          [
+            "Aanvraag die wordt afgewezen indien een bijlage ontbreekt",
+            0,
+            57
+          ]
+        ]
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C03",
+      "casus": "INT02-C03",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "Aanvraag die wordt afgewezen indien een bijlage ontbreekt.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C04",
+      "casus": "INT02-C04",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "Getal dat even is indien het zonder rest door twee deelbaar is.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'Getal dat even is indien het zonder rest door twee deelbaar is' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–62 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "violation": false,
+        "passages": [
+          [
+            "Getal dat even is indien het zonder rest door twee deelbaar is",
+            0,
+            62
+          ]
+        ]
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C04",
+      "casus": "INT02-C04",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "Getal dat even is indien het zonder rest door twee deelbaar is.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C05",
+      "casus": "INT02-C05",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "Geheel getal dat zonder rest door twee deelbaar is.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C05",
+      "casus": "INT02-C05",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "Geheel getal dat zonder rest door twee deelbaar is.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C06",
+      "casus": "INT02-C06",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: kern ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: kern ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C06",
+      "casus": "INT02-C06",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: kern en context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: kern en context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C80",
+      "casus": "INT02-C80",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "stelselmatige dader: persoon die in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C80",
+      "casus": "INT02-C80",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "stelselmatige dader: persoon die in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C81",
+      "casus": "INT02-C81",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "stelselmatige dader: persoon die als zodanig geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'persoon die als zodanig geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 21–170 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "violation": false,
+        "passages": [
+          [
+            "persoon die als zodanig geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld",
+            21,
+            170
+          ]
+        ]
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C81",
+      "casus": "INT02-C81",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "stelselmatige dader: persoon die als zodanig geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C82",
+      "casus": "INT02-C82",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "weigering: besluit waarbij de bevoegde autoriteit de aanvraag afwijst, tenzij zij van oordeel is dat de aanvrager onevenredig wordt benadeeld",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\btenzij\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [
+          "\\btenzij\\b",
+          "\\bvan\\s+oordeel\\s+is\\b"
+        ],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'tenzij zij van oordeel is dat de aanvrager onevenredig wordt benadeeld' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 71–141 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signals": [
+          "\\btenzij\\b",
+          "\\bvan\\s+oordeel\\s+is\\b"
+        ],
+        "violation": false,
+        "passages": [
+          [
+            "tenzij zij van oordeel is dat de aanvrager onevenredig wordt benadeeld",
+            71,
+            141
+          ]
+        ]
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C82",
+      "casus": "INT02-C82",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "weigering: besluit waarbij de bevoegde autoriteit de aanvraag afwijst, tenzij zij van oordeel is dat de aanvrager onevenredig wordt benadeeld",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\btenzij\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C83",
+      "casus": "INT02-C83",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [
+          "\\bnaar\\s+eigen\\s+inzicht\\b",
+          "\\bredelijk\\s+acht\\b"
+        ],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 20–100 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signals": [
+          "\\bnaar\\s+eigen\\s+inzicht\\b",
+          "\\bredelijk\\s+acht\\b"
+        ],
+        "violation": false,
+        "passages": [
+          [
+            "maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht",
+            20,
+            100
+          ]
+        ]
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C83",
+      "casus": "INT02-C83",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": []
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C84",
+      "casus": "INT02-C84",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "eigen bijdrage: bedrag voor zover dat het drempelbedrag overschrijdt",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bvoor zover\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [
+          "\\bvoor zover\\b"
+        ],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'bedrag voor zover dat het drempelbedrag overschrijdt' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 16–68 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signals": [
+          "\\bvoor zover\\b"
+        ],
+        "violation": false,
+        "passages": [
+          [
+            "bedrag voor zover dat het drempelbedrag overschrijdt",
+            16,
+            68
+          ]
+        ]
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C84",
+      "casus": "INT02-C84",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "eigen bijdrage: bedrag voor zover dat het drempelbedrag overschrijdt",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bvoor zover\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C85",
+      "casus": "INT02-C85",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "spoedaanvraag: aanvraag die alleen als spoedeisend wordt behandeld op voorwaarde dat de aanvrager de spoed aantoont",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\balleen als\\b",
+          "\\bop voorwaarde dat\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [
+          "\\balleen als\\b",
+          "\\bop voorwaarde dat\\b"
+        ],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'aanvraag die alleen als spoedeisend wordt behandeld op voorwaarde dat de aanvrager de spoed aantoont' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 15–115 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signals": [
+          "\\balleen als\\b",
+          "\\bop voorwaarde dat\\b"
+        ],
+        "violation": false,
+        "passages": [
+          [
+            "aanvraag die alleen als spoedeisend wordt behandeld op voorwaarde dat de aanvrager de spoed aantoont",
+            15,
+            115
+          ]
+        ]
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C85",
+      "casus": "INT02-C85",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "spoedaanvraag: aanvraag die alleen als spoedeisend wordt behandeld op voorwaarde dat de aanvrager de spoed aantoont",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\balleen als\\b",
+          "\\bop voorwaarde dat\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C86",
+      "casus": "INT02-C86",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "Toegang: toestemming verleend door een bevoegde autoriteit, INDIEN alle voorwaarden zijn vervuld.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'INDIEN alle voorwaarden zijn vervuld' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 60–96 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "violation": false,
+        "passages": [
+          [
+            "INDIEN alle voorwaarden zijn vervuld",
+            60,
+            96
+          ]
+        ]
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C86",
+      "casus": "INT02-C86",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "Toegang: toestemming verleend door een bevoegde autoriteit, INDIEN alle voorwaarden zijn vervuld.",
+      "verwacht_origineel_T_main": {
+        "in_review_required": true,
+        "signals": [
+          "\\bindien\\b"
+        ]
+      },
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C13",
+      "casus": "INT02-C13",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.",
+      "verwacht_origineel_T_main": null,
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C13",
+      "casus": "INT02-C13",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.",
+      "verwacht_origineel_T_main": null,
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C23",
+      "casus": "INT02-C23",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "Toegang:",
+      "verwacht_origineel_T_main": null,
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: kern ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: kern ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C23",
+      "casus": "INT02-C23",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "Toegang:",
+      "verwacht_origineel_T_main": null,
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: kern en context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: kern en context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C50",
+      "casus": "INT02-C50",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+      "verwacht_origineel_T_main": null,
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–161 (tekenposities, nulgebaseerd, einde exclusief).",
+        "signals": [
+          "\\bindien\\b"
+        ],
+        "violation": false,
+        "passages": [
+          [
+            "Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld",
+            0,
+            161
+          ]
+        ]
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C50",
+      "casus": "INT02-C56 (contextloze variant van C50)",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+      "verwacht_origineel_T_main": null,
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C59",
+      "casus": "INT02-C59",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "beslisregel: Algoritme waarvoor oordeelsvorming nodig is.",
+      "verwacht_origineel_T_main": null,
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C59",
+      "casus": "INT02-C59",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "beslisregel: Algoritme waarvoor oordeelsvorming nodig is.",
+      "verwacht_origineel_T_main": null,
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C105",
+      "casus": "INT02-C105",
+      "variant": "met_context",
+      "context": {
+        "organisatorische_context": [
+          "Synthetische proefcontext DEF-771"
+        ]
+      },
+      "tekst": "De medewerker laat de aanvrager toe.",
+      "verwacht_origineel_T_main": null,
+      "verwacht_nieuw": {
+        "status": "review_required",
+        "signals": [],
+        "ne_reden": null
+      },
+      "werkelijk": {
+        "status": "review_required",
+        "ne_reden": null,
+        "reason": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    },
+    {
+      "id": "INT02-C105",
+      "casus": "INT02-C105",
+      "variant": "zonder_context",
+      "context": {},
+      "tekst": "De medewerker laat de aanvrager toe.",
+      "verwacht_origineel_T_main": null,
+      "verwacht_nieuw": {
+        "status": "not_evaluated",
+        "signals": [],
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+      },
+      "werkelijk": {
+        "status": "not_evaluated",
+        "ne_reden": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+        "reason": null,
+        "signals": [],
+        "violation": false,
+        "passages": []
+      },
+      "citaten_kloppen": true,
+      "match": true
+    }
+  ],
+  "prompt_rendering": {
+    "include_examples=True": [
+      "🔹 **INT-02 - Geen beslisregel**",
+      "- Een definitie beschrijft het begrip met kenmerken die bepalen wat ertoe behoort; zij is geen handelingsvoorschrift of procedure voor een actor en bevat geen discretionaire beslisregel. Criteria, voorwaarden en deterministische afleidingen zijn toegestaan, ook in voorwaardelijke vorm. Een bevoegdheid, beslissing, procedure of constitutief rechtsgevolg als begripskenmerk beschrijven is op zichzelf geen overtreding.",
+      "- **Instructie:** Beschrijf wat het begrip is met de kenmerken die bepalen wat ertoe behoort. Een noodzakelijk criterium, een voorwaarde, een uitzondering of een deterministische afleiding hoort in de kern, ook als de bron die voorwaardelijk formuleert; 'indien', 'mits', 'tenzij', 'alleen als' en 'voor zover' zijn toegestaan wanneer zij zo'n criterium dragen — laat het criterium niet weg en verzwak het niet. Gebruik geen handelingsvoorschrift of behandelprocedure als definitiekern en geen discretionaire beslisregel die een actor voorschrijft wat te doen of af te wegen. Een kwalitatief of constitutief kenmerk waarvoor menselijke beoordeling nodig is, mag worden beschreven; dat is op zichzelf geen beslisregel. Ook een verplichting, bevoegdheid, beslissing, procedure of rechtsgevolg mag als begripskenmerk worden beschreven, zonder de uitvoering ervan voor te schrijven. Beoordeel de functie; verwijder een constitutief oordeel niet om een afweging uit de tekst te laten verdwijnen. Behoud noodzakelijkheid, voldoende voorwaarden, bereik, negatie, aantallen en termijnen; verzin geen criterium om een afweging te vervangen en geen bron of context. Lever uitsluitend de definitiekern als één zin, zonder vraag, bronverantwoording, onzekerheidsmelding of toelichting. Geef bij ontbrekende maar niet strijdige betekenisgrond alleen een voorlopige kern voor zover de beschikbare grond die draagt. Leg bij strijdige grond geen betwiste betekenis stil in de kern vast.",
+      "  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "  ✅ stelselmatige dader: persoon die in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+      "  ✅ even getal: Geheel getal dat zonder rest door twee deelbaar is.",
+      "  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+      "  ❌ weigering: besluit waarmee de bevoegde autoriteit een aanvraag afwijst, tenzij zij van oordeel is dat de aanvrager daardoor onevenredig zou worden benadeeld.",
+      "  ❌ aanvraag: Aanvraag die de behandelaar moet afwijzen bij een ontbrekende bijlage."
+    ],
+    "include_examples=False": [
+      "🔹 **INT-02 - Geen beslisregel**",
+      "- Een definitie beschrijft het begrip met kenmerken die bepalen wat ertoe behoort; zij is geen handelingsvoorschrift of procedure voor een actor en bevat geen discretionaire beslisregel. Criteria, voorwaarden en deterministische afleidingen zijn toegestaan, ook in voorwaardelijke vorm. Een bevoegdheid, beslissing, procedure of constitutief rechtsgevolg als begripskenmerk beschrijven is op zichzelf geen overtreding.",
+      "- **Instructie:** Beschrijf wat het begrip is met de kenmerken die bepalen wat ertoe behoort. Een noodzakelijk criterium, een voorwaarde, een uitzondering of een deterministische afleiding hoort in de kern, ook als de bron die voorwaardelijk formuleert; 'indien', 'mits', 'tenzij', 'alleen als' en 'voor zover' zijn toegestaan wanneer zij zo'n criterium dragen — laat het criterium niet weg en verzwak het niet. Gebruik geen handelingsvoorschrift of behandelprocedure als definitiekern en geen discretionaire beslisregel die een actor voorschrijft wat te doen of af te wegen. Een kwalitatief of constitutief kenmerk waarvoor menselijke beoordeling nodig is, mag worden beschreven; dat is op zichzelf geen beslisregel. Ook een verplichting, bevoegdheid, beslissing, procedure of rechtsgevolg mag als begripskenmerk worden beschreven, zonder de uitvoering ervan voor te schrijven. Beoordeel de functie; verwijder een constitutief oordeel niet om een afweging uit de tekst te laten verdwijnen. Behoud noodzakelijkheid, voldoende voorwaarden, bereik, negatie, aantallen en termijnen; verzin geen criterium om een afweging te vervangen en geen bron of context. Lever uitsluitend de definitiekern als één zin, zonder vraag, bronverantwoording, onzekerheidsmelding of toelichting. Geef bij ontbrekende maar niet strijdige betekenisgrond alleen een voorlopige kern voor zover de beschikbare grond die draagt. Leg bij strijdige grond geen betwiste betekenis stil in de kern vast."
+    ]
+  },
+  "eind_utc": "2026-09-25T22:34:48.986414+00:00",
+  "samenvatting": {
+    "g_gerenderd": {
+      "include_examples=True": true,
+      "include_examples=False": true
+    },
+    "uitvoeringen": 36,
+    "match": 36,
+    "mismatch": [],
+    "citaatfouten": []
+  },
+  "exitstatus": 0
+}

@@ -61,6 +61,11 @@ from domain.int01.opslag import (
     INT01_BEOORDELING_FIELD,
     INT01_BEOORDELING_HISTORY_KEY,
 )
+from domain.int03.opslag import (
+    INT03_ASSESSMENT_HISTORY_KEY,
+    INT03_ASSESSMENT_KEY,
+    vormfout as int03_vormfout,
+)
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,
@@ -209,6 +214,32 @@ def _voeg_ess05_invoer_toe(
         waarde = (metadata or {}).get(sleutel)
         if waarde is not None:
             updates[sleutel] = deepcopy(waarde)
+
+
+def _int03_invoer_uit_metadata(
+    metadata: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """De INT-03-beoordeling uit `Definition.metadata` (DEF-772), of None.
+
+    Alleen een object gaat door; de DB-laag controleert de vorm (vingerafdruk,
+    status) en weigert gesloten. `None` = geen beoordeling aangeleverd: het
+    opgeslagen document blijft onaangeraakt (niets wordt gewist of verzonnen).
+    """
+    if not metadata:
+        return None
+    beoordeling = metadata.get(INT03_ASSESSMENT_KEY)
+    return deepcopy(beoordeling) if isinstance(beoordeling, dict) else None
+
+
+def _voeg_int03_invoer_toe(
+    updates: dict[str, Any], metadata: dict[str, Any] | None
+) -> None:
+    """DEF-772: de INT-03-beoordeling reist als structurele sleutel mee; de
+    DB-laag voegt haar ónder de lock samen (gelijk = geen wijziging; anders
+    historie + nieuw). Sleutel afwezig = onaangeraakt."""
+    int03 = _int03_invoer_uit_metadata(metadata)
+    if int03 is not None:
+        updates[INT03_ASSESSMENT_KEY] = int03
 
 
 #: DEF-751 B2: de invoersleutel voor de herkomst van een categorie bij een
@@ -1098,6 +1129,16 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         ess05 = valideer_ess05_invoer(metadata)
         if ess05:
             voeg_ess05_samen(prompt_data, ess05, versie=record.version_number, nu="")
+        # DEF-772: de INT-03-beoordeling van de generatie/eerste toetsing,
+        # gebonden aan exact deze kandidaat; de historie start leeg. Een
+        # misvormd document laat de opslag falen (ValueError → RepositoryError).
+        int03 = _int03_invoer_uit_metadata(metadata)
+        if int03 is not None:
+            fout = int03_vormfout(int03)
+            if fout is not None:
+                raise ValueError(fout)
+            prompt_data[INT03_ASSESSMENT_KEY] = int03
+            prompt_data[INT03_ASSESSMENT_HISTORY_KEY] = []
         if not prompt_data:
             return None
         return serialiseer_generatieregistratie(prompt_data)
@@ -1247,6 +1288,9 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # ruimte). Zonder opgeslagen waarde ontbreken de sleutels.
         self._herstel_ess05(record, definition.metadata)
         self._herstel_int01_beoordeling(record, definition.metadata)
+        # DEF-772: de opgeslagen INT-03-beoordeling en haar historie onder de
+        # sleutels van het contract; zonder beoordeling ontbreken de sleutels.
+        self._herstel_int03_beoordeling(record, definition.metadata)
 
         # DEF-751 B2: de categoriekeuze (event, afgeleide status, historie)
         # onder eigen leessleutels — nooit onder de invoersleutel, zodat
@@ -1325,6 +1369,19 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             return
         metadata[ESS03_ASSESSMENT_KEY] = beoordeling
         metadata[ESS03_ASSESSMENT_HISTORY_KEY] = record.get_ess03_assessment_history()
+
+    @staticmethod
+    def _herstel_int03_beoordeling(
+        record: DefinitieRecord, metadata: dict[str, Any]
+    ) -> None:
+        """Zet de opgeslagen INT-03-beoordeling en haar historie terug in
+        `Definition.metadata` (DEF-772); afwezig = geen sleutel, niets verzonnen.
+        """
+        beoordeling = record.get_int03_assessment()
+        if beoordeling is None:
+            return
+        metadata[INT03_ASSESSMENT_KEY] = beoordeling
+        metadata[INT03_ASSESSMENT_HISTORY_KEY] = record.get_int03_assessment_history()
 
     @staticmethod
     def _herstel_ess05(record: DefinitieRecord, metadata: dict[str, Any]) -> None:
@@ -1786,6 +1843,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         _voeg_bewijsinvoer_toe(updates, definition.metadata)
         _voeg_ess03_invoer_toe(updates, definition.metadata)
         _voeg_ess05_invoer_toe(updates, definition.metadata)
+        _voeg_int03_invoer_toe(updates, definition.metadata)
         # DEF-751 B2 (reviewbevinding 3): de versie die de aanroeper vóór
         # zich had (`metadata["version_number"]`, gezet bij laden en door de
         # editor) reist mee tot de uiteindelijke UPDATE als optimistic lock:

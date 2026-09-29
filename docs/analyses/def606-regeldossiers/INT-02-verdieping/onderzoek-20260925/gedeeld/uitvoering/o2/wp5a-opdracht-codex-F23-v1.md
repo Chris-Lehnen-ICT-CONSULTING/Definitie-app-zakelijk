@@ -1,0 +1,13 @@
+# WP5a — herreview F2/F3, dezelfde reviewer
+
+Jij bent dezelfde Codex CLI-reviewer (01a0e7dd-2c5e-79a0-b228-3e468c198944). Voer deze opdracht zelf uit; start geen agents, reviewers of extra CLI-sessies. Geen bron-/testwijzigingen, livecalls, gitmutaties, push/merge of Actions. Beoordeel zelf de concrete correctiediff; behoud eerdere reviewresultaten voor ongewijzigde delen.
+
+Reviewroot /private/tmp/def835-wp2-review-20260927 is bijgewerkt met uitsluitend de vier F2/F3-bestanden na controle dat de eerdere zeven hashes en de twee WP2-bestanden overeenkwamen met de herstelkopie. U = /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2.
+
+Chris heeft wp5a-reviewcorrectie-uitbreiding-v1.md expliciet goedgekeurd; zie wp5a-F23-akkoord-v1.md. Lees het voorstel, wp5a-claude-F23-verslag-v1.md en bewijs/wp5a-reviewmanifest-v3.json. Bronwerkboom HEAD d769276041e619103ace7bc66e65419d480dae99 bevat scanner/dossiercommit, geen wijziging in src/tests t.o.v. jouw basis979ca0585100d94b613829d924c6d8bba4f24f1b. De negen eindhashes staan in manifest-v3, delta/fullpatch eveneens. Controleer bronidentiteit.
+
+Review uitsluitend de F2/F3-correctie en concrete eventuele regressies ervan. F1 is gesloten en bytegelijk behouden. F2: onafhankelijke volledige WP1-configuratie vóór assess, vergelijking van volledige binding en verse invoer, geen retourdocument als verwachting, geen private attributen. Mismatch/ontbrekende/ongeldige/falende snapshot error zonder oordeel. Volg het geaccordeerde voorstel voor wijzigingen tijdens call en beoordeel de beschreven beperking eerlijk. F3: bestaand testgeval behouden en herijkt naar gedragsintentie, geen automatische constructie/modelcall, expliciete factory met verplicht profiel/budget. Controleer onderscheidend testbewijs, geen implementation-mirroring als vervanging voor foutrepro.
+
+Bewijs: RED32failed/8passed; GREEN221passed plus REDselectie40passed. Gerichte regressie2941passed/11skipped, exit0 (oude F3 is nu groen). Negenbestandslint groen. Mypy opnieuw dezelfde13fouten in2WP1/WP2bestanden; open opleverpunt, geen groene claim. Geen volledige suite of brede nieuwe review herhalen zonder concrete aanleiding. Coördinator draait gerichte tests/lint en bewaart bewijs/wp5a-F23-coordinator-v1.log/.json.
+
+Herhaal gericht jouw F2-repro/regressies en F3-gedragstest; behoud bronfiles. Rapport via output-last-message in U/wp5a-codex-F23-herreview-v1.md: F2/F3 open of gesloten, nieuwe concrete bevindingen met ernst/bewijs/dispositie, geteste commandos/exits en bronidentiteit. Geen claim dat heelO2gereed/modelgekwalificeerd is. Maximaal3pogingenperactie. Geen reviewcorrectie zelf implementeren.

@@ -1,0 +1,67 @@
+$ git merge --no-commit --no-ff 076c916671e4e7e9f2843d22669df38eeb79e170
+Auto-merging src/services/prompts/modules/json_based_rules_module.py
+CONFLICT (content): Merge conflict in src/services/prompts/modules/json_based_rules_module.py
+Auto-merging src/services/validation/evaluators/judgment_review.py
+Auto-merging src/services/validation/modular_validation_service.py
+Auto-merging src/ui/components/validation_view.py
+Auto-merging tests/fixtures/toetsregels/runtime_cases.yaml
+Automatic merge failed; fix conflicts and then commit the result.
+exit=1
+$ git status --porcelain --untracked-files=no
+A  .claude/hooks/session-start.sh
+A  .claude/settings.json
+M  .github/workflows/quality-gates.yml
+M  .gitignore
+M  config/toetsregels/toetsregels_config.yaml
+M  docs/testing/def563-timing-baseline.json
+M  docs/testing/def563-timing-inventaris.md
+M  src/database/definitie_crud.py
+M  src/database/models.py
+A  src/domain/int03/__init__.py
+A  src/domain/int03/contract.py
+A  src/domain/int03/opslag.py
+M  src/export/export_txt.py
+M  src/services/container.py
+M  src/services/data_aggregation_service.py
+M  src/services/definition_edit_service.py
+M  src/services/definition_repository.py
+M  src/services/export_service.py
+M  src/services/orchestrators/definition_orchestrator_v2.py
+M  src/services/orchestrators/validation_orchestrator_v2.py
+UU src/services/prompts/modules/json_based_rules_module.py
+M  src/services/validation/evaluators/__init__.py
+M  src/services/validation/evaluators/judgment_review.py
+A  src/services/validation/evaluators/pronoun_reference_assessment.py
+A  src/services/validation/int03_assessment_service.py
+M  src/services/validation/modular_validation_service.py
+M  src/toetsregels/regels/INT-03.json
+M  src/toetsregels/runtime_contract.py
+M  src/ui/components/definition_edit_tab.py
+M  src/ui/components/validation_view.py
+M  src/validation/additional_patterns.py
+A  tests/fixtures/def772_fakes.py
+M  tests/fixtures/toetsregels/runtime_cases.yaml
+M  tests/integration/functionality/conftest.py
+M  tests/integration/test_export_levels_comprehensive.py
+M  tests/integration/test_offline_core_journey.py
+A  tests/unit/domain/test_def772_int03_contract.py
+M  tests/unit/services/orchestrators/test_def622_context_transport.py
+A  tests/unit/services/orchestrators/test_def772_int03_integration.py
+A  tests/unit/services/orchestrators/test_def772_int03_wrappers.py
+M  tests/unit/services/orchestrators/test_validation_orchestrator_v2.py
+M  tests/unit/services/prompts/test_def770_herstel_promptdoorwerking.py
+A  tests/unit/services/prompts/test_def772_int03_promptnorm.py
+A  tests/unit/services/test_def772_int03_actieproef.py
+A  tests/unit/services/test_def772_int03_export_actualiteit.py
+A  tests/unit/services/test_def772_int03_herbinding_service.py
+A  tests/unit/services/test_def772_int03_persistentie.py
+M  tests/unit/test_story_2_4_unit.py
+A  tests/unit/ui/test_def772_int03_apptest.py
+A  tests/unit/ui/test_def772_int03_editor.py
+A  tests/unit/ui/test_def772_int03_weergave.py
+A  tests/unit/validation/test_def772_int03_assessment_service.py
+A  tests/unit/validation/test_def772_int03_evaluator.py
+A  tests/unit/validation/test_def772_int03_regelrecord.py
+M  tests/unit/validation/test_rule_runtime_matrix.py
+$ git diff --name-only --diff-filter=U
+src/services/prompts/modules/json_based_rules_module.py

@@ -297,7 +297,14 @@ class TestHerbinding:
         assert herbonden["rule_statuses"]["ESS-05"] == "pass"
         assert "ESS-05" in herbonden["passed_rules"]
         assert herbonden["review_required"] == []
-        assert herbonden["evaluation_coverage"] == {"review_required": 0, "passed": 1}
+        # Merge met main (DEF-772): de gedeelde herbinding herberekent ook de
+        # afgeleide velden — evaluated = pass + fail; zonder `total` ratio 0.0.
+        assert herbonden["evaluation_coverage"] == {
+            "review_required": 0,
+            "passed": 1,
+            "evaluated": 1,
+            "coverage_ratio": 0.0,
+        }
 
     def test_afwijzing_maakt_de_beoordeling_historisch(self):
         doc = _doc_voor_kandidaat()

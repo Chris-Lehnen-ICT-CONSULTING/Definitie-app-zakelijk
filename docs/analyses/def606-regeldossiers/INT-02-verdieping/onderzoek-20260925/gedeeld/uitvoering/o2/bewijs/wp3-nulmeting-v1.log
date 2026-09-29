@@ -1,0 +1,6 @@
+# HEAD 2be81c577653f8efbab6fa2c3794598556d32d13
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/integration/contracts/test_validation_result_schema.py tests/unit/validation/test_def771_int02_o1.py -o addopts= -q -ra
+.......................................................                  [100%]
+55 passed in 1.36s
+
+# exitcode: 0

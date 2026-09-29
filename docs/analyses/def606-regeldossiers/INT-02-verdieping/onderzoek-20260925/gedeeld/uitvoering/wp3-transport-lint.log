@@ -1,0 +1,16 @@
+All checks passed!
+ruff exit=0
+would reformat src/services/validation/evaluators/judgment_review.py
+
+Oh no! 💥 💔 💥
+1 file would be reformatted, 9 files would be left unchanged.
+black exit=1
+[lint] Ruff check on src/ and config/
+All checks passed!
+[lint] Black check on src/ and config/
+would reformat /Users/chrislehnen/Projecten/Definitie-app/src/services/validation/evaluators/judgment_review.py
+
+Oh no! 💥 💔 💥
+1 file would be reformatted, 404 files would be left unchanged.
+make: *** [lint] Error 1
+make lint exit=2

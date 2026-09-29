@@ -1,0 +1,48 @@
+# DEF-835 modelproef CORRECTIE COMMIT — 2026-09-28T10:04:15Z
+$ git add scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py && git commit -F <bericht>   (normale hooks, geen skip)
+[0;34m🔍 Running pre-commit checks...[0m
+Running standard pre-commit checks...
+Ruff linting..........................................................................Passed
+Black formatting......................................................................Passed
+Detect hardcoded secrets (gitleaks)...................................................Passed
+Bronquarantaine-integriteit (DEF-666).................................................Passed
+Block TODO/FIXME markers in code......................................................Passed
+Block root-level *.db files...........................................................Passed
+Block root files outside the allowlist (DEF-685)......................................Passed
+Run smoke tests (quick validation)....................................................Passed
+Check forbidden patterns (streamlit in services)......................................Passed
+Check Streamlit anti-patterns (DEF-56 lessons)........................................Passed
+Warn on large files (>500 LOC)........................................................Passed
+Validate juridische_synoniemen.yaml...................................................Passed
+Check dependency-confusion (src/ vs requirements.txt) — DEF-409.......................Passed
+Ruff linting..........................................................................Passed
+Black formatting......................................................................Passed
+Detect hardcoded secrets (gitleaks)...................................................Passed
+Bronquarantaine-integriteit (DEF-666).................................................Passed
+Block TODO/FIXME markers in code......................................................Passed
+Block root-level *.db files...........................................................Passed
+Block root files outside the allowlist (DEF-685)......................................Passed
+Run smoke tests (quick validation)....................................................Passed
+Check forbidden patterns (streamlit in services)......................................Passed
+Check Streamlit anti-patterns (DEF-56 lessons)....................(no files to check)Skipped
+Warn on large files (>500 LOC)........................................................Passed
+Validate juridische_synoniemen.yaml...............................(no files to check)Skipped
+Check dependency-confusion (src/ vs requirements.txt) — DEF-409...(no files to check)Skipped
+[feature/DEF-835-int02-o2 979ca0585] fix(DEF-835): Bind responsemodel en transportconfiguratie in proefrunner
+ 2 files changed, 513 insertions(+), 37 deletions(-)
+exit=0
+$ git rev-parse HEAD HEAD~1
+979ca0585100d94b613829d924c6d8bba4f24f1b
+dff713fd45a2c87b6d3b646e500e108b5cd61b03
+$ git show --stat --format=%H%n%s HEAD
+979ca0585100d94b613829d924c6d8bba4f24f1b
+fix(DEF-835): Bind responsemodel en transportconfiguratie in proefrunner
+
+ scripts/analysis/def835_int02_modelproef.py        | 227 +++++++++++++--
+ .../validation/test_def835_int02_modelproef.py     | 323 ++++++++++++++++++++-
+ 2 files changed, 513 insertions(+), 37 deletions(-)
+$ shasum -a 256 gecommitte blobs
+61ce9c5c187faab7e278540060cb2a25fe9017a921ded81fad1ee93e7badfe7a  -
+8d0a6cd76acb79b9ba427f1bff1321a81c9fcc932735fbf15238354a43ab21ea  -
+$ git status --porcelain (buiten docs/)
+?? .claude/hooks/check-silent-exceptions.py

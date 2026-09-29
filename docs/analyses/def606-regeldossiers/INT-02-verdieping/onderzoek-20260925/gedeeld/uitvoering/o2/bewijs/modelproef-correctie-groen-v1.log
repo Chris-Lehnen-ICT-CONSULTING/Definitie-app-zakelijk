@@ -1,0 +1,224 @@
+# DEF-835 modelproef CORRECTIE GROEN — 2026-09-28T10:03:36Z
+$ git rev-parse HEAD
+dff713fd45a2c87b6d3b646e500e108b5cd61b03
+$ git diff --stat HEAD
+ scripts/analysis/def835_int02_modelproef.py        | 227 +++++++++++++--
+ .../validation/test_def835_int02_modelproef.py     | 323 ++++++++++++++++++++-
+ 2 files changed, 513 insertions(+), 37 deletions(-)
+$ shasum -a 256 scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py
+61ce9c5c187faab7e278540060cb2a25fe9017a921ded81fad1ee93e7badfe7a  scripts/analysis/def835_int02_modelproef.py
+8d0a6cd76acb79b9ba427f1bff1321a81c9fcc932735fbf15238354a43ab21ea  tests/unit/validation/test_def835_int02_modelproef.py
+$ env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -p no:cacheprovider --tb=short -rA
+........................................................................ [ 96%]
+...                                                                      [100%]
+==================================== PASSES ====================================
+_________________ test_afwijking_stopt_verdere_calls[geo-null] _________________
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: High Error Rate - 1.000 gt 0.1 (Severity: error)
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+_________________ test_afwijking_stopt_verdere_calls[priority] _________________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+______ test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[pad] ______
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+__________________ test_afwijking_stopt_verdere_calls[cache] ___________________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+_ test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[versieheader] __
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+___________ test_afwijking_stopt_verdere_calls[details-geen-object] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+_ test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[gebruikerinfo] _
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+______________ test_te_hoge_invoerschatting_stopt_voor_inferentie ______________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (connection; AIServiceError)
+__________________ test_afwijking_stopt_verdere_calls[geo-us] __________________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+_____ test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[poort] _____
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+____________ test_afwijking_stopt_verdere_calls[details-extra-veld] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+_______________ test_afwijking_stopt_verdere_calls[geo-onbekend] _______________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+_ test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[geen-tekst] _
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (connection; AIServiceError)
+______________ test_afwijking_stopt_verdere_calls[onbekend-veld] _______________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+________________ test_afwijking_stopt_verdere_calls[geen-tier] _________________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+________________ test_afwijking_stopt_verdere_calls[geen-usage] ________________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+__ test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[alias] __
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (connection; AIServiceError)
+_______ test_afwijking_stopt_verdere_calls[cache-creation-onbekend-veld] _______
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+_________________ test_afwijking_stopt_verdere_calls[afgekapt] _________________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (truncated_response; -)
+_______ test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage ________
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:100 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: 64e345da) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:204 ModelRouter singleton created
+_____________ test_afwijking_stopt_verdere_calls[ongeldig-citaat] ______________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_citation; -)
+________ test_deadline_breekt_hangende_inferentie_af_zonder_vervolgcall ________
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (timeout; TimeoutError)
+_ test_fout_telt_mee_zonder_retry_en_zonder_ruwe_tekst[_providerfout-overloaded_error] _
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (connection; AIServiceError)
+_ test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[ontbreekt] _
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (connection; AIServiceError)
+_ test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[review-8443-auth] _
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+___________ test_afwijking_stopt_verdere_calls[servertool-gebruikt] ____________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+____________ test_afwijking_stopt_verdere_calls[onvolledige-usage] _____________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (connection; AIServiceError)
+_____ test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[http] ______
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+_ test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[extra-header] __
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+__ test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[leeg] ___
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (connection; AIServiceError)
+__ test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[authheader] ___
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+__ test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[andere-host] __
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+______________ test_afwijking_stopt_verdere_calls[geo-ontbreekt] _______________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+__ test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[ander] __
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (connection; AIServiceError)
+_ test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[revisie] _
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (connection; AIServiceError)
+___________ test_afwijking_stopt_verdere_calls[details-boven-totaal] ___________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+_ test_fout_telt_mee_zonder_retry_en_zonder_ruwe_tekst[_transportfout-ConnectError] _
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (connection; AIServiceError)
+_______________ test_afwijking_stopt_verdere_calls[boven-limiet] _______________
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:862 INT-02: beoordeling mislukt (invalid_output; -)
+=========================== short test summary info ============================
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[geo-null]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[priority]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_weigert_ongeldig_akkoord_zonder_verzoek_of_sleutel[live_verzending_toegestaan]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[pad]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_weigert_ongeldig_akkoord_zonder_verzoek_of_sleutel[geen_def815_kwalificatie]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[poort-8443]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[cache]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_voorbereiding_maakt_pending_manifest_zonder_netwerk
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[versieheader]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[stream]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_voorbereiding_is_deterministisch_en_leest_geen_sleutel
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_weigert_ongeldig_akkoord_zonder_verzoek_of_sleutel[extra]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[host-header]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_weigert_bij_gewijzigde_identiteit
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[extra-header]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[details-geen-object]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[cache-bericht]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[gebruikerinfo]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[thinking]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_weigert_ongeldig_akkoord_zonder_verzoek_of_sleutel[profiel_id]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_equivalente_standaardconfiguratie_blijft_toegestaan[authtoken-genegeerd-bij-api-key]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_te_hoge_invoerschatting_stopt_voor_inferentie
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[geo-us]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[poort]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_weigert_ongeldig_akkoord_zonder_verzoek_of_sleutel[experimenteel]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[details-extra-veld]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[beta]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[geo-onbekend]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[geen-tekst]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_payload_bevat_alleen_invoer_en_geen_cache_tools_of_labels
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[model]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[onbekend-veld]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[geen-tier]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_actuele_sdk_usage_details_worden_niet_opgeteld
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[geen-usage]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_bestaand_manifest_wordt_niet_overschreven
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[tools]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[authorization]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_tellimiet_stopt_voor_telverzoek
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[alias]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_hashmismatch_en_budget_voor_verzending
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_weigert_ongeldig_akkoord_zonder_verzoek_of_sleutel[manifest_sha256]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_harde_limiet_telt_ook_mislukte_verzoeken
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_weigert_ongeldig_akkoord_zonder_verzoek_of_sleutel[akkoord_door]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[retry]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_weigert_ongeldig_akkoord_zonder_verzoek_of_sleutel[soort]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[cache-creation-onbekend-veld]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[afgekapt]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[ongeldig-citaat]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_live_weigert_zonder_sleutel
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_deadline_breekt_hangende_inferentie_af_zonder_vervolgcall
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_fout_telt_mee_zonder_retry_en_zonder_ruwe_tekst[_providerfout-overloaded_error]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[ontbreekt]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[review-8443-auth]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[api-versie]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[servertool-gebruikt]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[onvolledige-usage]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[http]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[cache-systeem]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[extra-header]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_voorbereiding_weigert_transportdrift
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[leeg]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[authheader]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_sdk_transportdrift_weigert_voor_sleutel_en_verzending[andere-host]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[gebruikerinfo]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[geo-ontbreekt]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r2_equivalente_standaardconfiguratie_blijft_toegestaan[standaard-basis-expliciet]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[ander]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_semantisch_ander_oordeel_is_bevinding_zonder_herhaling
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_r1_afwijkend_responsemodel_stopt_zonder_oordeel_of_opus_kosten[revisie]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_niet_toegestaan_verzoek[max-tokens]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[details-boven-totaal]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_fout_telt_mee_zonder_retry_en_zonder_ruwe_tekst[_transportfout-ConnectError]
+PASSED tests/unit/validation/test_def835_int02_modelproef.py::test_afwijking_stopt_verdere_calls[boven-limiet]
+75 passed in 3.43s
+exit=0

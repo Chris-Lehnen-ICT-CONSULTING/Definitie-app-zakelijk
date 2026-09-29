@@ -44,11 +44,13 @@ def _is_contextgebonden(regel_key: str) -> bool:
 
 
 # DEF-770: de integrity_rules-module is altijd actief omdat INT-01 (één compacte
-# zin) voor elke definitie geldt. De overige INT-regels behouden hun bestaande
-# DEF-123-toepasselijkheid: alleen bij juridische of wettelijke context — smal:
-# zonder die context krijgt de prompt precies INT-01 erbij en niets anders.
+# zin) voor elke definitie geldt. DEF-772 (K3(b)): ook INT-03 (eenduidige
+# verwijzing) geldt en wordt getoetst ongeacht context, dus staat in elke
+# prompt. De overige INT-regels behouden hun bestaande DEF-123-toepasselijkheid:
+# alleen bij juridische of wettelijke context — smal: zonder die context krijgt
+# de prompt precies INT-01 en INT-03 erbij en niets anders.
 _JURIDISCH_GEBONDEN_PREFIX = "INT"
-_JURIDISCH_VRIJE_REGELS: frozenset[str] = frozenset({"INT-01"})
+_JURIDISCH_VRIJE_REGELS: frozenset[str] = frozenset({"INT-01", "INT-03"})
 
 
 def _is_juridisch_gebonden(regel_key: str) -> bool:
@@ -175,7 +177,8 @@ class JSONBasedRulesModule(BasePromptModule):
 
             # DEF-743: contextgebonden regels alleen tonen als er context is.
             has_context = self._has_any_context(context)
-            # DEF-770: INT-regels behalve INT-01 alleen bij juridische context.
+            # DEF-770/DEF-772: INT-regels behalve INT-01 en INT-03 alleen bij
+            # juridische context.
             has_legal = self._has_legal_context(context)
             rules_skipped = sorted(
                 k
@@ -524,8 +527,51 @@ class JSONBasedRulesModule(BasePromptModule):
                 "vastgelegd, veronderstel er dan geen; de registratiecontext is geen "
                 "doelgroep. Verzin geen context of bron"
             ),
-            "INT-02": "Vermijd voorwaardelijke formuleringen zoals 'indien', 'mits', 'tenzij', 'alleen als'",
-            "INT-03": "Zorg dat voornaamwoorden ('deze', 'dit', 'die') direct verwijzen naar een duidelijk antecedent in dezelfde zin",
+            # DEF-771 (B4): G uit synthese v5 §3 na SC-C-02; zelfde norm als
+            # INT-02.json en het skillcontract def771-int02/2.
+            "INT-02": (
+                "Beschrijf wat het begrip is met de kenmerken die bepalen wat ertoe "
+                "behoort. Een noodzakelijk criterium, een voorwaarde, een "
+                "uitzondering of een deterministische afleiding hoort in de kern, ook"
+                " als de bron die voorwaardelijk formuleert; 'indien', 'mits', "
+                "'tenzij', 'alleen als' en 'voor zover' zijn toegestaan wanneer zij "
+                "zo'n criterium dragen — laat het criterium niet weg en verzwak het "
+                "niet. Gebruik geen handelingsvoorschrift of behandelprocedure als "
+                "definitiekern en geen discretionaire beslisregel die een actor "
+                "voorschrijft wat te doen of af te wegen. Een kwalitatief of "
+                "constitutief kenmerk waarvoor menselijke beoordeling nodig is, mag "
+                "worden beschreven; dat is op zichzelf geen beslisregel. Ook een "
+                "verplichting, bevoegdheid, beslissing, procedure of rechtsgevolg mag"
+                " als begripskenmerk worden beschreven, zonder de uitvoering ervan "
+                "voor te schrijven. Beoordeel de functie; verwijder een constitutief "
+                "oordeel niet om een afweging uit de tekst te laten verdwijnen. "
+                "Behoud noodzakelijkheid, voldoende voorwaarden, bereik, negatie, "
+                "aantallen en termijnen; verzin geen criterium om een afweging te "
+                "vervangen en geen bron of context. Lever uitsluitend de "
+                "definitiekern als één zin, zonder vraag, bronverantwoording, "
+                "onzekerheidsmelding of toelichting. Geef bij ontbrekende maar niet "
+                "strijdige betekenisgrond alleen een voorlopige kern voor zover de "
+                "beschikbare grond die draagt. Leg bij strijdige grond geen betwiste "
+                "betekenis stil in de kern vast."
+            ),
+            # DEF-772: één norm voor genereren en toetsen (G), ASTRA-getrouw
+            # (K1(a)): geen "dezelfde zin"-eis en geen woordsoorteis; ook 'het',
+            # 'dat' en bezit; een duidelijke bijzin of vooruitverwijzing is
+            # goed; geen verzonnen referent en geen vraag in de definitie.
+            "INT-03": (
+                "Maak iedere verwijzing in de definitiekern eenduidig, ook bij "
+                "'het', 'dat' en bezit ('zijn', 'haar', 'hun'). Duidelijke "
+                "die/dat-bijzinnen en duidelijke vooruitverwijzingen zijn "
+                "toegestaan; niet-verwijzend gebruik (lidwoord, loos 'het') vraagt "
+                "geen antecedent. Herhaal bij dubbelzinnigheid het bedoelde "
+                "zelfstandig naamwoord of herformuleer, zonder het begrip zelf in "
+                "te voegen en met behoud van actor, rol, bezit, bereik en "
+                "tijdsrelaties. Vul ontbrekende bedoeling niet zelf in: verzin geen "
+                "referent en zet geen vraag in de definitie; laat de "
+                "onduidelijkheid zichtbaar, zodat de toets haar met één vraag "
+                "meldt. Losse context, bron, lemma of toelichting vervangt geen "
+                "ontbrekende verwijzing in de kern."
+            ),
             "INT-04": "Maak bepaalde lidwoorden ('de instelling', 'het systeem') expliciet door direct te specificeren welke bedoeld wordt",
             "INT-06": "Vermijd toelichtende formuleringen zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', 'namelijk'",
             "INT-07": "Licht afkortingen direct toe in dezelfde zin (bijv. DJI (Dienst Justitiële Inrichtingen))",

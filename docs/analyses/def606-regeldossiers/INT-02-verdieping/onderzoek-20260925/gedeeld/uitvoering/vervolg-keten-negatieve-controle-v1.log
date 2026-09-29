@@ -1,0 +1,34 @@
+# inhoud /tmp/def771_negatief.py:
+import copy, importlib.util, json, sys
+U = sys.argv[1]
+spec = importlib.util.spec_from_file_location("replay_v3", f"{U}/vervolg-keten-replay-v3.py")
+v3 = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(v3)
+basis = json.load(open(f"{U}/vervolg-keten-replay-v3.json", encoding="utf-8"))
+basis.pop("exitstatus")
+print("basis (ongewijzigd):", v3.eindstatus(basis))
+gevallen = {
+    "route B niet uitgevoerd (C83)": ("C83", lambda b: b.update(uitgevoerd=False)),
+    "teruggelezen registratie ontbreekt (C105)": ("C105", lambda b: b.update(registratie_teruggelezen=None)),
+    "verkeerde teruggelezen NE-melding (C56)": ("C56", lambda b: b["registratie_teruggelezen"].update(
+        deel="INT-02 — Niet uitgevoerd: kern ontbreekt. Er is geen inhoudelijk oordeel.")),
+}
+afgewezen = 0
+for naam, (casus, injecteer) in gevallen.items():
+    uit = copy.deepcopy(basis)
+    injecteer(uit[casus]["route_b"])
+    fouten = v3.route_b_fouten(casus, uit[casus]["route_b"])
+    status = v3.eindstatus(uit)
+    print(f"{naam}: eindstatus={status} fouten={fouten}")
+    afgewezen += status == 1 and bool(fouten)
+print(f"afgewezen: {afgewezen}/3")
+sys.exit(0 if afgewezen == 3 and v3.eindstatus(basis) == 0 else 1)
+
+$ .venv/bin/python /tmp/def771_negatief.py docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering
+basis (ongewijzigd): 0
+route B niet uitgevoerd (C83): eindstatus=1 fouten=['route B niet uitgevoerd']
+teruggelezen registratie ontbreekt (C105): eindstatus=1 fouten=['teruggelezen registratie ontbreekt']
+verkeerde teruggelezen NE-melding (C56): eindstatus=1 fouten=["teruggelezen: tekst ontbreekt of wijkt af: 'INT-02 — Niet uitgevoerd: kern ontbreekt. Er is geen inhoudelijk oordeel.'", 'teruggelezen registratie wijkt af van de verse uitkomst']
+afgewezen: 3/3
+exit=0
+# Noot: de uitvoer hierboven is gefilterd met grep -v op Streamlit bare-mode-waarschuwingen (ScriptRunContext/Session state); exit = pipestatus[1] = exitcode van python.

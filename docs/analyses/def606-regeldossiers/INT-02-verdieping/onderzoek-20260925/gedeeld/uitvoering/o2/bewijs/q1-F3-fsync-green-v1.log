@@ -1,0 +1,11 @@
+# DEF-835 Q1 F3 fsync-na-flush GROEN — 2026-09-28T16:38:24Z
+f9bb9e6973926a3cf768995f5d879f6edfd6322d
+94adea36ffa555a8d9fee790f5eb96ce54ece96efd107adf25dd147ccb1a637f  scripts/analysis/def835_int02_modelproef.py
+60b2c420f3b7ff80582ec4e42dda80f77c986bf351e6c538637048bc2d61b79e  tests/unit/validation/test_def835_int02_modelproef.py
+2f50c456756614cc35e78b81f57f4c8afc748b79d4cfcd6da053306e6c8fd7a7  tests/fixtures/def835_int02_kwalificatie_runner.json
+$ env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 .venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -o addopts= -q -ra -p no:cacheprovider
+........................................................................ [ 40%]
+........................................................................ [ 81%]
+................................                                         [100%]
+176 passed in 32.12s
+exit=0

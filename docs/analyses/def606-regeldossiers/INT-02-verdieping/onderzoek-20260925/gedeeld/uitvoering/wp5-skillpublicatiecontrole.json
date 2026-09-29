@@ -1,0 +1,56 @@
+[
+  {
+    "skill": "definitie-toetsregels",
+    "bestand": "SKILL.md",
+    "bron_sha256": "d5da1b48a2a7270239bb4b4dc22921e54480eb7c60fbb60a228c3fc45819e8c4",
+    "actief_bestaat": true,
+    "actief_sha256": "1aebed217dbe667d3e8685369278100c217b77d65ad2d1acddc5a81909a89bfa",
+    "actief_bytegelijk": false,
+    "zip_bytegelijk": true
+  },
+  {
+    "skill": "definitie-toetsregels",
+    "bestand": "reference.md",
+    "bron_sha256": "a9db142b835f40694dd16d9873f4bd5ba42bfe217b27d1e0ea412c4522c14116",
+    "actief_bestaat": true,
+    "actief_sha256": "9236ac320d26d8ff8d97e1342b8dddf255bd5ebdb87ee59fa2d3d728a37d05bd",
+    "actief_bytegelijk": false,
+    "zip_bytegelijk": true
+  },
+  {
+    "skill": "definitie-toetsregels",
+    "bestand": "references/int02-beslisregel.md",
+    "bron_sha256": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "actief_bestaat": false,
+    "actief_sha256": null,
+    "actief_bytegelijk": false,
+    "zip_bytegelijk": true
+  },
+  {
+    "skill": "definitie-nederlandse-definities",
+    "bestand": "SKILL.md",
+    "bron_sha256": "7e9b6cda739620689fa395bbd2469248f63a450ef613fe9e7b3e60522238d884",
+    "actief_bestaat": true,
+    "actief_sha256": "b94073cdcf109b408c0bc7caebffbe3beac3aad84d65d89ba819e9859ede4af2",
+    "actief_bytegelijk": false,
+    "zip_bytegelijk": true
+  },
+  {
+    "skill": "definitie-nederlandse-definities",
+    "bestand": "reference.md",
+    "bron_sha256": "9b3ce1fb2199aec86c62791cf5ab5118568a57fe3bcf6cd559a4d799f289c6f2",
+    "actief_bestaat": true,
+    "actief_sha256": "483c291fa854912af908b623369f336356024780d9b2fa080c8e089abc0b0ede",
+    "actief_bytegelijk": false,
+    "zip_bytegelijk": true
+  },
+  {
+    "skill": "definitie-nederlandse-definities",
+    "bestand": "references/int02-beslisregel.md",
+    "bron_sha256": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "actief_bestaat": false,
+    "actief_sha256": null,
+    "actief_bytegelijk": false,
+    "zip_bytegelijk": true
+  }
+]

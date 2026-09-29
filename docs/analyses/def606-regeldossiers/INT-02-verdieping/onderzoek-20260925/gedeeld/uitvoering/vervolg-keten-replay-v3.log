@@ -1,0 +1,391 @@
+$ .venv/bin/python docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-replay-v3.py docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/vervolg-keten-replay-v3.json
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=3cbc7f6f-566a-45c5-9f59-1c3ca4f55842)
+2026-09-26 12:41:22.726 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.726 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.726 WARNING streamlit.runtime.state.session_state_proxy: Session state does not function when running a script without `streamlit run`
+2026-09-26 12:41:22.726 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.726 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.726 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.728 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.728 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.728 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.728 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.728 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.729 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.730 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=1b74b305-9c7a-4ae5-a1eb-10a1fe61438a)
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=646ceeb5-6439-4e7b-a0ea-1ec093108d2c)
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=71f45f22-a77f-463d-b857-13bbaae9b441)
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=73f40de9-227c-46bf-ba52-3885ce9a0618)
+2026-09-26 12:41:22.936 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.936 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.936 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.936 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.936 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.938 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.939 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.940 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:22.940 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=ed6cc33b-3aa4-4264-ab54-f663a0e736b6)
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=791f3c9a-46ec-4881-b877-1b63e23598dc)
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=e283654b-676b-4c81-8248-e5357c40a938)
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=927fd8f9-e269-4ed1-89aa-ccd37629b508)
+2026-09-26 12:41:23.140 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.140 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.140 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.140 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.140 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.143 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.143 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.144 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.144 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.144 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.144 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.144 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.144 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.144 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.144 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.145 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.145 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.145 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.145 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.145 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.145 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.145 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.146 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.146 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.146 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.146 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2026-09-26 12:41:23.147 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=b334f7fb-f95d-442f-a6c7-f9b0f496c783)
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=a2663c43-19a9-4080-bbc2-1c5ebd6e2c2f)
+DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=c63782d0-d204-4ab1-98d1-fb5aa562ac5f)
+{
+ "C83": {
+  "route_a": {
+   "status": "review_required",
+   "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–100 (tekenposities, nulgebaseerd, einde exclusief).",
+   "signalen": [
+    "\\bnaar\\s+eigen\\s+inzicht\\b",
+    "\\bredelijk\\s+acht\\b"
+   ],
+   "deel": null,
+   "ui_tekst": true,
+   "ui_waarschuwing": false,
+   "fouten": [],
+   "issues_projectie_int02": [],
+   "record_bevat_int02": false,
+   "definition_metadata_bevat_int02": false,
+   "experttab_zonder_hervalidatie": null,
+   "tweede_validatie": {
+    "status": "review_required",
+    "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–100 (tekenposities, nulgebaseerd, einde exclusief).",
+    "signalen": [
+     "\\bnaar\\s+eigen\\s+inzicht\\b",
+     "\\bredelijk\\s+acht\\b"
+    ],
+    "deel": null
+   },
+   "vaststelpoort": {
+    "status": "blocked",
+    "reasons": [
+     "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de brongezag/toepasselijkheid kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+     "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de betekenissteun kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+     "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de verwijskwaliteit kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+     "Geen validatieresultaat beschikbaar (eerst (her)valideren)"
+    ]
+   },
+   "vaststelpoort_noemt_int02": false,
+   "export_gate_False": {
+    "bevat_int02": false
+   },
+   "export_gate_True": {
+    "fout": "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
+   },
+   "exportgate_int02": {
+    "status": "review_required",
+    "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–100 (tekenposities, nulgebaseerd, einde exclusief).",
+    "signalen": [
+     "\\bnaar\\s+eigen\\s+inzicht\\b",
+     "\\bredelijk\\s+acht\\b"
+    ],
+    "deel": null
+   },
+   "exportgate_acceptance_noemt_int02": false
+  },
+  "route_b": {
+   "voorstel": {
+    "status": "proposed",
+    "message": "Voorstel beschikbaar; de oorspronkelijke tekst is ongewijzigd.",
+    "error": null
+   },
+   "toepassing": {
+    "status": "applied",
+    "message": "Voorstel toegepast en opnieuw getoetst."
+   },
+   "uitgevoerd": true,
+   "vers": {
+    "status": "review_required",
+    "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–100 (tekenposities, nulgebaseerd, einde exclusief).",
+    "signalen": [
+     "\\bnaar\\s+eigen\\s+inzicht\\b",
+     "\\bredelijk\\s+acht\\b"
+    ],
+    "deel": null
+   },
+   "registratie_teruggelezen": {
+    "status": "review_required",
+    "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Beschrijft de passage 'passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht' een kenmerk of afgeleid feit, of schrijft zij voor wat iemand moet doen of afwegen? Leg de functie vast met grond uit de kern, de bevestigde bedoeling of een bronpassage. Behoud noodzakelijke criteria en uitzonderingen. Het signaal is geen oordeel; beoordeel ook passages zonder signaalwoord. Positie in de getoetste kern: 0–100 (tekenposities, nulgebaseerd, einde exclusief).",
+    "signalen": [
+     "\\bnaar\\s+eigen\\s+inzicht\\b",
+     "\\bredelijk\\s+acht\\b"
+    ],
+    "deel": null
+   },
+   "expertlezing": {
+    "status": null,
+    "reden": null,
+    "signalen": [],
+    "deel": null
+   },
+   "fouten": [],
+   "export_record_zonder_gate": {
+    "bevat_int02": false
+   },
+   "export_met_toetsresultaten_zonder_gate": {
+    "bevat_int02": true
+   }
+  }
+ },
+ "C105": {
+  "route_a": {
+   "status": "review_required",
+   "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+   "signalen": [],
+   "deel": null,
+   "ui_tekst": true,
+   "ui_waarschuwing": false,
+   "fouten": [],
+   "issues_projectie_int02": [],
+   "record_bevat_int02": false,
+   "definition_metadata_bevat_int02": false,
+   "experttab_zonder_hervalidatie": null,
+   "tweede_validatie": {
+    "status": "review_required",
+    "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+    "signalen": [],
+    "deel": null
+   },
+   "vaststelpoort": {
+    "status": "blocked",
+    "reasons": [
+     "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de brongezag/toepasselijkheid kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+     "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de betekenissteun kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+     "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de verwijskwaliteit kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+     "Geen validatieresultaat beschikbaar (eerst (her)valideren)"
+    ]
+   },
+   "vaststelpoort_noemt_int02": false,
+   "export_gate_False": {
+    "bevat_int02": false
+   },
+   "export_gate_True": {
+    "fout": "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
+   },
+   "exportgate_int02": {
+    "status": "review_required",
+    "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+    "signalen": [],
+    "deel": null
+   },
+   "exportgate_acceptance_noemt_int02": false
+  },
+  "route_b": {
+   "voorstel": {
+    "status": "proposed",
+    "message": "Voorstel beschikbaar; de oorspronkelijke tekst is ongewijzigd.",
+    "error": null
+   },
+   "toepassing": {
+    "status": "applied",
+    "message": "Voorstel toegepast en opnieuw getoetst."
+   },
+   "uitgevoerd": true,
+   "vers": {
+    "status": "review_required",
+    "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+    "signalen": [],
+    "deel": null
+   },
+   "registratie_teruggelezen": {
+    "status": "review_required",
+    "reden": "INT-02 — Toetsvraag: Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren? INT-02 — Nog te beoordelen. Geen signaalwoord gevonden; een voorschrift of afweging kan ook zonder signaalwoord voorkomen. Beoordeel de hele kern op begripscriterium/afleiding tegenover voorschrift of afweging.",
+    "signalen": [],
+    "deel": null
+   },
+   "expertlezing": {
+    "status": null,
+    "reden": null,
+    "signalen": [],
+    "deel": null
+   },
+   "fouten": [],
+   "export_record_zonder_gate": {
+    "bevat_int02": false
+   },
+   "export_met_toetsresultaten_zonder_gate": {
+    "bevat_int02": true
+   }
+  }
+ },
+ "C56": {
+  "route_a": {
+   "status": "not_evaluated",
+   "reden": null,
+   "signalen": [],
+   "deel": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel.",
+   "ui_tekst": false,
+   "ui_waarschuwing": true,
+   "fouten": [],
+   "issues_projectie_int02": [],
+   "record_bevat_int02": false,
+   "definition_metadata_bevat_int02": false,
+   "experttab_zonder_hervalidatie": null,
+   "tweede_validatie": {
+    "status": "not_evaluated",
+    "reden": null,
+    "signalen": [],
+    "deel": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+   },
+   "vaststelpoort": {
+    "status": "blocked",
+    "reasons": [
+     "Geen context vastgelegd bij het record (CON-01, B-01); vaststellen is niet mogelijk zonder context",
+     "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de brongezag/toepasselijkheid kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+     "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de betekenissteun kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+     "CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de verwijskwaliteit kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.",
+     "Geen context ingevuld (minimaal één vereist)",
+     "Geen validatieresultaat beschikbaar (eerst (her)valideren)"
+    ]
+   },
+   "vaststelpoort_noemt_int02": false,
+   "export_gate_False": {
+    "bevat_int02": false
+   },
+   "export_gate_True": {
+    "fout": "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
+   },
+   "exportgate_int02": {
+    "status": "not_evaluated",
+    "reden": null,
+    "signalen": [],
+    "deel": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+   },
+   "exportgate_acceptance_noemt_int02": false
+  },
+  "route_b": {
+   "voorstel": {
+    "status": "proposed",
+    "message": "Voorstel beschikbaar; de oorspronkelijke tekst is ongewijzigd.",
+    "error": null
+   },
+   "toepassing": {
+    "status": "applied",
+    "message": "Voorstel toegepast en opnieuw getoetst."
+   },
+   "uitgevoerd": true,
+   "vers": {
+    "status": "not_evaluated",
+    "reden": null,
+    "signalen": [],
+    "deel": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+   },
+   "registratie_teruggelezen": {
+    "status": "not_evaluated",
+    "reden": null,
+    "signalen": [],
+    "deel": "INT-02 — Niet uitgevoerd: context ontbreekt. Er is geen inhoudelijk oordeel."
+   },
+   "expertlezing": {
+    "status": null,
+    "reden": null,
+    "signalen": [],
+    "deel": null
+   },
+   "fouten": [],
+   "export_record_zonder_gate": {
+    "bevat_int02": false
+   },
+   "export_met_toetsresultaten_zonder_gate": {
+    "bevat_int02": true
+   }
+  }
+ },
+ "exitstatus": 0
+}
+exit=0

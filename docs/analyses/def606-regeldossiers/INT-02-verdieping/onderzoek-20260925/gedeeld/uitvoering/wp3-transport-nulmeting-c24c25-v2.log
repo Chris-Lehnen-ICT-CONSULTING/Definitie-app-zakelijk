@@ -1,0 +1,30 @@
+........................................................................ [ 16%]
+........................................................................ [ 32%]
+........................................................................ [ 49%]
+........................................................................ [ 65%]
+........................................................................ [ 82%]
+........................................................................ [ 98%]
+....F                                                                    [100%]
+=================================== FAILURES ===================================
+______________________ test_int02_no_decision_rules_fail _______________________
+
+    @pytest.mark.asyncio
+    async def test_int02_no_decision_rules_fail():
+        svc = ModularValidationService(get_toetsregel_manager(), None, None)
+        res = await svc.validate_definition(
+            begrip="toegang",
+            text="Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.",
+            ontologische_categorie=None,
+            context={},
+        )
+        # INT-02 is sinds DEF-624 een oordeelregel; het voorwaardelijke patroon
+        # is een reviewersignaal, geen bewijs van een beslisregel.
+        review = {r["rule_id"]: r for r in res.get("review_required", [])}
+>       assert "INT-02" in review, res
+E       AssertionError: {'acceptance_gate': {'acceptable': False, 'gates_failed': ['critical_violations=5', 'overall_score_unavailable', 'juri...tion_coverage': {'coverage_ratio': 0.6038, 'error': 0, 'evaluated': 32, 'failed': 7, ...}, 'is_acceptable': False, ...}
+E       assert 'INT-02' in {'ARAI-03': {'category': 'taal', 'reason': 'Bevat de definitie subjectieve of contextgevoelige bijvoeglijke naamwoorde...eling. Geen patroonsignaal gevonden; inhoudelijke beoordeling blijft nodig.', 'rule_id': 'ESS-02', 'signals': []}, ...}
+
+tests/unit/validation/test_v2_golden_int_more.py:21: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_v2_golden_int_more.py::test_int02_no_decision_rules_fail
+exit=1

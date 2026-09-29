@@ -1,0 +1,25 @@
+["/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python", "-m", "pytest", "-q", "-p", "no:cacheprovider", "-p", "no:randomly", "-o", "addopts=", "tests/unit/services/orchestrators/test_def835_int02_wrappers.py", "tests/unit/validation/test_def835_int02_modular.py", "tests/unit/services/test_def835_int02_container.py", "tests/unit/validation/test_def835_int02_assessment_service.py", "tests/unit/validation/test_def771_int02_o1.py", "tests/unit/validation/test_def771_int02_contract.py", "tests/unit/domain/test_def835_int02_contract.py", "tests/unit/services/prompts/test_def835_int02_prompt.py"]
+........................................................................ [ 13%]
+........................................................................ [ 27%]
+........................................................................ [ 41%]
+........................................................................ [ 54%]
+........................................................................ [ 68%]
+........................................................................ [ 82%]
+........................................................................ [ 95%]
+......................                                                   [100%]
+526 passed in 3.18s
+
+EXIT 0
+["/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python", "-m", "mypy", "src/", "--check-untyped-defs", "--no-incremental"]
+Success: no issues found in 411 source files
+
+EXIT 0
+["/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python", "-m", "ruff", "check", "src/services/container.py", "src/services/orchestrators/definition_orchestrator_v2.py", "src/services/orchestrators/validation_orchestrator_v2.py", "src/services/validation/modular_validation_service.py", "tests/unit/services/orchestrators/test_def835_int02_wrappers.py", "tests/unit/validation/test_def835_int02_modular.py", "tests/unit/services/test_def835_int02_container.py", "src/services/validation/int02_assessment_service.py", "tests/unit/validation/test_def835_int02_assessment_service.py", "src/domain/int02/contract.py"]
+All checks passed!
+
+EXIT 0
+["/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python", "-m", "black", "--check", "src/services/container.py", "src/services/orchestrators/definition_orchestrator_v2.py", "src/services/orchestrators/validation_orchestrator_v2.py", "src/services/validation/modular_validation_service.py", "tests/unit/services/orchestrators/test_def835_int02_wrappers.py", "tests/unit/validation/test_def835_int02_modular.py", "tests/unit/services/test_def835_int02_container.py", "src/services/validation/int02_assessment_service.py", "tests/unit/validation/test_def835_int02_assessment_service.py", "src/domain/int02/contract.py"]
+All done! ✨ 🍰 ✨
+10 files would be left unchanged.
+
+EXIT 0

@@ -19,6 +19,9 @@ from services.validation.evaluators.context_metadata import ContextMetadataEvalu
 from services.validation.evaluators.countability_assessment import (
     CountabilityAssessmentEvaluator,
 )
+from services.validation.evaluators.decision_rule_assessment import (
+    DecisionRuleAssessmentEvaluator,
+)
 from services.validation.evaluators.deferred import DEFERRED_EVALUATORS
 from services.validation.evaluators.distinction_assessment import (
     DistinctionAssessmentEvaluator,
@@ -33,6 +36,9 @@ from services.validation.evaluators.ontological_category import (
     OntologicalCategoryEvaluator,
 )
 from services.validation.evaluators.positive_indicator import PositiveIndicatorEvaluator
+from services.validation.evaluators.pronoun_reference_assessment import (
+    PronounReferenceAssessmentEvaluator,
+)
 from services.validation.evaluators.qualification import QualificationEvaluator
 from services.validation.evaluators.registry import (
     DuplicateEvaluatorError,
@@ -75,6 +81,8 @@ def build_default_registry() -> EvaluatorRegistry:
         SourceEvidenceEvaluator(),
         CountabilityAssessmentEvaluator(),
         DistinctionAssessmentEvaluator(),
+        PronounReferenceAssessmentEvaluator(),
+        DecisionRuleAssessmentEvaluator(),
         SentenceBoundaryEvaluator(),
         DuplicateDetectionEvaluator(),
         JudgmentReviewEvaluator(),

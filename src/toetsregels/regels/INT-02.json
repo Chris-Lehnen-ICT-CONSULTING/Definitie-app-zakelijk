@@ -1,9 +1,9 @@
 {
   "id": "INT_02",
   "naam": "Geen beslisregel",
-  "uitleg": "Een definitie bevat geen beslisregels of voorwaarden.",
-  "toelichting": "Een definitie beschrijft wat iets ís, niet wat ermee moet gebeuren of onder welke voorwaarden het geldig is. Voorwaardelijke of normatieve formuleringen zoals 'indien', 'mits' en 'tenzij' horen thuis in regelgeving, niet in definities.",
-  "toetsvraag": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
+  "uitleg": "Een definitie beschrijft het begrip met kenmerken die bepalen wat ertoe behoort; zij is geen handelingsvoorschrift of procedure voor een actor en bevat geen discretionaire beslisregel. Criteria, voorwaarden en deterministische afleidingen zijn toegestaan, ook in voorwaardelijke vorm. Een bevoegdheid, beslissing, procedure of constitutief rechtsgevolg als begripskenmerk beschrijven is op zichzelf geen overtreding.",
+  "toelichting": "Een definitie beschrijft wat het begrip is met de kenmerken die bepalen wat ertoe behoort. Zij is geen handelingsvoorschrift of procedure voor een actor en bevat geen discretionaire beslisregel die een afweging over handelen of rechtsgevolg voorschrijft. Begripsbepalende criteria, voorwaarden en uitzonderingen zijn toegestaan, ook in voorwaardelijke zinsvorm ('indien', 'mits', 'tenzij', 'alleen als', 'voor zover'); een afleidbaar begrip wordt juist gedefinieerd met de deterministische afleiding uit de relevante feiten; een gebonden handelingsopdracht is niet enkel door haar determinisme een afleidingsregel. Dat een kenmerk door een mens moet worden waargenomen of beoordeeld, maakt het niet tot een beslisregel. Een bevoegdheid, beslissing, procedure of constitutief rechtsgevolg als begripskenmerk beschrijven is op zichzelf geen overtreding; beoordeel of de definitiekern zelf het handelen voorschrijft of de afweging als beslisregel uitvoert. Woorden als 'indien' of 'moet' bewijzen geen overtreding en hun afwezigheid bewijst geen naleving. De uitsluiting van zelfstandige actorvoorschriften/procedures is lokale operationalisering; ASTRA benoemt discretionaire beslisregels en staat afleidingsregels toe, verplicht bij afleidbare begrippen; de theoretische aansluiting en het voorbeeld zijn bij ASTRA redactionele bespreekpunten.",
+  "toetsvraag": "Bakenen de relevante passages het begrip af met criteria of een deterministische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?",
   "herkenbaar_patronen": [
     "\\bindien\\b",
     "\\bmits\\b",
@@ -11,21 +11,33 @@
     "\\btenzij\\b",
     "\\bvoor zover\\b",
     "\\bop voorwaarde dat\\b",
-    "\\bin geval dat\\b"
+    "\\bin geval dat\\b",
+    "\\bvan\\s+oordeel\\s+is\\b",
+    "\\bnaar\\s+eigen\\s+inzicht\\b",
+    "\\bredelijk\\s+acht\\b",
+    "\\bkan\\b[^.!?;\\n]*\\bbesluiten\\b",
+    "\\bmoet\\b",
+    "\\bdient\\s+te\\b"
   ],
+  "signaalbeleid": "herkenbaar_patronen zijn leeshulp, niet normatief (besluit B3, S1): een treffer is nooit \"voldoet niet\", geen treffer nooit \"voldoet\"; zij wijzen alleen een passage aan voor de menselijke beoordeling.",
   "goede_voorbeelden": [
-    "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
+    "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+    "stelselmatige dader: persoon die in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.",
+    "even getal: Geheel getal dat zonder rest door twee deelbaar is."
   ],
   "foute_voorbeelden": [
-    "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
+    "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+    "weigering: besluit waarmee de bevoegde autoriteit een aanvraag afwijst, tenzij zij van oordeel is dat de aanvrager daardoor onevenredig zou worden benadeeld.",
+    "aanvraag: Aanvraag die de behandelaar moet afwijzen bij een ontbrekende bijlage."
   ],
   "prioriteit": "midden",
   "aanbeveling": "aanbevolen",
   "geldigheid": "alle",
   "status": "definitief",
-  "type": "interne structuur",
+  "type": "gehele definitie",
   "thema": "interne kwaliteit van de definitie",
-  "brondocument": "ASTRA",
+  "brondocument": "ASTRA (verwijst naar DBT §4.2; DBT niet rechtstreeks onderzocht)",
+  "contractversie": "def771-int02/2",
   "relatie": [
     {
       "fulltext": "Geen beslisregel",
@@ -35,13 +47,14 @@
   "runtime_contract": {
     "evaluator": "judgment_review",
     "required_inputs": [
-      "definition_text"
+      "definition_text",
+      "context_lists"
     ],
     "executability": "judgment",
     "automation_status": "review_required",
     "score_policy": "excluded_from_score",
     "example_pair_policy": "review_policy",
-    "example_pair_reason": "het gedocumenteerde paar verschilt uitsluitend in het modale werkwoord moet, wat de norm van ARAI-04 is; beslisregel-herkenning blijft daarnaast een inhoudelijk oordeel.",
+    "example_pair_reason": "Het ASTRA-paar verschilt in het modale werkwoord moet. Dat raakt ARAI-04 en kan onder de bevestigde voorschriftlezing ook de lokale INT-02-functiegrens raken. Onder de enge discretionaire variant is zonder discretionaire grond geen INT-02-afkeur bewezen. Het paar blijft een reviewgeval; ASTRA noemt het weinig sprekend. Het woord bewijst op zichzelf geen actorfunctie, rolomkering of betekenisbehoud bij verwijdering.",
     "example_pair_issue": "DEF-624"
   }
 }

@@ -1,0 +1,12 @@
+# DEF-835 WP2 GREEN (v2: na refactor _controleer_antwoord; vervangt v1) — 2026-09-27T07:56:46Z
+# HEAD b56e0e225e65eac00ad73239900d2e6c1bfc2422; branch feature/DEF-835-int02-o2
+# sha256 e2ab9f9aef0fbc536179481b10063373cab4b6adc3d7c22bb2cc630ff5154174  src/services/validation/int02_assessment_service.py
+# sha256 7dd08d1d6400121ffb9ba5a1fa50dab119421b72d26d144bc1b68c5ea7cc89f9  tests/unit/validation/test_def835_int02_assessment_service.py
+# sha256 2efcd7ae505a58f2b93731b36fd763c718f073776745e7a28944dc4967426a0b  tests/unit/services/prompts/test_def835_int02_prompt.py
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_assessment_service.py tests/unit/services/prompts/test_def835_int02_prompt.py -o addopts= -q -ra
+
+........................................................................ [ 42%]
+........................................................................ [ 85%]
+.........................                                                [100%]
+169 passed in 0.91s
+# exitcode: 0

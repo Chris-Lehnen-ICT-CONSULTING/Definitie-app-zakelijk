@@ -1,0 +1,50 @@
+# DEF-835 modelproef COMMIT — 2026-09-28T09:48:27Z
+$ git add scripts/analysis/def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modelproef.py && git commit -F <bericht>   (normale hooks, geen skip)
+[0;34m🔍 Running pre-commit checks...[0m
+Running standard pre-commit checks...
+Ruff linting..........................................................................Passed
+Black formatting......................................................................Passed
+Detect hardcoded secrets (gitleaks)...................................................Passed
+Bronquarantaine-integriteit (DEF-666).................................................Passed
+Block TODO/FIXME markers in code......................................................Passed
+Block root-level *.db files...........................................................Passed
+Block root files outside the allowlist (DEF-685)......................................Passed
+Run smoke tests (quick validation)....................................................Passed
+Check forbidden patterns (streamlit in services)......................................Passed
+Check Streamlit anti-patterns (DEF-56 lessons)........................................Passed
+Warn on large files (>500 LOC)........................................................Passed
+Validate juridische_synoniemen.yaml...................................................Passed
+Check dependency-confusion (src/ vs requirements.txt) — DEF-409.......................Passed
+Ruff linting..........................................................................Passed
+Black formatting......................................................................Passed
+Detect hardcoded secrets (gitleaks)...................................................Passed
+Bronquarantaine-integriteit (DEF-666).................................................Passed
+Block TODO/FIXME markers in code......................................................Passed
+Block root-level *.db files...........................................................Passed
+Block root files outside the allowlist (DEF-685)......................................Passed
+Run smoke tests (quick validation)....................................................Passed
+Check forbidden patterns (streamlit in services)......................................Passed
+Check Streamlit anti-patterns (DEF-56 lessons)....................(no files to check)Skipped
+Warn on large files (>500 LOC)........................................................Passed
+Validate juridische_synoniemen.yaml...............................(no files to check)Skipped
+Check dependency-confusion (src/ vs requirements.txt) — DEF-409...(no files to check)Skipped
+[feature/DEF-835-int02-o2 dff713fd4] feat(DEF-835): Voeg offline technische proefrunner voor INT-02 toe
+ 2 files changed, 1539 insertions(+)
+ create mode 100644 scripts/analysis/def835_int02_modelproef.py
+ create mode 100644 tests/unit/validation/test_def835_int02_modelproef.py
+exit=0
+$ git rev-parse HEAD HEAD~1
+dff713fd45a2c87b6d3b646e500e108b5cd61b03
+558b50c3f161f819cda6c445f7f81b70888918ac
+$ git show --stat --format=%H%n%s HEAD
+dff713fd45a2c87b6d3b646e500e108b5cd61b03
+feat(DEF-835): Voeg offline technische proefrunner voor INT-02 toe
+
+ scripts/analysis/def835_int02_modelproef.py        | 925 +++++++++++++++++++++
+ .../validation/test_def835_int02_modelproef.py     | 614 ++++++++++++++
+ 2 files changed, 1539 insertions(+)
+$ shasum -a 256 (gecommitte blobs)
+d131ed34c68f28230fb981655540789789458d0dda334d77417ef9578e563c89  -
+46b98cd1966d98fed795604756a3a87dd5027f9a01d27c1e02887d06aad25bc3  -
+$ git status --porcelain (buiten docs/)
+?? .claude/hooks/check-silent-exceptions.py

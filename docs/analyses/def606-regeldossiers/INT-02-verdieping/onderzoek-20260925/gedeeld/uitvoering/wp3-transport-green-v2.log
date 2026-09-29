@@ -1,0 +1,168 @@
+........................................................................ [ 49%]
+........................................................................ [ 98%]
+..                                                                       [100%]
+==================================== PASSES ====================================
+_________________ test_markergrenzen_kan_besluiten_en_dient_te _________________
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+________________ test_degraded_resultaat_is_expliciet_onbekend _________________
+------------------------------ Captured log call -------------------------------
+ERROR    services.validation.mappers:mappers.py:305 Creating degraded validation result: boom. begrip=N/A, correlation_id=3f8c1a2e-0000-4000-8000-000000000000
+NoneType: None
+WARNING  services.validation.types:types.py:455 Creating degraded validation result: boom. begrip=N/A, correlation_id=3f8c1a2e-0000-4000-8000-000000000000
+______________ test_types_en_interfaces_delen_een_contractversie _______________
+------------------------------ Captured log call -------------------------------
+ERROR    services.validation.mappers:mappers.py:305 Creating degraded validation result: x. begrip=N/A, correlation_id=1715464b-1d61-4f71-837e-d985b1c083bb
+NoneType: None
+_____________ test_canonieke_gevallen_zijn_schemageldig[degraded] ______________
+------------------------------ Captured log call -------------------------------
+ERROR    services.validation.mappers:mappers.py:305 Creating degraded validation result: boom. begrip=N/A, correlation_id=3f8c1a2e-0000-4000-8000-000000000000
+NoneType: None
+=========================== short test summary info ============================
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_markergrenzen_kan_besluiten_en_dient_te
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C23-Toegang:-context1-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-signalen1-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[Voorwerp dat dient als ondersteuning.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C23-Toegang:-context1-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[passende maatregel: maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht-signalen4-maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C06--context0-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[-True-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C23-Toegang:-context1-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Getal dat even is indien het zonder rest door twee deelbaar is.-signalen0-Getal dat even is indien het zonder rest door twee deelbaar is]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_record_s1_en_leeshulp
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_rr_boekt_geen_int02_deeluitkomst_en_andere_regels_blijven
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[Toegang:-True-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_onzekere_grens_citeert_de_volledige_kern
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_herhaalde_passage_blijft_onderscheidbaar
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C06--context0-kern]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[beslisregel: Algoritme waarvoor oordeelsvorming nodig is.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.-signalen3-eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-False-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[De medewerker laat de aanvrager toe.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_met_context_geeft_passagehulp_zonder_oordeel
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Verplichting die een partij moet nakomen.-signalen6-Verplichting die een partij moet nakomen]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_service_niet_uitgevoerd[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Lid dat stemgerechtigd is alleen als het v\xf3\xf3r 1 januari is ingeschreven.-signalen2-Lid dat stemgerechtigd is alleen als het v\xf3\xf3r 1 januari is ingeschreven]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_zonder_signaal_exacte_waarschuwing[besluit waarmee de bevoegde autoriteit een vergunning intrekt wanneer zij dat na afweging van de belangen van de houder evenredig acht.]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_evaluator_niet_uitgevoerd[-False-kern en context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_signaal_geeft_neutrale_vraag_met_passage_en_positie[Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is.-signalen5-Bevoegdheid waarbij de bevoegde instantie naar eigen inzicht kan besluiten welke maatregel passend is]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_posities_in_getoetste_kern_zonder_broncitaat
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+PASSED tests/unit/validation/test_def771_int02_o1.py::test_ne_reist_publiek_mee_in_rule_results[C06--context0-kern]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_herhaalde_normalisatie_is_idempotent[bron0]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_legacy_dataclass_wordt_onbekend_zonder_verzonnen_regels
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_afwezige_null_of_ongeldige_status_is_onbekend[vreemde_waarde]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_normalize_to_unified_legacy_met_status_behoudt_die
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_afwezige_null_of_ongeldige_status_is_onbekend[boolean]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_ensure_schema_compliance_draagt_een_validated_resultaat_ongewijzigd_door
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_niet_beschikbare_score_wordt_nooit_nul[types_dataclass]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_herhaalde_normalisatie_is_idempotent[bron1]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_readiness_is_alleen_verplicht_bij_ruleset_incomplete
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_canonieke_gevallen_zijn_schemageldig[fabriek_validated]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_afwezige_null_of_ongeldige_status_is_onbekend[afwezig]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_canonieke_gevallen_zijn_schemageldig[legacy_dataclass]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_legacy_object_met_status_en_uitkomsten_verliest_ze_niet
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_herhaalde_normalisatie_is_idempotent[bron2]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_normalize_to_unified_verzint_geen_run_en_geen_regels[dataclass]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_hoge_score_en_groen_oordeel_omzeilen_de_onbekende_status_niet
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_afwezige_null_of_ongeldige_status_is_onbekend[verkeerde_schrijfwijze]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_canonieke_gevallen_zijn_schemageldig[unknown_ruleset_incomplete]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_historisch_schema_1_4_0_blijft_gepind
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_runstatus_is_onafhankelijk_van_het_kwaliteitsoordeel
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_validated_en_bestaande_unknown_blijven_wat_ze_zijn
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_schema_declareert_geen_default_en_eist_de_status
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_niet_beschikbare_score_wordt_nooit_nul[mappers_dict_validated]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_canonieke_gevallen_zijn_schemageldig[unknown_score_none]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_schema_weigert_een_resultaat_zonder_status
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_schema_weigert_groen_oordeel_bij_onbekende_status
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_fabriek_zonder_status_verzint_geen_run
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_ensure_schema_compliance_muteert_de_invoer_niet
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_niet_beschikbare_score_wordt_nooit_nul[types_dict]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_degraded_resultaat_is_expliciet_onbekend
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_types_en_interfaces_delen_een_contractversie
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_canonieke_gevallen_zijn_schemageldig[validated]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_statusobject_leest_alleen_werkelijke_attributen
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_normalize_to_unified_verzint_geen_run_en_geen_regels[dict]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_typeddict_dekt_alle_schemavelden
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_normalisatie_verliest_geen_uitkomsten_en_raakt_de_bron_niet[bron1]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_canonieke_gevallen_zijn_schemageldig[unknown_status_invalid]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_canonieke_gevallen_zijn_schemageldig[degraded]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_normalisatie_verliest_geen_uitkomsten_en_raakt_de_bron_niet[bron0]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_canonieke_gevallen_zijn_schemageldig[unknown_status_missing]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_afwezige_null_of_ongeldige_status_is_onbekend[null]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_niet_beschikbare_score_wordt_nooit_nul[mappers_dataclass]
+PASSED tests/unit/services/validation/test_def624_resultaatcontract.py::test_niet_beschikbare_score_wordt_nooit_nul[mappers_dict_zonder_status]
+PASSED tests/unit/services/prompts/test_def771_int02_promptnorm.py::test_int02_sectie_bevat_exacte_g_en_een_zin_contract[True]
+PASSED tests/unit/services/prompts/test_def771_int02_promptnorm.py::test_int02_voorbeelden_volgen_de_instelling[True]
+PASSED tests/unit/services/prompts/test_def771_int02_promptnorm.py::test_int02_sectie_bevat_exacte_g_en_een_zin_contract[False]
+PASSED tests/unit/services/prompts/test_def771_int02_promptnorm.py::test_int02_voorbeelden_volgen_de_instelling[False]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestEvaluatorUitkomst::test_review_required_zonder_cijfer_of_violation[E02-011 lege kern met marker]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestEvaluatorUitkomst::test_review_required_zonder_cijfer_of_violation[fixture: precies \xe9\xe9n categoriehit (was automatische pass)]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestEvaluatorUitkomst::test_review_required_zonder_cijfer_of_violation[E2-07 kick-off met 'soort' en opgegeven categorie]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestEvaluatorUitkomst::test_review_required_zonder_cijfer_of_violation[E02-006 gemengde kern met geldige marker]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestEvaluatorUitkomst::test_review_required_zonder_cijfer_of_violation[E02-005 gemengde kern zonder marker]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestEvaluatorUitkomst::test_review_required_zonder_cijfer_of_violation[E02-001 heldere kern zonder markerwoord]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestEvaluatorUitkomst::test_review_required_zonder_cijfer_of_violation[E02-004 activiteit met genoemde uitkomst (twee categoriewoorden)]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestEvaluatorUitkomst::test_marker_en_label_geven_geen_positieve_uitkomst
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess02_oordeel[E02-011 lege kern met marker]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestServiceRoute::test_reden_wordt_letterlijk_getoond
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess02_oordeel[fixture: precies \xe9\xe9n categoriehit (was automatische pass)]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess02_oordeel[E02-006 gemengde kern met geldige marker]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess02_oordeel[E02-001 heldere kern zonder markerwoord]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess02_oordeel[E02-005 gemengde kern zonder marker]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess02_oordeel[E2-07 kick-off met 'soort' en opgegeven categorie]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestServiceRoute::test_volledige_set_geeft_nooit_automatisch_ess02_oordeel[E02-004 activiteit met genoemde uitkomst (twee categoriewoorden)]
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestServiceRoute::test_beperkte_run_boekt_geen_ess02_score
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestRegelcontract::test_ess02_is_scoreloos_reviewplichtig
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestRegelcontract::test_hulppatronen_zijn_reviewerhulp_geen_categoriedetectie
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestRegelcontract::test_ess01_contract_ongewijzigd
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestRegelcontract::test_geen_record_routeert_nog_naar_de_categorie_evaluator
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestRegelcontract::test_normherkomst_astra_en_lokale_uitbreiding_gescheiden
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestRegelcontract::test_generiek_voorbeeldpaar_met_review_policy_en_eigenaar
+PASSED tests/unit/validation/test_def750_ess02_signalen.py::TestRegelcontract::test_regelkaart_onderscheidt_niveau_en_aard_zonder_markerplicht
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_contract_bevat_voorbeelden_per_groep[Positief]
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_skill_md_bevat_gericht_int02_blok[definitie-nederlandse-definities]
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_contract_draagt_versie_en_datum_gelijk_aan_record
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_contract_bevat_voorbeelden_per_groep[Grens]
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_record_draagt_exacte_teksten_uit_synthese_par6
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_record_voegt_uitsluitend_de_functievoorbeelden_uit_par6_toe
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_reference_zinnen_vervangen
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_contract_bevat_voorbeelden_per_groep[Negatief]
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_contract_bevat_n_g_t_h_en_geen_herstelroute
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_skill_md_bevat_gericht_int02_blok[definitie-toetsregels]
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_contract_publiceert_de_s1_markers_uit_het_record
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_record_bewaart_astra_paar_review_policy_en_evaluator
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_record_is_gebonden_aan_de_contractversie
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_kopie_in_nederlandse_definities_is_bytegelijk
+PASSED tests/unit/validation/test_def771_int02_contract.py::test_record_teksten_staan_letterlijk_in_het_canonieke_contract
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_service_signaal_blijft_open_en_zichtbaar[instrument bedoeld om temperatuur te meten-bedoeld om-True]
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_service_signaal_blijft_open_en_zichtbaar[systematisch volgen van handelingen om naleving van regels te waarborgen-None-True]
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_service_signaal_blijft_open_en_zichtbaar[behoefte of eis van een belanghebbende, die dient als brug naar systeemontwerp-None-False]
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_service_signaal_blijft_open_en_zichtbaar[behoefte of eis van een belanghebbende-None-True]
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_service_signaal_blijft_open_en_zichtbaar[behoefte of eis van een belanghebbende, die dient als brug naar systeemontwerp-None-True]
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_service_signaal_blijft_open_en_zichtbaar[activiteit In Het Kader Van uitvoering-In Het Kader Van-True]
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_service_signaal_blijft_open_en_zichtbaar[activiteit In Het Kader Van uitvoering-In Het Kader Van-False]
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_herhaalde_passage_wordt_een_keer_uitgelegd
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_service_signaal_blijft_open_en_zichtbaar[systematisch volgen van handelingen om naleving van regels te waarborgen-None-False]
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_service_signaal_blijft_open_en_zichtbaar[instrument bedoeld om temperatuur te meten-bedoeld om-False]
+PASSED tests/unit/validation/test_def746_ess01_signalen.py::test_service_signaal_blijft_open_en_zichtbaar[behoefte of eis van een belanghebbende-None-False]
+PASSED tests/unit/ui/test_def771_int02_validation_view.py::test_niet_uitgevoerde_int02_toont_geen_reviewtekst
+PASSED tests/unit/ui/test_def771_int02_validation_view.py::test_open_int02_reden_letterlijk_zichtbaar
+PASSED tests/unit/services/prompts/test_def770_int01_promptnorm.py::test_instructie_zonder_hoofdzinplicht_en_zonder_verzonnen_doelgroep
+PASSED tests/unit/services/prompts/test_def770_int01_promptnorm.py::test_voorbeeldpaar_zonder_label_en_gelijk_aan_toetsing
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestHerstelhint::test_hint_hangt_niet_aan_iedere_review_required_status
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestHerstelhint::test_nieuwe_hint_op_het_oude_aanroeppunt
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestHerstelhint::test_oude_termijn_of_grenshint_komt_nergens_meer_voor
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestHerstelhint::test_geen_ess04_violation_of_autoherstel_in_het_resultaat
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestRenderer::test_geen_heuristische_passverklaring_meer_voor_ess04
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestRenderer::test_ess05_houdt_zijn_bestaande_heuristiek
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestEvaluatorPassagehulp::test_twee_signalen_leveren_beide_passages_in_tekstvolgorde
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestEvaluatorPassagehulp::test_de_reviewvraag_is_altijd_aanwezig
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestEvaluatorPassagehulp::test_ess01_en_ess02_houden_hun_eigen_kop_en_mechanisme
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestEvaluatorPassagehulp::test_zonder_treffer_draagt_de_reden_de_toetsvraag
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestEvaluatorPassagehulp::test_met_treffer_wijst_de_passage_aan_met_de_neutrale_vraag
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestWeergave::test_andere_oordeelregel_blijft_achter_de_toggle
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestWeergave::test_open_ess04_reden_wordt_letterlijk_getoond[zonder treffer-veelhoek-Veelhoek waarvan alle zijden even lang zijn.]
+PASSED tests/unit/validation/test_def767_ess04_toetsbaarheid.py::TestWeergave::test_open_ess04_reden_wordt_letterlijk_getoond[met treffer-aanvraag-Belangrijke aanvraag die binnen 3 dagen relevant wordt.]
+exit=0

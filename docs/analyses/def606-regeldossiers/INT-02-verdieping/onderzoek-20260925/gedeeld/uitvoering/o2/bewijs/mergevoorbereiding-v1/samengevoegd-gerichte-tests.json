@@ -1,0 +1,9 @@
+{
+  "cmd": [
+    "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+    "-c",
+    "from tests.offline_bootstrap import install; install(); import pytest; raise SystemExit(pytest.main(['tests/unit/domain/test_def835_int02_contract.py', 'tests/unit/services/orchestrators/test_def835_int02_wrappers.py', 'tests/unit/services/prompts/test_def835_int02_prompt.py', 'tests/unit/services/test_def835_int02_container.py', 'tests/unit/validation/test_def835_int02_assessment_service.py', 'tests/unit/validation/test_def835_int02_evaluator.py', 'tests/unit/validation/test_def835_int02_modelproef.py', 'tests/unit/validation/test_def835_int02_modular.py', 'tests/unit/validation/test_def771_int02_o1.py', 'tests/unit/validation/test_def771_int02_contract.py', 'tests/unit/validation/test_def772_int03_assessment_service.py', 'tests/unit/services/test_def836_int03_schema_route.py', 'tests/unit/services/orchestrators/test_def772_int03_wrappers.py', 'tests/integration/contracts/test_validation_result_schema.py', '-q', '-p', 'no:cacheprovider', '-p', 'no:randomly', '-o', 'addopts=']))"
+  ],
+  "cwd": "/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def835-mergecheck-wlvmzw2e",
+  "exit": 0
+}

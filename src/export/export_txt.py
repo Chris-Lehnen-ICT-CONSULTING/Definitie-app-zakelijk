@@ -3,6 +3,7 @@ from datetime import UTC, datetime  # Datum en tijd functionaliteit voor timesta
 from typing import Any
 
 from domain.int01.opslag import exportregels
+from domain.int03.opslag import exportregels as int03_exportregels
 
 #: Leesbare namen van de drie CON-02-onderdelen (kerncontract C §2).
 _ONDERDEELNAMEN = {
@@ -412,6 +413,16 @@ def _int01sectie(gegevens: dict) -> list[str]:
     return [*regels, f"- {uitkomst[0]}", *uitkomst[1:]]
 
 
+def _int03sectie(gegevens: dict) -> list[str]:
+    """De opgeslagen INT-03-beoordeling (DEF-772), herbonden aan het record en
+    de actuele binding; afwezig = zichtbaar niet beoordeeld, nooit stil pass."""
+    regels = ["\n\U0001f517 Verwijzingen (INT-03):"]
+    uitkomst = int03_exportregels(gegevens.get("int03_beoordeling"))
+    if not uitkomst:
+        return [*regels, "- geen opgeslagen INT-03-beoordeling: niet beoordeeld"]
+    return [*regels, f"- {uitkomst[0]}", *uitkomst[1:]]
+
+
 def exporteer_naar_txt(gegevens: dict) -> str:
     """Exporteert definitie gegevens naar een geformatteerd TXT bestand."""
     # Haal alle benodigde gegevens op uit de data dictionary
@@ -480,6 +491,7 @@ def exporteer_naar_txt(gegevens: dict) -> str:
         regels.append("- geen")
 
     regels += _int01sectie(gegevens)
+    regels += _int03sectie(gegevens)
     regels += _bronsecties(gegevens)
 
     regels.append("\n\U0001f4a1 Toelichting:")

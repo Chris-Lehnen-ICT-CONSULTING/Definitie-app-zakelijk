@@ -1,0 +1,31 @@
+{
+  "basis": "0d26f0f4f5b2ebebe1c7d71fbff5e4ddb66b8c0d",
+  "schemafouten": [
+    {
+      "pad": [
+        "violations",
+        0,
+        "code"
+      ],
+      "melding": "'ESS-05' does not match '^[A-Z]{3}-[A-Z]{3}-\\\\d{3}$'"
+    },
+    {
+      "pad": [
+        "violations",
+        1,
+        "code"
+      ],
+      "melding": "'INT-10' does not match '^[A-Z]{3}-[A-Z]{3}-\\\\d{3}$'"
+    },
+    {
+      "pad": [
+        "violations",
+        2,
+        "code"
+      ],
+      "melding": "'VER-01' does not match '^[A-Z]{3}-[A-Z]{3}-\\\\d{3}$'"
+    }
+  ]
+}
+
+EXITSTATUS=0

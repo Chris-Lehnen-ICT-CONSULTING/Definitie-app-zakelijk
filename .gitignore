@@ -185,6 +185,8 @@ reports/
 # 💚 AI tooling configuration (local only)
 .claude/*
 !.claude/rules/
+!.claude/hooks/
+!.claude/settings.json
 .codex/
 .cursor/
 .skills/

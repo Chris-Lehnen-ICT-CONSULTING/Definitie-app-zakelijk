@@ -1,0 +1,585 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="66" skipped="0" tests="67" time="43.237" timestamp="2026-09-26T01:06:13.343644+02:00" hostname="MacBook-Pro-van-Chris-2.local"><testcase classname="tests.integration.performance.test_performance_comprehensive.TestCachePerformance" name="test_cache_scalability_binnen_twee_seconden" time="2.365"><failure message="AssertionError: Cache scalability test too slow: 2.304s&#10;assert 2.3039166927337646 &lt; 2.0">tests/integration/performance/test_performance_comprehensive.py:351: in test_cache_scalability_binnen_twee_seconden
+    assert (
+E   AssertionError: Cache scalability test too slow: 2.304s
+E   assert 2.3039166927337646 &lt; 2.0</failure></testcase><testcase classname="tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation" name="test_document_sizes_acceptable" time="0.001"><failure message="AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md').exists">tests/integration/compliance/test_architecture_consolidation.py:276: in test_document_sizes_acceptable
+    assert doc_path.exists(), f"Verplichte bron ontbreekt: {doc_path}"
+E   AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation" name="test_no_broken_internal_links" time="0.001"><failure message="AssertionError: Verplichte bron(nen) ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/README.md']&#10;assert not ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/private/tmp/def771-wp1-bas...8/docs/architectuur/TECHNICAL_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/README.md']">tests/integration/compliance/test_architecture_consolidation.py:181: in test_no_broken_internal_links
+    assert not ontbrekend, f"Verplichte bron(nen) ontbreken: {ontbrekend}"
+E   AssertionError: Verplichte bron(nen) ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/README.md']
+E   assert not ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/private/tmp/def771-wp1-bas...8/docs/architectuur/TECHNICAL_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/README.md']</failure></testcase><testcase classname="tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation" name="test_canonical_docs_exist" time="0.001"><failure message="AssertionError: Canonical document ENTERPRISE_ARCHITECTURE.md not found at /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md').exists">tests/integration/compliance/test_architecture_consolidation.py:74: in test_canonical_docs_exist
+    assert (
+E   AssertionError: Canonical document ENTERPRISE_ARCHITECTURE.md not found at /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation" name="test_cross_references_between_docs" time="0.001"><failure message="AssertionError: Verplichte bron(nen) ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md']&#10;assert not ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/private/tmp/def771-wp1-bas...tuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md']">tests/integration/compliance/test_architecture_consolidation.py:137: in test_cross_references_between_docs
+    assert not ontbrekend, f"Verplichte bron(nen) ontbreken: {ontbrekend}"
+E   AssertionError: Verplichte bron(nen) ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md']
+E   assert not ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md', '/private/tmp/def771-wp1-bas...tuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md']</failure></testcase><testcase classname="tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation" name="test_archive_structure" time="0.001"><failure message="AssertionError: Archive directory not found at /private/tmp/def771-wp1-basis-1790361228/docs/archief/2025-09-architectuur-consolidatie&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/archief/2025-09-architectuur-consolidatie').exists&#10; +      where PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/archief/2025-09-architectuur-consolidatie') = &lt;tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation object at 0x10e084510&gt;.ARCHIVE_DIR">tests/integration/compliance/test_architecture_consolidation.py:104: in test_archive_structure
+    assert (
+E   AssertionError: Archive directory not found at /private/tmp/def771-wp1-basis-1790361228/docs/archief/2025-09-architectuur-consolidatie
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/archief/2025-09-architectuur-consolidatie').exists
+E    +      where PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/archief/2025-09-architectuur-consolidatie') = &lt;tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation object at 0x10e084510&gt;.ARCHIVE_DIR</failure></testcase><testcase classname="tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation" name="test_astra_compliance_maintained" time="0.001"><failure message="AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md').exists">tests/integration/compliance/test_architecture_consolidation.py:252: in test_astra_compliance_maintained
+    assert doc_path.exists(), f"Verplichte bron ontbreekt: {doc_path}"
+E   AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.integration.compliance.test_architecture_consolidation.TestArchitectureConsolidation" name="test_frontmatter_present_in_canonical_docs" time="0.001"><failure message="AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md').exists">tests/integration/compliance/test_architecture_consolidation.py:364: in test_frontmatter_present_in_canonical_docs
+    assert doc_path.exists(), f"Verplichte bron ontbreekt: {doc_path}"
+E   AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/ENTERPRISE_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.future_phase_a.test_quality_evidence_contracts" name="test_def626_validatiesnapshot_overleeft_de_opslaggrens" time="10.997"><failure message="AssertionError: setup: score is geen getal maar None&#10;assert False&#10; +  where False = isinstance(None, (&lt;class 'int'&gt;, &lt;class 'float'&gt;))">/private/tmp/def771-wp1-basis-1790361228/tests/future_phase_a/test_quality_evidence_contracts.py:262: in test_def626_validatiesnapshot_overleeft_de_opslaggrens
+    assert isinstance(
+E   AssertionError: setup: score is geen getal maar None
+E   assert False
+E    +  where False = isinstance(None, (&lt;class 'int'&gt;, &lt;class 'float'&gt;))</failure></testcase><testcase classname="tests.future_phase_a.test_quality_evidence_contracts" name="test_def627_oude_score_geldt_niet_als_bewijs_voor_nieuwe_tekst" time="0.115"><failure message="AssertionError: DEF-627: zonder hervalidatie blijft de score van de vorige tekst als actueel bewijs staan — oorspronkelijk: {'validation_score': 0.95, 'validation_date': None, 'validation_issues': None, 'version_number': 1, 'status': 'draft'}; na bewerking: {'validation_score': 0.95, 'validation_date': None, 'validation_issues': None, 'version_number': 2, 'status': 'draft'}; hervalidatieresultaat van save_definition: None&#10;assert 0.95 is None&#10; +  where 0.95 = DefinitieRecord(id=3, begrip='vervoersverbod', definitie='Bevoegdheid van het Openbaar Ministerie om een verdachte tij...}]}, &quot;superseded_at&quot;: &quot;2026-09-25T23:06:28.539576+00:00&quot;, &quot;superseded_on_version&quot;: 2}]}', voorkeursterm_is_begrip=None).validation_score">/private/tmp/def771-wp1-basis-1790361228/tests/future_phase_a/test_quality_evidence_contracts.py:397: in test_def627_oude_score_geldt_niet_als_bewijs_voor_nieuwe_tekst
+    assert na.validation_score is None, (
+E   AssertionError: DEF-627: zonder hervalidatie blijft de score van de vorige tekst als actueel bewijs staan — oorspronkelijk: {'validation_score': 0.95, 'validation_date': None, 'validation_issues': None, 'version_number': 1, 'status': 'draft'}; na bewerking: {'validation_score': 0.95, 'validation_date': None, 'validation_issues': None, 'version_number': 2, 'status': 'draft'}; hervalidatieresultaat van save_definition: None
+E   assert 0.95 is None
+E    +  where 0.95 = DefinitieRecord(id=3, begrip='vervoersverbod', definitie='Bevoegdheid van het Openbaar Ministerie om een verdachte tij...}]}, "superseded_at": "2026-09-25T23:06:28.539576+00:00", "superseded_on_version": 2}]}', voorkeursterm_is_begrip=None).validation_score</failure></testcase><testcase classname="tests.future_phase_a.test_quality_evidence_contracts" name="test_def630_vaststellen_zonder_actueel_snapshot_wordt_geweigerd" time="0.041"><failure message="AssertionError: DEF-630: vaststellen wordt niet geweigerd terwijl er geen actueel validatiesnapshot bij de tekst hoort — score=0.95 zonder validation_date/validation_issues; gate-uitkomst preview_gate={'status': 'blocked', 'reasons': ['CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de brongezag/toepasselijkheid kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.', 'CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de betekenissteun kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.', 'CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de verwijskwaliteit kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.']}; update_status gaf True; status vóór='review', na='established', approved_by='synthetische-vaststeller'&#10;assert True is False">/private/tmp/def771-wp1-basis-1790361228/tests/future_phase_a/test_quality_evidence_contracts.py:486: in test_def630_vaststellen_zonder_actueel_snapshot_wordt_geweigerd
+    assert resultaat is False, (
+E   AssertionError: DEF-630: vaststellen wordt niet geweigerd terwijl er geen actueel validatiesnapshot bij de tekst hoort — score=0.95 zonder validation_date/validation_issues; gate-uitkomst preview_gate={'status': 'blocked', 'reasons': ['CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de brongezag/toepasselijkheid kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.', 'CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de betekenissteun kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.', 'CON-02 Nog te beoordelen: Er zijn geen bronnen aangeleverd of gevonden; de verwijskwaliteit kan niet worden beoordeeld. Een bronwoord in de definitiezin is geen bewijs. Vervolgstap: Lever passende bronpassages aan (upload, RAG of web), of laat een deskundige na gedocumenteerd zoeken het ontbreken van een passende bron als uitzondering vastleggen.']}; update_status gaf True; status vóór='review', na='established', approved_by='synthetische-vaststeller'
+E   assert True is False</failure></testcase><testcase classname="tests.smoke.test_web_lookup_health_smoke" name="test_web_lookup_health_smoke" time="0.008"><failure message="assert []">tests/smoke/test_web_lookup_health_smoke.py:85: in test_web_lookup_health_smoke
+    assert res
+E   assert []</failure></testcase><testcase classname="tests.integration.test_per007_acceptance.TestAcceptanceCriteria" name="test_ac6_no_ui_string_reverse_engineering" time="0.001"><failure message="AssertionError: UI emoji leaked into context&#10;assert '#x1F4CB' not in '#x1F4CB Org: OM D...: Art. 27 Sv'&#10;  &#10;  '#x1F4CB' is contained here:&#10;    #x1F4CB Org: OM DJI Rechtspraak | ⚖️ Juridisch: Strafrecht | #x1F4DC Wet: Art. 27 Sv&#10;  ? +">tests/integration/test_per007_acceptance.py:375: in test_ac6_no_ui_string_reverse_engineering
+    assert "#x1F4CB" not in all_text, "UI emoji leaked into context"
+E   AssertionError: UI emoji leaked into context
+E   assert '#x1F4CB' not in '#x1F4CB Org: OM D...: Art. 27 Sv'
+E     
+E     '#x1F4CB' is contained here:
+E       #x1F4CB Org: OM DJI Rechtspraak | ⚖️ Juridisch: Strafrecht | #x1F4DC Wet: Art. 27 Sv
+E     ? +</failure></testcase><testcase classname="tests.integration.test_per007_acceptance.TestAcceptanceCriteria" name="test_ac3_anders_works_all_lists" time="0.001"><failure message="AssertionError: Anders... marker still in: ['organisatorisch', 'juridisch', 'wettelijk']&#10;assert not ['organisatorisch', 'juridisch', 'wettelijk']">tests/integration/test_per007_acceptance.py:252: in test_ac3_anders_works_all_lists
+    assert (
+E   AssertionError: Anders... marker still in: ['organisatorisch', 'juridisch', 'wettelijk']
+E   assert not ['organisatorisch', 'juridisch', 'wettelijk']</failure></testcase><testcase classname="tests.integration.test_per007_acceptance.TestAcceptanceCriteria" name="test_ac4_astra_warnings_not_errors" time="0.001"><failure message="AssertionError: geen ASTRA-waarschuwing voor onbekende organisaties&#10;assert []">tests/integration/test_per007_acceptance.py:288: in test_ac4_astra_warnings_not_errors
+    assert waarschuwingen, "geen ASTRA-waarschuwing voor onbekende organisaties"
+E   AssertionError: geen ASTRA-waarschuwing voor onbekende organisaties
+E   assert []</failure></testcase><testcase classname="tests.integration.test_per007_acceptance.TestAcceptanceCriteria" name="test_ac1_ui_preview_never_used_as_source" time="0.002"><failure message="AssertionError: ContextFormatter ontbreekt: /private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py (AC1, dispositie DEF-519)&#10;assert False&#10; +  where False = is_file()&#10; +    where is_file = PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py').is_file">tests/integration/test_per007_acceptance.py:129: in test_ac1_ui_preview_never_used_as_source
+    assert (
+E   AssertionError: ContextFormatter ontbreekt: /private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py (AC1, dispositie DEF-519)
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py').is_file</failure></testcase><testcase classname="tests.integration.test_per007_acceptance.TestAcceptanceCriteria" name="test_ac7_separation_of_concerns_validated" time="0.002"><failure message="AssertionError: UI-laagbestanden ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/src/ui/formatters.py', '/private/tmp/def771-wp1-basis-1790361228/src/ui/components/context_display.py']&#10;assert not ['/private/tmp/def771-wp1-basis-1790361228/src/ui/formatters.py', '/private/tmp/def771-wp1-basis-1790361228/src/ui/components/context_display.py']">tests/integration/test_per007_acceptance.py:406: in test_ac7_separation_of_concerns_validated
+    assert not ontbrekend, f"UI-laagbestanden ontbreken: {ontbrekend}"
+E   AssertionError: UI-laagbestanden ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/src/ui/formatters.py', '/private/tmp/def771-wp1-basis-1790361228/src/ui/components/context_display.py']
+E   assert not ['/private/tmp/def771-wp1-basis-1790361228/src/ui/formatters.py', '/private/tmp/def771-wp1-basis-1790361228/src/ui/components/context_display.py']</failure></testcase><testcase classname="tests.integration.test_per007_acceptance.TestAcceptanceCriteria" name="test_ac5_complete_context_flow_integration" time="0.002"><failure message="AssertionError: assert 'Anders...' not in ['OM', 'Anders...', 'NieuweOrganisatie', 'DJI', 'LegacyOrg']">tests/integration/test_per007_acceptance.py:338: in test_ac5_complete_context_flow_integration
+    assert "Anders..." not in base_context["organisatorisch"]
+E   AssertionError: assert 'Anders...' not in ['OM', 'Anders...', 'NieuweOrganisatie', 'DJI', 'LegacyOrg']</failure></testcase><testcase classname="tests.unit.services.prompts.modules.test_definition_task_transformation.TestDefinitionTaskTransformation" name="test_no_negative_commands_in_guide" time="0.002"><failure message="AssertionError: Guide has 12 negative commands. Should focus on positive construction instructions instead&#10;assert 12 &lt; 10">tests/unit/services/prompts/modules/test_definition_task_transformation.py:243: in test_no_negative_commands_in_guide
+    assert negative_count &lt; 10, (
+E   AssertionError: Guide has 12 negative commands. Should focus on positive construction instructions instead
+E   assert 12 &lt; 10</failure></testcase><testcase classname="tests.integration.test_per007_single_source_red.TestSingleSourceOfTruth" name="test_only_one_context_processing_path_exists" time="0.241"><failure message="AssertionError: Found 8 total paths but only 1 valid. Multiple context routes exist: ['src/services/definition_generator_context.py:_build_base_context', 'src/services/prompts/modules/context_awareness_module.py:_build_rich_context_section', 'src/services/prompts/modules/context_awareness_module.py:_build_moderate_context_section', 'src/services/prompts/modules/context_awareness_module.py:_build_minimal_context_section', 'src/services/prompts/modules/context_awareness_module.py:_build_fallback_context_section']&#10;assert 8 == 1&#10; +  where 8 = len(['src/services/definition_generator_context.py:_build_base_context', 'src/services/prompts/modules/context_awareness_m...ild_fallback_context_section', 'src/services/prompts/modules/error_prevention_module.py:_build_context_forbidden', ...])&#10; +  and   1 = len(['src/services/definition_generator_context.py:_build_base_context'])">tests/integration/test_per007_single_source_red.py:95: in test_only_one_context_processing_path_exists
+    assert len(context_paths) == len(valid_paths), (
+E   AssertionError: Found 8 total paths but only 1 valid. Multiple context routes exist: ['src/services/definition_generator_context.py:_build_base_context', 'src/services/prompts/modules/context_awareness_module.py:_build_rich_context_section', 'src/services/prompts/modules/context_awareness_module.py:_build_moderate_context_section', 'src/services/prompts/modules/context_awareness_module.py:_build_minimal_context_section', 'src/services/prompts/modules/context_awareness_module.py:_build_fallback_context_section']
+E   assert 8 == 1
+E    +  where 8 = len(['src/services/definition_generator_context.py:_build_base_context', 'src/services/prompts/modules/context_awareness_m...ild_fallback_context_section', 'src/services/prompts/modules/error_prevention_module.py:_build_context_forbidden', ...])
+E    +  and   1 = len(['src/services/definition_generator_context.py:_build_base_context'])</failure></testcase><testcase classname="tests.integration.test_per007_single_source_red.TestSingleSourceOfTruth" name="test_no_direct_context_string_processing" time="0.001"><failure message="AssertionError: Direct string processors still active: ['HybridContextManager._parse_context_string']&#10;assert 1 == 0&#10; +  where 1 = len(['HybridContextManager._parse_context_string'])">tests/integration/test_per007_single_source_red.py:174: in test_no_direct_context_string_processing
+    assert (
+E   AssertionError: Direct string processors still active: ['HybridContextManager._parse_context_string']
+E   assert 1 == 0
+E    +  where 1 = len(['HybridContextManager._parse_context_string'])</failure></testcase><testcase classname="tests.integration.test_per007_single_source_red.TestSingleSourceOfTruth" name="test_context_flow_has_single_entry_point" time="0.001"><failure message="AssertionError: Multiple context entry points: ['EnrichedContext.__init__', 'HybridContextManager']. Should only be HybridContextManager&#10;assert 2 == 1&#10; +  where 2 = len(['EnrichedContext.__init__', 'HybridContextManager'])">tests/integration/test_per007_single_source_red.py:214: in test_context_flow_has_single_entry_point
+    assert (
+E   AssertionError: Multiple context entry points: ['EnrichedContext.__init__', 'HybridContextManager']. Should only be HybridContextManager
+E   assert 2 == 1
+E    +  where 2 = len(['EnrichedContext.__init__', 'HybridContextManager'])</failure></testcase><testcase classname="tests.integration.test_per007_single_source_red.TestSingleSourceOfTruth" name="test_no_context_manipulation_in_ui_layer" time="0.006"><failure message="AssertionError: UI layer manipulating context in: ['src/ui/components/expert_review_tab.py']&#10;assert 1 == 0&#10; +  where 1 = len(['src/ui/components/expert_review_tab.py'])">tests/integration/test_per007_single_source_red.py:236: in test_no_context_manipulation_in_ui_layer
+    assert (
+E   AssertionError: UI layer manipulating context in: ['src/ui/components/expert_review_tab.py']
+E   assert 1 == 0
+E    +  where 1 = len(['src/ui/components/expert_review_tab.py'])</failure></testcase><testcase classname="tests.integration.regression.test_validation_orchestrator_v2_regression" name="test_validation_orchestrator_v2" time="0.360"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/regression/test_validation_orchestrator_v2_regression.py:28: in test_validation_orchestrator_v2
+    definition_orchestrator = container.orchestrator()
+                              ^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/container.py:382: in orchestrator
+    repository=self.repository(),
+               ^^^^^^^^^^^^^^^^^
+src/services/container.py:248: in repository
+    repository = DefinitionRepository(self.db_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.performance.test_validation_performance_baseline" name="test_concurrent_validation_scaling" time="0.037"><failure message="AssertionError: Concurrent 5: 0.0086s exceeds expected 0.0025s (baseline 0.0021s). rode repro (eigenaar DEF-519, herbeoordeling uiterlijk 2026-10-06): de oorspronkelijke schaalverwachting elapsed &lt;= baseline * (1 + 0.5 * (n - 1) / 10) heeft geen dekkende productcode; trigger is een productbesluit over schalen van gelijktijdige validatie&#10;assert 0.00860408297739923 &lt;= 0.0024902494624257088">/private/tmp/def771-wp1-basis-1790361228/tests/integration/performance/test_validation_performance_baseline.py:465: in test_concurrent_validation_scaling
+    assert elapsed &lt;= expected_max, schaal_melding
+E   AssertionError: Concurrent 5: 0.0086s exceeds expected 0.0025s (baseline 0.0021s). rode repro (eigenaar DEF-519, herbeoordeling uiterlijk 2026-10-06): de oorspronkelijke schaalverwachting elapsed &lt;= baseline * (1 + 0.5 * (n - 1) / 10) heeft geen dekkende productcode; trigger is een productbesluit over schalen van gelijktijdige validatie
+E   assert 0.00860408297739923 &lt;= 0.0024902494624257088</failure></testcase><testcase classname="tests.integration.performance.test_validation_performance_baseline" name="test_adapter_kapt_blokkerende_regel_af" time="3.006"><failure message="AssertionError: Timeout protection failed: de adapter liet een regel die 3.0s blokkeert 3.00s doorlopen in plaats van af te kappen binnen 2.0s. rode advisory-repro (testdispositie-eigenaar DEF-519, herbeoordeling uiterlijk 2026-10-06): adaptertimeout is nooit gebouwd en is niet productiebedraad; trigger is vrijgegeven productbedrading of een timeoutcontract voor ValidationModuleAdapter&#10;assert 3.002708625048399 &lt; 2.0">/private/tmp/def771-wp1-basis-1790361228/tests/integration/performance/test_validation_performance_baseline.py:360: in test_adapter_kapt_blokkerende_regel_af
+    assert elapsed &lt; ADAPTER_TIMEOUT_BUDGET_S, (
+E   AssertionError: Timeout protection failed: de adapter liet een regel die 3.0s blokkeert 3.00s doorlopen in plaats van af te kappen binnen 2.0s. rode advisory-repro (testdispositie-eigenaar DEF-519, herbeoordeling uiterlijk 2026-10-06): adaptertimeout is nooit gebouwd en is niet productiebedraad; trigger is vrijgegeven productbedrading of een timeoutcontract voor ValidationModuleAdapter
+E   assert 3.002708625048399 &lt; 2.0</failure></testcase><testcase classname="tests.unit.test_performance_tracker.TestGlobalTracker" name="test_get_tracker_singleton" time="0.001"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/unit/test_performance_tracker.py:282: in test_get_tracker_singleton
+    tracker1 = get_tracker()
+               ^^^^^^^^^^^^^
+src/monitoring/performance_tracker.py:475: in get_tracker
+    _tracker = PerformanceTracker()
+               ^^^^^^^^^^^^^^^^^^^^
+src/monitoring/performance_tracker.py:63: in __init__
+    self._ensure_schema()
+src/monitoring/performance_tracker.py:68: in _ensure_schema
+    with sqlite3.connect(self.db_path) as conn:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.unit.test_performance_tracker.TestGlobalTracker" name="test_reset_tracker" time="0.001"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/unit/test_performance_tracker.py:291: in test_reset_tracker
+    tracker1 = get_tracker()
+               ^^^^^^^^^^^^^
+src/monitoring/performance_tracker.py:475: in get_tracker
+    _tracker = PerformanceTracker()
+               ^^^^^^^^^^^^^^^^^^^^
+src/monitoring/performance_tracker.py:63: in __init__
+    self._ensure_schema()
+src/monitoring/performance_tracker.py:68: in _ensure_schema
+    with sqlite3.connect(self.db_path) as conn:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.performance.test_def110_regression.TestDEF110Regression" name="test_startup_time_acceptable" time="20.004"><failure message="AssertionError: App did not start within 20s - CRITICAL REGRESSION&#10;assert False">tests/integration/performance/test_def110_regression.py:248: in test_startup_time_acceptable
+    assert app_ready, f"App did not start within {timeout}s - CRITICAL REGRESSION"
+E   AssertionError: App did not start within 20s - CRITICAL REGRESSION
+E   assert False</failure></testcase><testcase classname="tests.unit.test_config_system.TestConfigManager" name="test_environment_detection" time="0.002"><failure message="tests.offline_bootstrap.OfflineGateError: .env op '/private/tmp/def771-wp1-basis-1790361228/.env' ligt buiten de tijdelijke sessieroot; de omgeving van de ontwikkelaar mag een test niet beïnvloeden">tests/unit/test_config_system.py:44: in test_environment_detection
+    config_manager = ConfigManager()
+                     ^^^^^^^^^^^^^^^
+src/config/config_manager.py:463: in __init__
+    self._load_configuration()
+src/config/config_manager.py:478: in _load_configuration
+    load_project_dotenv()
+src/config/dotenv_loader.py:84: in load_project_dotenv
+    load_dotenv(env_path, override=False)
+tests/offline_bootstrap.py:505: in _gate_load
+    _controleer(dotenv_path if dotenv_path is not None else kwargs.get("stream"))
+tests/offline_bootstrap.py:499: in _controleer
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: .env op '/private/tmp/def771-wp1-basis-1790361228/.env' ligt buiten de tijdelijke sessieroot; de omgeving van de ontwikkelaar mag een test niet beïnvloeden</failure></testcase><testcase classname="tests.integration.test_history_removal.TestPerformanceImprovement" name="test_memory_usage" time="0.757"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/test_history_removal.py:605: in test_memory_usage
+    TabbedInterface()
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.test_history_removal.TestApplicationFunctionality" name="test_definition_generation_flow" time="0.066"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/test_history_removal.py:497: in test_definition_generation_flow
+    interface = TabbedInterface()
+                ^^^^^^^^^^^^^^^^^
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.test_history_removal.TestHistoryTabRemoval" name="test_no_history_in_tab_rendering" time="0.065"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/test_history_removal.py:275: in test_no_history_in_tab_rendering
+    interface = TabbedInterface()
+                ^^^^^^^^^^^^^^^^^
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.test_history_removal.TestHistoryTabRemoval" name="test_tabbed_interface_loads_without_history" time="0.066"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/test_history_removal.py:240: in test_tabbed_interface_loads_without_history
+    interface = TabbedInterface()
+                ^^^^^^^^^^^^^^^^^
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.test_history_removal.TestHistoryTabRemoval" name="test_tab_configuration_excludes_history" time="0.065"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/test_history_removal.py:258: in test_tab_configuration_excludes_history
+    interface = TabbedInterface()
+                ^^^^^^^^^^^^^^^^^
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.test_history_removal.TestHistoryTabRemoval" name="test_no_broken_navigation_references" time="0.066"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/test_history_removal.py:468: in test_no_broken_navigation_references
+    interface = TabbedInterface()
+                ^^^^^^^^^^^^^^^^^
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.performance.test_def66_lazy_loading.TestPerformanceRegression" name="test_tabbed_interface_reuses_prewarmed_container_and_repository" time="0.066"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/performance/test_def66_lazy_loading.py:366: in test_tabbed_interface_reuses_prewarmed_container_and_repository
+    interface = TabbedInterface()
+                ^^^^^^^^^^^^^^^^^
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance" name="test_per007_implementation_files_documented" time="0.001"><failure message="AssertionError: TECHNICAL_ARCHITECTURE.md not found at /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md').exists">tests/integration/compliance/test_per007_documentation_compliance.py:117: in test_per007_implementation_files_documented
+    assert ta_path.exists(), f"TECHNICAL_ARCHITECTURE.md not found at {ta_path}"
+E   AssertionError: TECHNICAL_ARCHITECTURE.md not found at /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance" name="test_per007_migration_status_documented" time="0.001"><failure message="AssertionError: Verplichte bron(nen) ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md']&#10;assert not ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md']">tests/integration/compliance/test_per007_documentation_compliance.py:244: in test_per007_migration_status_documented
+    assert not ontbrekend, f"Verplichte bron(nen) ontbreken: {ontbrekend}"
+E   AssertionError: Verplichte bron(nen) ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md']
+E   assert not ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md', '/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md']</failure></testcase><testcase classname="tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance" name="test_per007_validation_rules_preserved" time="0.001"><failure message="AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md').exists">tests/integration/compliance/test_per007_documentation_compliance.py:213: in test_per007_validation_rules_preserved
+    assert ta_path.exists(), f"Verplichte bron ontbreekt: {ta_path}"
+E   AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance" name="test_per007_backwards_compatibility_noted" time="0.001"><failure message="AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md').exists">tests/integration/compliance/test_per007_documentation_compliance.py:271: in test_per007_backwards_compatibility_noted
+    assert sa_path.exists(), f"Verplichte bron ontbreekt: {sa_path}"
+E   AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance" name="test_per007_configuration_documented" time="0.001"><failure message="AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md').exists">tests/integration/compliance/test_per007_documentation_compliance.py:299: in test_per007_configuration_documented
+    assert ta_path.exists(), f"Verplichte bron ontbreekt: {ta_path}"
+E   AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/TECHNICAL_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance" name="test_per007_coverage_in_solution_architecture" time="0.001"><failure message="AssertionError: SOLUTION_ARCHITECTURE.md not found at /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md').exists">tests/integration/compliance/test_per007_documentation_compliance.py:54: in test_per007_coverage_in_solution_architecture
+    assert sa_path.exists(), f"SOLUTION_ARCHITECTURE.md not found at {sa_path}"
+E   AssertionError: SOLUTION_ARCHITECTURE.md not found at /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance" name="test_per007_adr_references" time="0.001"><failure message="AssertionError: PER-007 ADR niet gevonden op ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/beslissingen/ADR-PER-007-presentation-data-separation.md', '/private/tmp/def771-wp1-basis-1790361228/docs/archief/ADR-PER-007-presentation-data-separation.md'] en de terugvalbron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md').exists">tests/integration/compliance/test_per007_documentation_compliance.py:100: in test_per007_adr_references
+    assert sa_path.exists(), (
+E   AssertionError: PER-007 ADR niet gevonden op ['/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/beslissingen/ADR-PER-007-presentation-data-separation.md', '/private/tmp/def771-wp1-basis-1790361228/docs/archief/ADR-PER-007-presentation-data-separation.md'] en de terugvalbron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.integration.compliance.test_per007_documentation_compliance.TestPER007DocumentationCompliance" name="test_per007_workflows_documented" time="0.001"><failure message="AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md&#10;assert False&#10; +  where False = exists()&#10; +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md').exists">tests/integration/compliance/test_per007_documentation_compliance.py:189: in test_per007_workflows_documented
+    assert sa_path.exists(), f"Verplichte bron ontbreekt: {sa_path}"
+E   AssertionError: Verplichte bron ontbreekt: /private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md
+E   assert False
+E    +  where False = exists()
+E    +    where exists = PosixPath('/private/tmp/def771-wp1-basis-1790361228/docs/architectuur/SOLUTION_ARCHITECTURE.md').exists</failure></testcase><testcase classname="tests.integration.regression.test_regression_suite.TestNederlandseCommentaren" name="test_inline_comments_are_dutch" time="0.118"><failure message="AssertionError: Te veel bestanden met onvoldoende Nederlandse commentaren: 52/285 beoordeeld, eerste vijf: [('config/__init__.py', 0.6), ('config/synonym_config.py', 0.3), ('database/definitie_repository.py', 0.5), ('database/migrations/schema3_herstel.py', 0.62), ('database/migrations/v5_migration.py', 0.51)]&#10;assert 52 &lt; 5&#10; +  where 52 = len([('config/__init__.py', 0.6), ('config/synonym_config.py', 0.3), ('database/definitie_repository.py', 0.5), ('database...3_herstel.py', 0.62), ('database/migrations/v5_migration.py', 0.51), ('database/migrations/v6_migration.py', 0.5), ...])">tests/integration/regression/test_regression_suite.py:570: in test_inline_comments_are_dutch
+    assert len(files_with_poor_dutch_comments) &lt; 5, (
+E   AssertionError: Te veel bestanden met onvoldoende Nederlandse commentaren: 52/285 beoordeeld, eerste vijf: [('config/__init__.py', 0.6), ('config/synonym_config.py', 0.3), ('database/definitie_repository.py', 0.5), ('database/migrations/schema3_herstel.py', 0.62), ('database/migrations/v5_migration.py', 0.51)]
+E   assert 52 &lt; 5
+E    +  where 52 = len([('config/__init__.py', 0.6), ('config/synonym_config.py', 0.3), ('database/definitie_repository.py', 0.5), ('database...3_herstel.py', 0.62), ('database/migrations/v5_migration.py', 0.51), ('database/migrations/v6_migration.py', 0.5), ...])</failure></testcase><testcase classname="tests.integration.regression.test_regression_suite.TestNederlandseCommentaren" name="test_function_documentation_completeness" time="0.541"><failure message="AssertionError: Te veel ongedocumenteerde functies: 211/646, eerste tien: ['api/feature_status_api.py:lifespan', 'api/feature_status_api.py:get_feature_status (no Dutch)', 'api/feature_status_api.py:get_feature_summary (no Dutch)', 'api/feature_status_api.py:get_epic_status (no Dutch)', 'api/feature_status_api.py:get_features_by_status (no Dutch)', 'cli/performance_cli.py:performance (no Dutch)', 'cli/performance_cli.py:status (no Dutch)', 'cli/performance_cli.py:baselines (no Dutch)', 'config/__init__.py:get_api_config', 'config/__init__.py:get_cache_config']&#10;assert (211 / 646) &lt; 0.3&#10; +  where 211 = len(['api/feature_status_api.py:lifespan', 'api/feature_status_api.py:get_feature_status (no Dutch)', 'api/feature_status_...', 'api/feature_status_api.py:get_features_by_status (no Dutch)', 'cli/performance_cli.py:performance (no Dutch)', ...])">tests/integration/regression/test_regression_suite.py:630: in test_function_documentation_completeness
+    assert len(undocumented_functions) / total_functions &lt; 0.3, (
+E   AssertionError: Te veel ongedocumenteerde functies: 211/646, eerste tien: ['api/feature_status_api.py:lifespan', 'api/feature_status_api.py:get_feature_status (no Dutch)', 'api/feature_status_api.py:get_feature_summary (no Dutch)', 'api/feature_status_api.py:get_epic_status (no Dutch)', 'api/feature_status_api.py:get_features_by_status (no Dutch)', 'cli/performance_cli.py:performance (no Dutch)', 'cli/performance_cli.py:status (no Dutch)', 'cli/performance_cli.py:baselines (no Dutch)', 'config/__init__.py:get_api_config', 'config/__init__.py:get_cache_config']
+E   assert (211 / 646) &lt; 0.3
+E    +  where 211 = len(['api/feature_status_api.py:lifespan', 'api/feature_status_api.py:get_feature_status (no Dutch)', 'api/feature_status_...', 'api/feature_status_api.py:get_features_by_status (no Dutch)', 'cli/performance_cli.py:performance (no Dutch)', ...])</failure></testcase><testcase classname="tests.integration.regression.test_regression_suite.TestNederlandseCommentaren" name="test_docstrings_are_dutch" time="0.958"><failure message="AssertionError: Te veel bestanden zonder Nederlandse docstrings: 186/406, eerste vijf: ['api/feature_status_api.py', 'cli/performance_cli.py', 'config/config_manager.py', 'config/feature_flags.py', 'database/audit_helpers.py']&#10;assert 186 &lt; (406 * 0.1)&#10; +  where 186 = len(['api/feature_status_api.py', 'cli/performance_cli.py', 'config/config_manager.py', 'config/feature_flags.py', 'database/audit_helpers.py', 'database/definitie_crud.py', ...])&#10; +  and   406 = len([PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/__init__.py'), PosixPath('/private/tmp/def771-wp1-basis-17903...228/src/config/__init__.py'), PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/config/config_adapters.py'), ...])&#10; +    where [PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/__init__.py'), PosixPath('/private/tmp/def771-wp1-basis-17903...228/src/config/__init__.py'), PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/config/config_adapters.py'), ...] = &lt;tests.integration.regression.test_regression_suite.TestNederlandseCommentaren testMethod=test_docstrings_are_dutch&gt;.python_files">tests/integration/regression/test_regression_suite.py:519: in test_docstrings_are_dutch
+    assert len(non_dutch_files) &lt; len(self.python_files) * 0.1, (
+E   AssertionError: Te veel bestanden zonder Nederlandse docstrings: 186/406, eerste vijf: ['api/feature_status_api.py', 'cli/performance_cli.py', 'config/config_manager.py', 'config/feature_flags.py', 'database/audit_helpers.py']
+E   assert 186 &lt; (406 * 0.1)
+E    +  where 186 = len(['api/feature_status_api.py', 'cli/performance_cli.py', 'config/config_manager.py', 'config/feature_flags.py', 'database/audit_helpers.py', 'database/definitie_crud.py', ...])
+E    +  and   406 = len([PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/__init__.py'), PosixPath('/private/tmp/def771-wp1-basis-17903...228/src/config/__init__.py'), PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/config/config_adapters.py'), ...])
+E    +    where [PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/__init__.py'), PosixPath('/private/tmp/def771-wp1-basis-17903...228/src/config/__init__.py'), PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/config/config_adapters.py'), ...] = &lt;tests.integration.regression.test_regression_suite.TestNederlandseCommentaren testMethod=test_docstrings_are_dutch&gt;.python_files</failure></testcase><testcase classname="tests.integration.regression.test_regression_suite.TestRegressionSpecific" name="test_logs_import_resolution" time="0.001"><failure message="AssertionError: verplichte module ontbreekt: logs.application.log_definitie (verwacht onder /private/tmp/def771-wp1-basis-1790361228/logs/application)&#10;assert not True&#10; +  where True = _module_afwezig('logs.application.log_definitie')">tests/integration/regression/test_regression_suite.py:1508: in test_logs_import_resolution
+    assert not _module_afwezig(naam), (
+E   AssertionError: verplichte module ontbreekt: logs.application.log_definitie (verwacht onder /private/tmp/def771-wp1-basis-1790361228/logs/application)
+E   assert not True
+E    +  where True = _module_afwezig('logs.application.log_definitie')</failure></testcase><testcase classname="tests.integration.regression.test_regression_suite.TestRegressionSpecific" name="test_modern_service_encoding_fix" time="0.001"><failure message="AssertionError: verwachte bronbestanden ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/src/services/unified_definition_generator.py']&#10;assert not ['/private/tmp/def771-wp1-basis-1790361228/src/services/unified_definition_generator.py']">tests/integration/regression/test_regression_suite.py:1543: in test_modern_service_encoding_fix
+    assert not ontbrekend, f"verwachte bronbestanden ontbreken: {ontbrekend}"
+E   AssertionError: verwachte bronbestanden ontbreken: ['/private/tmp/def771-wp1-basis-1790361228/src/services/unified_definition_generator.py']
+E   assert not ['/private/tmp/def771-wp1-basis-1790361228/src/services/unified_definition_generator.py']</failure></testcase><testcase classname="tests.integration.regression.test_regression_suite.TestImportStructure" name="test_package_init_files" time="0.021"><failure message="AssertionError: Ontbrekende __init__.py bestanden in 8 van 60 mappen: ['models', 'api', 'pages', 'ui/services', 'database/migrations', 'services/policies', 'services/prompts', 'ui/components/tabs']&#10;assert 8 == 0&#10; +  where 8 = len(['models', 'api', 'pages', 'ui/services', 'database/migrations', 'services/policies', ...])">tests/integration/regression/test_regression_suite.py:416: in test_package_init_files
+    assert len(missing_init_files) == 0, (
+E   AssertionError: Ontbrekende __init__.py bestanden in 8 van 60 mappen: ['models', 'api', 'pages', 'ui/services', 'database/migrations', 'services/policies', 'services/prompts', 'ui/components/tabs']
+E   assert 8 == 0
+E    +  where 8 = len(['models', 'api', 'pages', 'ui/services', 'database/migrations', 'services/policies', ...])</failure></testcase><testcase classname="tests.smoke.test_ui_smoke" name="test_ui_mode[legacy]" time="0.064"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/smoke/test_ui_smoke.py:80: in test_ui_mode
+    interface = TabbedInterface()
+                ^^^^^^^^^^^^^^^^^
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.smoke.test_ui_smoke" name="test_ui_mode[new]" time="0.064"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/smoke/test_ui_smoke.py:80: in test_ui_mode
+    interface = TabbedInterface()
+                ^^^^^^^^^^^^^^^^^
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.performance.test_per007_performance.TestPerformance" name="test_concurrent_processing_performance" time="0.002"><failure message="AssertionError: Concurrent processing too slow: 0.61ms&#10;assert 0.6088749505579472 &lt; (0.0667930580675602 * 0.5)">tests/integration/performance/test_per007_performance.py:590: in test_concurrent_processing_performance
+    assert (
+E   AssertionError: Concurrent processing too slow: 0.61ms
+E   assert 0.6088749505579472 &lt; (0.0667930580675602 * 0.5)</failure></testcase><testcase classname="tests.integration.performance.test_per007_performance.TestPerformance" name="test_anders_processing_overhead" time="0.001"><failure message="AssertionError: Anders... niet verwerkt; er is dus geen Anders-verwerking gemeten&#10;assert ['OM', 'Ander...I', 'Custom2'] == ['OM', 'Custo...I', 'Custom2']&#10;  &#10;  At index 1 diff: 'Anders...' != 'CustomOrg'&#10;  Left contains one more item: 'Custom2'&#10;  Use -v to get more diff">tests/integration/performance/test_per007_performance.py:439: in test_anders_processing_overhead
+    assert resultaat["organisatorisch"] == [
+E   AssertionError: Anders... niet verwerkt; er is dus geen Anders-verwerking gemeten
+E   assert ['OM', 'Ander...I', 'Custom2'] == ['OM', 'Custo...I', 'Custom2']
+E     
+E     At index 1 diff: 'Anders...' != 'CustomOrg'
+E     Left contains one more item: 'Custom2'
+E     Use -v to get more diff</failure></testcase><testcase classname="tests.integration.performance.test_per007_performance.TestPerformance" name="test_ui_formatting_performance" time="0.001"><failure message="AssertionError: ContextFormatter ontbreekt: /private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py — nooit gebouwd; advisory DEF-519 (testdispositie), herbeoordeling 2026-10-06&#10;assert False&#10; +  where False = is_file()&#10; +    where is_file = PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py').is_file">tests/integration/performance/test_per007_performance.py:222: in test_ui_formatting_performance
+    assert FORMATTER_PAD.is_file(), FORMATTER_ONTBREEKT
+E   AssertionError: ContextFormatter ontbreekt: /private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py — nooit gebouwd; advisory DEF-519 (testdispositie), herbeoordeling 2026-10-06
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py').is_file</failure></testcase><testcase classname="tests.integration.performance.test_per007_performance.TestPerformance" name="test_end_to_end_flow_performance" time="0.001"><failure message="AssertionError: ContextFormatter ontbreekt: /private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py — nooit gebouwd; advisory DEF-519 (testdispositie), herbeoordeling 2026-10-06&#10;assert False&#10; +  where False = is_file()&#10; +    where is_file = PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py').is_file">tests/integration/performance/test_per007_performance.py:329: in test_end_to_end_flow_performance
+    assert FORMATTER_PAD.is_file(), FORMATTER_ONTBREEKT
+E   AssertionError: ContextFormatter ontbreekt: /private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py — nooit gebouwd; advisory DEF-519 (testdispositie), herbeoordeling 2026-10-06
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/def771-wp1-basis-1790361228/src/services/ui/formatters.py').is_file</failure></testcase><testcase classname="tests.integration.performance.test_per007_performance.TestPerformance" name="test_astra_validation_performance" time="0.001"><failure message="AssertionError: geen ASTRA-validatie waarneembaar tijdens de gemeten call (geen waarschuwing over InvalidOrg/FakeOrg)&#10;assert []">tests/integration/performance/test_per007_performance.py:297: in test_astra_validation_performance
+    assert waarschuwingen, (
+E   AssertionError: geen ASTRA-validatie waarneembaar tijdens de gemeten call (geen waarschuwing over InvalidOrg/FakeOrg)
+E   assert []</failure></testcase><testcase classname="tests.smoke.test_web_lookup_wetgeving_parked_smoke" name="test_wetgeving_parked_attempt_propagates" time="0.002"><failure message="assert False&#10; +  where False = any(&lt;generator object test_wetgeving_parked_attempt_propagates.&lt;locals&gt;.&lt;genexpr&gt; at 0x10f1e39f0&gt;)">tests/smoke/test_web_lookup_wetgeving_parked_smoke.py:48: in test_wetgeving_parked_attempt_propagates
+    assert any(
+E   assert False
+E    +  where False = any(&lt;generator object test_wetgeving_parked_attempt_propagates.&lt;locals&gt;.&lt;genexpr&gt; at 0x10f1e39f0&gt;)</failure></testcase><testcase classname="tests.integration.performance.test_def90_validation_lazy_loading.TestPerformanceRegressionValidation" name="test_orchestrator_init_under_400ms_with_both_lazy" time="0.006"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/performance/test_def90_validation_lazy_loading.py:309: in test_orchestrator_init_under_400ms_with_both_lazy
+    orchestrator = container.orchestrator()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/container.py:382: in orchestrator
+    repository=self.repository(),
+               ^^^^^^^^^^^^^^^^^
+src/services/container.py:248: in repository
+    repository = DefinitionRepository(self.db_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.performance.test_def90_validation_lazy_loading.TestServiceContainerIntegration" name="test_container_validation_orchestrator_method" time="0.006"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/performance/test_def90_validation_lazy_loading.py:279: in test_container_validation_orchestrator_method
+    orchestrator = container.orchestrator()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/container.py:382: in orchestrator
+    repository=self.repository(),
+               ^^^^^^^^^^^^^^^^^
+src/services/container.py:248: in repository
+    repository = DefinitionRepository(self.db_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.performance.test_def90_validation_lazy_loading.TestServiceContainerIntegration" name="test_container_orchestrator_has_lazy_validation" time="0.006"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/performance/test_def90_validation_lazy_loading.py:258: in test_container_orchestrator_has_lazy_validation
+    orchestrator = container.orchestrator()
+                   ^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/container.py:382: in orchestrator
+    repository=self.repository(),
+               ^^^^^^^^^^^^^^^^^
+src/services/container.py:248: in repository
+    repository = DefinitionRepository(self.db_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.test_ui_integration.TestUIServiceIntegratie" name="test_tabbed_interface_binds_real_service_adapter" time="0.065"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/test_ui_integration.py:166: in test_tabbed_interface_binds_real_service_adapter
+    interface = TabbedInterface()
+                ^^^^^^^^^^^^^^^^^
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.test_ui_integration.TestUIServiceIntegratie" name="test_broken_service_binding_falls_back_and_is_detected" time="0.065"><failure message="tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.">tests/integration/test_ui_integration.py:199: in test_broken_service_binding_falls_back_and_is_detected
+    interface = TabbedInterface()
+                ^^^^^^^^^^^^^^^^^
+src/ui/tabbed_interface.py:167: in __init__
+    self.edit_tab = DefinitionEditTab(
+src/ui/components/definition_edit_tab.py:76: in __init__
+    self.repository = repository or DefinitionEditRepository()
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/services/definition_edit_repository.py:35: in __init__
+    super().__init__(db_path)
+src/services/definition_repository.py:226: in __init__
+    LegacyRepository(db_path)
+src/database/definitie_repository.py:77: in __init__
+    self._db.init_database()
+src/database/db_connection.py:175: in init_database
+    conn = self.get_connection()
+           ^^^^^^^^^^^^^^^^^^^^^
+src/database/db_connection.py:74: in get_connection
+    conn = sqlite3.connect(
+tests/offline_bootstrap.py:440: in _gate_connect
+    _weiger_db(database)
+tests/offline_bootstrap.py:240: in _weiger_db
+    raise OfflineGateError(
+E   tests.offline_bootstrap.OfflineGateError: SQLite-doel 'data/definities.db' ligt buiten de tijdelijke sessieroot /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-1zbeqnfu. Gebruik ':memory:' of een pad binnen de sessieroot; repository- en gebruikersdata zijn in tests niet beschikbaar.</failure></testcase><testcase classname="tests.integration.security.test_security_comprehensive.TestSecurityIntegration" name="test_security_decorator" time="0.002" /><testcase classname="tests.integration.security.test_security_comprehensive.TestDefaultSanitizationPolicyAdvisory" name="test_default_sanitize_content_strips_script" time="0.003"><failure message="AssertionError: assert '&lt;script&gt;' not in '&lt;script&gt;alert(1)&lt;/script&gt;'&#10;  &#10;  '&lt;script&gt;' is contained here:&#10;    &lt;script&gt;alert(1)&lt;/script&gt;&#10;  ? ++++++++">tests/integration/security/test_security_comprehensive.py:672: in test_default_sanitize_content_strips_script
+    assert "&lt;script&gt;" not in result
+E   AssertionError: assert '&lt;script&gt;' not in '&lt;script&gt;alert(1)&lt;/script&gt;'
+E     
+E     '&lt;script&gt;' is contained here:
+E       &lt;script&gt;alert(1)&lt;/script&gt;
+E     ? ++++++++</failure></testcase><testcase classname="tests.integration.security.test_security_comprehensive.TestDefaultSanitizationPolicyAdvisory" name="test_default_user_input_strips_script_and_iframe" time="0.002"><failure message="AssertionError: assert '&lt;script' not in 'test&lt;script...(1)&lt;/script&gt;'&#10;  &#10;  '&lt;script' is contained here:&#10;    test&lt;script&gt;alert(1)&lt;/script&gt;&#10;  ?    +++++++">tests/integration/security/test_security_comprehensive.py:665: in test_default_user_input_strips_script_and_iframe
+    assert "&lt;script" not in sanitized_data["begrip"].lower()
+E   AssertionError: assert '&lt;script' not in 'test&lt;script...(1)&lt;/script&gt;'
+E     
+E     '&lt;script' is contained here:
+E       test&lt;script&gt;alert(1)&lt;/script&gt;
+E     ?    +++++++</failure></testcase></testsuite></testsuites>

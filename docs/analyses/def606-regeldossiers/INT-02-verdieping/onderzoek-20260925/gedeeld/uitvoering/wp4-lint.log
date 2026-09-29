@@ -1,0 +1,7 @@
+$ ruff check tests/unit/validation/test_v2_golden_int_more.py
+All checks passed!
+exit=0
+$ black --check tests/unit/validation/test_v2_golden_int_more.py
+All done! ✨ 🍰 ✨
+1 file would be left unchanged.
+exit=0

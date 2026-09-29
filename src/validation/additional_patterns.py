@@ -33,9 +33,13 @@ _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
     # keurde 'dr. Smit' af en miste een vraagzin, en een puntkomma is geen
     # zelfstandige zinsgrens (K4). De regel stelt zinsgrenzen functioneel vast
     # in `services.validation.evaluators.sentence_boundary`.
-    "INT-03": [
-        r"\b(deze|dit|die|daarvan)\b(?!\s+(begrip|definitie|regel))",  # Onduidelijke verwijzingen
-    ],
+    # INT-03 staat hier bewust niet meer (DEF-772, K4(ii)): de
+    # deze/dit/die/daarvan-uitzondering voor 'begrip', 'definitie' en 'regel'
+    # stond dubbel — hier mét negatieve lookahead, in het record zonder — en
+    # omdat beide lijsten worden samengevoegd, vuurde het kale recordpatroon
+    # toch. De uitzondering leeft nu op één plek: `herkenbaar_patronen` in
+    # `toetsregels/regels/INT-03.json` (bron van waarheid, gemeten onder het
+    # contract). Een patroon daar is zoekhulp, geen oordeel.
     "STR-01": [
         r"^(is|de|het|een|wordt|betreft)\b",  # Start niet met artikel/hulpwerkwoord
     ],
