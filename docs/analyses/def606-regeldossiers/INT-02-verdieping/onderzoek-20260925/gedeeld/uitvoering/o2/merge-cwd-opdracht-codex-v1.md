@@ -1,0 +1,11 @@
+# Gerichte herreview DEF-835 — mergecorrectie werkmap
+
+Jij bent de Codex CLI-reviewer. Voer deze opdracht zelf uit; start geen agents, reviewers of extra CLI-sessies. Je hervat je eigen Q1-review. Wijzig geen bronbestanden. Rapporteer in het Nederlands. Je bent niet de enige in de codebase; raak geen wijzigingen van anderen aan.
+
+De implementatie staat in /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2, basis ebe9c1b7c26ffe6040bffb66db4937b932406dc8. Het dossier is docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2 onder die root. Review uitsluitend de concrete correctie aan tests/unit/validation/test_def835_int02_modelproef.py; lees merge-cwd-claude-verslag-v1.md en het hashgebonden bewijs in bewijs/mergevoorbereiding-v1. Voorgaande inhoudelijke Q1-reviews blijven geldig; geen nieuwe volledige Q1/O2-review.
+
+De canonieke make test gaf 8713 passed en één fout: een test eiste ten onrechte terugkeer naar ROOT terwijl de officiële offline runner bewust een tijdelijke werkmap gebruikt. Vereiste: de oorspronkelijke cwd wordt hersteld ongeacht haar locatie; de runner gebruikt voor providerwerk een andere tijdelijke werkmap. De correctie mag geen bestaande functionele asserts of testgevallen verwijderen/afzwakken. Controleer RED→GREEN, gericht mutatiebewijs, herstelde cwd en behoud van tellingen/usage/headers/privacy. Bevestig exact welke bronhash je beoordeelt. Draai alleen een concrete noodzakelijke tegenproef of gerichte test, geen volledige unitgate (coördinator doet die).
+
+Chris heeft mergevoorbereiding en reguliere beheerdersmerge geautoriseerd; Actions blijven uit, O1 blijft actief, DEF-626 is uitgesteld. Nieuwste main e51610461113c1cf90647c9a7662de11293c6f14 is zonder conflicten combineerbaar; de coördinator heeft op de berekende gecombineerde boom 936 relevante tests groen, 11 skillbron-skips. Geen modelkwaliteit of productieactivering claimen.
+
+De aparte reviewroot bevat een kopie van de gecombineerde bron en de gecorrigeerde test; gebruik de root waar deze CLI gestart is. De oorspronkelijke test is daar als unieke herstelkopie bewaard buiten src/tests. Als oorspronkelijke uitvoerder nog actief is of hashes afwijken, meld dat in plaats van zelf corrigeren. Bevestigde bevindingen terug aan coördinator; geen codewijzigingen, commits of externe publicatie.
