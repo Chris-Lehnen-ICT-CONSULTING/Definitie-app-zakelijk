@@ -264,6 +264,8 @@ _CODEBESTANDEN = (
     # R16 (mechanismeproef bewijsregels): regels, interpretatie en controle-eenheden.
     "src/domain/ess05/bewijsregels.py",
     "src/services/validation/ess05_bewijsregel_service.py",
+    # Robuustheid P1 (punt 2): ruisfilter in het beoordelingsmateriaal.
+    "src/domain/ess05/definitieruis.py",
     # R18: de scorer (M-a…M-d en het oordeel per run) staat in elk callrecord.
     "scripts/ess05/bewijsscorer.py",
     "src/domain/ess03/contract.py",

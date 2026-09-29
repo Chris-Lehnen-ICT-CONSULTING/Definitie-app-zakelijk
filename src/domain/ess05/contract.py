@@ -58,6 +58,7 @@ from domain.ess05.bewijs import (
     Verificatieuitkomst,
     toets_verificatie,
 )
+from domain.ess05.definitieruis import neutraliseer_definitieruis
 from domain.modeluitvoer import parse_modeluitvoer
 from domain.sources.contract import vind_citaat
 from domain.sources.normalisatie import Bronidentiteit, canoniseer_bronnen
@@ -523,7 +524,11 @@ def beoordelingsmateriaal(
     term reist mee in de prompt, niet als bewijsplaats.
     """
     del begrip  # de term is geen bewijsplaats
-    materiaal: dict[str, str] = {_LOCATIE_DEFINITIE: str(tekst or "")}
+    # Robuustheid P1 (punt 2): definitie- en buurteksten zonder categorie-
+    # voorregel en bronlabels; model, dekking en citaten zien dezelfde tekst.
+    materiaal: dict[str, str] = {
+        _LOCATIE_DEFINITIE: neutraliseer_definitieruis(str(tekst or ""))
+    }
     for locatie, inhoud in (
         ("context", contextmateriaal(contexten)),
         ("meaning", betekenismateriaal(intentie)),
@@ -533,7 +538,9 @@ def beoordelingsmateriaal(
     for bron in _canoniek(bronnen):
         materiaal[f"{_BRONPREFIX}{bron.source_id}"] = bron.passage
     for buur in buren:
-        materiaal[f"{_BUURPREFIX}{buur.id}"] = buur.definitie or ""
+        materiaal[f"{_BUURPREFIX}{buur.id}"] = neutraliseer_definitieruis(
+            buur.definitie or ""
+        )
     return materiaal
 
 
