@@ -19,8 +19,8 @@ Bewezen (besluitnotitie-v3 §3 en §5, opdracht P1 punten 1–8):
   of ontbrekende stopreden, een extra blok, een ongeldige enum, een ontbrekend
   veld, twee objecten, een inconsistent oordeel of een verzonnen citaat is een
   technische fout zonder oordeel;
-* promptversie ``int03-assess/4`` (P2) met het exacte formaatslot; normhash en
-  contract ongewijzigd; /1, /2 en /3 historisch; schemahash lokaal berekend,
+* promptversie ``int03-assess/5`` (P3) met het exacte formaatslot; normhash en
+  contract ongewijzigd; /1 t/m /4 historisch; schemahash lokaal berekend,
   gepind en gecontroleerd tegen het werkelijk verzonden schema; schema in de
   cachesleutels;
 * gevraagd en gemeld model apart; nul gestapelde retries; geen aanroep bij
@@ -134,6 +134,11 @@ ONDERBOUWING_P2 = (
 #: P1 (/3, 47d72646) via deze route: systeem en body zonder system (compact).
 P1_SYSTEEM_SHA256 = "156d6822ef30dc9e42ec2dfa633b73ff5972932046305341772906f413fb57e8"
 P1_REST_SHA256 = "13404e6e1c34fedbd4747850c3b88dfa895a18a9f90e1979ade988daaa286c9e"
+#: P2 (/4, 85988f08): systeemtekst (wire-promptverschil-v2.log, regel 11).
+P2_SYSTEEM_SHA256 = "bc3a2001f4ae7b83125e9b981542627d54af483c6ddf9b2ad24bb4551c875827"
+#: DEF-836 P3: exacte invoeging (promptvoorstel-P3-v2.md, 1479 tekens).
+P3_BEGIN, P3_EINDE = "3. Eenduidigheid: ", " nabijheid alleen is geen bewijs"
+P3_SHA256 = "4ff3a92f884c3c172980d00f647a4e468504dc4f4e62a8fc87ebf7be40586084"
 
 
 def _oordeel(**over: Any) -> dict[str, Any]:
@@ -311,7 +316,7 @@ async def test_sdk_body_draagt_exact_het_antwoordschema_zonder_hashveld(
     assert _ordegevoelige_hash(verzonden) == ANTWOORDSCHEMA_SHA256
 
     assert doc["status"] == "assessed", doc["error"]
-    assert doc["prompt_version"] == "int03-assess/4"
+    assert doc["prompt_version"] == "int03-assess/5"
     assert doc["contract_version"] == CONTRACTVERSIE == "int03/1"
     assert doc["input"]["response_schema_sha256"] == ANTWOORDSCHEMA_SHA256
     assert doc["judgment"]["verdict"] == VERDICT_FAIL
@@ -340,19 +345,27 @@ async def test_systeemprompt_draagt_exact_het_formaatslot_en_geen_oud_sjabloon(
     assert TEKST in grens.bodies[0]["messages"][0]["content"]
 
 
-async def test_p2_systeemtekst_is_p1_plus_alleen_de_onderbouwing_rest_gelijk(
+async def test_p3_systeemtekst_is_p2_plus_alleen_de_toelaatbaarheid_rest_gelijk(
     anthropic_actief,
 ):
-    # DEF-836 P2: alleen de onderbouwing aan het einde van stap 3 is nieuw.
+    # DEF-836 P3: alleen de toelaatbaarheidstoets aan het begin van stap 3 is
+    # nieuw; zonder die invoeging is de tekst exact P2, zonder P2 exact P1.
     grens = SDKGrens(_oordeel())
     service, _ = _keten(grens)
     doc = await _assess(service)
     (body,) = grens.bodies
     systeem = body["system"]
+    begin = systeem.index(P3_BEGIN) + len(P3_BEGIN)
+    invoeging = systeem[begin : systeem.find(P3_EINDE, begin)]
+    assert len(invoeging) == 1479 and systeem.count(invoeging) == 1
+    assert hashlib.sha256(invoeging.encode("utf-8")).hexdigest() == P3_SHA256
+    assert not {"contract", "aanvulling", "addendum"} & set(invoeging.split())
     assert systeem.count(ONDERBOUWING_P2) == 1
     assert f"is. {ONDERBOUWING_P2}\n\nUitkomsten (verdict):\n" in systeem
     assert systeem.index("3. Eenduidigheid:") < systeem.index(ONDERBOUWING_P2)
-    zonder = systeem.replace(f" {ONDERBOUWING_P2}", "", 1)
+    zonder = systeem.replace(f"{invoeging} ", "", 1)
+    assert hashlib.sha256(zonder.encode("utf-8")).hexdigest() == P2_SYSTEEM_SHA256
+    zonder = zonder.replace(f" {ONDERBOUWING_P2}", "", 1)
     assert hashlib.sha256(zonder.encode("utf-8")).hexdigest() == P1_SYSTEEM_SHA256
     # Userpayload, schema(volgorde), model en instellingen byte-gelijk aan P1.
     rest = {k: v for k, v in body.items() if k != "system"}
@@ -360,7 +373,7 @@ async def test_p2_systeemtekst_is_p1_plus_alleen_de_onderbouwing_rest_gelijk(
     assert hashlib.sha256(rest.encode("utf-8")).hexdigest() == P1_REST_SHA256
     assert doc["status"] == "assessed", doc["error"]
     assert (
-        doc["prompt_version"] == service.binding().prompt_version == ("int03-assess/4")
+        doc["prompt_version"] == service.binding().prompt_version == ("int03-assess/5")
     )
 
 
@@ -744,11 +757,11 @@ async def test_gevraagd_en_gemeld_model_apart_en_binding_actueel(anthropic_actie
     fp = bereken_int03_vingerafdruk(BEGRIP, TEKST, CONTEXT, TOELICHTING)
     oordeel, _ = valideer_beoordeling(doc, fp, TEKST, binding=service.binding())
     assert oordeel is not None
-    assert service.binding().prompt_version == "int03-assess/4"
+    assert service.binding().prompt_version == "int03-assess/5"
     assert service.norm_sha256 == (
         "d2f0cc1c834f36b264f2c82a496e0ff3108aa358e8bc65f518870c6179d3bb2d"
     )
-    for oud in ("int03-assess/1", "int03-assess/2", "int03-assess/3"):
+    for oud in ("int03-assess/1", "int03-assess/2", "int03-assess/3", "int03-assess/4"):
         historisch, samenvatting = valideer_beoordeling(
             {**doc, "prompt_version": oud}, fp, TEKST, binding=service.binding()
         )
@@ -765,7 +778,7 @@ async def test_interne_cache_is_gebonden_aan_de_schemarevisie(anthropic_actief):
     assert tweede["attribution"]["cached"] is True
     (sleutel,) = list(service._cache)
     assert ANTWOORDSCHEMA_SHA256 in sleutel
-    assert "int03-assess/4" in sleutel
+    assert "int03-assess/5" in sleutel
 
 
 async def test_schema_dat_niet_bij_de_pin_hoort_gaat_niet_naar_de_sdk(

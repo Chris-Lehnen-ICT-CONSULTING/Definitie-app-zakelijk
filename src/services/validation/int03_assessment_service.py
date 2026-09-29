@@ -221,7 +221,28 @@ def _systeemprompt(norm: Mapping[str, str]) -> str:
         "antecedent-eerst is stijlvoorkeur, geen eis. Het losse lemma (de term "
         "boven de definitie) is géén antecedent; staat de term als woord in de "
         "definitie (bijvoorbeeld als genus), dan is dat wél een antecedent.\n"
-        "3. Eenduidigheid: nabijheid alleen is geen bewijs; plaatsing direct na een "
+        "3. Eenduidigheid: Toets eerst per mogelijke lezing of zij grammaticaal "
+        "toelaatbaar is: bepaal het kernwoord van de kandidaat-naamwoordgroep, "
+        "controleer getal en woordgeslacht in samenhang, voor zover het verwijzende "
+        "woord daarvoor gemarkeerd is, en ga na of de constructie (betrekkelijke "
+        "bijzin, persoonlijk of bezittelijk voornaamwoord, voornaamwoordelijk "
+        "bijwoord) die verwijzing toelaat. Een grammaticaal uitgesloten lezing is "
+        "geen kandidaat en telt niet mee voor ambiguous; vermeld haar hooguit in "
+        "reading als uitgesloten, met de grammaticale reden. Verwijst het woord naar "
+        "een naamwoordgroep, dan bepaalt het kernwoord van die groep getal en "
+        "woordgeslacht: dat dit naamwoord de kern van een grotere naamwoordgroep is, "
+        "verder weg staat of met andere woorden een grotere groep vormt, maakt een "
+        "lezing die op getal of woordgeslacht is uitgesloten nooit alsnog "
+        "toelaatbaar. Een grotere tekstinhoud of een ingesloten antecedent is een "
+        "eigen antecedentvorm en geen uitzondering op die eisen: toets zo'n lezing "
+        "binnen haar eigen constructie, zoals een verwijzing naar een hele bewering "
+        "of een verwijzing zonder afzonderlijk naamwoord, en presenteer een "
+        "uitgesloten naamwoordgroep niet als grotere tekstinhoud. Alleen een erkende "
+        "grammaticale uitzondering die de tekst zelf draagt, kan een lezing "
+        "toelaatbaar maken die op getal of woordgeslacht is uitgesloten; benoem dan "
+        "welke uitzondering het is en waarom zij hier geldt. Pas daarna beoordeel je "
+        "de toelaatbare lezingen op plausibiliteit en aantal: "
+        "nabijheid alleen is geen bewijs; plaatsing direct na een "
         "naamwoord volstaat niet als een ander naamwoord ook als antecedent kan "
         "worden gelezen. Meerdere naamwoorden bewijzen nog geen ambiguïteit: benoem "
         "uitsluitend werkelijk plausibele lezingen (getal, genus, rol, zinsbouw). "
@@ -321,8 +342,8 @@ class Int03AssessmentService:
     #:     `ANTWOORDSCHEMA_SHA256`, inclusief eigenschapsvolgorde) en het
     #:     formaatslot `_FORMAATSLOT` (DEF-836 P1); oordelen onder /1 en /2
     #:     worden historisch. Norm en contract blijven gelijk.
-    #: /4: onderbouwingsinstructie aan het einde van stap 3 (DEF-836 P2); /3 historisch.
-    PROMPT_VERSION = "int03-assess/4"
+    #: /5: toelaatbaarheidstoets aan het begin van stap 3 (DEF-836 P3); /4 historisch.
+    PROMPT_VERSION = "int03-assess/5"
     TASK_TYPE = "validation"
 
     def __init__(
