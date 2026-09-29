@@ -1,0 +1,44 @@
+diff --git a/tests/unit/validation/test_def835_int02_modelproef.py b/tests/unit/validation/test_def835_int02_modelproef.py
+index 659f933dd..4117a6215 100644
+--- a/tests/unit/validation/test_def835_int02_modelproef.py
++++ b/tests/unit/validation/test_def835_int02_modelproef.py
+@@ -347,9 +347,21 @@ async def test_live_weigert_zonder_sleutel(tmp_path, manifest):
+ # --- de echte keten met nep-provider ------------------------------------------------
+ 
+ 
++@pytest.mark.parametrize("startmap", ["repository", "buiten-repository"])
+ async def test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage(
+-    tmp_path, manifest, caplog
++    tmp_path, manifest, caplog, monkeypatch, startmap
+ ):
++    # De runner werkt in een tijdelijke map en moet daarna de werkelijk
++    # oorspronkelijke cwd herstellen, welke map dat ook was (de canonieke
++    # unitgate start pytest bewust buiten de repository).
++    if startmap == "repository":
++        monkeypatch.chdir(ROOT)
++    else:
++        werkmap = tmp_path / "werkmap"
++        werkmap.mkdir()
++        monkeypatch.chdir(werkmap)
++        assert ROOT not in Path.cwd().parents and Path.cwd() != ROOT
++    oorspronkelijk = Path.cwd()
+     caplog.set_level(logging.DEBUG)
+     provider = NepProvider()
+     data, resultaat = await _live(tmp_path, manifest, provider)
+@@ -363,6 +375,7 @@ async def test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage(
+         assert "anthropic-beta" not in verzoek["headers"]
+         assert verzoek["headers"]["x-api-key"] == SLEUTEL
+         assert Path(verzoek["cwd"]) != ROOT
++        assert Path(verzoek["cwd"]) != oorspronkelijk
+     for telling, inferentie in zip(
+         provider.verzoeken[::2], provider.inferenties(), strict=True
+     ):
+@@ -377,7 +390,7 @@ async def test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage(
+         assert "authorization" not in inferentie["headers"]
+         assert sorted(inferentie["headers"]) == STANDAARDHEADERNAMEN
+         assert set(telling["headers"]) <= set(STANDAARDHEADERNAMEN)
+-    assert Path.cwd() == ROOT
++    assert Path.cwd() == oorspronkelijk
+     assert data["stopreden"] is None
+     assert data["tellingen"] == {"inferenties": 3, "telverzoeken": 3}
+     per_geval = {g["id"]: g for g in data["gevallen"]}

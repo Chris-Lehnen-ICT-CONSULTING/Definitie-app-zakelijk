@@ -1,0 +1,10 @@
+{
+  "cmd": [
+    "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+    "-c",
+    "from tests.offline_bootstrap import install;install();import pytest;raise SystemExit(pytest.main(['tests/unit/validation/test_def771_int02_contract.py', 'tests/unit/scripts/test_check_root_allowlist.py::test_echte_repo_is_schoon', '-q', '-ra', '-p', 'no:cacheprovider', '-p', 'no:randomly', '-o', 'addopts=', '--junitxml=/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/mergevoorbereiding-v1/omgevingshercontrole-junit.xml']))"
+  ],
+  "cwd": "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2",
+  "DEF771_SKILLS_ROOT": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills",
+  "exit": 0
+}

@@ -1,0 +1,9 @@
+{
+  "cmd": [
+    "make",
+    "test",
+    "PY=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+    "GATE_REPORTS=/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/mergevoorbereiding-v1/gates"
+  ],
+  "exit": 2
+}

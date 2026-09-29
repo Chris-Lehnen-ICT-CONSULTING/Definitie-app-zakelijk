@@ -1,0 +1,9 @@
+{
+  "cmd": [
+    "make",
+    "lint",
+    "PY=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python"
+  ],
+  "cwd": "/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def835-mergecheck-wlvmzw2e",
+  "exit": 0
+}
