@@ -763,11 +763,12 @@ R17_KADERREST_NUSD = 21_951_255_000
 R16_KOP_SHA256 = "58f5a17ec921d67e66899882441c8629fae9a41476d3485c697cd3614141cee8"
 #: Ronde 18 (plan bewijseenheden, deel B): eigen rapportroot, grootboek, anker,
 #: slot en freezes (i, l). Invoer R18A: A/C/D/E uit maak_r18_bewijsregel_invoer.py,
-#: bestand bewijsregel-invoer-v3.json (aanvulling v2, Codex-hercontrole B2-rest;
-#: -v1, sha fe6bd5d1…, en -v2, sha fab905cc…, worden op deze pin en op het schema
-#: geweigerd); R18B: zes pakketten uit maak_r18b_lokale_invoer.py.
+#: bestand bewijsregel-invoer-v4.json (aanvulling v3, Codex-hercontrole v2
+#: B2-rest-2; -v1, sha fe6bd5d1…, -v2, sha fab905cc…, en -v3, sha 21c1ad91…,
+#: worden op deze pin en op het schema geweigerd); R18B: zes pakketten uit
+#: maak_r18b_lokale_invoer.py.
 R18_UITMAP = PROJECT_ROOT / "reports" / "DEF-768-AI-20260928-R18"
-R18_I_INVOER_SHA256 = "21c1ad911cbe13b02c377c2799f17b4e0475f9e9a006d39f87ec96f2bc5a09ac"
+R18_I_INVOER_SHA256 = "75c975806704520bd3abee39f7a7525dab2722fad14fde24ad48f676ce92f135"
 R18_L_INVOER_SHA256 = "a36172a04981aef5bc712a77cc51dd9f1846bf7e7c9d16222e0bd4a5ac005b81"
 #: Ronde 18: NOG GEEN budgetbesluit. Het pad ligt vast; het besluit wordt pas
 #: na een "go" van Chris geschreven en daarna hier op hash gepind. Tot dan is de
@@ -4403,8 +4404,9 @@ async def voer_b_fase(
 
 #: R18A-invoer: A/C/D/E met herhalingen en orakel (`maak_r18_bewijsregel_invoer`);
 #: /3 (aanvulling C3): orakelfeiten met vereist/toegestaan; /4 (aanvulling v2):
-#: E-orakel alleen error/buiten_bereik. /2 (-v1) en /3 (-v2) worden geweigerd.
-_I_INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/4"
+#: E-orakel alleen error/buiten_bereik; /5 (aanvulling v3): E-orakel met
+#: voorwaarde_formuleringen. /2 (-v1), /3 (-v2) en /4 (-v3) worden geweigerd.
+_I_INVOERSCHEMA = "def768-ess05-bewijsregel-invoer/5"
 #: Het label van elk synthetisch item; een niet-synthetisch item draagt het niet.
 _SYNTHETISCH_LABEL = "SYNTHETISCH, GEEN MODELUITVOER"
 #: De ene modelstap van een run: de interpretatie op de beoordelingsroute.

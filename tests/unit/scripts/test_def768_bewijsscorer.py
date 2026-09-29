@@ -92,6 +92,15 @@ ORAKEL_E = {
     "voorwaarde": "storing",
     # Aanvulling v2 (B2-rest): alleen de onverwerkte voorwaardelijke doeleis.
     "uitkomst": ["error/buiten_bereik"],
+    # Aanvulling v3 (B2-rest-2): alleen deze formuleringen, exact na normalisatie.
+    "voorwaarde_formuleringen": [
+        "bij storing",
+        "bij een storing",
+        "alleen bij storing",
+        "uitsluitend bij storing",
+        "in geval van storing",
+        "in geval van een storing",
+    ],
 }
 KERN = {
     "bovenbegrip": "ter beschikking stellen van apparatuur",
@@ -728,10 +737,14 @@ class TestVoorwaardestatus:
         assert bs.scoor(ruw, invoer, ORAKEL_E)["voorwaarde_status"] == "ontkend"
 
     def test_woorden_die_een_markering_bevatten_tellen_niet(self):
-        """'nietig' of 'geenszins' is geen losse markering; alleen hele woorden tellen."""
+        """'nietig' of 'geenszins' is geen losse markering; alleen hele woorden tellen.
+        Sinds aanvulling v3 is de tekst geen exacte formulering: handmatig, niet ontkend.
+        """
         invoer = _invoer(E_BRON)
         ruw = _e(invoer, ("bevestigd", ["Uitleen:"], ["bij storing (altijdgeldig)"]))
-        assert bs.scoor(ruw, invoer, ORAKEL_E)["voorwaarde_status"] == "behouden"
+        score = bs.scoor(ruw, invoer, ORAKEL_E)
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
+        assert score["voorwaarde_vermeldingen"][0]["markering"] == []
 
     def test_ontkend_met_buiten_bereik_is_niet_kritiek_en_telt_niet(self):
         md = {"uitkomst": "error", "fout": "buiten_bereik",
@@ -767,8 +780,8 @@ CODEX_REST = [
 MARKERINGEN_V1 = tuple(
     m for m in bs.MARKERINGEN if m not in ("onafhankelijk", "irrelevant", "optioneel")
 )
-AANHEFFEN = ["bij", "alleen bij", "uitsluitend bij", "in geval van", "als", "wanneer",
-             "indien", "mits"]  # fmt: skip
+#: Aanvulling v3: aanheffen die onder v2 slaagden maar geen geregistreerde formulering zijn.
+AANHEFFEN_NIET_GEREGISTREERD = ["als", "wanneer", "indien", "mits"]
 
 
 def _a_runs(n: int) -> list[dict]:
@@ -838,10 +851,11 @@ class TestVoorwaardeRest:
             == "handmatig_beoordelen"
         )
 
-    @pytest.mark.parametrize("aanhef", AANHEFFEN)
-    def test_elke_voorwaardelijke_aanhef_in_voorwaarden_is_behouden(self, aanhef):
+    @pytest.mark.parametrize("formulering", ORAKEL_E["voorwaarde_formuleringen"])
+    def test_elke_geregistreerde_formulering_is_behouden(self, formulering):
+        """Aanvulling v3: elke formulering uit het orakel, ook met hoofdletters."""
         invoer = _invoer(E_BRON)
-        ruw = _e(invoer, ("bevestigd", ["Uitleen:"], [f"  {aanhef.upper()} storing"]))
+        ruw = _e(invoer, ("bevestigd", ["Uitleen:"], [f"  {formulering.upper()}"]))
         score = bs.scoor(ruw, invoer, ORAKEL_E)
         assert (score["m_d"]["uitkomst"], score["m_d"]["fout"]) == (
             "error",
@@ -849,6 +863,15 @@ class TestVoorwaardeRest:
         )
         assert score["voorwaarde_status"] == "behouden"
         assert bs.runoordeel(score, ORAKEL_E)["categorie"] == "geslaagd"
+
+    @pytest.mark.parametrize("aanhef", AANHEFFEN_NIET_GEREGISTREERD)
+    def test_aanhef_zonder_geregistreerde_formulering_is_handmatig(self, aanhef):
+        """Aanvulling v3: een voorwaardelijke aanhef alleen is geen bewijs van behoud."""
+        invoer = _invoer(E_BRON)
+        ruw = _e(invoer, ("bevestigd", ["Uitleen:"], [f"{aanhef} storing"]))
+        score = bs.scoor(ruw, invoer, ORAKEL_E)
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
+        assert bs.runoordeel(score, ORAKEL_E)["categorie"] == "handmatig_beoordelen"
 
     @pytest.mark.parametrize(
         "voorwaarde",
@@ -923,6 +946,132 @@ class TestVoorwaardeRest:
         uit = bs.proefoordeel(runs)
         assert uit["oordeel"] == "geslaagd"
         assert uit["e_voorwaarde_behouden"] == [3, 3]
+
+
+# --- B2-rest-2 (Codex-hercontrole v2, aanvulling v3): alleen exacte formuleringen -----------
+
+#: De vier tegenvoorbeelden uit de Codex-hercontrole v2 (aanhef zonder markering).
+CODEX_REST2 = [
+    "bij afwezigheid van storing",
+    "als storing ontbreekt",
+    "bij storing of op verzoek",
+    "bij de storingsdienst",
+]
+
+
+class TestVoorwaardeRest2:
+    @pytest.mark.parametrize("voorwaarde", CODEX_REST2)
+    def test_codex_voorbeelden_zijn_handmatig_niet_geslaagd(self, voorwaarde):
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e(invoer, ("bevestigd", ["Uitleen:"], [voorwaarde])),
+                         invoer, ORAKEL_E)  # fmt: skip
+        assert (score["m_d"]["uitkomst"], score["m_d"]["fout"]) == (
+            "error",
+            "buiten_bereik",
+        )
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
+        assert score["voorwaarde_behouden"] is False
+        oordeel = bs.runoordeel(score, ORAKEL_E)
+        assert (oordeel["categorie"], oordeel["m_d_telt"], oordeel["kritiek"]) == (
+            "handmatig_beoordelen",
+            False,
+            [],
+        )
+
+    @pytest.mark.parametrize("voorwaarde", CODEX_REST2)
+    def test_proef_met_drie_codex_e_runs_haalt_geen_12_van_12(self, voorwaarde):
+        runs = _a_runs(9) + _e_runs(
+            [lambda i: _e(i, ("bevestigd", ["Uitleen:"], [voorwaarde]))] * 3
+        )
+        uit = bs.proefoordeel(runs)
+        assert uit["oordeel"] != "geslaagd"
+        assert uit["oordeel"] == "wacht_op_handmatige_beoordeling"
+        assert uit["m_d_juist"] == 9
+        assert uit["e_voorwaarde_behouden"] == [0, 3]
+        assert len(uit["handmatig_beoordelen"]) == 3
+
+    @pytest.mark.parametrize(
+        "voorwaarde",
+        ["bij storing", "Bij Storing", "  bij   storing  ", "bij storing.",
+         "BIJ STORING;", "bij\tstoring :", "bij storing.,"],
+    )  # fmt: skip
+    def test_exact_na_normalisatie_is_behouden(self, voorwaarde):
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e(invoer, ("bevestigd", ["Uitleen:"], [voorwaarde])),
+                         invoer, ORAKEL_E)  # fmt: skip
+        assert score["voorwaarde_status"] == "behouden"
+        assert bs.runoordeel(score, ORAKEL_E)["categorie"] == "geslaagd"
+
+    @pytest.mark.parametrize(
+        "voorwaarde",
+        ["bij storing!", "(bij storing)", "bij storing, alleen", "bij storingen",
+         "bij-storing"],
+    )  # fmt: skip
+    def test_andere_leestekens_of_woorden_zijn_niet_exact(self, voorwaarde):
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e(invoer, ("bevestigd", ["Uitleen:"], [voorwaarde])),
+                         invoer, ORAKEL_E)  # fmt: skip
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
+
+    @pytest.mark.parametrize("voorwaarde", ["niet bij storing", "bij geen storing"])
+    def test_markering_blijft_ontkend(self, voorwaarde):
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e(invoer, ("bevestigd", ["Uitleen:"], [voorwaarde])),
+                         invoer, ORAKEL_E)  # fmt: skip
+        assert score["voorwaarde_status"] == "ontkend"
+        assert bs.runoordeel(score, ORAKEL_E)["m_d_telt"] is False
+
+    def test_ontbrekende_voorwaarde_blijft_weggevallen(self):
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e(invoer, ("bevestigd", ["Uitleen:"])), invoer, ORAKEL_E)
+        assert score["voorwaarde_status"] == "weggevallen"
+        assert bs.runoordeel(score, ORAKEL_E)["categorie"] == "kritiek"
+
+    @pytest.mark.parametrize(
+        "uitkomst", [("review_required", None), ("pass", None), ("error", "citaat")]
+    )
+    def test_exacte_formulering_zonder_buiten_bereik_niet_behouden(
+        self, uitkomst, monkeypatch
+    ):
+        monkeypatch.setattr(bs, "_uitkomst", lambda ruw, invoer: uitkomst)
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e(invoer, ("bevestigd", ["Uitleen:"], ["bij een storing"])),
+                         invoer, ORAKEL_E)  # fmt: skip
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
+        assert bs.runoordeel(score, ORAKEL_E)["m_d_telt"] is False
+
+    def test_zonder_geregistreerde_formuleringen_nooit_automatisch_behouden(self):
+        orakel = {k: v for k, v in ORAKEL_E.items() if k != "voorwaarde_formuleringen"}
+        invoer = _invoer(E_BRON)
+        score = bs.scoor(_e(invoer, ("bevestigd", ["Uitleen:"], ["bij storing"])),
+                         invoer, orakel)  # fmt: skip
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
+
+    @pytest.mark.parametrize(
+        ("formuleringen", "melding"),
+        [
+            ([], "geen niet-lege lijst"),
+            (["Bij storing"], "genormaliseerd"),
+            (["bij storing."], "genormaliseerd"),
+            (["bij regen"], "frase"),
+            (["niet bij storing"], "markering"),
+            ("bij storing", "geen niet-lege lijst"),
+            (["bij storing", "bij storing"], "dubbel"),
+        ],
+    )
+    def test_ongeldige_formuleringen_zijn_een_orakelfout(self, formuleringen, melding):
+        orakel = {**ORAKEL_E, "voorwaarde_formuleringen": formuleringen}
+        with pytest.raises(bs.OrakelfoutError, match=melding):
+            bs.controleer_orakel(orakel, _invoer(E_BRON))
+
+    def test_formuleringen_zonder_voorwaarde_zijn_een_orakelfout(self):
+        orakel = {k: v for k, v in ORAKEL_E.items() if k != "voorwaarde"}
+        orakel.pop("voorwaarde_vereist_voor", None)
+        with pytest.raises(bs.OrakelfoutError, match="zonder voorwaarde"):
+            bs.controleer_orakel(orakel, _invoer(E_BRON))
+
+    def test_geregistreerd_orakel_is_geldig(self):
+        bs.controleer_orakel(ORAKEL_E, _invoer(E_BRON))
 
 
 # --- orakelstructuur vereist/toegestaan (Codex-review B3/B4, aanvulling C3) -----------------

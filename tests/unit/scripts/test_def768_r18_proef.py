@@ -92,11 +92,14 @@ from services.validation.ess05_bewijsregel_service import (
 
 R18_ID = "DEF-768-AI-20260928-R18"
 R18_MAP = ROOT / "reports" / R18_ID
-#: Aanvulling v2 (Codex-hercontrole B2-rest): de invoer -v3 (schema /4, E-orakel
-#: alleen error/buiten_bereik).
-I18 = R18_MAP / "bewijsregel-invoer-v3.json"
+#: Aanvulling v3 (Codex-hercontrole v2, B2-rest-2): de invoer -v4 (schema /5,
+#: E-orakel met geregistreerde voorwaardeformuleringen).
+I18 = R18_MAP / "bewijsregel-invoer-v4.json"
 L18 = R18_MAP / "lokale-invoer-v1.json"
-I18_SHA256 = "21c1ad911cbe13b02c377c2799f17b4e0475f9e9a006d39f87ec96f2bc5a09ac"
+I18_SHA256 = "75c975806704520bd3abee39f7a7525dab2722fad14fde24ad48f676ce92f135"
+#: De derde invoer (schema /4, behoud via aanhef): blijft staan, wordt geweigerd.
+I18_V3 = R18_MAP / "bewijsregel-invoer-v3.json"
+I18_V3_SHA256 = "21c1ad911cbe13b02c377c2799f17b4e0475f9e9a006d39f87ec96f2bc5a09ac"
 #: De tweede invoer (schema /3, E ook review_required): blijft staan, wordt geweigerd.
 I18_V2 = R18_MAP / "bewijsregel-invoer-v2.json"
 I18_V2_SHA256 = "fab905cc9d81f803401ebb35409ade36ce63fb6fd4162adfbb55153c78978932"
@@ -945,6 +948,27 @@ class TestInterpretatieFase:
             f"interpretatie|E|{n}" for n in (1, 2, 3)
         ]
 
+    def test_codex_hercontrole_v2_aanhef_in_alle_e_runs_niet_geslaagd(self, tmp_path):
+        """B2-rest-2: 'bij afwezigheid van storing' in alle E-runs gaf 12/12
+        geslaagd; nu handmatig, geen stop, geen 12/12."""
+
+        def antwoord(naam, n, verg):
+            if naam == "E":
+                ruw = _e(
+                    verg, ("bevestigd", ["Uitleen:"], ["bij afwezigheid van storing"])
+                )
+            else:
+                ruw = _juist(naam, verg)
+            return json.dumps(ruw, ensure_ascii=False)
+
+        provider = _R18Provider(_items(), antwoord=antwoord)
+        uit = _i18(_omgeving8(provider), tmp_path, _i_invoer(tmp_path))
+        assert uit["aanroepen_gestart"] == 12 and uit["stop"] is None
+        oordeel = uit["proefoordeel"]
+        assert oordeel["oordeel"] == "wacht_op_handmatige_beoordeling"
+        assert oordeel["m_d_juist"] == 9
+        assert oordeel["e_voorwaarde_behouden"] == [0, 3]
+
     def test_handmatige_e_run_stopt_niet_en_staat_apart(self, tmp_path):
         def antwoord(naam, n, verg):
             if naam == "E" and n == 2:
@@ -1315,18 +1339,23 @@ class TestEchteInvoer:
             asyncio.run(runner.droogrun("interpretatie", I18_V1, tmp_path,
                                         proef=runner.PROEVEN["R18"]))  # fmt: skip
 
-    def test_v2_blijft_staan_maar_wordt_geweigerd(self, tmp_path):
-        """Aanvulling v2: de runner pint -v3; -v2 weigert op schema en hash."""
-        assert _sha(I18_V2) == I18_V2_SHA256 != runner.R18_I_INVOER_SHA256
-        data = json.loads(I18_V2.read_text(encoding="utf-8"))
+    @pytest.mark.parametrize(
+        ("pad", "sha"),
+        [(I18_V2, I18_V2_SHA256), (I18_V3, I18_V3_SHA256)],
+        ids=["v2", "v3"],
+    )
+    def test_oudere_invoer_blijft_staan_maar_wordt_geweigerd(self, tmp_path, pad, sha):
+        """Aanvulling v2/v3: de runner pint -v4; -v2 en -v3 weigeren op schema en hash."""
+        assert _sha(pad) == sha != runner.R18_I_INVOER_SHA256
+        data = json.loads(pad.read_text(encoding="utf-8"))
         with pytest.raises(pi.InvoerfoutError, match="schema"):
             runner.valideer_i_invoer(data, _omgeving8(_BewijsProvider()))
         provider = _R18Provider(_items())
         with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
-            _i18(_omgeving8(provider), tmp_path, I18_V2, proef=runner.PROEVEN["R18"])
+            _i18(_omgeving8(provider), tmp_path, pad, proef=runner.PROEVEN["R18"])
         assert provider.berichten == []
         with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
-            asyncio.run(runner.droogrun("interpretatie", I18_V2, tmp_path,
+            asyncio.run(runner.droogrun("interpretatie", pad, tmp_path,
                                         proef=runner.PROEVEN["R18"]))  # fmt: skip
 
     def test_droog_i_fase_zonder_netwerk_en_zonder_grootboek(self, tmp_path):

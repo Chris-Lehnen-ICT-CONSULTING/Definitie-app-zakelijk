@@ -23,17 +23,19 @@ de plancode is overgenomen, met deze afwijkingen:
   een van beide, anders draagt het feit niet. Alleen context zonder vereiste
   eenheid draagt niet; zonder antwoord of zonder bewijs ook niet (in de
   plancode vacuüm waar). Het oude veld `eenheden` is een orakelfout.
-- Voorwaarde (aanvulling C2 op het plan, Codex-review B2; aanvulling v2,
-  Codex-hercontrole B2-rest): geen woordzoeking maar een status. `behouden`
-  alleen via het schemaveld: een doelvoorwaarde met de frase die met een
-  voorwaardelijke aanhef begint (`AANHEF`), zonder markering (`MARKERINGEN`),
-  niet opgeheven, én `bepaal` geeft `error/buiten_bereik`. `ontkend` bij een
-  markering in een doelvoorwaarde of `buiten_kern`-kenmerk. Een
+- Voorwaarde (aanvulling C2 op het plan, Codex-review B2; aanvulling v2 en
+  v3, Codex-hercontrole B2-rest en B2-rest-2): geen woordzoeking maar een
+  status. `behouden` alleen via het schemaveld: een doelvoorwaarde die na
+  normalisatie (`_normaliseer`) exact gelijk is aan een geregistreerde
+  formulering uit het orakel (`voorwaarde_formuleringen`), niet opgeheven, én
+  `bepaal` geeft `error/buiten_bereik`. `ontkend` bij een markering
+  (`MARKERINGEN`) in een doelvoorwaarde of `buiten_kern`-kenmerk. Een
   `buiten_kern`-kenmerk (M-kenmerk) met de frase geeft nooit automatisch
-  behouden maar `handmatig_beoordelen`, net als een vermelding elders of
-  zonder aanhef, of een doelvoorwaarde naast een onvoorwaardelijk gelijk
-  antwoord (zoals `bewijsregels._onverwerkte_voorwaarden`); `weggevallen` als
-  de frase nergens staat.
+  behouden maar `handmatig_beoordelen`, net als een vermelding elders, een
+  doelvoorwaarde die niet exact een geregistreerde formulering is, of een
+  doelvoorwaarde naast een onvoorwaardelijk gelijk antwoord (zoals
+  `bewijsregels._onverwerkte_voorwaarden`); `weggevallen` als de frase nergens
+  staat. Zonder geregistreerde formuleringen is nooit iets automatisch behouden.
 - F7 apart (deel C: niet geslaagd, niet kritiek): `m_b_dragend_ok_zonder_f7`
   en `m_c_dragend_ok_zonder_f7` laten de feiten met een F7-afwijking buiten
   beschouwing; de plansleutels blijven streng.
@@ -58,7 +60,6 @@ from typing import Any
 from domain.ess05 import bewijsregels as br
 
 __all__ = [
-    "AANHEF",
     "BUURBESCHRIJVING",
     "MARKERINGEN",
     "VOORWAARDESTATUSSEN",
@@ -71,7 +72,9 @@ __all__ = [
 
 BUURBESCHRIJVING = "<buurbeschrijving>"
 _ORAKELVELDEN = frozenset({"kenmerken", "dragend", "uitkomst"})
-_ORAKELOPTIONEEL = frozenset({"voorwaarde", "voorwaarde_vereist_voor", "toelichting"})
+_ORAKELOPTIONEEL = frozenset(
+    {"voorwaarde", "voorwaarde_vereist_voor", "voorwaarde_formuleringen", "toelichting"}
+)
 #: Aanvulling C3: per feit verplicht bewijs (`vereist`) apart van context (`toegestaan`).
 _FEITVELDEN = frozenset({"toestand", "vereist", "toegestaan"})
 _FEITOPTIONEEL = frozenset({"f7"})
@@ -147,18 +150,6 @@ MARKERINGEN = (
     "irrelevant",
     "optioneel",
 )
-#: Aanvulling v2 (B2-rest): de voorwaardelijke aanhef waarmee een doelvoorwaarde
-#: begint (na witruimte, zonder hoofdletteronderscheid).
-AANHEF = (
-    "bij ",
-    "alleen bij ",
-    "uitsluitend bij ",
-    "in geval van ",
-    "als ",
-    "wanneer ",
-    "indien ",
-    "mits ",
-)
 #: Aanvulling v2: alleen de onverwerkte voorwaardelijke doeleis geeft behouden.
 _BEHOUDEN_UITKOMST = ("error", "buiten_bereik")
 VOORWAARDESTATUSSEN = ("behouden", "ontkend", "handmatig_beoordelen", "weggevallen")
@@ -170,6 +161,12 @@ def _markeringen(tekst: str) -> list[str]:
     return sorted(
         m for m in MARKERINGEN if re.search(r"(?<!\w)" + re.escape(m) + r"(?!\w)", t)
     )
+
+
+def _normaliseer(tekst: str) -> str:
+    """Aanvulling v3: casefold, witruimte samengevouwen en getrimd, afsluitende
+    `.`, `,`, `;` en `:` verwijderd."""
+    return re.sub(r"\s+", " ", tekst.casefold()).strip().rstrip(" .,;:")
 
 
 def _teksten(waarde: Any, pad: str = "") -> list[tuple[str, str]]:
@@ -188,15 +185,19 @@ def _teksten(waarde: Any, pad: str = "") -> list[tuple[str, str]]:
 
 
 def _voorwaardestatus(
-    ruw: Any, frase: str, uitkomst: tuple[str | None, str | None]
+    ruw: Any,
+    frase: str,
+    uitkomst: tuple[str | None, str | None],
+    formuleringen: Sequence[str],
 ) -> tuple[str, list[dict[str, Any]]]:
-    """Aanvulling C2/v2 (Codex-review B2, hercontrole B2-rest): behouden,
-    ontkend, handmatig of weggevallen.
+    """Aanvulling C2/v2/v3 (Codex-review B2, hercontrole B2-rest en B2-rest-2):
+    behouden, ontkend, handmatig of weggevallen.
 
-    Behouden is alleen een doelantwoord met een voorwaarde die de frase bevat,
-    met een voorwaardelijke aanhef begint (`AANHEF`), geen markering bevat en
-    niet opgeheven is door een onvoorwaardelijk gelijk doelantwoord, terwijl
-    `bepaal` `error/buiten_bereik` geeft. Een markering in een doelvoorwaarde
+    Behouden is alleen een doelantwoord met een voorwaarde die na normalisatie
+    exact gelijk is aan een van de geregistreerde `formuleringen`, zonder
+    markering, niet opgeheven door een onvoorwaardelijk gelijk doelantwoord,
+    terwijl `bepaal` `error/buiten_bereik` geeft. Een aanhef alleen ("bij
+    afwezigheid van storing") bewijst geen behoud. Een markering in een doelvoorwaarde
     of `buiten_kern`-kenmerk maakt de voorwaarde ontkend, ook naast een
     correcte vermelding. Een `buiten_kern`-kenmerk met de frase geeft nooit
     automatisch behouden: handmatig beoordelen (ook naast een correcte
@@ -229,8 +230,8 @@ def _voorwaardestatus(
                 pad = f"antwoorden[{i}].voorwaarden[{j}]"
                 gezien.add(pad)
                 schoon = not vermeld(pad, v, "doelvoorwaarde")["markering"]
-                aanhef = v.lstrip().casefold().startswith(AANHEF)
-                a_ok = a_ok or (schoon and aanhef and not opgeheven(a))
+                exact = _normaliseer(v) in formuleringen
+                a_ok = a_ok or (schoon and exact and not opgeheven(a))
     for i, m in enumerate(
         _lijst(ruw.get("buiten_kern")) if isinstance(ruw, Mapping) else []
     ):
@@ -359,6 +360,33 @@ def controleer_orakel(orakel: Any, invoer: br.Vergelijkingsinvoer) -> None:
         raise OrakelfoutError("orakel.voorwaarde_vereist_voor zonder voorwaarde")
     if not set(vereist) <= set(orakel["uitkomst"]):
         raise OrakelfoutError("orakel.voorwaarde_vereist_voor buiten orakel.uitkomst")
+    if "voorwaarde_formuleringen" in orakel:
+        _controleer_formuleringen(orakel)
+
+
+def _controleer_formuleringen(orakel: Mapping[str, Any]) -> None:
+    """Aanvulling v3: niet-leeg, genormaliseerd, uniek, met de frase, zonder markering."""
+    formuleringen = orakel["voorwaarde_formuleringen"]
+    frase = orakel.get("voorwaarde")
+    if not frase:
+        raise OrakelfoutError("orakel.voorwaarde_formuleringen zonder voorwaarde")
+    if not _tekstlijst(formuleringen) or not formuleringen:
+        msg = "orakel.voorwaarde_formuleringen: geen niet-lege lijst van teksten"
+        raise OrakelfoutError(msg)
+    if len(set(formuleringen)) != len(formuleringen):
+        raise OrakelfoutError("orakel.voorwaarde_formuleringen: dubbele formulering")
+    for f in formuleringen:
+        if f != _normaliseer(f):
+            msg = f"orakel.voorwaarde_formuleringen: {f!r} is niet genormaliseerd"
+            raise OrakelfoutError(msg)
+        if frase.casefold() not in f:
+            msg = (
+                f"orakel.voorwaarde_formuleringen: {f!r} bevat de frase {frase!r} niet"
+            )
+            raise OrakelfoutError(msg)
+        if _markeringen(f):
+            msg = f"orakel.voorwaarde_formuleringen: markering in {f!r}"
+            raise OrakelfoutError(msg)
 
 
 def scoor(
@@ -419,7 +447,16 @@ def scoor(
     zonder_f7 = [f for f in dragende if not f["f7"]]
     voorwaarde = orakel.get("voorwaarde")
     status, vermeldingen = (
-        _voorwaardestatus(ruw, voorwaarde, (uitkomst, fout))
+        _voorwaardestatus(
+            ruw,
+            voorwaarde,
+            (uitkomst, fout),
+            [
+                f
+                for f in _lijst(orakel.get("voorwaarde_formuleringen"))
+                if isinstance(f, str)
+            ],
+        )
         if voorwaarde
         else (None, None)
     )

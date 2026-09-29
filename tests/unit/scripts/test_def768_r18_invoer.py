@@ -61,8 +61,13 @@ R17_INVOER = R17_MAP / "bewijsregel-invoer-v1.json"
 R17_INVOER_SHA256 = "cda6080dd160399cd605487890738ada5bbbfcedb62680cabeca59bf860bfab4"
 REPRODUCTIE = R17_MAP / "oorzakenonderzoek-ess05-v1-reproductie"
 R18_MAP = ROOT / "reports" / "DEF-768-AI-20260928-R18"
-#: Aanvulling v2 (B2-rest): de invoer met het E-orakel alleen error/buiten_bereik.
-R18_INVOER = R18_MAP / "bewijsregel-invoer-v3.json"
+#: Aanvulling v3 (B2-rest-2): de invoer met geregistreerde voorwaardeformuleringen.
+R18_INVOER = R18_MAP / "bewijsregel-invoer-v4.json"
+#: De derde invoer (schema /4, behoud via aanhef): blijft ongewijzigd staan.
+R18_INVOER_V3 = R18_MAP / "bewijsregel-invoer-v3.json"
+R18_INVOER_V3_SHA256 = (
+    "21c1ad911cbe13b02c377c2799f17b4e0475f9e9a006d39f87ec96f2bc5a09ac"
+)
 #: De eerste invoer (schema /2, orakelveld `eenheden`): blijft ongewijzigd staan.
 R18_INVOER_V1 = R18_MAP / "bewijsregel-invoer-v1.json"
 R18_INVOER_V1_SHA256 = (
@@ -77,7 +82,7 @@ AANVULLING = (
     ROOT
     / "docs"
     / "plans"
-    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v2.md"
+    / "2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v3.md"
 )
 LABEL = "SYNTHETISCH, GEEN MODELUITVOER"
 ORAKEL_C = {
@@ -148,7 +153,7 @@ def _gecorrigeerd(naam, vergelijking) -> dict:
 
 class TestVorm:
     def test_schema_contract_en_vier_items(self, invoer):
-        assert invoer["schema"] == "def768-ess05-bewijsregel-invoer/4"
+        assert invoer["schema"] == "def768-ess05-bewijsregel-invoer/5"
         assert [i["id"] for i in invoer["items"]] == ["A", "C", "D", "E"]
         assert invoer["contract"] == Ess05BewijsregelService.contractidentiteit()
 
@@ -258,9 +263,23 @@ class TestDenE:
         assert {k: orakel[k] for k in ORAKEL_E} == ORAKEL_E
         assert orakel["uitkomst"] == ["error/buiten_bereik"]
         assert orakel["voorwaarde_vereist_voor"] == ["error/buiten_bereik"]
-        for woord in ("aanvulling v2", "handmatig_beoordelen", "M-kenmerk",
+        for woord in ("aanvulling v3", "exact", "handmatig_beoordelen", "M-kenmerk",
                       "error/buiten_bereik", "ontkend", "weggevallen"):  # fmt: skip
             assert woord in orakel["toelichting"], woord
+
+    def test_orakel_e_geregistreerde_formuleringen(self, invoer):
+        """Aanvulling v3 (B2-rest-2): de exacte lijst uit het besluit van Chris; de
+        bron van E gebruikt 'bij storing' en die staat erin."""
+        orakel = _items(invoer)["E"]["orakel"]
+        assert orakel["voorwaarde_formuleringen"] == [
+            "bij storing",
+            "bij een storing",
+            "alleen bij storing",
+            "uitsluitend bij storing",
+            "in geval van storing",
+            "in geval van een storing",
+        ]
+        assert "Uitleen: bij storing stelt" in mk18.BRON_E
 
     @pytest.mark.parametrize("naam", ["A", "C", "D", "E"])
     def test_orakel_past_op_de_invoer(self, invoer, naam):
@@ -369,6 +388,21 @@ class TestScoren:
         oordeel = bs.runoordeel(score, item["orakel"])
         assert oordeel["categorie"] != "geslaagd" and oordeel["m_d_telt"] is False
 
+    @pytest.mark.parametrize(
+        "voorwaarde",
+        ["bij afwezigheid van storing", "als storing ontbreekt",
+         "bij storing of op verzoek", "bij de storingsdienst"],
+    )  # fmt: skip
+    def test_e_codex_hercontrole_v2_met_het_invoerorakel(self, invoer, voorwaarde):
+        """B2-rest-2: een aanhef zonder geregistreerde formulering slaagt niet."""
+        item = _items(invoer)["E"]
+        vergelijking = _vergelijking(item)
+        ruw = _e(vergelijking, ("bevestigd", ["Uitleen:"], [voorwaarde]))
+        score = bs.scoor(ruw, vergelijking, item["orakel"])
+        assert score["voorwaarde_status"] == "handmatig_beoordelen"
+        oordeel = bs.runoordeel(score, item["orakel"])
+        assert oordeel["categorie"] != "geslaagd" and oordeel["m_d_telt"] is False
+
     def test_eenheden_in_de_prompt_van_d(self, invoer):
         """De twee teruggaafzinnen zitten elk in een eigen (Uitleen-/Verhuur-)eenheid."""
         vergelijking = _vergelijking(_items(invoer)["D"])
@@ -391,16 +425,16 @@ class TestSchrijven:
         assert json.loads(doel.read_text(encoding="utf-8")) == invoer
 
     def test_standaarddoel_in_de_r18_map(self):
-        """Aanvulling v2: een nieuw bestand -v3; -v1 en -v2 worden nooit overschreven."""
+        """Aanvulling v3: een nieuw bestand -v4; -v1 t/m -v3 worden nooit overschreven."""
         assert mk18.DOEL == R18_INVOER
-        assert mk18.DOEL not in (R18_INVOER_V1, R18_INVOER_V2)
+        assert mk18.DOEL not in (R18_INVOER_V1, R18_INVOER_V2, R18_INVOER_V3)
 
     def test_schema_opgehoogd(self):
-        assert mk18.INVOERSCHEMA == "def768-ess05-bewijsregel-invoer/4"
+        assert mk18.INVOERSCHEMA == "def768-ess05-bewijsregel-invoer/5"
 
     def test_aanvulling_gepind_in_de_herkomst(self, invoer):
         assert invoer["herkomst"]["aanvulling"] == {
-            "pad": "docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v2.md",
+            "pad": "docs/plans/2026-09-28-DEF-768-ess05-bewijseenheden-plan-v1-aanvulling-v3.md",
             "sha256": _sha(AANVULLING),
         }
         assert _sha(AANVULLING) == mk18.AANVULLING_SHA256
@@ -433,3 +467,11 @@ class TestVastgelegdeInvoer:
         assert data["schema"] == "def768-ess05-bewijsregel-invoer/3"
         v2 = {i["id"]: i for i in data["items"]}
         assert "review_required" in v2["E"]["orakel"]["uitkomst"]
+
+    @pytest.mark.skipif(not R18_INVOER_V3.is_file(), reason="R18-invoer v3 ontbreekt")
+    def test_v3_ongewijzigd_zonder_geregistreerde_formuleringen(self):
+        assert _sha(R18_INVOER_V3) == R18_INVOER_V3_SHA256
+        data = json.loads(R18_INVOER_V3.read_text("utf-8"))
+        assert data["schema"] == "def768-ess05-bewijsregel-invoer/4"
+        v3 = {i["id"]: i for i in data["items"]}
+        assert "voorwaarde_formuleringen" not in v3["E"]["orakel"]
