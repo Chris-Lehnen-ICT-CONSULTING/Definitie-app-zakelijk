@@ -14,6 +14,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from collections.abc import Mapping
 from types import ModuleType
 from typing import Any
 
@@ -34,6 +35,7 @@ from services.ai.base_client import (
     AIRateLimitClientError,
     AsyncAIClient,
     ChatResponse,
+    response_schema_sha256,
 )
 from services.ai.model_router import ModelRouter
 from services.interfaces import (
@@ -166,6 +168,7 @@ class AIServiceV2(AIServiceInterface):
         max_retries: int | None = None,
         token_estimate: str = "auto",
         offload_postprocessing: bool = False,
+        response_schema: Mapping[str, Any] | None = None,
     ) -> AIGenerationResult:
         """
         Generate a definition using AI based on the given prompt.
@@ -193,6 +196,10 @@ class AIServiceV2(AIServiceInterface):
                 een deadline (`asyncio.timeout`) daadwerkelijk kan
                 onderbreken; een onderbroken raming schrijft niets in de
                 cache. False = bestaand inline gedrag.
+            response_schema: DEF-836 P1 opt-in: native JSON-schema-uitvoer via
+                de providerclient; None = niets meesturen (bestaand gedrag).
+                Een niet-ondersteunde combinatie is een fout vóór de
+                modelaanroep, nooit een stille terugval naar vrije tekst.
 
         Returns:
             AIGenerationResult with generated text and metadata
@@ -212,13 +219,19 @@ class AIServiceV2(AIServiceInterface):
             model_to_use = self.default_model
 
         try:
-            # Generate V1-compatible cache key
+            # Generate V1-compatible cache key; een schema (DEF-836 P1) telt
+            # alleen mee wanneer gezet, als volgordegevoelige hash.
             cache_key = cache_gpt_call(
                 prompt=prompt,
                 model=model_to_use,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 system_prompt=system_prompt,
+                **(
+                    {"response_schema_sha256": response_schema_sha256(response_schema)}
+                    if response_schema is not None
+                    else {}
+                ),
             )
 
             # Check cache first
@@ -246,9 +259,16 @@ class AIServiceV2(AIServiceInterface):
                     system_prompt=system_prompt,
                     use_cache=False,  # We handle caching at this level
                     response_hook=lambda r: transport.update(
-                        self._transportmetadata(r)
+                        self._transportmetadata(
+                            r, gestructureerd=response_schema is not None
+                        )
                     ),
                     **self._clientopties(max_attempts, max_retries),
+                    **(
+                        {"response_schema": response_schema}
+                        if response_schema is not None
+                        else {}
+                    ),
                 ),
                 timeout=timeout_seconds,
             )
@@ -435,14 +455,36 @@ class AIServiceV2(AIServiceInterface):
         )
 
     @staticmethod
-    def _transportmetadata(response: ChatResponse) -> dict[str, Any]:
+    def _transportmetadata(
+        response: ChatResponse, *, gestructureerd: bool = False
+    ) -> dict[str, Any]:
         """Additieve metadata uit de providerrespons (DEF-766, correctieronde 3, F1).
 
         Alleen `stop_reason`, en alleen wanneer de provider het meldt; de
         retourvorm van `generate_definition` blijft verder ongewijzigd.
+        Met een antwoordschema (DEF-836 P1) daarnaast het door de provider
+        gemelde model (`provider_model`, los van het gevraagde) en de veilige
+        schemabevestiging van de client (hash, bloktypen) — nooit inhoud.
         """
         stop_reason = getattr(response, "stop_reason", None)
-        return {"stop_reason": stop_reason} if isinstance(stop_reason, str) else {}
+        metadata: dict[str, Any] = (
+            {"stop_reason": stop_reason} if isinstance(stop_reason, str) else {}
+        )
+        if not gestructureerd:
+            return metadata
+        gemeld = getattr(response, "model", None)
+        if isinstance(gemeld, str) and gemeld:
+            metadata["provider_model"] = gemeld
+        client = getattr(response, "metadata", None)
+        if not isinstance(client, Mapping):
+            client = {}
+        schemahash = client.get("response_schema_sha256")
+        if isinstance(schemahash, str):
+            metadata["response_schema_sha256"] = schemahash
+        bloktypen = client.get("content_block_types")
+        if isinstance(bloktypen, list):
+            metadata["content_block_types"] = [str(b) for b in bloktypen]
+        return metadata
 
     async def batch_generate(
         self, requests: list[AIBatchRequest]

@@ -9,8 +9,11 @@ directly from openai/anthropic SDKs.
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import re
 import weakref
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
@@ -42,6 +45,19 @@ def foutketen(exc: BaseException, *, diepte: int = 3) -> str:
         delen.append(f"{type(huidig).__name__}: {huidig}")
         huidig = huidig.__cause__ or huidig.__context__
     return sanitize_error(" ← ".join(delen))
+
+
+def response_schema_sha256(schema: Mapping[str, Any]) -> str:
+    """Lokale identiteit van een antwoordschema (DEF-836 P1).
+
+    Bewust zonder `sort_keys`: de eigenschapsvolgorde hoort bij het schema
+    (de provider houdt haar aan), dus een andere volgorde is een ander
+    schema. Alleen voor binding, cache en controle; gaat nooit naar de
+    provider.
+    """
+    return hashlib.sha256(
+        json.dumps(schema, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
 
 
 class Eventloopwacht:
@@ -128,6 +144,14 @@ class AIAuthenticationClientError(AIClientError):
     """
 
 
+class AIStructuredOutputUnsupportedError(AIClientError):
+    """Een antwoordschema is gevraagd voor een combinatie van provider,
+    endpoint, model en instellingen die daarvoor niet expliciet is
+    gecontroleerd (DEF-836 P1). Wordt vóór verzending gegooid: geen
+    modelaanroep, geen stille terugval naar vrije tekst, geen herhaling.
+    """
+
+
 # ---------------------------------------------------------------------------
 # Protocol
 # ---------------------------------------------------------------------------
@@ -150,11 +174,17 @@ class AsyncAIClient(Protocol):
         max_tokens: int = 300,
         timeout: float | None = None,
         max_retries: int | None = None,
+        response_schema: Mapping[str, Any] | None = None,
     ) -> ChatResponse:
         """Send a chat completion request and return a provider-agnostic response.
 
         ``max_retries`` (DEF-766, opt-in): SDK-interne retries voor déze
         aanroep; ``None`` laat de clientdefault staan.
+
+        ``response_schema`` (DEF-836 P1, opt-in): native JSON-schema-uitvoer.
+        ``None`` = niets meesturen. Een client die de gevraagde combinatie
+        niet ondersteunt, gooit vóór verzending
+        ``AIStructuredOutputUnsupportedError``.
 
         Raises:
             AIRateLimitClientError: When the provider rate-limits the request.

@@ -39,6 +39,7 @@ from domain.int03.contract import (
     bereken_int03_vingerafdruk,
     valideer_oordeel,
 )
+from services.ai.base_client import response_schema_sha256
 from services.interfaces import AIGenerationResult
 from services.validation.int03_assessment_service import Int03Assessment
 
@@ -416,7 +417,23 @@ class FakeModelgrens:
             if isinstance(uitkomst, str)
             else json.dumps(uitkomst, ensure_ascii=False)
         )
-        return _resultaat(antwoord, self.beoordelingsmodel)
+        return _resultaat(
+            antwoord, self.beoordelingsmodel, **_schemabevestiging(kwargs)
+        )
+
+
+def _schemabevestiging(kwargs: dict[str, Any]) -> dict[str, Any]:
+    """Wat een schema-conforme AI-laag bij een geslaagd antwoord meldt (DEF-836
+    P1): stopreden, één tekstblok en de hash van het werkelijk ontvangen
+    schema. Zonder `response_schema` niets — dan geeft de dienst geen oordeel."""
+    schema = kwargs.get("response_schema")
+    if schema is None:
+        return {}
+    return {
+        "stop_reason": "end_turn",
+        "content_block_types": ["text"],
+        "response_schema_sha256": response_schema_sha256(schema),
+    }
 
 
 class FakeRouter:
