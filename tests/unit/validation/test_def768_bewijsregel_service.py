@@ -314,9 +314,9 @@ class TestPromptV4:
         identiteit = bs.Ess05BewijsregelService.contractidentiteit()
         assert (
             identiteit["interpretation_prompt_version"]
-            == "ess05-interpretatie-prompt/4"
+            == "ess05-interpretatie-prompt/5"
         )
-        assert identiteit["bewijsregel_version"] == "ess05-bewijsregels/6"
+        assert identiteit["bewijsregel_version"] == "ess05-bewijsregels/7"
         assert identiteit["interpretation_schema_version"] == "ess05-interpretatie/3"
 
     def test_eenheden_genummerd_definitie_en_context_letterlijk(self):
@@ -358,7 +358,7 @@ class TestInterpreteer:
         stap = asyncio.run(_dienst(ai).interpreteer(invoer))
         assert stap.fout is None and stap.interpretatie is not None
         assert len(ai.aanroepen) == 1
-        assert stap.registratie["prompt_version"] == "ess05-interpretatie-prompt/4"
+        assert stap.registratie["prompt_version"] == "ess05-interpretatie-prompt/5"
 
     def test_ongeldig_geeft_fout_en_geen_interpretatie(self):
         invoer = dt._invoer()

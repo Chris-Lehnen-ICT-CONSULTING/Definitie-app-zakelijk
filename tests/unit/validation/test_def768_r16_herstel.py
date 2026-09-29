@@ -298,9 +298,9 @@ class TestInterpretatieprompt:
     def test_promptversie_en_regelversie_opgehoogd(self):
         identiteit = bs.Ess05BewijsregelService.contractidentiteit()
         assert identiteit["interpretation_prompt_version"] == (
-            "ess05-interpretatie-prompt/4"
+            "ess05-interpretatie-prompt/5"
         )
-        assert identiteit["bewijsregel_version"] == "ess05-bewijsregels/6"
+        assert identiteit["bewijsregel_version"] == "ess05-bewijsregels/7"
         assert identiteit["interpretation_schema_version"] == "ess05-interpretatie/3"
         assert identiteit["render_version"] == "ess05-bewijsregels-render/2"
 

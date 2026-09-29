@@ -1,4 +1,4 @@
-"""ESS-05 — broninterpretatie plus gebonden controle voor `ess05-bewijsregels/6` (DEF-768).
+"""ESS-05 — broninterpretatie plus gebonden controle voor `ess05-bewijsregels/7` (DEF-768).
 
 Contract: `docs/technisch/ess05-bewijsregels-contract-v6.md` (delta op v5). Eén beoordeling:
 
@@ -84,9 +84,11 @@ def interpretatiesysteemprompt() -> str:
         "zelf uitdrukken (een relatie met een gedeeld argument tussen delen, een "
         "disjunctie, een uitzondering), zet het dan onder buiten_bereik; laat het "
         "nooit weg.\n"
-        "2. buiten_kern: kenmerken die volgens de bedoelde betekenis of een bron bij "
-        "het begrip horen maar die de definitie niet uitdrukt, ook niet anders "
-        "geformuleerd.\n"
+        "2. buiten_kern: alleen kenmerken die de bedoelde betekenis of een bron van "
+        "het doelbegrip aan het begrip toekent en die de definitie niet uitdrukt, "
+        "ook niet anders geformuleerd. Is er geen bedoelde betekenis en geen bron "
+        "van het doelbegrip, dan is buiten_kern leeg. Neem nooit kenmerken over uit "
+        "de beschrijving van een verwant begrip of uit eigen kennis.\n"
         "3. buurgroepen: beschrijft het materiaal verschillende soorten gevallen van "
         "een verwant begrip (bijvoorbeeld soms permanent en soms tijdelijk, of alleen "
         "onder een voorwaarde), geef elke soort als deelgroep met de eenheden die "
@@ -208,7 +210,9 @@ class Ess05BewijsregelService:
     #: /2 (R16-herstel): bevestigd = bepaling; benoemde, unieke passage per onderwerp.
     #: /3 (R16-H-01): de onderwerpnaam is een tekstanker; een andere naam mag erbij.
     #: /4 (oorzakenonderzoek-ess05-v1, O2): bewijs via genummerde eenheden; hergebruik expliciet.
-    PROMPT_VERSION = "ess05-interpretatie-prompt/4"
+    #: /5 (robuustheidsronde P1, besluit Chris 29-09): buiten_kern alleen uit de
+    #: bedoelde betekenis of bronnen van het doelbegrip; anders leeg.
+    PROMPT_VERSION = "ess05-interpretatie-prompt/5"
     TASK_TYPE = "validation"  # dezelfde route als Ess05AssessmentService
 
     def __init__(
@@ -378,6 +382,7 @@ class Ess05BewijsregelService:
                     else None
                 ),
                 "elapsed_seconds": round(float(registratie.get("verstreken") or 0), 3),
+                "notes": list(registratie.get("notities") or []),
             }
         document["controls"] = [
             {
@@ -529,6 +534,8 @@ class Ess05BewijsregelService:
             return Interpretatiestap(
                 registratie, None, self._fout(exc.soort, exc.melding, registratie)
             )
+        # v7: weggelaten betekeniskenmerken als diagnostische notitie.
+        registratie["notities"] = list(interpretatie.weggelaten)
         return Interpretatiestap(registratie, interpretatie, None)
 
     async def beoordeel(self, invoer: br.Vergelijkingsinvoer) -> Bewijsregelresultaat:

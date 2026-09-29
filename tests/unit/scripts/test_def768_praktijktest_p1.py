@@ -285,7 +285,7 @@ class TestDroogrun:
             "ess05_verification",
         }
         assert {a["promptversie"] for a in aanroepen} <= {
-            "ess05-interpretatie-prompt/4",
+            "ess05-interpretatie-prompt/5",
             "ess05-local-verify/1",
         }
         assert [a["volgnummer"] for a in aanroepen] == list(

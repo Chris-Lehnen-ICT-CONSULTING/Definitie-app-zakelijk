@@ -198,7 +198,7 @@ class TestAansluiting:
         assert isinstance(dienst, bs.Ess05BewijsregelService)
         assert isinstance(dienst.controle, Ess05LocalVerificationService)
         assert container.ess05_assessment_service() is dienst
-        assert dienst.binding().prompt_version == "ess05-interpretatie-prompt/4"
+        assert dienst.binding().prompt_version == "ess05-interpretatie-prompt/5"
 
     def test_generatie_orchestrator_bouwt_standaard_de_bewijsregelservice(
         self, monkeypatch

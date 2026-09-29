@@ -171,10 +171,12 @@ class TestVorm:
         # Zoals Ess05BewijsregelService.contractidentiteit: prompthash(system, "").
         berekend = prompthash(interpretatiesysteemprompt(), "")
         assert invoer["contract"]["interpretation_system_prompt_sha256"] == berekend
+        # De maker bindt het contract van de code: sinds de robuustheidsronde
+        # prompt /5 en bewijsregels /7 (de gepinde R18-invoer blijft /4 en /6).
         assert invoer["contract"]["interpretation_prompt_version"] == (
-            "ess05-interpretatie-prompt/4"
+            "ess05-interpretatie-prompt/5"
         )
-        assert invoer["contract"]["bewijsregel_version"] == "ess05-bewijsregels/6"
+        assert invoer["contract"]["bewijsregel_version"] == "ess05-bewijsregels/7"
 
     def test_itemvelden(self, invoer):
         velden = {
@@ -487,8 +489,18 @@ class TestSchrijven:
 @pytest.mark.skipif(not R18_INVOER.is_file(), reason="git-ignored R18-invoer ontbreekt")
 class TestVastgelegdeInvoer:
     def test_vastgelegde_invoer_gelijk_aan_de_maker(self, invoer):
-        tekst = R18_INVOER.read_text(encoding="utf-8")
-        assert tekst == json.dumps(invoer, ensure_ascii=False, indent=2) + "\n"
+        # Robuustheidsronde (zoals R17 bij v6): de vastgelegde R18-invoer is
+        # historisch (/4, /6); de maker op de huidige code wijkt alleen af in het
+        # contract en de prompt_sha256 per item.
+        oud = json.loads(R18_INVOER.read_text(encoding="utf-8"))
+        nieuw = json.loads(json.dumps(invoer))
+        assert oud["contract"]["bewijsregel_version"] == "ess05-bewijsregels/6"
+        assert oud["contract"]["interpretation_prompt_version"] == (
+            "ess05-interpretatie-prompt/4"
+        )
+        for item in (*oud["items"], *nieuw["items"]):
+            item.pop("prompt_sha256")
+        assert {**oud, "contract": None} == {**nieuw, "contract": None}
 
     @pytest.mark.skipif(not R18_INVOER_V1.is_file(), reason="R18-invoer v1 ontbreekt")
     def test_v1_ongewijzigd_en_ongeldig_onder_de_nieuwe_orakelstructuur(self):

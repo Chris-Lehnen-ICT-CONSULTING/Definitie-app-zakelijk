@@ -1,0 +1,164 @@
+{
+ "bron": "logs/def768/echte-test-v1/echt-p1-v1 (P1 echt, 29-09-2026)",
+ "records": {
+  "277": {
+   "begrip": "verdachte",
+   "definitie": "Natuurlijk persoon ten aanzien van wie uit feiten of omstandigheden een redelijk vermoeden van schuld aan een strafbaar feit voortvloeit.",
+   "contexten": {
+    "organisatorische_context": [],
+    "juridische_context": [
+     "strafrecht",
+     "strafvordering"
+    ],
+    "wettelijke_basis": [
+     "Wetboek van Strafvordering"
+    ]
+   },
+   "intentie": {
+    "toelichting": null,
+    "categorie": "proces",
+    "betekenisverduidelijking": null,
+    "verduidelijking": null
+   },
+   "buren": [
+    {
+     "id": "repository:278",
+     "term": "raadsman",
+     "definitie": "Soort  \nrechtsbijstandverlener die als advocaat optreedt voor een verdachte in een strafvorderlijke procedure op grond van een keuze door de verdachte of een aanwijzing door het bestuur van de raad voor rechtsbijstand [Bron 1] [Bron 2] [Bron 3].",
+     "herkomst": "repository",
+     "bevestigd": false
+    },
+    {
+     "id": "repository:279",
+     "term": "rechter-commissaris",
+     "definitie": "Rechter die binnen een rechtbank is belast met de behandeling van strafzaken door het verrichten of doen verrichten van bij wet omschreven onderzoekshandelingen en het geven van bij wet omschreven bevelen, met toezichthoudende bevoegdheden ten aanzien van het opsporingsonderzoek [Bron 1] [Bron 4].",
+     "herkomst": "repository",
+     "bevestigd": false
+    }
+   ],
+   "verzonden_materiaal": {
+    "definition": "Natuurlijk persoon ten aanzien van wie uit feiten of omstandigheden een redelijk vermoeden van schuld aan een strafbaar feit voortvloeit.",
+    "context": "juridische_context: strafrecht, strafvordering\nwettelijke_basis: Wetboek van Strafvordering",
+    "neighbour:repository:278": "Soort  \nrechtsbijstandverlener die als advocaat optreedt voor een verdachte in een strafvorderlijke procedure op grond van een keuze door de verdachte of een aanwijzing door het bestuur van de raad voor rechtsbijstand [Bron 1] [Bron 2] [Bron 3].",
+    "neighbour:repository:279": "Rechter die binnen een rechtbank is belast met de behandeling van strafzaken door het verrichten of doen verrichten van bij wet omschreven onderzoekshandelingen en het geven van bij wet omschreven bevelen, met toezichthoudende bevoegdheden ten aanzien van het opsporingsonderzoek [Bron 1] [Bron 4]."
+   },
+   "materiaalhashes": {
+    "definition": "9196f7559a6b0226fb5d522110cfa3310c59e6d69140c3382a2073e6f4ec12a7",
+    "context": "b2e1145a3b612f72ae63d201ddc3ecc25876c3225aedfa46383b2d70bbdfc309",
+    "neighbour:repository:278": "0ec24ee9068b0137f4445f9f7e7c0a1e6fee8eaa0cfdff3748226fb74cc38f13",
+    "neighbour:repository:279": "355afbc4111f55f42215258a3a42ef0a6d077cd52be1cf4fb34600954eb68a8f"
+   },
+   "ruwe_respons": "{\n  \"schema_version\": \"ess05-interpretatie/3\",\n  \"kern\": {\n    \"bovenbegrip\": \"Natuurlijk persoon\",\n    \"kenmerken\": [\n      {\n        \"id\": \"K1\",\n        \"kenmerk\": \"aard van de persoon\",\n        \"waarde\": \"is een natuurlijk persoon\",\n        \"citaat\": \"Natuurlijk persoon\"\n      },\n      {\n        \"id\": \"K2\",\n        \"kenmerk\": \"grondslag van het vermoeden\",\n        \"waarde\": \"het vermoeden vloeit voort uit feiten of omstandigheden die op hem betrekking hebben\",\n        \"citaat\": \"ten aanzien van wie uit feiten of omstandigheden\"\n      },\n      {\n        \"id\": \"K3\",\n        \"kenmerk\": \"vermoeden van schuld\",\n        \"waarde\": \"er vloeit een redelijk vermoeden van schuld aan een strafbaar feit voort\",\n        \"citaat\": \"een redelijk vermoeden van schuld aan een strafbaar feit voortvloeit\"\n      }\n    ]\n  },\n  \"buiten_kern\": [\n    {\n      \"id\": \"M1\",\n      \"kenmerk\": \"procedurele positie\",\n      \"waarde\": \"is partij in een strafvorderlijke procedure\"\n    },\n    {\n      \"id\": \"M2\",\n      \"kenmerk\": \"recht op rechtsbijstand\",\n      \"waarde\": \"kan zich laten bijstaan door een raadsman, door eigen keuze of door aanwijzing van het bestuur van de raad voor rechtsbijstand\"\n    }\n  ],\n  \"buurgroepen\": [],\n  \"buiten_bereik\": [],\n  \"antwoorden\": [\n    {\n      \"kenmerk_id\": \"K1\",\n      \"onderwerp\": \"doel\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K2\",\n      \"onderwerp\": \"doel\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K3\",\n      \"onderwerp\": \"doel\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"M1\",\n      \"onderwerp\": \"doel\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"M2\",\n      \"onderwerp\": \"doel\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K1\",\n      \"onderwerp\": \"repository:278\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K2\",\n      \"onderwerp\": \"repository:278\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K3\",\n      \"onderwerp\": \"repository:278\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"M1\",\n      \"onderwerp\": \"repository:278\",\n      \"toestand\": \"bevestigd\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": [\"U1\"]\n    },\n    {\n      \"kenmerk_id\": \"M2\",\n      \"onderwerp\": \"repository:278\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K1\",\n      \"onderwerp\": \"repository:279\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K2\",\n      \"onderwerp\": \"repository:279\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K3\",\n      \"onderwerp\": \"repository:279\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"M1\",\n      \"onderwerp\": \"repository:279\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"M2\",\n      \"onderwerp\": \"repository:279\",\n      \"toestand\": \"onbesproken\",\n      \"voorwaarden\": [],\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    }\n  ]\n}",
+   "fout_p1": {
+    "type": "betekenisfout",
+    "message": "M1 (procedurele positie: is partij in een strafvorderlijke procedure) is als betekeniskenmerk opgegeven zonder bevestiging in de doelbetekenis",
+    "phase": "interpretation"
+   }
+  },
+  "365": {
+   "begrip": "authenticatie",
+   "definitie": "Proces waarin de opgegeven identiteit van een gebruiker of systeem wordt geverifieerd aan de hand van vooraf geregistreerde authenticatiemiddelen voordat toegang tot gegevens of applicaties wordt verleend.",
+   "contexten": {
+    "organisatorische_context": [
+     "OM"
+    ],
+    "juridische_context": [],
+    "wettelijke_basis": []
+   },
+   "intentie": {
+    "toelichting": null,
+    "categorie": "proces",
+    "betekenisverduidelijking": null,
+    "verduidelijking": null
+   },
+   "buren": [
+    {
+     "id": "repository:1",
+     "term": "toets",
+     "definitie": "- Ontologische categorie: soort\nType beoordeling met een vastgestelde methodiek waarbij een deskundige of geautoriseerde functionaris een objectieve vaststelling doet van de aanwezigheid, geldigheid of juistheid van een feit, gegeven of situatie op basis van vooraf bepaalde criteria.",
+     "herkomst": "repository",
+     "bevestigd": false
+    },
+    {
+     "id": "repository:366",
+     "term": "overeenkomst",
+     "definitie": "Schriftelijke afspraak tussen de officier van justitie en een partij die geen opsporingsambtenaar is, waarin wederzijdse rechten en verplichtingen ten behoeve van een opsporingsonderzoek worden vastgelegd.",
+     "herkomst": "repository",
+     "bevestigd": false
+    }
+   ],
+   "verzonden_materiaal": {
+    "definition": "Proces waarin de opgegeven identiteit van een gebruiker of systeem wordt geverifieerd aan de hand van vooraf geregistreerde authenticatiemiddelen voordat toegang tot gegevens of applicaties wordt verleend.",
+    "context": "organisatorische_context: OM",
+    "neighbour:repository:1": "- Ontologische categorie: soort\nType beoordeling met een vastgestelde methodiek waarbij een deskundige of geautoriseerde functionaris een objectieve vaststelling doet van de aanwezigheid, geldigheid of juistheid van een feit, gegeven of situatie op basis van vooraf bepaalde criteria.",
+    "neighbour:repository:366": "Schriftelijke afspraak tussen de officier van justitie en een partij die geen opsporingsambtenaar is, waarin wederzijdse rechten en verplichtingen ten behoeve van een opsporingsonderzoek worden vastgelegd."
+   },
+   "materiaalhashes": {
+    "definition": "beba68e423b555c70b18afb553cdbabd032302fad95aaac128eede3d95fc06d2",
+    "context": "5dfc1e6bf590c69b6f4d2c38f1b005fe0ae9f47249fc77f923cedcf0d4390fb2",
+    "neighbour:repository:1": "d06112c2853328115eab158c7795e3fe43365bfba6c286a105fa9bda316f3ba8",
+    "neighbour:repository:366": "bdb392063515ef63ccbeaf1e6ff869be709aa542752e1f2710f5e5380e3c877a"
+   },
+   "ruwe_respons": "{\n  \"schema_version\": \"ess05-interpretatie/3\",\n  \"kern\": {\n    \"bovenbegrip\": \"Proces\",\n    \"kenmerken\": [\n      {\n        \"id\": \"K1\",\n        \"kenmerk\": \"object van verificatie\",\n        \"waarde\": \"de opgegeven identiteit van een gebruiker of systeem wordt binnen het proces geverifieerd\",\n        \"citaat\": \"waarin de opgegeven identiteit van een gebruiker of systeem wordt geverifieerd\"\n      },\n      {\n        \"id\": \"K2\",\n        \"kenmerk\": \"verificatiegrondslag\",\n        \"waarde\": \"de verificatie gebeurt aan de hand van authenticatiemiddelen die vooraf zijn geregistreerd\",\n        \"citaat\": \"aan de hand van vooraf geregistreerde authenticatiemiddelen\"\n      },\n      {\n        \"id\": \"K3\",\n        \"kenmerk\": \"moment ten opzichte van toegangverlening\",\n        \"waarde\": \"vindt plaats voordat toegang tot gegevens of applicaties wordt verleend\",\n        \"citaat\": \"voordat toegang tot gegevens of applicaties wordt verleend\"\n      }\n    ]\n  },\n  \"buiten_kern\": [\n    {\n      \"id\": \"M1\",\n      \"kenmerk\": \"uitkomst\",\n      \"waarde\": \"leidt tot een uitspraak of de opgegeven identiteit juist is (geslaagde of mislukte authenticatie)\"\n    },\n    {\n      \"id\": \"M2\",\n      \"kenmerk\": \"verhouding tot autorisatie\",\n      \"waarde\": \"gaat over identiteitsvaststelling, niet over het bepalen van rechten of bevoegdheden\"\n    }\n  ],\n  \"buurgroepen\": [],\n  \"buiten_bereik\": [],\n  \"antwoorden\": [\n    {\n      \"kenmerk_id\": \"K1\",\n      \"onderwerp\": \"doel\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K2\",\n      \"onderwerp\": \"doel\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K3\",\n      \"onderwerp\": \"doel\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"M1\",\n      \"onderwerp\": \"doel\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"M2\",\n      \"onderwerp\": \"doel\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K1\",\n      \"onderwerp\": \"repository:1\",\n      \"toestand\": \"bevestigd\",\n      \"context\": \"algemeen\",\n      \"citaten\": [\"U1\"]\n    },\n    {\n      \"kenmerk_id\": \"K2\",\n      \"onderwerp\": \"repository:1\",\n      \"toestand\": \"bevestigd\",\n      \"context\": \"algemeen\",\n      \"citaten\": [\"U1\"]\n    },\n    {\n      \"kenmerk_id\": \"K3\",\n      \"onderwerp\": \"repository:1\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"M1\",\n      \"onderwerp\": \"repository:1\",\n      \"toestand\": \"bevestigd\",\n      \"context\": \"algemeen\",\n      \"citaten\": [\"U1\"]\n    },\n    {\n      \"kenmerk_id\": \"M2\",\n      \"onderwerp\": \"repository:1\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K1\",\n      \"onderwerp\": \"repository:366\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K2\",\n      \"onderwerp\": \"repository:366\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"K3\",\n      \"onderwerp\": \"repository:366\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"M1\",\n      \"onderwerp\": \"repository:366\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    },\n    {\n      \"kenmerk_id\": \"M2\",\n      \"onderwerp\": \"repository:366\",\n      \"toestand\": \"onbesproken\",\n      \"context\": \"algemeen\",\n      \"citaten\": []\n    }\n  ]\n}",
+   "fout_p1": {
+    "type": "schemafout",
+    "message": "antwoorden[1]: onbekende of ontbrekende velden ['voorwaarden']",
+    "phase": "interpretation"
+   }
+  },
+  "278": {
+   "begrip": "raadsman",
+   "definitie": "Soort  \nrechtsbijstandverlener die als advocaat optreedt voor een verdachte in een strafvorderlijke procedure op grond van een keuze door de verdachte of een aanwijzing door het bestuur van de raad voor rechtsbijstand [Bron 1] [Bron 2] [Bron 3].",
+   "contexten": {
+    "organisatorische_context": [],
+    "juridische_context": [
+     "strafrecht",
+     "strafvordering"
+    ],
+    "wettelijke_basis": [
+     "Wetboek van Strafvordering"
+    ]
+   },
+   "intentie": {
+    "toelichting": null,
+    "categorie": "proces",
+    "betekenisverduidelijking": null,
+    "verduidelijking": null
+   },
+   "buren": [
+    {
+     "id": "repository:277",
+     "term": "verdachte",
+     "definitie": "Natuurlijk persoon ten aanzien van wie uit feiten of omstandigheden een redelijk vermoeden van schuld aan een strafbaar feit voortvloeit.",
+     "herkomst": "repository",
+     "bevestigd": false
+    },
+    {
+     "id": "repository:279",
+     "term": "rechter-commissaris",
+     "definitie": "Rechter die binnen een rechtbank is belast met de behandeling van strafzaken door het verrichten of doen verrichten van bij wet omschreven onderzoekshandelingen en het geven van bij wet omschreven bevelen, met toezichthoudende bevoegdheden ten aanzien van het opsporingsonderzoek [Bron 1] [Bron 4].",
+     "herkomst": "repository",
+     "bevestigd": false
+    }
+   ],
+   "verzonden_materiaal": {
+    "definition": "Soort  \nrechtsbijstandverlener die als advocaat optreedt voor een verdachte in een strafvorderlijke procedure op grond van een keuze door de verdachte of een aanwijzing door het bestuur van de raad voor rechtsbijstand [Bron 1] [Bron 2] [Bron 3].",
+    "context": "juridische_context: strafrecht, strafvordering\nwettelijke_basis: Wetboek van Strafvordering",
+    "neighbour:repository:277": "Natuurlijk persoon ten aanzien van wie uit feiten of omstandigheden een redelijk vermoeden van schuld aan een strafbaar feit voortvloeit.",
+    "neighbour:repository:279": "Rechter die binnen een rechtbank is belast met de behandeling van strafzaken door het verrichten of doen verrichten van bij wet omschreven onderzoekshandelingen en het geven van bij wet omschreven bevelen, met toezichthoudende bevoegdheden ten aanzien van het opsporingsonderzoek [Bron 1] [Bron 4]."
+   },
+   "materiaalhashes": {
+    "definition": "0ec24ee9068b0137f4445f9f7e7c0a1e6fee8eaa0cfdff3748226fb74cc38f13",
+    "context": "b2e1145a3b612f72ae63d201ddc3ecc25876c3225aedfa46383b2d70bbdfc309",
+    "neighbour:repository:277": "9196f7559a6b0226fb5d522110cfa3310c59e6d69140c3382a2073e6f4ec12a7",
+    "neighbour:repository:279": "355afbc4111f55f42215258a3a42ef0a6d077cd52be1cf4fb34600954eb68a8f"
+   },
+   "ruwe_respons": "{\n  \"schema_version\": \"ess05-interpretatie/3\",\n  \"kern\": {\n    \"bovenbegrip\": \"rechtsbijstandverlener\",\n    \"kenmerken\": [\n      {\"id\": \"K1\", \"kenmerk\": \"hoedanigheid\", \"waarde\": \"treedt op als advocaat\", \"citaat\": \"die als advocaat optreedt\"},\n      {\"id\": \"K2\", \"kenmerk\": \"voor wie opgetreden wordt\", \"waarde\": \"voor een verdachte\", \"citaat\": \"voor een verdachte\"},\n      {\"id\": \"K3\", \"kenmerk\": \"procedurele omgeving\", \"waarde\": \"in een strafvorderlijke procedure\", \"citaat\": \"in een strafvorderlijke procedure\"}\n    ]\n  },\n  \"buiten_kern\": [\n    {\"id\": \"M1\", \"kenmerk\": \"rechtsgebied\", \"waarde\": \"strafrecht en strafvordering, met als wettelijke basis het Wetboek van Strafvordering\"}\n  ],\n  \"buurgroepen\": [],\n  \"buiten_bereik\": [\n    {\"citaat\": \"op grond van een keuze door de verdachte of een aanwijzing door het bestuur van de raad voor rechtsbijstand\", \"reden\": \"disjunctie van twee grondslagen (keuze door de verdachte of aanwijzing door het bestuur van de raad voor rechtsbijstand); niet als enkelvoudige eigenschap van het geval zelf uit te drukken\"}\n  ],\n  \"antwoorden\": [\n    {\"kenmerk_id\": \"K1\", \"onderwerp\": \"doel\", \"toestand\": \"onbesproken\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": []},\n    {\"kenmerk_id\": \"K2\", \"onderwerp\": \"doel\", \"toestand\": \"onbesproken\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": []},\n    {\"kenmerk_id\": \"K3\", \"onderwerp\": \"doel\", \"toestand\": \"onbesproken\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": []},\n    {\"kenmerk_id\": \"M1\", \"onderwerp\": \"doel\", \"toestand\": \"onbesproken\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": []},\n    {\"kenmerk_id\": \"K1\", \"onderwerp\": \"repository:277\", \"toestand\": \"onbesproken\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": []},\n    {\"kenmerk_id\": \"K2\", \"onderwerp\": \"repository:277\", \"toestand\": \"onbesproken\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": []},\n    {\"kenmerk_id\": \"K3\", \"onderwerp\": \"repository:277\", \"toestand\": \"onbesproken\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": []},\n    {\"kenmerk_id\": \"M1\", \"onderwerp\": \"repository:277\", \"toestand\": \"bevestigd\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": [\"U1\"]},\n    {\"kenmerk_id\": \"K1\", \"onderwerp\": \"repository:279\", \"toestand\": \"ontkend\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": [\"U2\"]},\n    {\"kenmerk_id\": \"K2\", \"onderwerp\": \"repository:279\", \"toestand\": \"onbesproken\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": []},\n    {\"kenmerk_id\": \"K3\", \"onderwerp\": \"repository:279\", \"toestand\": \"bevestigd\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": [\"U2\"]},\n    {\"kenmerk_id\": \"M1\", \"onderwerp\": \"repository:279\", \"toestand\": \"bevestigd\", \"voorwaarden\": [], \"context\": \"algemeen\", \"citaten\": [\"U2\"]}\n  ]\n}",
+   "fout_p1": {
+    "type": "kerndekking_onvolledig",
+    "message": "niet door een citaat gedekte woorden van de definitie: 'Soort', 'op', 'grond', 'van', 'een', 'keuze', 'door', 'de', 'verdachte', 'of', 'een', 'aanwijzing', 'door', 'het', 'bestuur', 'van', 'de', 'raad', 'voor', 'rechtsbijstand', 'Bron', '1', 'Bron', '2', 'Bron', '3'",
+    "phase": "interpretation"
+   }
+  }
+ }
+}

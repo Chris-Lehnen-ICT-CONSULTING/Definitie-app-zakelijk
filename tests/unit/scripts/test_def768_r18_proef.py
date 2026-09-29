@@ -160,8 +160,20 @@ besluit18_nodig = pytest.mark.skipif(
 
 
 def _r18_met_hash(sha256: str) -> runner.Proef:
-    """De geregistreerde R18, maar met een andere gepinde besluithash."""
-    return dataclasses.replace(runner.PROEVEN["R18"], budgetbesluit_sha256=sha256)
+    """R18 (op het huidige contract, zie `_r18_huidig`) met een andere besluithash."""
+    return _r18_huidig(budgetbesluit_sha256=sha256)
+
+
+def _r18_huidig(**velden) -> runner.Proef:
+    """R18-mechaniek op het huidige bewijsregelcontract (robuustheidsronde: v7,
+    prompt /5). Sinds dan is de geregistreerde R18 historisch gepind op v6/prompt
+    /4 en weigert de runner haar fail-closed (zoals R16/R17); de mechaniek hier
+    draait, naar dat precedent, op het contract van de code."""
+    return dataclasses.replace(
+        runner.PROEVEN["R18"],
+        bewijsregel_contract=runner.bewijsregel_contractidentiteit(),
+        **velden,
+    )
 
 
 # --- hulpen: invoer zonder git-ignored bestanden ----------------------------------------------
@@ -304,9 +316,7 @@ def _freeze(omg, tmp_path: Path, proef, groep: str) -> Path:
 
 
 def _i18(omg, tmp_path, pad, *, nieuw=True, proef=None, **kw):
-    proef = proef or dataclasses.replace(
-        runner.PROEVEN["R18"], i_invoer_sha256=_sha(pad)
-    )
+    proef = proef or _r18_huidig(i_invoer_sha256=_sha(pad))
     keten = _keten18(tmp_path)[1] if nieuw else _bestaande_keten18(tmp_path)
     return asyncio.run(
         runner.voer_i_fase(
@@ -482,18 +492,26 @@ class TestRegistratie:
         assert proef.kaderrest_nusd == KADERREST18_NUSD
         assert proef.voorganger_kop_sha256 == R17_KOP_SHA256 == runner.R17_KOP_SHA256
 
-    def test_bewijsregelcontract_is_de_berekende_contractidentiteit(self):
+    def test_r18_historisch_gepind_op_v6_en_geweigerd(self):
+        # Robuustheidsronde (was: test_bewijsregelcontract_is_de_berekende_
+        # contractidentiteit): de code draagt bewijsregels /7 en prompt /5; R18
+        # blijft gepind op v6/prompt /4 en de runner weigert haar fail-closed,
+        # zoals R16/R17. Product- en lokaal contract gelden ongewijzigd.
         proef = runner.PROEVEN["R18"]
-        assert (
-            dict(proef.bewijsregel_contract) == runner.bewijsregel_contractidentiteit()
-        )
         assert dict(runner.R18_BEWIJSREGEL_CONTRACT) == dict(proef.bewijsregel_contract)
         assert (
             proef.bewijsregel_contract["bewijsregel_version"] == "ess05-bewijsregels/6"
         )
+        assert proef.bewijsregel_contract["interpretation_prompt_version"] == (
+            "ess05-interpretatie-prompt/4"
+        )
+        assert (
+            dict(proef.bewijsregel_contract) != runner.bewijsregel_contractidentiteit()
+        )
         runner._controleer_contract(_omgeving8(_BewijsProvider()), proef)
         runner._controleer_lokaal_contract(proef)
-        runner._controleer_bewijsregel_contract(proef)
+        with pytest.raises(gb.BudgetSchendingError, match="geen call gestart"):
+            runner._controleer_bewijsregel_contract(proef)
 
     @pytest.mark.parametrize(
         "veld",
@@ -1010,11 +1028,7 @@ class TestInterpretatieFase:
         omg = _omgeving8(provider)
         i_pad = _i_invoer(tmp_path)
         l_pad, _ = _l_invoer(tmp_path)
-        proef = dataclasses.replace(
-            runner.PROEVEN["R18"],
-            i_invoer_sha256=_sha(i_pad),
-            l_invoer_sha256=_sha(l_pad),
-        )
+        proef = _r18_huidig(i_invoer_sha256=_sha(i_pad), l_invoer_sha256=_sha(l_pad))
         with pytest.raises(gb.BudgetSchendingError, match="kritieke run"):
             _i18(omg, tmp_path, i_pad, proef=proef)
         uit = asyncio.run(
@@ -1230,7 +1244,7 @@ class TestInterpretatieFase:
     def test_andere_invoer_dan_de_gepinde_geweigerd(self, tmp_path):
         provider = _R18Provider(_items())
         pad = _i_invoer(tmp_path)
-        proef = runner.PROEVEN["R18"]  # gepind op de echte R18-invoer
+        proef = _r18_huidig()  # gepind op de echte R18-invoer
         with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
             _i18(_omgeving8(provider), tmp_path, pad, proef=proef)
         assert provider.berichten == []
@@ -1280,7 +1294,7 @@ def _l_invoer(tmp_path: Path, items=None) -> tuple[Path, list[dict]]:
 
 def _l18(omg, tmp_path, *, items=None, **kw):
     pad, _ = _l_invoer(tmp_path, items)
-    proef = dataclasses.replace(runner.PROEVEN["R18"], l_invoer_sha256=_sha(pad))
+    proef = _r18_huidig(l_invoer_sha256=_sha(pad))
     return asyncio.run(
         runner.voer_l_fase(
             omg,
@@ -1305,7 +1319,9 @@ class TestLokaleFase:
         for item in items:
             assert (item["soort"], item["verwacht"]) == ("positief", "supported")
             assert item["herkomst"]["label"] == LABEL
-            assert item["binding"]["regelversie"] == "ess05-bewijsregels/6"
+            # De maker bindt de regelversie van de code (sinds de robuustheids-
+            # ronde /7); de gepinde R18-invoer draagt historisch /6.
+            assert item["binding"]["regelversie"] == br.BEWIJSREGELVERSIE
             assert item["specificatie"]["rol"] == "material"
         valide = runner.valideer_l_invoer(
             {"schema": mk18b.INVOERSCHEMA, "items": items},
@@ -1404,14 +1420,35 @@ class TestLokaleFase:
 @r18_invoer_nodig
 class TestEchteInvoer:
     def test_i_invoer_gepind_en_gelijk_aan_de_maker(self):
+        # Robuustheidsronde (zoals R17 bij v6): de gepinde invoer blijft; de maker
+        # op de huidige code wijkt alleen af in contract en prompt_sha256
+        # (vooraf gemeten: logs/def768/robuustheid-v1/meet-r18-makerverschil-v1.py).
         assert _sha(I18) == runner.R18_I_INVOER_SHA256 == I18_SHA256
-        tekst = json.dumps(mk18.maak_bewijsregel_invoer(), ensure_ascii=False, indent=2)
-        assert I18.read_text(encoding="utf-8") == tekst + "\n"
+        oud = json.loads(I18.read_text(encoding="utf-8"))
+        nieuw = mk18.maak_bewijsregel_invoer()
+        assert oud["contract"] == dict(runner.R18_BEWIJSREGEL_CONTRACT)
+        assert nieuw["contract"] == runner.bewijsregel_contractidentiteit()
+        for item in (*oud["items"], *nieuw["items"]):
+            item.pop("prompt_sha256")
+        assert {**oud, "contract": None} == {**nieuw, "contract": None}
 
     def test_l_invoer_gepind_en_gelijk_aan_de_maker(self):
+        # Idem: alleen het bewijsregelcontract en de regelversie verschillen.
         assert _sha(L18) == runner.R18_L_INVOER_SHA256
-        tekst = json.dumps(mk18b.maak_lokale_invoer(), ensure_ascii=False, indent=2)
-        assert L18.read_text(encoding="utf-8") == tekst + "\n"
+        oud = json.loads(L18.read_text(encoding="utf-8"))
+        nieuw = mk18b.maak_lokale_invoer()
+        assert oud["herkomst"]["bewijsregel_contract"] == dict(
+            runner.R18_BEWIJSREGEL_CONTRACT
+        )
+        for data in (oud, nieuw):
+            data["herkomst"].pop("bewijsregel_contract")
+            for item in data["items"]:
+                assert item["binding"].pop("regelversie") in (
+                    "ess05-bewijsregels/6",
+                    br.BEWIJSREGELVERSIE,
+                )
+                item["herkomst"].pop("regelversie")
+        assert oud == nieuw
 
     def test_l_invoer_zes_pakketten_uit_de_herbonden_r17_interpretaties(self):
         data = json.loads(L18.read_text(encoding="utf-8"))
@@ -1438,10 +1475,12 @@ class TestEchteInvoer:
             assert _sha(pad) == sha
         assert _sha(mk18b.R17_INVOER) == mk18b.R17_INVOER_SHA256
 
-    def test_i_invoer_valideert_tegen_de_huidige_code(self):
+    def test_i_invoer_wordt_onder_de_huidige_code_geweigerd(self):
+        # Robuustheidsronde (was: test_i_invoer_valideert_tegen_de_huidige_code):
+        # de R18-invoer hoort bij v6/prompt /4 en wordt onder /7 geweigerd.
         data = json.loads(I18.read_text(encoding="utf-8"))
-        items = runner.valideer_i_invoer(data, _omgeving8(_BewijsProvider()))
-        assert len(items) == 12
+        with pytest.raises(pi.InvoerfoutError, match="ander bewijsregelcontract"):
+            runner.valideer_i_invoer(data, _omgeving8(_BewijsProvider()))
 
     def test_v1_blijft_staan_maar_wordt_geweigerd(self, tmp_path):
         """Aanvulling C3/v2: de runner pint -v3; -v1 weigert op hash, schema en orakel."""
@@ -1451,15 +1490,20 @@ class TestEchteInvoer:
         with pytest.raises(pi.InvoerfoutError, match="schema"):
             runner.valideer_i_invoer(data, omg)
         data["schema"] = mk18.INVOERSCHEMA
-        with pytest.raises(pi.InvoerfoutError, match="orakel"):
+        with pytest.raises(pi.InvoerfoutError, match="ander bewijsregelcontract"):
+            runner.valideer_i_invoer(data, omg)
+        # Ook op het huidige contract blijft -v1 geweigerd: sinds prompt /5 al op de
+        # bevroren prompt (vóór het orakel, dat v6 hier toetste).
+        data["contract"] = runner.bewijsregel_contractidentiteit()
+        with pytest.raises(pi.InvoerfoutError, match="interpretatieprompt wijkt af"):
             runner.valideer_i_invoer(data, omg)
         provider = _R18Provider(_items())
         with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
-            _i18(_omgeving8(provider), tmp_path, I18_V1, proef=runner.PROEVEN["R18"])
+            _i18(_omgeving8(provider), tmp_path, I18_V1, proef=_r18_huidig())
         assert provider.berichten == []
         with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
             asyncio.run(runner.droogrun("interpretatie", I18_V1, tmp_path,
-                                        proef=runner.PROEVEN["R18"]))  # fmt: skip
+                                        proef=_r18_huidig()))  # fmt: skip
 
     @pytest.mark.parametrize(
         ("pad", "sha"),
@@ -1475,20 +1519,23 @@ class TestEchteInvoer:
             runner.valideer_i_invoer(data, _omgeving8(_BewijsProvider()))
         provider = _R18Provider(_items())
         with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
-            _i18(_omgeving8(provider), tmp_path, pad, proef=runner.PROEVEN["R18"])
+            _i18(_omgeving8(provider), tmp_path, pad, proef=_r18_huidig())
         assert provider.berichten == []
         with pytest.raises(gb.BudgetSchendingError, match="interpretatie-invoer"):
             asyncio.run(runner.droogrun("interpretatie", pad, tmp_path,
-                                        proef=runner.PROEVEN["R18"]))  # fmt: skip
+                                        proef=_r18_huidig()))  # fmt: skip
 
-    def test_droog_i_fase_zonder_netwerk_en_zonder_grootboek(self, tmp_path):
+    def test_droog_op_de_geregistreerde_r18_weigert(self, tmp_path):
+        # Robuustheidsronde (was: test_droog_i_fase_zonder_netwerk_en_zonder_
+        # grootboek): zoals R16/R17 weigert de runner de historische R18 ook droog.
         voor = _grootboekstaat(runner.PROEVEN["R18"].opslag.grootboek)
-        uit = asyncio.run(
-            runner.droogrun("interpretatie", I18, tmp_path, proef=runner.PROEVEN["R18"])
-        )
-        assert uit["echte_calls"] == 0 and uit["geplande_calls"] == 12
-        assert uit["freezevelden"]["groep"] == "i"
-        assert uit["freezevelden"]["dataset_sha256"] == I18_SHA256
+        with pytest.raises(gb.BudgetSchendingError, match="bewijsregelcontract"):
+            asyncio.run(
+                runner.droogrun(
+                    "interpretatie", I18, tmp_path, proef=runner.PROEVEN["R18"]
+                )
+            )
+        assert not list(tmp_path.rglob("droogrun.json"))
         assert _grootboekstaat(runner.PROEVEN["R18"].opslag.grootboek) == voor
 
 

@@ -72,7 +72,9 @@ __all__ = [
     "zinnen",
 ]
 
-BEWIJSREGELVERSIE = "ess05-bewijsregels/6"
+#: /7 (robuustheidsronde P1, besluit Chris 29-09): ontbrekend `voorwaarden` = [];
+#: een betekeniskenmerk zonder bevestiging in de doelbetekenis wordt weggelaten.
+BEWIJSREGELVERSIE = "ess05-bewijsregels/7"
 INTERPRETATIESCHEMA = "ess05-interpretatie/3"
 RENDERVERSIE = "ess05-bewijsregels-render/2"
 DOEL = "doel"
@@ -222,6 +224,8 @@ class Interpretatie:
     groepen: tuple[Buurgroep, ...]
     antwoorden: tuple[Antwoord, ...]
     buiten_bereik: tuple[str, ...] = ()
+    #: v7: diagnostische notities over weggelaten betekeniskenmerken.
+    weggelaten: tuple[str, ...] = ()
 
     @property
     def kern(self) -> tuple[Kenmerk, ...]:
@@ -464,6 +468,10 @@ def _antwoord(
     buur_van: Mapping[str, str | None],
 ) -> Antwoord:
     pad = f"antwoorden[{nummer}]"
+    # v7: alleen een ontbrekend `voorwaarden` is een lege lijst; elk ander
+    # ontbrekend of onbekend veld blijft een schemafout.
+    if isinstance(item, Mapping) and "voorwaarden" not in item:
+        item = {**item, "voorwaarden": []}
     a = _velden(item, _ANTWOORDVELDEN, pad)
     kid, onderwerp, toestand = a["kenmerk_id"], a["onderwerp"], a["toestand"]
     if kid not in kenmerken:
@@ -627,15 +635,48 @@ def _controleer_samenhang(interpretatie: Interpretatie) -> None:
             )
 
 
+def _onbevestigde_betekenis(
+    betekenis: Sequence[Kenmerk], ruwe_antwoorden: Sequence[Any]
+) -> tuple[frozenset[str], tuple[str, ...]]:
+    """v7: betekeniskenmerken zonder bevestiging in de doelbetekenis (ID's, notities).
+
+    Bevestigd is een M-kenmerk alleen als elk doelantwoord ervoor `bevestigd`
+    is (minstens één); onbesproken, ontkend, een conflict of geen doelantwoord
+    niet. Zo'n kenmerk komt niet uit de bedoelde betekenis of een bron van het
+    doelbegrip (bv. uit een burenbeschrijving of eigen kennis) en wordt
+    weggelaten in plaats van de interpretatie af te keuren.
+    """
+    ids, notities = set(), []
+    for m in betekenis:
+        toestanden = {
+            a.get("toestand")
+            for a in ruwe_antwoorden
+            if isinstance(a, Mapping)
+            and a.get("kenmerk_id") == m.id
+            and a.get("onderwerp") == DOEL
+        }
+        if toestanden != {_BEVESTIGD}:
+            ids.add(m.id)
+            notities.append(
+                f"{m.id} ({m.kenmerk}: {m.waarde}) weggelaten: geen bevestiging in de "
+                "doelbetekenis (alleen een bedoelde betekenis of bron van het "
+                "doelbegrip draagt een betekeniskenmerk)"
+            )
+    return frozenset(ids), tuple(notities)
+
+
 def valideer_interpretatie(ruw: Any, invoer: Vergelijkingsinvoer) -> Interpretatie:
     """Alle geldigheids-, dekkings- en bereikcontroles; een fout is altijd `error`."""
     data = _velden(ruw, _VELDEN, "interpretatie")
     if data["schema_version"] != INTERPRETATIESCHEMA:
         raise _fout("schemafout", f"schema_version moet {INTERPRETATIESCHEMA!r} zijn")
     bovenbegrip, kern = _kern(data["kern"], invoer)
-    kenmerken = [*kern, *_buiten_kern(data["buiten_kern"])]
-    _uniek((k.id for k in kenmerken), "kenmerken")
-    _uniek((k.kenmerk.casefold() for k in kenmerken), "kenmerklabels")
+    betekenis = _buiten_kern(data["buiten_kern"])
+    _uniek((k.id for k in [*kern, *betekenis]), "kenmerken")
+    _uniek((k.kenmerk.casefold() for k in [*kern, *betekenis]), "kenmerklabels")
+    ruwe_antwoorden = _lijst(data["antwoorden"], "antwoorden")
+    weg, weggelaten = _onbevestigde_betekenis(betekenis, ruwe_antwoorden)
+    kenmerken = [*kern, *(m for m in betekenis if m.id not in weg)]
     groepen = _groepen(data["buurgroepen"], invoer)
     _uniek((g.id for g in groepen), "buurgroepen")
     buiten = _buiten_bereik(data["buiten_bereik"], invoer)
@@ -643,9 +684,12 @@ def valideer_interpretatie(ruw: Any, invoer: Vergelijkingsinvoer) -> Interpretat
     buur_van: dict[str, str | None] = {DOEL: None}
     buur_van.update({b: b for b, _ in invoer.buren})
     buur_van.update({g.id: g.buur for g in groepen})
+    # Antwoorden van een weggelaten kenmerk vervallen mee (nummering blijft die
+    # van de modeluitvoer).
     antwoorden = [
         _antwoord(item, nummer, invoer, per_id, buur_van)
-        for nummer, item in enumerate(_lijst(data["antwoorden"], "antwoorden"), start=1)
+        for nummer, item in enumerate(ruwe_antwoorden, start=1)
+        if not (isinstance(item, Mapping) and item.get("kenmerk_id") in weg)
     ]
     # De app bepaalt de bewijsdoelen: elk kenmerk × doel, elke buur, elke deelgroep.
     ontbrekend = []
@@ -676,6 +720,7 @@ def valideer_interpretatie(ruw: Any, invoer: Vergelijkingsinvoer) -> Interpretat
         tuple(groepen),
         tuple(antwoorden),
         tuple(buiten),
+        weggelaten,
     )
     _controleer_samenhang(interpretatie)
     return interpretatie
