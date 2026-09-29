@@ -1,0 +1,7 @@
+{
+  "files": {
+    "src/domain/int02/contract.py": "6dcae57bc60d1edec09d49fa35d21d135cf0dd43e587ef7e8ba60dac22f16ca8",
+    "src/services/validation/int02_assessment_service.py": "fde833bd7e1eeff1127dde35c0fb1c17cd0e4edd08fd7b93ccbbc634ceaf518c"
+  },
+  "patch_sha256": "dc428bead78dba7fcc86c0bd61eae2453f124d3b8bb9a830f2715960a7a1b13b"
+}

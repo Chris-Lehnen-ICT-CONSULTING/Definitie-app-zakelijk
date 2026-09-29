@@ -1,0 +1,9 @@
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_evaluator.py tests/integration/contracts/test_validation_result_schema.py -o addopts= --import-mode=importlib -q -ra
+# SHA256 effb899daf4eb61aa5c3b2ef0eec3949735090abc2c8d32185fe2fdb3b9a92bd src/services/validation/evaluators/decision_rule_assessment.py
+# SHA256 b6cc73787a4618b9b99964350f8ae87b2b0f82dcef8528f5ff8d43f74d99981e tests/unit/validation/test_def835_int02_evaluator.py
+# SHA256 712f5e527bd33a5ff3fecf13192b2a22ed67356208ac645ceb06b522f496369d tests/integration/contracts/test_validation_result_schema.py
+........................................................................ [ 60%]
+...............................................                          [100%]
+119 passed in 0.97s
+
+# exitcode: 0

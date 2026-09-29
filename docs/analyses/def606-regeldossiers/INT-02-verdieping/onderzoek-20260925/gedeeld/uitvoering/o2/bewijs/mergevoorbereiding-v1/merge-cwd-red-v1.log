@@ -1,0 +1,71 @@
+# DEF-835 merge cwd ROOD — 2026-09-29T08:58:46Z
+$ git rev-parse HEAD
+ebe9c1b7c26ffe6040bffb66db4937b932406dc8
+60b2c420f3b7ff80582ec4e42dda80f77c986bf351e6c538637048bc2d61b79e  tests/unit/validation/test_def835_int02_modelproef.py
+94adea36ffa555a8d9fee790f5eb96ce54ece96efd107adf25dd147ccb1a637f  scripts/analysis/def835_int02_modelproef.py
+$ cd /tmp/def835-cwd-rood-9C9h   # tijdelijke werkmap buiten de repository
+$ env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/../../../.venv/bin/python -m pytest /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py -o addopts= -q -ra -p no:cacheprovider -k test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage ________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-l1mz8lyt/tempfiles/pytest-of-chrislehnen/pytest-0/test_live_keten_drie_tellingen0')
+manifest = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-l1mz8lyt/tempfiles/pytest-of-chrislehnen/pytest-0/test_live_keten_drie_tellingen0/manifest.json')
+caplog = <_pytest.logging.LogCaptureFixture object at 0x10a403e00>
+
+    async def test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage(
+        tmp_path, manifest, caplog
+    ):
+        caplog.set_level(logging.DEBUG)
+        provider = NepProvider()
+        data, resultaat = await _live(tmp_path, manifest, provider)
+        assert provider.paden() == ["/v1/messages/count_tokens", "/v1/messages"] * 3
+        identiteit = json.loads(manifest.read_text("utf-8"))["identiteit"]
+        for verzoek, geval in zip(
+            provider.inferenties(), identiteit["gevallen"], strict=True
+        ):
+            assert _sha(verzoek["ruw"]) == geval["payload_sha256"]
+            assert verzoek["headers"]["x-stainless-retry-count"] == "0"
+            assert "anthropic-beta" not in verzoek["headers"]
+            assert verzoek["headers"]["x-api-key"] == SLEUTEL
+            assert Path(verzoek["cwd"]) != ROOT
+        for telling, inferentie in zip(
+            provider.verzoeken[::2], provider.inferenties(), strict=True
+        ):
+            # Zelfde inhoud (zonder max_tokens/temperature) en zelfde authenticatie.
+            velden = ("model", "system", "messages", "thinking")
+            body = inferentie["body"]
+            assert telling["body"] == {k: body[k] for k in velden if k in body}
+            for header in ("x-api-key", "anthropic-version"):
+                assert telling["headers"][header] == inferentie["headers"][header]
+            # R2: telling en inference delen exact de authenticatiecontext.
+            assert "authorization" not in telling["headers"]
+            assert "authorization" not in inferentie["headers"]
+            assert sorted(inferentie["headers"]) == STANDAARDHEADERNAMEN
+            assert set(telling["headers"]) <= set(STANDAARDHEADERNAMEN)
+>       assert Path.cwd() == ROOT
+E       AssertionError: assert PosixPath('/private/tmp/def835-cwd-rood-9C9h') == PosixPath('/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2')
+E        +  where PosixPath('/private/tmp/def835-cwd-rood-9C9h') = cwd()
+E        +    where cwd = Path.cwd
+
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:380: AssertionError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: High Error Rate - 1.000 gt 0.1 (Severity: error)
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+------------------------------ Captured log call -------------------------------
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     utils.container_manager:container_manager.py:52 🚀 Cold start: Creating singleton ServiceContainer (expected on first request)
+INFO     utils.container_manager:container_manager.py:67 Environment: production
+INFO     utils.container_manager:container_manager.py:68 Database path: data/definities.db
+INFO     utils.container_manager:container_manager.py:69 Monitoring enabled: True
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:105 ServiceContainer instance initialized (lazy service loading will occur on first access)
+INFO     utils.container_manager:container_manager.py:77 ✅ ServiceContainer initialized and cached (ID: a1719253) - subsequent requests will use cache
+INFO     services.ai.model_router:model_router.py:101 ModelRouter initialized: provider=anthropic, tiers=['critical', 'standard']
+INFO     services.container:container.py:209 ModelRouter singleton created
+=========================== short test summary info ============================
+FAILED ../../../Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py::test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage
+1 failed, 175 deselected in 1.10s
+exit=1

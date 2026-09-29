@@ -1,0 +1,9 @@
+# DEF-835 typefix WP2 - mypy NA correctie
+# tijdstip: 2026-09-28T13:29:08Z  branch: feature/DEF-835-int02-o2  HEAD: d769276041e619103ace7bc66e65419d480dae99
+#   6dcae57bc60d1edec09d49fa35d21d135cf0dd43e587ef7e8ba60dac22f16ca8  src/domain/int02/contract.py
+#   fde833bd7e1eeff1127dde35c0fb1c17cd0e4edd08fd7b93ccbbc634ceaf518c  src/services/validation/int02_assessment_service.py
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m mypy src/ --check-untyped-defs --no-incremental
+# --- uitvoer ---
+Success: no issues found in 411 source files
+# --- einde uitvoer ---
+# exitcode: 0

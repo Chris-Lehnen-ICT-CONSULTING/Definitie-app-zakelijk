@@ -1,0 +1,11 @@
+OPENAI_AFKAPPING {"status": "fail", "reden": null, "stop_reason": null, "tweede_gecachet": true, "sdk_calls": 1}
+ROUTERBINDING {"oud_beleid": ["0.0", "{'type': 'disabled'}"], "nieuw_beleid": ["<anthropic.Omit object at 0x10d8dc6e0>", "<anthropic.Omit object at 0x10d8dc6e0>"], "tweede_gecachet": true, "calls": 1, "binding_gelijk": true, "actualiteit_oud": "fail", "actualiteit_reden": null}
+POGINGENTELLING {"status": "error", "reden": "timeout", "providercalls": 0, "gerapporteerde_transportpogingen": 1}
+TRANSPORTLOGGING {"status": "error", "lekkende_regels": ["utils.async_api: API call failed: SYNTHETISCH-PRIVE-REVIEW-835"]}
+
+STDERR:
+API key niet geconfigureerd voor provider: anthropic
+🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+INT-02: beoordeling mislukt (timeout; TimeoutError)
+
+EXITCODE=0

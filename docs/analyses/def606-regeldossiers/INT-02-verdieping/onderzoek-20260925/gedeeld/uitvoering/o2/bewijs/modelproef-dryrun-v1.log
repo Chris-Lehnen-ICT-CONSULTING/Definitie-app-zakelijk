@@ -1,0 +1,22 @@
+# DEF-835 modelproef DRY-RUN via CLI — 2026-09-28T09:47:11Z
+$ git rev-parse HEAD
+558b50c3f161f819cda6c445f7f81b70888918ac
+$ env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python scripts/analysis/def835_int02_modelproef.py --manifest docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v1.json --payloads docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-payloads-v1.json
+🚨 ALERT: High Error Rate - 1.000 gt 0.1 (Severity: error)
+🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+manifest (pending): ed3948217cdefaf84fffcd3386b7863135db78f890014db90d2f5152565b163c
+exit=0
+$ nogmaals zelfde manifestpad (moet weigeren, niet overschrijven)
+07b2dce9fa2dbd18fd6790d200dac3c4bf138c29db56541b932d668dca1fbb3d  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v1.json
+bestaat al, niet overschreven: /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v1.json
+exit=2
+07b2dce9fa2dbd18fd6790d200dac3c4bf138c29db56541b932d668dca1fbb3d  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v1.json
+$ --live zonder akkoord (moet weigeren)
+usage: def835_int02_modelproef.py [-h] --manifest MANIFEST
+                                  [--payloads PAYLOADS] [--live]
+                                  [--akkoord AKKOORD] [--resultaat RESULTAAT]
+def835_int02_modelproef.py: error: --live vereist --akkoord en --resultaat
+exit=2
+$ shasum -a 256 manifest payloads
+07b2dce9fa2dbd18fd6790d200dac3c4bf138c29db56541b932d668dca1fbb3d  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v1.json
+3befdae8035dbab7dfbb5daf7622c43986cbb0c8073b961b14aae031dc03bc73  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-payloads-v1.json

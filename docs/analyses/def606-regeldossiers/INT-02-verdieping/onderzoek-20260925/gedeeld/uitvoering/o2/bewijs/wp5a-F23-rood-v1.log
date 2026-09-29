@@ -1,0 +1,322 @@
+# DEF-835 WP5a F2/F3 RED tegen bestaande WP5a-code (manifest-v2) + WP2-dienst op HEAD — 2026-09-28T13:00:25Z
+# HEAD d769276041e619103ace7bc66e65419d480dae99
+# int02_assessment_service.py = HEAD (git diff --quiet exit 0)
+# sha256 productie (moet = manifest-v2 / herstelkopie wp5a-F23-vooraf-v1):
+32a5ae789a0f131a036e4f1aa66d98cd05e4ea99ca1e77545529592de781e42a  src/services/container.py
+db1093e54c6c917fb6b37f49b153cdd1f2465274da94fb1bb74bfe1ef724d4ca  src/services/orchestrators/definition_orchestrator_v2.py
+7faf7380ca1d4a332d0110ddfac53ced9c094223ef533199a87c6229f125f419  src/services/orchestrators/validation_orchestrator_v2.py
+84a9e330c263afeea519363e1ac692950c93df3c1c15a2634fef5d5d722ab6c2  src/services/validation/modular_validation_service.py
+dda9d274e3b7a93973f9df0bc3de0b422fe4d96d1766beb536162914a68c049e  src/services/validation/int02_assessment_service.py
+# sha256 tests:
+1dcc0f9d99a297d119107b0b936ac302677b9d57c999f58998561f47a8b14e17  tests/unit/validation/test_def835_int02_assessment_service.py
+17446549d6f1688cf5af0efd9bddb6b926b402ce40b19f92db328fdf0b7de90f  tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+# commando: .venv/bin/python -m pytest tests/unit/validation/test_def835_int02_assessment_service.py tests/unit/services/orchestrators/test_def835_int02_wrappers.py -k 'f2_ or dienst_wordt_niet_door_de_container' -p no:cacheprovider -p no:randomly --tb=line -o addopts='-ra --strict-markers --import-mode=importlib'
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 195 items / 155 deselected / 40 selected
+
+tests/unit/validation/test_def835_int02_assessment_service.py ........FF [ 25%]
+FFF                                                                      [ 32%]
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py FFFFFFFF [ 52%]
+FFFFFFFFFFFFFFFFFFF                                                      [100%]
+
+=================================== FAILURES ===================================
+E   Failed: Int02AssessmentService.configuratie() ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1387: Failed: Int02AssessmentService.configuratie() ontbreekt
+E   Failed: Int02AssessmentService.configuratie() ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1387: Failed: Int02AssessmentService.configuratie() ontbreekt
+E   Failed: Int02AssessmentService.configuratie() ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1387: Failed: Int02AssessmentService.configuratie() ontbreekt
+E   Failed: Int02AssessmentService.configuratie() ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1387: Failed: Int02AssessmentService.configuratie() ontbreekt
+E   Failed: Int02AssessmentService.configuratie() ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1387: Failed: Int02AssessmentService.configuratie() ontbreekt
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log setup ------------------------------
+WARNING  toetsregels.manager:manager.py:128 Configuratie bestand niet gevonden: /private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-0woo6xah/tempfiles/pytest-of-chrislehnen/pytest-0/def835_wp5a_wrappers0/toetsregels-manager.json
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=d8d41269-95df-47af-8f13-1c6b6be3f32d)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=d8d41269-95df-47af-8f13-1c6b6be3f32d)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:819: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=a5bb28e2-fb23-443b-9962-a13458ea9c7a)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=a5bb28e2-fb23-443b-9962-a13458ea9c7a)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=8ae06807-bc41-46d0-a0fb-c176fd9e468a)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=8ae06807-bc41-46d0-a0fb-c176fd9e468a)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=aed6c82f-ef5a-4838-a05d-50f739d82dc3)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=aed6c82f-ef5a-4838-a05d-50f739d82dc3)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=f3e7dad0-d87b-4e8b-b7aa-69a3f665d31b)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=f3e7dad0-d87b-4e8b-b7aa-69a3f665d31b)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=439ca0eb-d9fd-479e-95fd-1bf5a1599cbf)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=439ca0eb-d9fd-479e-95fd-1bf5a1599cbf)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=a56eafe2-2e27-4aa6-8d98-3488de20a039)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=a56eafe2-2e27-4aa6-8d98-3488de20a039)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=aaed1f51-8c83-41ed-a5c1-a51dd63b743a)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=aaed1f51-8c83-41ed-a5c1-a51dd63b743a)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=1eea2322-3a45-4efe-8f04-9f7e4357c7cc)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=1eea2322-3a45-4efe-8f04-9f7e4357c7cc)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=cfc05271-7215-4653-b6e9-7a2f51d71fdf)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=cfc05271-7215-4653-b6e9-7a2f51d71fdf)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=64300ef0-832c-442b-a5cd-cb0fbf9e5f82)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=64300ef0-832c-442b-a5cd-cb0fbf9e5f82)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=9cae68d2-e671-494f-8350-7af52dd1151f)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=9cae68d2-e671-494f-8350-7af52dd1151f)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=cbe5b48b-d083-42fe-8532-cac027a817cb)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=cbe5b48b-d083-42fe-8532-cac027a817cb)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:850: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+      
+      Left contains one more item: Int02Invoer(begrip='toelating', kern='De medewerker laat de aanvrager toe.', bedoeling='opdracht aan medewerker', organisatorische_context=('synthetische procedure',), juridische_context=(), wettelijke_basis=(), bronnen=())
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=e6d1f5c3-a201-4f7a-a9f3-e63f3feeec7c)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=e6d1f5c3-a201-4f7a-a9f3-e63f3feeec7c)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=e456c92c-68db-4c74-9d4c-f8f44358316c
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:895: AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+E   AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+      
+      Left contains one more item: Int02Invoer(begrip='toelating', kern='De medewerker laat de aanvrager toe.', bedoeling='opdracht aan medewerker', organisatorische_context=('synthetische procedure',), juridische_context=(), wettelijke_basis=(), bronnen=())
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=91e5bf29-266a-4488-a85f-1612e1f83047)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=91e5bf29-266a-4488-a85f-1612e1f83047)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=4806f373-14a2-4c2f-ba38-41b70af4cc07
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:895: AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+E   AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+      
+      Left contains one more item: Int02Invoer(begrip='toelating', kern='De medewerker laat de aanvrager toe.', bedoeling='opdracht aan medewerker', organisatorische_context=('synthetische procedure',), juridische_context=(), wettelijke_basis=(), bronnen=())
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=f0c7e16c-2921-4c93-9cfa-64d80cc9233c)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=f0c7e16c-2921-4c93-9cfa-64d80cc9233c)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=e3949ad5-f238-4511-adaa-445a726ae1cb
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:895: AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+E   AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+      
+      Left contains one more item: Int02Invoer(begrip='toelating', kern='De medewerker laat de aanvrager toe.', bedoeling='opdracht aan medewerker', organisatorische_context=('synthetische procedure',), juridische_context=(), wettelijke_basis=(), bronnen=())
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=977a9bcb-2021-4066-81b7-9083c7fbce95)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=977a9bcb-2021-4066-81b7-9083c7fbce95)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=760f61c5-bbc2-4d47-8f26-79906bb99995
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:895: AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+E   AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+      
+      Left contains one more item: Int02Invoer(begrip='toelating', kern='De medewerker laat de aanvrager toe.', bedoeling='opdracht aan medewerker', organisatorische_context=('synthetische procedure',), juridische_context=(), wettelijke_basis=(), bronnen=())
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=15be5b81-0b7a-4e79-a904-970a075d8b3d)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=15be5b81-0b7a-4e79-a904-970a075d8b3d)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=fe4accab-5724-4751-80af-553440b69a29
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:895: AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+E   AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+      
+      Left contains one more item: Int02Invoer(begrip='toelating', kern='De medewerker laat de aanvrager toe.', bedoeling='opdracht aan medewerker', organisatorische_context=('synthetische procedure',), juridische_context=(), wettelijke_basis=(), bronnen=())
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=043173af-5291-479d-b6e3-801a61a41ce5)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=043173af-5291-479d-b6e3-801a61a41ce5)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=03eab484-13b0-4eec-8552-ff1d941c923b
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:895: AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+E   AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+      
+      Left contains one more item: Int02Invoer(begrip='toelating', kern='De medewerker laat de aanvrager toe.', bedoeling='opdracht aan medewerker', organisatorische_context=('synthetische procedure',), juridische_context=(), wettelijke_basis=(), bronnen=())
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=6e331650-a965-441a-82ee-83dcf4e9e836)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=6e331650-a965-441a-82ee-83dcf4e9e836)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=5206253c-716a-4721-b970-9353f6ae8d3c
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:895: AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+E   AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+      
+      Left contains one more item: Int02Invoer(begrip='toelating', kern='De medewerker laat de aanvrager toe.', bedoeling='opdracht aan medewerker', organisatorische_context=('synthetische procedure',), juridische_context=(), wettelijke_basis=(), bronnen=())
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=c6e1f679-a97d-450d-94aa-6044e625dd03)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=c6e1f679-a97d-450d-94aa-6044e625dd03)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=25b9bfdb-1052-4091-91c2-f29b6ecb279c
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:895: AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+E   AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+      
+      Left contains one more item: Int02Invoer(begrip='toelating', kern='De medewerker laat de aanvrager toe.', bedoeling='opdracht aan medewerker', organisatorische_context=('synthetische procedure',), juridische_context=(), wettelijke_basis=(), bronnen=())
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=c70e8f77-7017-400b-98b1-59ae0a198970)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=c70e8f77-7017-400b-98b1-59ae0a198970)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=a7060c87-021e-4309-81f2-f95e7c6c2a71
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:895: AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+E   AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+      
+      Left contains one more item: Int02Invoer(begrip='toelating', kern='De medewerker laat de aanvrager toe.', bedoeling='opdracht aan medewerker', organisatorische_context=('synthetische procedure',), juridische_context=(), wettelijke_basis=(), bronnen=())
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=True) - no callback registered
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=f66b3cb4-27ec-4986-aeba-8a2d9f72ea50)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=f66b3cb4-27ec-4986-aeba-8a2d9f72ea50)
+INFO     services.validation.modular_validation_service:modular_validation_service.py:964 Starting validation: begrip='toelating', text_length=36, correlation_id=4432e91a-dc3d-4c20-acaf-7bf7429bbd47
+DEBUG    utils.progress_callback:progress_callback.py:67 Progress notification for 'validating_definition' (active=False) - no callback registered
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:895: AssertionError: assert [Int02Invoer(..., bronnen=())] == []
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=a54bb219-f98a-457d-b16c-31d150524e62)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=a54bb219-f98a-457d-b16c-31d150524e62)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:914: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=83c77dac-b31b-48b8-a65e-b06c92e6c2f9)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=83c77dac-b31b-48b8-a65e-b06c92e6c2f9)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:914: AssertionError: assert 'pass' == 'error'
+E   assert 1 == 0
+     +  where 1 = <tests.unit.services.orchestrators.test_def835_int02_wrappers.FakeAI object at 0x10a16e0d0>.calls
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=c89854f0-7085-434f-a557-89437126136d)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=c89854f0-7085-434f-a557-89437126136d)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:938: assert 1 == 0
+E   assert [0] == [1]
+      
+      At index 0 diff: 0 != 1
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:538 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=fe9f2db9-23aa-4c63-ae08-b66563a04ae7)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:620 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=fe9f2db9-23aa-4c63-ae08-b66563a04ae7)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/orchestrators/test_def835_int02_wrappers.py:950: assert [0] == [1]
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_snapshot_is_exact_de_configuratie_die_assess_bindt
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_snapshot_ook_bij_blokkade_gelijk_aan_de_binding
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_snapshot_uitlezen_doet_geen_modelaanroep
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_snapshot_bevat_norm_prompt_profiel_budget_en_routering
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f2_snapshot_is_een_onveranderlijke_losse_kopie
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_reviewerrepro_oud_document_voor_ander_model_is_error
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[normhash-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[normhash-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[normversie-def771-int02/9-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[normversie-def771-int02/9-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[promptversie-andere-prompt/1-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[promptversie-andere-prompt/1-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[routeringshash-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[routeringshash-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[provider-anderprovider-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[provider-anderprovider-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[model-ander-model-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_documentbinding_afwijkend_van_snapshot_is_error[model-ander-model-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep[ontbreekt-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep[ontbreekt-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep[niet-aanroepbaar-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep[niet-aanroepbaar-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep[none-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep[none-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep[dict-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep[dict-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep[uitzondering-tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep[uitzondering-record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_snapshotwijziging_tijdens_aanroep_is_nooit_current[tekst]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_snapshotwijziging_tijdens_aanroep_is_nooit_current[record]
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_routerwissel_tussen_snapshot_en_aanroep_is_error
+FAILED tests/unit/services/orchestrators/test_def835_int02_wrappers.py::test_f2_snapshot_wordt_voor_de_aanroep_vastgelegd
+================= 32 failed, 8 passed, 155 deselected in 1.45s =================
+# exit=1

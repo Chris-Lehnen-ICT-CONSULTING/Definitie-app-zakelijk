@@ -74,7 +74,15 @@ from services.interfaces import Definition
 # status van betekenis. Daarnaast beschrijft 2.2.0 de bestaande
 # INT-03-runtimevelden `assessment` en `signals` in rule_results['INT-03']
 # (DEF-772, integratie met main); andere regels dragen ze niet.
-CONTRACT_VERSION = "2.2.0"
+#
+# 2.3.0 (DEF-835, additief): rule_results['INT-02'] mag dezelfde optionele
+# velden `assessment` (het INT-02-beoordelingsdocument, contract
+# def835-int02-assessment/1, of null) en `signals` (patroonlijst; leeshulp)
+# dragen als INT-03. Alleen deze twee regels; onbekende velden blijven overal
+# afgewezen. Geen bestaand veld of bestaande status is van betekenis
+# veranderd. Het actieve INT-02-record levert deze velden nog niet (O1); de
+# O2-evaluator decision_rule_assessment is geregistreerd maar niet actief.
+CONTRACT_VERSION = "2.3.0"
 
 # DEF-621: de uitkomst van een validatie als geheel.
 #
@@ -273,8 +281,12 @@ class RuleResult(TypedDict):
     fingerprint: str | None
     parts: list[RuleResultPart]
     review: dict[str, Any] | None
-    # DEF-772 (beschreven in 2.2.0): alleen rule_results['INT-03'] — het
+    # DEF-772 (beschreven in 2.2.0): rule_results['INT-03'] — het
     # beoordelingsdocument (of None) en de vurende patronen (zoekhulp).
+    # DEF-835 (2.3.0): ook rule_results['INT-02'] — het document van
+    # def835-int02-assessment/1, alleen als het als actueel of historisch is
+    # aanvaard (anders None), en de recordpatronen op de actuele kern. Geen
+    # andere regel draagt deze velden.
     assessment: NotRequired[dict[str, Any] | None]
     signals: NotRequired[list[str]]
 

@@ -1,0 +1,20 @@
+{
+  "base": "979ca0585100d94b613829d924c6d8bba4f24f1b",
+  "files": {
+    "src/services/container.py": "32a5ae789a0f131a036e4f1aa66d98cd05e4ea99ca1e77545529592de781e42a",
+    "src/services/orchestrators/definition_orchestrator_v2.py": "db1093e54c6c917fb6b37f49b153cdd1f2465274da94fb1bb74bfe1ef724d4ca",
+    "src/services/orchestrators/validation_orchestrator_v2.py": "7faf7380ca1d4a332d0110ddfac53ced9c094223ef533199a87c6229f125f419",
+    "src/services/validation/modular_validation_service.py": "84a9e330c263afeea519363e1ac692950c93df3c1c15a2634fef5d5d722ab6c2",
+    "tests/unit/services/orchestrators/test_def835_int02_wrappers.py": "ed66ecef4e5867568b879a1a9607d80772b04ea18660222eeaff295a6d484459",
+    "tests/unit/validation/test_def835_int02_modular.py": "ca09aa5220b4e25cc55f8d90831abfc03a69034328b259b11d1227afcb799400",
+    "tests/unit/services/test_def835_int02_container.py": "5048a1c4bf68fe58d8315a85129269e3eff27737e0b833b6bef177e2c3f69ae9"
+  },
+  "changed_since_v1": [
+    "src/services/validation/modular_validation_service.py",
+    "tests/unit/services/orchestrators/test_def835_int02_wrappers.py",
+    "tests/unit/validation/test_def835_int02_modular.py"
+  ],
+  "full_patch_sha256": "a577e702f9b488e55516456e414810fcb504120840c86a68c550ce7df250d6d1",
+  "delta_sha256": "29517a408175bf71a0e4c72166e4f6adac7b6948fca03cbf86dda2123027b2a4",
+  "reviewroot": "/private/tmp/def835-wp2-review-20260927"
+}

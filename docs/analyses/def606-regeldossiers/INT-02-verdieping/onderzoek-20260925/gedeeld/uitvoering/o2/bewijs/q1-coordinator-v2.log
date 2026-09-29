@@ -1,0 +1,13 @@
+["/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python", "-c", "from tests.offline_bootstrap import install; install(); import pytest; raise SystemExit(pytest.main(['tests/unit/validation/test_def835_int02_modelproef.py','-o','addopts=','-q','-ra']))"]
+........................................................................ [ 42%]
+........................................................................ [ 84%]
+...........................                                              [100%]
+171 passed in 28.65s
+exit=0
+["/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python", "-m", "ruff", "check", "scripts/analysis/def835_int02_modelproef.py", "tests/unit/validation/test_def835_int02_modelproef.py"]
+All checks passed!
+exit=0
+["/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python", "-m", "black", "--check", "scripts/analysis/def835_int02_modelproef.py", "tests/unit/validation/test_def835_int02_modelproef.py"]
+All done! ✨ 🍰 ✨
+2 files would be left unchanged.
+exit=0

@@ -1,0 +1,17 @@
+# DEF-835 typefix WP1 - gedragstests en lint
+# tijdstip: 2026-09-28T13:26:11Z  HEAD: d769276041e619103ace7bc66e65419d480dae99
+#   6dcae57bc60d1edec09d49fa35d21d135cf0dd43e587ef7e8ba60dac22f16ca8  src/domain/int02/contract.py
+#   368401797e216de4cbcdb8373a9815e9d3f338b4116a485fe3c61971a14d7e97  tests/unit/domain/test_def835_int02_contract.py
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/domain/test_def835_int02_contract.py -o addopts= -q -ra
+........................................................................ [ 40%]
+........................................................................ [ 81%]
+.................................                                        [100%]
+177 passed in 0.69s
+# exitcode: 0
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m ruff check src/domain/int02/contract.py
+All checks passed!
+# exitcode: 0
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m black --check src/domain/int02/contract.py
+All done! ✨ 🍰 ✨
+1 file would be left unchanged.
+# exitcode: 0

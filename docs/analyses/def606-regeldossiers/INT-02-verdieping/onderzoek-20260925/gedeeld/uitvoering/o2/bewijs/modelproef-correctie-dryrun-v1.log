@@ -1,0 +1,16 @@
+# DEF-835 modelproef CORRECTIE DRY-RUN via CLI — 2026-09-28T10:04:15Z
+$ git rev-parse HEAD
+979ca0585100d94b613829d924c6d8bba4f24f1b
+$ env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python scripts/analysis/def835_int02_modelproef.py --manifest docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v2.json --payloads docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-payloads-v2.json
+🚨 ALERT: High Error Rate - 1.000 gt 0.1 (Severity: error)
+🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+manifest (pending): 74aa689581ad22f79679d4e820a2a27b101e918dad312e974b6f88517d7bd576
+exit=0
+$ reviewreproductie via CLI: ANTHROPIC_BASE_URL=https://api.anthropic.com:8443 ANTHROPIC_CUSTOM_HEADERS=<anthropic-version: 2099-01-01 / Authorization: Bearer SYNTHETIC-REVIEW> ... --manifest /tmp/def835-drift-manifest.json (moet weigeren, geen bestand)
+geweigerd: transportconfig_niet_toegestaan
+exit=2
+$ ls /tmp/def835-drift-manifest.json
+ls: /tmp/def835-drift-manifest.json: No such file or directory
+$ shasum -a 256 manifest-v2 payloads-v2
+54c75b43b2b55a132e58a896f2d5d909bebf97b521a26ff0d77bb783a0df35c8  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v2.json
+3f072eeaa58b3f62a3fc4b1f6b65f32fa5735c92199044bbb798b16763586041  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-payloads-v2.json

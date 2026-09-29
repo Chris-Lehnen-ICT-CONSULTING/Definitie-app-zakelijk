@@ -1,0 +1,15 @@
+# functiebetekenis-test: toegevoegd na de fix; discriminatie via mutatie. bron-sha256 voor: a0f477706af5b5f0e83cf369d23e947127e171b3ab29804890efa9354700a1e0
+ongemuteerd: exit 0 1 passed, 55 deselected in 0.45s
+mutatie criterion<->derivation verwisseld: exit 1
+F                                                                        [100%]
+=================================== FAILURES ===================================
+E   AssertionError: criterion
+    assert '"criterion" = begripscriterium' in 'Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.'
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:315: AssertionError: criterion
+=========================== short test summary info ============================
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_elke_functiecode_staat_expliciet_bij_zijn_betekenis_uit_t
+1 failed, 55 deselected in 0.42s
+
+# bron-sha256 na herstel: a0f477706af5b5f0e83cf369d23e947127e171b3ab29804890efa9354700a1e0

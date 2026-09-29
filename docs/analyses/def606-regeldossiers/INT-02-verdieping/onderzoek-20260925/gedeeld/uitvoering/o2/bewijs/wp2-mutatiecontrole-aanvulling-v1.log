@@ -1,0 +1,5 @@
+# aanvulling: M2 en M6 uit v1 waren geen naieve varianten; bron-sha256 voor: e87a10d6c602918a812ab068720ba247beda4816c6a7aa793ee13d7a45b43b65
+M2b alles cachen behalve bij cache_size 0: exit 1; 5 failed, 163 passed in 0.87s
+M6b exceptiontekst als uitzonderingstype (log en resultaat): exit 1; 5 failed, 163 passed in 0.83s
+M9 NE na profielblokkade: exit 1; 5 failed, 163 passed in 0.86s
+# bron-sha256 na herstel: e87a10d6c602918a812ab068720ba247beda4816c6a7aa793ee13d7a45b43b65

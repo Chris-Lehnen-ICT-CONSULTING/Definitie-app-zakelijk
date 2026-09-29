@@ -3,8 +3,8 @@
 # See: https://github.com/gitleaks/gitleaks
 #
 # DEF-522: de vier brede globale allowlists en de brede rule-scoped allowlist
-# zijn vervallen. Er zijn nog precies twee uitzonderingen, hieronder, en beide
-# gelden alleen voor één exact pad in combinatie met exacte inhoud.
+# zijn vervallen. Er zijn nog precies drie uitzonderingen, hieronder, en alle drie
+# gelden alleen voor exact vastgelegde paden in combinatie met exacte inhoud.
 
 title = "DefinitieAgent Secret Detection Configuration"
 
@@ -13,7 +13,7 @@ title = "DefinitieAgent Secret Detection Configuration"
 [extend]
 useDefault = true
 
-# Uitzondering 1 van 2: de synthetische AWS-fixture. `condition = "AND"` betekent
+# Uitzondering 1 van 3: de synthetische AWS-fixture. `condition = "AND"` betekent
 # dat pad én waarde beide moeten matchen: een uitzondering die naar een ander pad
 # verhuist of waarvan de inhoud verandert, geldt niet meer. Geen prefix, geen
 # sleuteltype, geen map.
@@ -49,7 +49,7 @@ paths = ['''^tests/fixtures/def522_synthetic_aws\.txt$''']
 regexTarget = "secret"
 regexes = ['''^AK[I]A3QK7XZ2MJ5R6W4TB$''']
 
-# Uitzondering 2 van 2: vier historische metadataregels in `.gitleaksignore`.
+# Uitzondering 2 van 3: vier historische metadataregels in `.gitleaksignore`.
 # Dezelfde constructie als hierboven — `condition = "AND"` plus `targetRules` —
 # zodat pad én inhoud beide moeten matchen en het pad alleen geen vrijbrief is.
 #
@@ -85,6 +85,42 @@ regexes = [
   '''^\n?docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN\.html:openai-api-key-new-format:[5]a61be55d691c1e35a6a95c89f56f82f10feb83a$''',
   '''^\n?docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT\.html:generic-api-key:[5]a61be55d691c1e35a6a95c89f56f82f10feb83a$''',
   '''^\n?docs/portal/rendered/architectuur/structured-logging-architecture\.html:generic-api-key:[5]f02ab5a2c28c2df8ac9fd9c85a48e6eb78a517a$''',
+]
+
+# Uitzondering 3 van 3: één bronhashregel in twee DEF-835-modelproefmanifesten.
+# Dezelfde constructie als uitzondering 2 — `condition = "AND"`, `targetRules`,
+# `regexTarget = "line"` en `^\n?` — zodat een van beide paden én de volledige
+# regel moeten matchen.
+#
+# Rationale: de JSON-waarde bij sleutel `src/utils/async_api.py` is de SHA-256
+# van dat bronbestand, rechtstreeks gelijk bevonden; `generic-api-key` ziet er
+# een sleutel in omdat de bronnaam `api` bevat. Er is geen sleutelwaarde gelezen
+# en er is niets ingetrokken of vervangen. Geen map, geen prefix, geen glob.
+#
+# Het eerste hexteken staat als tekenklasse geschreven, in dezelfde schrijfwijze
+# als de uitzonderingen hierboven. Voor deze regel is dat niet strikt nodig: zolang
+# de punt in `async_api\.py` ge-escaped blijft, levert de configtekst op een
+# neutraal pad onder deze scanner en config geen waarneming op, ook zonder
+# tekenklasse. De tekenklasse is een aanvullende waarborg, geen voorwaarde.
+#
+# Eigenaar: Chris Lehnen (DEF-835). Herbeoordelen op 2026-12-28, of eerder als
+# de bronhash of de manifestroute wijzigt.
+[[allowlists]]
+description = """DEF-835 bronhashregel: uitsluitend de twee exacte paden \
+modelproef-manifest-v1.json en modelproef-manifest-v2.json onder het \
+o2-bewijsdossier in combinatie met één exacte, volledige JSON-regel: de SHA-256 \
+van src/utils/async_api.py, geen sleutel. Eigenaar Chris Lehnen (DEF-835); \
+herbeoordelen op 2026-12-28 of eerder bij wijziging van bronhash of \
+manifestroute."""
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = [
+  '''^docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v1\.json$''',
+  '''^docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v2\.json$''',
+]
+regexTarget = "line"
+regexes = [
+  '''^\n?      "src/utils/async_api\.py": "[f]014876b16b76f889cf92faff1d89c3753b4ef0734624e8c45bcb6092841ff93",$''',
 ]
 
 # Custom rules for project-specific patterns

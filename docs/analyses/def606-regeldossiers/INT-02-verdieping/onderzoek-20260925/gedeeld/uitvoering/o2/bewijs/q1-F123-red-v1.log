@@ -1,0 +1,415 @@
+# DEF-835 Q1 F1-F3 ROOD — 2026-09-28T16:21:54Z
+$ git rev-parse HEAD
+f9bb9e6973926a3cf768995f5d879f6edfd6322d
+$ shasum -a 256 (doelbestanden)
+f4d09238998b1233f888eb1c702fa2334eb84b50dcbfd80f32ac53fd879a7f06  scripts/analysis/def835_int02_modelproef.py
+8ebba00d49b9303d50ab323a06892f9e46ece252e185939f124e231355e29f75  tests/unit/validation/test_def835_int02_modelproef.py
+2f50c456756614cc35e78b81f57f4c8afc748b79d4cfcd6da053306e6c8fd7a7  tests/fixtures/def835_int02_kwalificatie_runner.json
+$ env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 .venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -o addopts= -q -ra -p no:cacheprovider
+....................F........F...........F.......F....F.............F... [ 42%]
+...............F...........F............FF.............F..F............. [ 84%]
+.F..F................F.....                                              [100%]
+=================================== FAILURES ===================================
+_ test_f3_opslagfout_bewijs_blokkeert_fase_zonder_vervolgcalls[regressie-resultaat.json] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_opslagfout_bewijs_blok0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10f30cad0>
+artefact = 'regressie-resultaat.json'
+
+    @pytest.mark.parametrize("artefact", ["regressie-resultaat.json", "regressie-bundel.json"])
+    async def test_f3_opslagfout_bewijs_blokkeert_fase_zonder_vervolgcalls(
+        tmp_path, monkeypatch, artefact
+    ):
+        k = await _kwal(tmp_path)
+        origineel = m._schrijf_nieuw
+    
+        def faalt(pad, data):
+            if pad.name == artefact:
+                raise OSError("geinjecteerde opslagfout")
+            return origineel(pad, data)
+    
+        monkeypatch.setattr(m, "_schrijf_nieuw", faalt)
+        provider = KwalProvider()
+        with pytest.raises(m.ProefStopError) as fout:
+>           await _fase(k, "regressie", provider)
+
+tests/unit/validation/test_def835_int02_modelproef.py:2146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_modelproef.py:1110: in _fase
+    return await m.voer_kwalificatie_uit(
+scripts/analysis/def835_int02_modelproef.py:1930: in voer_kwalificatie_uit
+    _schrijf_nieuw(proefmap / f"{fase}-resultaat.json", data)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pad = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_opslagfout_bewijs_blok0/proef/regressie-resultaat.json')
+data = {'akkoord_sha256': '75889ca3c3867e6b2e87108100676387af8e5ee1715e434096949623d92a96c8', 'beeindigd': '2026-09-28T16:21:...ties': 3, 'kosten_usd_conservatief': 0.052500000000000005, 'looptijd_seconden': 0.093, 'onzekere_calls': [], ...}, ...}
+
+    def faalt(pad, data):
+        if pad.name == artefact:
+>           raise OSError("geinjecteerde opslagfout")
+E           OSError: geinjecteerde opslagfout
+
+tests/unit/validation/test_def835_int02_modelproef.py:2140: OSError
+____ test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[negatief] _____
+
+duren = [90000, 90000, 90000, 90000, 90000, 90000, ...]
+reden = 'latentie_onvolledig'
+
+    @pytest.mark.parametrize(
+        ("duren", "reden"),
+        [
+            ([90000] * 16, None),
+            ([90000] * 15 + [None], "latentie_onvolledig"),
+            ([90000] * 15 + ["90000"], "latentie_onvolledig"),
+            ([90000] * 15 + [True], "latentie_onvolledig"),
+            ([90000] * 15 + [-1], "latentie_onvolledig"),
+            ([90000] * 15, "latentie_onvolledig"),
+            ([1000] * 15 + [90001], "p95_boven_grens"),
+        ],
+        ids=["compleet", "ontbreekt", "tekst", "bool", "negatief", "te-weinig", "max"],
+    )
+    def test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes(duren, reden):
+>       uitkomst = m._beoordeel_fase("holdout", _goede_evaluaties("holdout"), None, True, duren)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: _beoordeel_fase() takes 4 positional arguments but 5 were given
+
+tests/unit/validation/test_def835_int02_modelproef.py:2119: TypeError
+__________ test_f1_slot_vast_van_transport_tot_na_bewijs_en_afronding __________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f1_slot_vast_van_transpor0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10f4098d0>
+
+    async def test_f1_slot_vast_van_transport_tot_na_bewijs_en_afronding(
+        tmp_path, monkeypatch
+    ):
+        k = await _kwal(tmp_path)
+>       slot = k.proefmap / m.SLOT_NAAM
+                            ^^^^^^^^^^^
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'SLOT_NAAM'
+
+tests/unit/validation/test_def835_int02_modelproef.py:2020: AttributeError
+_________________ test_f2_p95_grens_geldt_alleen_voor_holdout __________________
+
+    def test_f2_p95_grens_geldt_alleen_voor_holdout():
+        for fase in ("regressie", "ontwikkeling"):
+>           uitkomst = m._beoordeel_fase(fase, _goede_evaluaties(fase), None, True, [])
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           TypeError: _beoordeel_fase() takes 4 positional arguments but 5 were given
+
+tests/unit/validation/test_def835_int02_modelproef.py:2126: TypeError
+____ test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[compleet] _____
+
+duren = [90000, 90000, 90000, 90000, 90000, 90000, ...], reden = None
+
+    @pytest.mark.parametrize(
+        ("duren", "reden"),
+        [
+            ([90000] * 16, None),
+            ([90000] * 15 + [None], "latentie_onvolledig"),
+            ([90000] * 15 + ["90000"], "latentie_onvolledig"),
+            ([90000] * 15 + [True], "latentie_onvolledig"),
+            ([90000] * 15 + [-1], "latentie_onvolledig"),
+            ([90000] * 15, "latentie_onvolledig"),
+            ([1000] * 15 + [90001], "p95_boven_grens"),
+        ],
+        ids=["compleet", "ontbreekt", "tekst", "bool", "negatief", "te-weinig", "max"],
+    )
+    def test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes(duren, reden):
+>       uitkomst = m._beoordeel_fase("holdout", _goede_evaluaties("holdout"), None, True, duren)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: _beoordeel_fase() takes 4 positional arguments but 5 were given
+
+tests/unit/validation/test_def835_int02_modelproef.py:2119: TypeError
+______ test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[bool] _______
+
+duren = [90000, 90000, 90000, 90000, 90000, 90000, ...]
+reden = 'latentie_onvolledig'
+
+    @pytest.mark.parametrize(
+        ("duren", "reden"),
+        [
+            ([90000] * 16, None),
+            ([90000] * 15 + [None], "latentie_onvolledig"),
+            ([90000] * 15 + ["90000"], "latentie_onvolledig"),
+            ([90000] * 15 + [True], "latentie_onvolledig"),
+            ([90000] * 15 + [-1], "latentie_onvolledig"),
+            ([90000] * 15, "latentie_onvolledig"),
+            ([1000] * 15 + [90001], "p95_boven_grens"),
+        ],
+        ids=["compleet", "ontbreekt", "tekst", "bool", "negatief", "te-weinig", "max"],
+    )
+    def test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes(duren, reden):
+>       uitkomst = m._beoordeel_fase("holdout", _goede_evaluaties("holdout"), None, True, duren)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: _beoordeel_fase() takes 4 positional arguments but 5 were given
+
+tests/unit/validation/test_def835_int02_modelproef.py:2119: TypeError
+_____ test_f1_tweede_proces_met_slot_blokkeert_vervolgfase_voor_transport ______
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f1_tweede_proces_met_slot0')
+
+    async def test_f1_tweede_proces_met_slot_blokkeert_vervolgfase_voor_transport(
+        tmp_path,
+    ):
+        k = await _kwal(tmp_path)
+        await _fase(k, "regressie", KwalProvider())
+        omgeving = {
+            n: w for n, w in os.environ.items() if not n.endswith(("_API_KEY", "_TOKEN"))
+        }
+        houder = subprocess.Popen(  # noqa: S603 - vaste interpreter, vast script
+>           [sys.executable, "-c", _SLOTHOUDER, str(k.proefmap / m.SLOT_NAAM)],
+                                                                 ^^^^^^^^^^^
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            text=True,
+            env=omgeving,
+        )
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'SLOT_NAAM'
+
+tests/unit/validation/test_def835_int02_modelproef.py:1987: AttributeError
+____ test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[ontbreekt] ____
+
+duren = [90000, 90000, 90000, 90000, 90000, 90000, ...]
+reden = 'latentie_onvolledig'
+
+    @pytest.mark.parametrize(
+        ("duren", "reden"),
+        [
+            ([90000] * 16, None),
+            ([90000] * 15 + [None], "latentie_onvolledig"),
+            ([90000] * 15 + ["90000"], "latentie_onvolledig"),
+            ([90000] * 15 + [True], "latentie_onvolledig"),
+            ([90000] * 15 + [-1], "latentie_onvolledig"),
+            ([90000] * 15, "latentie_onvolledig"),
+            ([1000] * 15 + [90001], "p95_boven_grens"),
+        ],
+        ids=["compleet", "ontbreekt", "tekst", "bool", "negatief", "te-weinig", "max"],
+    )
+    def test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes(duren, reden):
+>       uitkomst = m._beoordeel_fase("holdout", _goede_evaluaties("holdout"), None, True, duren)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: _beoordeel_fase() takes 4 positional arguments but 5 were given
+
+tests/unit/validation/test_def835_int02_modelproef.py:2119: TypeError
+_______ test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[max] _______
+
+duren = [1000, 1000, 1000, 1000, 1000, 1000, ...], reden = 'p95_boven_grens'
+
+    @pytest.mark.parametrize(
+        ("duren", "reden"),
+        [
+            ([90000] * 16, None),
+            ([90000] * 15 + [None], "latentie_onvolledig"),
+            ([90000] * 15 + ["90000"], "latentie_onvolledig"),
+            ([90000] * 15 + [True], "latentie_onvolledig"),
+            ([90000] * 15 + [-1], "latentie_onvolledig"),
+            ([90000] * 15, "latentie_onvolledig"),
+            ([1000] * 15 + [90001], "p95_boven_grens"),
+        ],
+        ids=["compleet", "ontbreekt", "tekst", "bool", "negatief", "te-weinig", "max"],
+    )
+    def test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes(duren, reden):
+>       uitkomst = m._beoordeel_fase("holdout", _goede_evaluaties("holdout"), None, True, duren)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: _beoordeel_fase() takes 4 positional arguments but 5 were given
+
+tests/unit/validation/test_def835_int02_modelproef.py:2119: TypeError
+______ test_f3_mislukte_grootboekafronding_laat_fase_open_en_geblokkeerd _______
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_mislukte_grootboekafro0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10c8e10f0>
+
+    async def test_f3_mislukte_grootboekafronding_laat_fase_open_en_geblokkeerd(
+        tmp_path, monkeypatch
+    ):
+        k = await _kwal(tmp_path)
+        origineel = m.Grootboek.schrijf
+    
+        def faalt(self, regel):
+            if regel.get("gebeurtenis") == "fase_einde":
+                raise OSError("geinjecteerde grootboekfout")
+            return origineel(self, regel)
+    
+        monkeypatch.setattr(m.Grootboek, "schrijf", faalt)
+        provider = KwalProvider()
+        with pytest.raises(OSError, match="grootboekfout"):
+            await _fase(k, "regressie", provider)
+        monkeypatch.setattr(m.Grootboek, "schrijf", origineel)
+        # Het bewijs staat er al; het grootboek meldt geen succes (fase open).
+>       assert (k.proefmap / "regressie-resultaat.json").exists()
+E       AssertionError: assert False
+E        +  where False = exists()
+E        +    where exists = (PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_mislukte_grootboekafro0/proef') / 'regressie-resultaat.json').exists
+E        +      where PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_mislukte_grootboekafro0/proef') = <test_def835_int02_modelproef.Kwal object at 0x10f30d2b0>.proefmap
+
+tests/unit/validation/test_def835_int02_modelproef.py:2184: AssertionError
+_ test_f3_opslagfout_bewijs_blokkeert_fase_zonder_vervolgcalls[regressie-bundel.json] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_opslagfout_bewijs_blok1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10c8e0c90>
+artefact = 'regressie-bundel.json'
+
+    @pytest.mark.parametrize("artefact", ["regressie-resultaat.json", "regressie-bundel.json"])
+    async def test_f3_opslagfout_bewijs_blokkeert_fase_zonder_vervolgcalls(
+        tmp_path, monkeypatch, artefact
+    ):
+        k = await _kwal(tmp_path)
+        origineel = m._schrijf_nieuw
+    
+        def faalt(pad, data):
+            if pad.name == artefact:
+                raise OSError("geinjecteerde opslagfout")
+            return origineel(pad, data)
+    
+        monkeypatch.setattr(m, "_schrijf_nieuw", faalt)
+        provider = KwalProvider()
+        with pytest.raises(m.ProefStopError) as fout:
+>           await _fase(k, "regressie", provider)
+
+tests/unit/validation/test_def835_int02_modelproef.py:2146: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_modelproef.py:1110: in _fase
+    return await m.voer_kwalificatie_uit(
+scripts/analysis/def835_int02_modelproef.py:1932: in voer_kwalificatie_uit
+    _schrijf_nieuw(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+pad = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_opslagfout_bewijs_blok1/proef/regressie-bundel.json')
+data = {'antwoorden': {'C105': '{"id":"msg_offline","type":"message","role":"assistant","model":"claude-opus-5","content":[{"...:{"type":"disabled"}}'}], 'identiteit_sha256': 'e4582e508ba5e0176cfb5b7a4025e74dfbf953ad40fb1f3de818d6df43dfb5fa', ...}
+
+    def faalt(pad, data):
+        if pad.name == artefact:
+>           raise OSError("geinjecteerde opslagfout")
+E           OSError: geinjecteerde opslagfout
+
+tests/unit/validation/test_def835_int02_modelproef.py:2140: OSError
+______ test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[tekst] ______
+
+duren = [90000, 90000, 90000, 90000, 90000, 90000, ...]
+reden = 'latentie_onvolledig'
+
+    @pytest.mark.parametrize(
+        ("duren", "reden"),
+        [
+            ([90000] * 16, None),
+            ([90000] * 15 + [None], "latentie_onvolledig"),
+            ([90000] * 15 + ["90000"], "latentie_onvolledig"),
+            ([90000] * 15 + [True], "latentie_onvolledig"),
+            ([90000] * 15 + [-1], "latentie_onvolledig"),
+            ([90000] * 15, "latentie_onvolledig"),
+            ([1000] * 15 + [90001], "p95_boven_grens"),
+        ],
+        ids=["compleet", "ontbreekt", "tekst", "bool", "negatief", "te-weinig", "max"],
+    )
+    def test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes(duren, reden):
+>       uitkomst = m._beoordeel_fase("holdout", _goede_evaluaties("holdout"), None, True, duren)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: _beoordeel_fase() takes 4 positional arguments but 5 were given
+
+tests/unit/validation/test_def835_int02_modelproef.py:2119: TypeError
+__ test_f2_holdout_p95_boven_90s_blokkeert_toelating[p95-90000ms-toegestaan] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f2_holdout_p95_boven_90s_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10f969320>
+seconden = 90.0, geslaagd = True
+
+    @pytest.mark.parametrize(
+        ("seconden", "geslaagd"),
+        [(90.0, True), (90.001, False)],
+        ids=["p95-90000ms-toegestaan", "p95-90001ms-geweigerd"],
+    )
+    async def test_f2_holdout_p95_boven_90s_blokkeert_toelating(
+        tmp_path, monkeypatch, seconden, geslaagd
+    ):
+        k = await _kwal(tmp_path)
+        await _tot_en_met(k, "ontwikkeling")
+        klok = _Klok()
+        provider = KwalProvider()
+    
+        def traag(request):
+            if request.url.path == "/v1/messages":
+                klok.nu += seconden
+            return provider(request)
+    
+        monkeypatch.setattr(m, "time", SimpleNamespace(monotonic=klok.monotonic))
+        data = await _fase(k, "holdout", traag)
+        assert data["latentie"]["p95_ms"] == round(seconden * 1000)
+>       assert data["evaluatie"]["criteria"]["max_p95_ms"] == 90000
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'max_p95_ms'
+
+tests/unit/validation/test_def835_int02_modelproef.py:2084: KeyError
+____ test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[te-weinig] ____
+
+duren = [90000, 90000, 90000, 90000, 90000, 90000, ...]
+reden = 'latentie_onvolledig'
+
+    @pytest.mark.parametrize(
+        ("duren", "reden"),
+        [
+            ([90000] * 16, None),
+            ([90000] * 15 + [None], "latentie_onvolledig"),
+            ([90000] * 15 + ["90000"], "latentie_onvolledig"),
+            ([90000] * 15 + [True], "latentie_onvolledig"),
+            ([90000] * 15 + [-1], "latentie_onvolledig"),
+            ([90000] * 15, "latentie_onvolledig"),
+            ([1000] * 15 + [90001], "p95_boven_grens"),
+        ],
+        ids=["compleet", "ontbreekt", "tekst", "bool", "negatief", "te-weinig", "max"],
+    )
+    def test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes(duren, reden):
+>       uitkomst = m._beoordeel_fase("holdout", _goede_evaluaties("holdout"), None, True, duren)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: _beoordeel_fase() takes 4 positional arguments but 5 were given
+
+tests/unit/validation/test_def835_int02_modelproef.py:2119: TypeError
+___ test_f2_holdout_p95_boven_90s_blokkeert_toelating[p95-90001ms-geweigerd] ___
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-z164zm3r/tempfiles/pytest-of-chrislehnen/pytest-0/test_f2_holdout_p95_boven_90s_1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10c8851d0>
+seconden = 90.001, geslaagd = False
+
+    @pytest.mark.parametrize(
+        ("seconden", "geslaagd"),
+        [(90.0, True), (90.001, False)],
+        ids=["p95-90000ms-toegestaan", "p95-90001ms-geweigerd"],
+    )
+    async def test_f2_holdout_p95_boven_90s_blokkeert_toelating(
+        tmp_path, monkeypatch, seconden, geslaagd
+    ):
+        k = await _kwal(tmp_path)
+        await _tot_en_met(k, "ontwikkeling")
+        klok = _Klok()
+        provider = KwalProvider()
+    
+        def traag(request):
+            if request.url.path == "/v1/messages":
+                klok.nu += seconden
+            return provider(request)
+    
+        monkeypatch.setattr(m, "time", SimpleNamespace(monotonic=klok.monotonic))
+        data = await _fase(k, "holdout", traag)
+        assert data["latentie"]["p95_ms"] == round(seconden * 1000)
+>       assert data["evaluatie"]["criteria"]["max_p95_ms"] == 90000
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'max_p95_ms'
+
+tests/unit/validation/test_def835_int02_modelproef.py:2084: KeyError
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_opslagfout_bewijs_blokkeert_fase_zonder_vervolgcalls[regressie-resultaat.json]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[negatief]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f1_slot_vast_van_transport_tot_na_bewijs_en_afronding
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f2_p95_grens_geldt_alleen_voor_holdout
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[compleet]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[bool]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f1_tweede_proces_met_slot_blokkeert_vervolgfase_voor_transport
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[ontbreekt]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[max]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_mislukte_grootboekafronding_laat_fase_open_en_geblokkeerd
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_opslagfout_bewijs_blokkeert_fase_zonder_vervolgcalls[regressie-bundel.json]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[tekst]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f2_holdout_p95_boven_90s_blokkeert_toelating[p95-90000ms-toegestaan]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes[te-weinig]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f2_holdout_p95_boven_90s_blokkeert_toelating[p95-90001ms-geweigerd]
+15 failed, 156 passed in 28.35s
+exit=1

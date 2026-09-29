@@ -1,0 +1,17 @@
+# HEAD 2be81c577653f8efbab6fa2c3794598556d32d13 branch feature/DEF-835-int02-o2 tijdstip 2026-09-27T22:10:55Z
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_evaluator.py tests/integration/contracts/test_validation_result_schema.py -o addopts= -q -ra
+# sha256:
+#   c8a1c1705ae5c03faeb70db70e51efece47225e080629b487a2701c8a413d509  tests/unit/validation/test_def835_int02_evaluator.py
+#   712f5e527bd33a5ff3fecf13192b2a22ed67356208ac645ceb06b522f496369d  tests/integration/contracts/test_validation_result_schema.py
+#   2b8ee83d85a8c6d02069b15d4eef8927b58b857dc95ea02681c7ab33818ab8a1  src/services/validation/evaluators/decision_rule_assessment.py
+#   e138b83c40188996e3d1b3850e1f0721f9094e6ce15d717e157fd13d160f3d1b  src/toetsregels/runtime_contract.py
+#   10233bfa591c9c2977bf5abbc50687df4cc287807c9ca336e6abca8d496515f7  src/services/validation/evaluators/__init__.py
+#   0a752239dd558822e34ea1dd36e98c030d23144fb8e648896bed1b39bf5b7bda  src/services/validation/interfaces.py
+#   5e23cea1284c413fc59a1b177d73a783f9f53f1f5d23b8e83cd9fec30637aa5b  config/toetsregels/toetsregels_config.yaml
+#   bad1f5bc2319c0e554224d772587379e63a068d491eb91e4b4296e7910800627  docs/architectuur/contracts/schemas/validation_result.schema.json
+#   0f9deff97a67ce474f8aa3f1423cd10a1d685b8b42e53380813bbcd5758505de  docs/architectuur/contracts/validation_result_contract.md
+........................................................................ [ 64%]
+.......................................                                  [100%]
+111 passed in 0.89s
+
+# exitcode: 0

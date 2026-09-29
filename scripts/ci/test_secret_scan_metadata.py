@@ -61,10 +61,13 @@ _PROJECT_CONFIG = Path(__file__).resolve().parents[2] / ".gitleaks.toml"
 _SCAN_TIMEOUT = 20
 
 #: Het exacte pad waarop de uitzondering geldt, een pad dat er alleen op lijkt,
-#: en het pad van de configuratie zelf.
+#: en een neutraal pad voor de configtekst. Op `.gitleaks.toml` zelf leest de
+#: gepinde Gitleaks het bestand niet: de default-allowlist, via `useDefault`
+#: actief, slaat elk pad over dat op `gitleaks\.toml` matcht
+#: (`config/gitleaks.toml:25`).
 _IGNORE_PAD = ".gitleaksignore"
 _ANDER_PAD = "docs/technisch/def522_ignore_kopie.txt"
-_CONFIG_NAAM = ".gitleaks.toml"
+_CONFIG_NAAM = "def522/projectconfig-kopie.txt"
 
 #: Losse onderdelen; de metadataregels worden tijdens de run samengesteld.
 _REGEL_GENERIC = "generic-api-key"
@@ -251,21 +254,21 @@ def test_synthetische_sleutel_naast_metaregels_blokkeert(omgeving: _Omgeving) ->
 def test_projectconfig_blokkeert_zichzelf_niet(omgeving: _Omgeving) -> None:
     """De uitzondering bevat de regels die ze doorlaat, dus ook hun staarten.
 
-    Staat zo'n staart aaneengesloten in de configuratie, dan blokkeert de gate
-    haar eigen configbestand. Het eerste hexteken staat daarom als tekenklasse
-    geschreven, net als bij de bestaande AWS-fixture.
-    """
-    directory = _scanmap(
-        omgeving,
-        "meta-eigenconfig",
-        _CONFIG_NAAM,
-        _PROJECT_CONFIG.read_text(encoding="utf-8"),
-    )
+    Stond zo'n staart aaneengesloten in de configuratie, dan kon de configtekst
+    zelf een waarneming opleveren. Het eerste hexteken staat daarom als
+    tekenklasse geschreven, net als bij de bestaande AWS-fixture.
 
-    _eis_schoon(
-        _scan(omgeving, directory),
-        "de configuratie blokkeert haar eigen tekst.",
-    )
+    De tekst wordt op een neutraal pad gescand, waar alleen de inhoud telt en geen
+    van de padgebonden uitzonderingen geldt. Het aantal gelezen bytes bewijst dat
+    de configtekst werkelijk is gelezen en niet stil is overgeslagen.
+    """
+    tekst = _PROJECT_CONFIG.read_text(encoding="utf-8")
+    directory = _scanmap(omgeving, "meta-eigenconfig", _CONFIG_NAAM, tekst)
+
+    resultaat = _scan(omgeving, directory)
+
+    _eis_schoon(resultaat, "de configuratie blokkeert haar eigen tekst.")
+    assert resultaat.scanned_bytes >= len(tekst.encode("utf-8")), _diagnose(resultaat)
 
 
 def test_historische_metaregels_passeren(omgeving: _Omgeving) -> None:

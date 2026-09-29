@@ -19,6 +19,9 @@ from services.validation.evaluators.context_metadata import ContextMetadataEvalu
 from services.validation.evaluators.countability_assessment import (
     CountabilityAssessmentEvaluator,
 )
+from services.validation.evaluators.decision_rule_assessment import (
+    DecisionRuleAssessmentEvaluator,
+)
 from services.validation.evaluators.deferred import DEFERRED_EVALUATORS
 from services.validation.evaluators.duplicate_detection import (
     DuplicateDetectionEvaluator,
@@ -75,6 +78,7 @@ def build_default_registry() -> EvaluatorRegistry:
         SourceEvidenceEvaluator(),
         CountabilityAssessmentEvaluator(),
         PronounReferenceAssessmentEvaluator(),
+        DecisionRuleAssessmentEvaluator(),
         SentenceBoundaryEvaluator(),
         DuplicateDetectionEvaluator(),
         JudgmentReviewEvaluator(),

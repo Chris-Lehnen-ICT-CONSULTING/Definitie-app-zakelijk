@@ -15,6 +15,14 @@ from typing import Any
 
 from domain.context.normalisatie import canoniseer_contextlijst
 from domain.ess03 import contract as ess03_contract
+from domain.int02.contract import (
+    Beoordelingsdocument,
+    Configuratie,
+    Int02ContractError,
+    bereken_binding,
+    maak_invoer,
+    ontbrekende_invoer,
+)
 from domain.int03 import contract as int03_contract
 from domain.sources.contract import (
     beoordeling_niet_beschikbaar,
@@ -27,6 +35,12 @@ from services.interfaces import (
     Definition,
     ValidationServiceInterface,
 )
+from services.validation.evaluators.decision_rule_assessment import (
+    METADATA_BEDOELING,
+    METADATA_BRONNEN,
+    METADATA_CONFIGURATIE,
+    METADATA_DOCUMENT,
+)
 from services.validation.interfaces import (
     ValidationContext,
     ValidationOrchestratorInterface,
@@ -34,8 +48,20 @@ from services.validation.interfaces import (
     ValidationResult,
 )
 from services.validation.mappers import create_degraded_result, ensure_schema_compliance
+from toetsregels.runtime_contract import EvaluatorType
 
 logger = logging.getLogger(__name__)
+
+#: DEF-835 WP5a: INT-02-sleutels die alleen de wrapper zelf zet; een
+#: aanroeperwaarde wordt altijd weggegooid (nooit een kortere weg naar een oordeel).
+_INT02_WRAPPERSLEUTELS = (METADATA_DOCUMENT, METADATA_CONFIGURATIE, "int02_assessment")
+_INT02_CONTEXTVELDEN = (
+    "organisatorische_context",
+    "juridische_context",
+    "wettelijke_basis",
+)
+#: Bewust geen `Configuratie`: de O2-evaluator maakt hiervan `error`, zonder oordeel.
+_INT02_TECHNISCHE_FOUT = "int02_technical_error"
 
 
 #: Uitkomst van de alias-normalisatie naast de gekozen lijst.
@@ -117,6 +143,12 @@ def _technische_blokkade(
     return None
 
 
+def _leeg_bij_none(waarde: Any) -> Any:
+    """None is leeg; elk ander type gaat ongewijzigd naar de WP1-validatie
+    (dezelfde lezing als de INT-02-O2-evaluator)."""
+    return [] if waarde is None else waarde
+
+
 class ValidationOrchestratorV2(ValidationOrchestratorInterface):
     """Orchestrator voor validatie (V2).
 
@@ -137,6 +169,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         source_assessment_service: Any | None = None,
         ess03_assessment_service: Any | None = None,
         int03_assessment_service: Any | None = None,
+        int02_assessment_service: Any | None = None,
     ) -> None:
         if validation_service is None:
             msg = "validation_service is vereist"
@@ -152,6 +185,10 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         # DEF-772: de AI-verwijzingsbeoordeling (INT-03) is standaard
         # onderdeel van elke validatie met tekst; idem.
         self.int03_assessment_service = int03_assessment_service
+        # DEF-835 WP5a: de INT-02-beoordeling (O2) is géén standaardonderdeel.
+        # Alleen een expliciet geïnjecteerde dienst, en alleen als de actieve
+        # regelset INT-02 op `decision_rule_assessment` zet; geen default.
+        self.int02_assessment_service = int02_assessment_service
 
     async def validate_text(
         self,
@@ -227,6 +264,8 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
                 if verwijzingen is not None:
                     context_dict["int03_assessment"] = verwijzingen
+                # DEF-835 WP5a: INT-02 (O2) alleen via de expliciete dienst.
+                await self._beoordeel_int02(begrip, context_dict, correlation_id)
 
                 # Call underlying service
                 result = await self.validation_service.validate_definition(
@@ -310,6 +349,10 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
                 if verwijzingen is not None:
                     context_dict["int03_assessment"] = verwijzingen
+                # DEF-835 WP5a: idem INT-02 (O2), op de gezaghebbende recordkern.
+                await self._beoordeel_int02(
+                    definition.begrip, context_dict, correlation_id
+                )
 
                 text = definition.definitie
 
@@ -644,6 +687,117 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 f"beoordelingsdienst gaf {soort} terug in plaats van een document",
             )
         return document
+
+    async def _beoordeel_int02(
+        self, begrip: str, context_dict: dict[str, Any], correlation_id: str
+    ) -> None:
+        """De INT-02-beoordeling (O2) voor exact deze validatie (DEF-835 WP5a).
+
+        Aanroeperwaarden onder `int02_document`, `int02_configuratie` en
+        `int02_assessment` worden altijd weggegooid. Daarna, fail-closed:
+        (1) zonder geïnjecteerde dienst of als de actieve regelset INT-02 niet
+        op `decision_rule_assessment` zet geen aanroep — de evaluator meldt dan
+        zelf NE of 'nog te beoordelen' (O1 blijft ongemoeid); (2) de WP1-invoer
+        komt uit exact `record_text` en de context, precies zoals de evaluator
+        haar bouwt — ongeldige invoer is een technische fout, lege kern of
+        ontbrekende context NE, beide zonder aanroep; (3) een fout in de
+        dienst, een resultaat zonder WP1-document of een document voor andere
+        invoer is een technische fout, nooit een oordeel. Alleen een
+        foutsoort of uitzonderingstype wordt gelogd. Review F2: de verwachte
+        configuratie is de publieke dienstsnapshot `configuratie()`, vastgelegd
+        vóór `assess` — nooit het teruggegeven document. Ontbreekt of faalt die
+        snapshot, dan geen aanroep; wijkt de volledige documentbinding af van
+        `bereken_binding(verse invoer, snapshot)`, ook door een wijziging rond
+        de aanroep, dan een technische fout. De evaluator krijgt de snapshot.
+        Review F24: vóór publicatie wordt dezelfde publieke snapshot opnieuw
+        gelezen (geen extra modelcall); is die ongeldig of wijkt hij af van de
+        voor-snapshot — ook door een wijziging ná de interne routering — dan
+        een technische fout. Ook het ophalen van `configuratie` valt binnen
+        de veilige foutgrens.
+        """
+        for sleutel in _INT02_WRAPPERSLEUTELS:
+            context_dict.pop(sleutel, None)
+        dienst = self.int02_assessment_service
+        if dienst is None or not self._int02_is_o2(correlation_id):
+            return
+        # Ongetypeerd: een aanwezige niet-tekst weigert WP1 hieronder (fout).
+        kern: Any = context_dict.get("record_text")
+        try:
+            invoer = maak_invoer(
+                begrip=begrip,
+                kern=kern,
+                bedoeling=context_dict.get(METADATA_BEDOELING),
+                bronnen=_leeg_bij_none(context_dict.get(METADATA_BRONNEN)),
+                **{
+                    veld: _leeg_bij_none(context_dict.get(veld))
+                    for veld in _INT02_CONTEXTVELDEN
+                },
+            )
+        except Int02ContractError:
+            self._int02_fout(context_dict, "invalid_input", correlation_id)
+            return
+        if ontbrekende_invoer(invoer):
+            return
+        try:
+            snapshot = getattr(dienst, "configuratie", None)
+            if not callable(snapshot):
+                self._int02_fout(
+                    context_dict, "configuration_unavailable", correlation_id
+                )
+                return
+            verwacht = snapshot()
+            if not isinstance(verwacht, Configuratie):
+                self._int02_fout(context_dict, "invalid_configuration", correlation_id)
+                return
+            beoordeling = await dienst.assess(invoer, correlation_id=correlation_id)
+            document = getattr(beoordeling, "document", None)
+            if not isinstance(document, Beoordelingsdocument):
+                self._int02_fout(context_dict, "invalid_result", correlation_id)
+                return
+            if document.invoer != invoer or document.binding != bereken_binding(
+                invoer, verwacht
+            ):
+                self._int02_fout(context_dict, "binding_mismatch", correlation_id)
+                return
+            na = snapshot()
+            if not isinstance(na, Configuratie):
+                self._int02_fout(context_dict, "invalid_configuration", correlation_id)
+                return
+            if na != verwacht:
+                self._int02_fout(context_dict, "configuration_changed", correlation_id)
+                return
+        except Exception as exc:
+            self._int02_fout(context_dict, type(exc).__name__, correlation_id)
+            return
+        context_dict[METADATA_DOCUMENT] = document
+        context_dict[METADATA_CONFIGURATIE] = verwacht
+
+    def _int02_is_o2(self, correlation_id: str) -> bool:
+        """Zet de actieve regelset INT-02 op `decision_rule_assessment`?"""
+        evaluator_voor = getattr(self.validation_service, "evaluator_voor", None)
+        if not callable(evaluator_voor):
+            return False
+        try:
+            return evaluator_voor("INT-02") is EvaluatorType.DECISION_RULE_ASSESSMENT
+        except Exception as exc:
+            logger.error(
+                "DEF-835: INT-02-evaluator niet bepaald (correlation_id=%s): %s",
+                correlation_id,
+                type(exc).__name__,
+            )
+            return False
+
+    @staticmethod
+    def _int02_fout(
+        context_dict: dict[str, Any], soort: str, correlation_id: str
+    ) -> None:
+        """Technische fout: de evaluator geeft `error`, zonder inhoudelijk oordeel."""
+        logger.error(
+            "DEF-835: INT-02-beoordeling niet bruikbaar (correlation_id=%s): %s",
+            correlation_id,
+            soort,
+        )
+        context_dict[METADATA_CONFIGURATIE] = _INT02_TECHNISCHE_FOUT
 
     @staticmethod
     def _met_beoordelingen(

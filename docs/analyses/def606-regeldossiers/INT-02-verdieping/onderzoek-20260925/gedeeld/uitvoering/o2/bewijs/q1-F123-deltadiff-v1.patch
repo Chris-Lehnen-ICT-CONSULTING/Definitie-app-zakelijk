@@ -1,0 +1,695 @@
+diff --git a/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/q1-F123-herstel-v1/def835_int02_modelproef.py.herstel b/scripts/analysis/def835_int02_modelproef.py
+index 24e5de32b..cd7cc0fcd 100644
+--- a/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/q1-F123-herstel-v1/def835_int02_modelproef.py.herstel
++++ b/scripts/analysis/def835_int02_modelproef.py
+@@ -50,6 +50,7 @@ from __future__ import annotations
+ import argparse
+ import asyncio
+ import contextlib
++import fcntl
+ import hashlib
+ import importlib
+ import json
+@@ -254,6 +255,8 @@ KWALIFICATIE_AKKOORD_SOORT = "def835-int02-kwalificatie-akkoord/1"
+ KWALIFICATIE_RESULTAAT_SOORT = "def835-int02-kwalificatie-resultaat/1"
+ GROOTBOEK_SOORT = "def835-int02-kwalificatie-grootboek/1"
+ GROOTBOEK_NAAM = "grootboek.jsonl"
++#: Slotbestand per proefmap (flock); blijft staan, het slot vervalt met het proces.
++SLOT_NAAM = "grootboek.slot"
+ KWALIFICATIE_AKKOORDVELDEN = (
+     "soort",
+     "manifest_sha256",
+@@ -278,9 +281,10 @@ KWALIFICATIE_CLAIM = (
+ )
+ FASEN = ("regressie", "ontwikkeling", "holdout")
+ LABELSTATUSSEN = frozenset({"pass", "fail", "review_required"})
+-#: Mechanische toelatingsgrenzen per fase (protocol §2). `min_juist_per_label`
+-#: en `verdeling` gelden voor de hold-out; een andere verdeling vraagt een
+-#: nieuw protocolbesluit en wordt geweigerd.
++#: Mechanische toelatingsgrenzen per fase (protocol §2). `min_juist_per_label`,
++#: `verdeling` en `max_p95_ms` gelden voor de hold-out; een andere verdeling
++#: vraagt een nieuw protocolbesluit en wordt geweigerd. De p95 vereist een
++#: geldige duurmeting voor elk hold-outgeval.
+ FASECRITERIA: dict[str, dict[str, Any]] = {
+     "regressie": {
+         "aantal": 3,
+@@ -288,6 +292,7 @@ FASECRITERIA: dict[str, dict[str, Any]] = {
+         "min_juist_per_label": {},
+         "max_false_pass": 0,
+         "verdeling": None,
++        "max_p95_ms": None,
+     },
+     "ontwikkeling": {
+         "aantal": 24,
+@@ -295,6 +300,7 @@ FASECRITERIA: dict[str, dict[str, Any]] = {
+         "min_juist_per_label": {},
+         "max_false_pass": None,
+         "verdeling": None,
++        "max_p95_ms": None,
+     },
+     "holdout": {
+         "aantal": 16,
+@@ -302,6 +308,7 @@ FASECRITERIA: dict[str, dict[str, Any]] = {
+         "min_juist_per_label": {"fail": 4, "pass": 7, "review_required": 3},
+         "max_false_pass": 0,
+         "verdeling": {"fail": 4, "pass": 8, "review_required": 4},
++        "max_p95_ms": 90000,
+     },
+ }
+ INHOUDELIJK_OPEN = {
+@@ -462,10 +469,9 @@ class Grootboek:
+ 
+     @classmethod
+     def nieuw(cls, proefmap: Path, manifest_sha: str, akkoord_sha: str) -> Grootboek:
+-        try:
+-            proefmap.mkdir(parents=True, exist_ok=False)
+-        except FileExistsError:
+-            raise ProefGeweigerdError("proefmap_bestaat") from None
++        """In een zojuist exclusief aangemaakte proefmap, onder het slot."""
++        if (proefmap / GROOTBOEK_NAAM).exists():
++            raise ProefGeweigerdError("grootboek_ongeldig")
+         boek = cls(proefmap / GROOTBOEK_NAAM, [])
+         boek.schrijf(
+             {
+@@ -1305,6 +1311,8 @@ def _schrijf_nieuw(pad: Path, data: Any) -> None:
+     """Schrijf alleen naar een nieuw bestand; nooit overschrijven."""
+     with pad.open("x", encoding="utf-8") as bestand:
+         bestand.write(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
++        bestand.flush()
++        os.fsync(bestand.fileno())
+ 
+ 
+ def _eis_nieuw(*paden: Path | None) -> None:
+@@ -1717,10 +1725,23 @@ def _tellers(uitkomsten: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
+     return tellers
+ 
+ 
++def _p95(duren: list[int]) -> int:
++    """Nearest-rank p95 van een niet-lege lijst."""
++    return sorted(duren)[math.ceil(0.95 * len(duren)) - 1]
++
++
+ def _beoordeel_fase(
+-    fase: str, uitkomsten: list[dict[str, Any]], stopreden: str | None, voltooid: bool
++    fase: str,
++    uitkomsten: list[dict[str, Any]],
++    stopreden: str | None,
++    voltooid: bool,
++    duren: list[Any],
+ ) -> dict[str, Any]:
+-    """Mechanische toelatingsgrenzen; het inhoudelijke oordeel blijft open."""
++    """Mechanische toelatingsgrenzen; het inhoudelijke oordeel blijft open.
++
++    `duren` bevat per uitgevoerd geval de gemeten `duur_ms`; bij een p95-grens
++    telt alleen een volledige, geldige reeks (anders geen succes).
++    """
+     criteria = FASECRITERIA[fase]
+     tellers = _tellers(uitkomsten)
+     redenen = []
+@@ -1738,6 +1759,13 @@ def _beoordeel_fase(
+     for status, minimum in criteria["min_juist_per_label"].items():
+         if tellers[f"juist_{status}"]["teller"] < minimum:
+             redenen.append(f"te_weinig_juist_{status}")
++    grens = criteria["max_p95_ms"]
++    if grens is not None:
++        geldig = [d for d in duren if _geheel(d)]
++        if len(geldig) != len(duren) or len(duren) != criteria["aantal"]:
++            redenen.append("latentie_onvolledig")
++        elif _p95(geldig) > grens:
++            redenen.append("p95_boven_grens")
+     return {
+         "mechanisch_geslaagd": not redenen,
+         "redenen": redenen,
+@@ -1747,10 +1775,69 @@ def _beoordeel_fase(
+ 
+ 
+ def _latentie(resultaten: list[dict[str, Any]]) -> dict[str, int | None]:
+-    duren = sorted(d for r in resultaten if _geheel(d := r["meting"].get("duur_ms")))
++    duren = [d for r in resultaten if _geheel(d := r["meting"].get("duur_ms"))]
+     if not duren:
+         return {"max_ms": None, "p95_ms": None}
+-    return {"max_ms": duren[-1], "p95_ms": duren[math.ceil(0.95 * len(duren)) - 1]}
++    return {"max_ms": max(duren), "p95_ms": _p95(duren)}
++
++
++def _maak_proefmap(proefmap: Path) -> None:
++    """Eerste fase: de proefmap bestaat nog niet; aanmaken is exclusief."""
++    try:
++        proefmap.mkdir(parents=True, exist_ok=False)
++    except FileExistsError:
++        raise ProefGeweigerdError("proefmap_bestaat") from None
++
++
++@contextlib.contextmanager
++def _slot(proefmap: Path) -> Iterator[None]:
++    """Exclusief processlot (flock) per proefmap, vóór het lezen van de stand.
++
++    Een tweede uitvoerder wordt geweigerd vóór enig transport. Sluiten van de
++    descriptor, ook door procesafloop, geeft het slot vrij; het slotbestand
++    blijft staan.
++    """
++    fd = os.open(proefmap / SLOT_NAAM, os.O_RDWR | os.O_CREAT, 0o600)
++    try:
++        try:
++            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
++        except BlockingIOError:
++            raise ProefGeweigerdError("proefmap_in_gebruik") from None
++        yield
++    finally:
++        os.close(fd)
++
++
++def _publiceer(artefacten: list[tuple[Path, Any]]) -> list[OSError]:
++    """Schrijf elk artefact apart (nooit overschrijven); verzamel fouten."""
++    fouten = []
++    for pad, inhoud in artefacten:
++        try:
++            _schrijf_nieuw(pad, inhoud)
++        except OSError as exc:
++            fouten.append(exc)
++    return fouten
++
++
++def _sluit_fase(
++    boek: Grootboek,
++    fase: str,
++    looptijd: float,
++    stopreden: str | None,
++    *,
++    geslaagd: bool,
++    bewijs: bool,
++) -> None:
++    boek.schrijf(
++        {
++            "gebeurtenis": "fase_einde",
++            "fase": fase,
++            "looptijd_seconden": looptijd,
++            "stopreden": stopreden,
++            "mechanisch_geslaagd": geslaagd,
++            "bewijs_opgeslagen": bewijs,
++        }
++    )
+ 
+ 
+ async def _draai_fase(
+@@ -1846,54 +1933,122 @@ async def voer_kwalificatie_uit(
+             KWALIFICATIE_PROFIEL_ID,
+         )
+         try:
+-            # Vanaf hier kan verzending volgen: eerst het grootboek.
++            # Vanaf hier kan verzending volgen. Eerst het exclusieve slot, dan
++            # pas de actuele stand; vast tot en met bewijs en afronding (F1).
+             if fase == FASEN[0]:
+-                boek = Grootboek.nieuw(proefmap, manifest_sha, akkoord_sha)
+-            else:
+-                boek = Grootboek.lees(proefmap / GROOTBOEK_NAAM, manifest_sha)
+-            begin = boek.stand()
+-            _eis_toelaatbaar(begin, fase)
+-            waarnemer.neem_stand_over(begin)
+-            waarnemer.grootboek = boek
+-            boek.schrijf(
+-                {
+-                    "gebeurtenis": "fase_start",
+-                    "fase": fase,
+-                    "akkoord_sha256": akkoord_sha,
+-                }
+-            )
+-            resultaten: list[dict[str, Any]] = []
+-            stopreden: str | None = None
+-            voltooid = False
+-
+-            def resterend() -> float:
+-                verbruikt = begin["looptijd_seconden"] + time.monotonic() - start
+-                return limieten.totale_looptijd_seconden - verbruikt
+-
+-            try:
+-                async with asyncio.timeout(resterend()):
+-                    resultaten, stopreden = await _draai_fase(
+-                        dienst, waarnemer, voorbereiding, fase, resterend
+-                    )
+-                voltooid = True
+-            except TimeoutError:
+-                stopreden = waarnemer.stopreden or "totale_looptijd"
+-            finally:
+-                evaluatie = _beoordeel_fase(
+-                    fase, [r["evaluatie"] for r in resultaten], stopreden, voltooid
+-                )
++                _maak_proefmap(proefmap)
++            with _slot(proefmap):
++                if fase == FASEN[0]:
++                    boek = Grootboek.nieuw(proefmap, manifest_sha, akkoord_sha)
++                else:
++                    boek = Grootboek.lees(proefmap / GROOTBOEK_NAAM, manifest_sha)
++                begin = boek.stand()
++                _eis_toelaatbaar(begin, fase)
++                _eis_ruimte(begin, len(identiteit["fasen"][fase]), limieten, prijzen)
++                waarnemer.neem_stand_over(begin)
++                waarnemer.grootboek = boek
+                 boek.schrijf(
+                     {
+-                        "gebeurtenis": "fase_einde",
++                        "gebeurtenis": "fase_start",
+                         "fase": fase,
+-                        "looptijd_seconden": round(time.monotonic() - start, 3),
+-                        "stopreden": stopreden,
+-                        "mechanisch_geslaagd": evaluatie["mechanisch_geslaagd"],
++                        "akkoord_sha256": akkoord_sha,
+                     }
+                 )
++                resultaten: list[dict[str, Any]] = []
++                stopreden: str | None = None
++                voltooid = False
++
++                def resterend() -> float:
++                    verbruikt = begin["looptijd_seconden"] + time.monotonic() - start
++                    return limieten.totale_looptijd_seconden - verbruikt
++
++                try:
++                    async with asyncio.timeout(resterend()):
++                        resultaten, stopreden = await _draai_fase(
++                            dienst, waarnemer, voorbereiding, fase, resterend
++                        )
++                    voltooid = True
++                except TimeoutError:
++                    stopreden = waarnemer.stopreden or "totale_looptijd"
++                except BaseException:
++                    looptijd = round(time.monotonic() - start, 3)
++                    _sluit_fase(
++                        boek,
++                        fase,
++                        looptijd,
++                        "onverwachte_fout",
++                        geslaagd=False,
++                        bewijs=False,
++                    )
++                    raise
++                looptijd = round(time.monotonic() - start, 3)
++                evaluatie = _beoordeel_fase(
++                    fase,
++                    [r["evaluatie"] for r in resultaten],
++                    stopreden,
++                    voltooid,
++                    [r["meting"].get("duur_ms") for r in resultaten],
++                )
++                data = _kwalificatieresultaat(
++                    fase=fase,
++                    manifest=manifest,
++                    hashes=(manifest_sha, akkoord_sha),
++                    tijd=(gestart, looptijd),
++                    stopreden=stopreden,
++                    standen=(begin, boek.stand()),
++                    waarnemer=waarnemer,
++                    evaluatie=evaluatie,
++                    resultaten=resultaten,
++                )
++                fase_ids = set(identiteit["fasen"][fase])
++                bundel = {
++                    "soort": PAYLOAD_SOORT,
++                    "synthetisch": True,
++                    "fase": fase,
++                    "identiteit_sha256": manifest["identiteit_sha256"],
++                    "gevallen": [
++                        p for p in voorbereiding.payloads if p["id"] in fase_ids
++                    ],
++                    "antwoorden": waarnemer.antwoorden,
++                }
++                # F3: eerst het bewijs duurzaam, pas daarna fase_einde.
++                fouten = _publiceer(
++                    [
++                        (proefmap / f"{fase}-bundel.json", bundel),
++                        (proefmap / f"{fase}-resultaat.json", data),
++                    ]
++                )
++                _sluit_fase(
++                    boek,
++                    fase,
++                    looptijd,
++                    "bewijsopslag_mislukt" if fouten else stopreden,
++                    geslaagd=evaluatie["mechanisch_geslaagd"] and not fouten,
++                    bewijs=not fouten,
++                )
++                if fouten:
++                    raise ProefStopError("bewijsopslag_mislukt") from fouten[0]
+         finally:
+             await http.aclose()
+-    eind = boek.stand()
++    return data
++
++
++def _kwalificatieresultaat(
++    *,
++    fase: str,
++    manifest: dict[str, Any],
++    hashes: tuple[str, str],
++    tijd: tuple[str, float],
++    stopreden: str | None,
++    standen: tuple[dict[str, Any], dict[str, Any]],
++    waarnemer: Waarnemer,
++    evaluatie: dict[str, Any],
++    resultaten: list[dict[str, Any]],
++) -> dict[str, Any]:
++    """Het faseresultaat, opgesteld vóór fase_einde (de fase staat nog open)."""
++    identiteit = manifest["identiteit"]
++    (manifest_sha, akkoord_sha), (gestart, looptijd) = hashes, tijd
++    begin, lopend = standen
+     data = {
+         "soort": KWALIFICATIE_RESULTAAT_SOORT,
+         "claim": KWALIFICATIE_CLAIM,
+@@ -1905,20 +2060,24 @@ async def voer_kwalificatie_uit(
+         "technische_testfixture": identiteit["gevallenmanifest"][
+             "technische_testfixture"
+         ],
++        "afronding": (
++            "Opgesteld vóór fase_einde. Het grootboek is leidend: zonder "
++            "fase_einde met bewijs_opgeslagen=true geldt de fase niet als geslaagd."
++        ),
+         "gestart": gestart,
+         "beeindigd": _nu(),
+-        "looptijd_seconden": round(time.monotonic() - start, 3),
++        "looptijd_seconden": looptijd,
+         "stopreden": stopreden,
+         "tellingen": {
+-            "inferenties": eind["inferenties"] - begin["inferenties"],
+-            "telverzoeken": eind["telverzoeken"] - begin["telverzoeken"],
++            "inferenties": lopend["inferenties"] - begin["inferenties"],
++            "telverzoeken": lopend["telverzoeken"] - begin["telverzoeken"],
+         },
+         "cumulatief": {
+-            "inferenties": eind["inferenties"],
+-            "telverzoeken": eind["telverzoeken"],
+-            "kosten_usd_conservatief": eind["besteed_usd"],
+-            "onzekere_calls": eind["onzekere_calls"],
+-            "looptijd_seconden": eind["looptijd_seconden"],
++            "inferenties": lopend["inferenties"],
++            "telverzoeken": lopend["telverzoeken"],
++            "kosten_usd_conservatief": lopend["besteed_usd"],
++            "onzekere_calls": lopend["onzekere_calls"],
++            "looptijd_seconden": lopend["looptijd_seconden"] + looptijd,
+         },
+         "kosten_onzeker": waarnemer.kosten_onzeker,
+         "evaluatie": evaluatie,
+@@ -1926,21 +2085,7 @@ async def voer_kwalificatie_uit(
+         "latentie": _latentie(resultaten),
+         "gevallen": resultaten,
+     }
+-    data = json.loads(json.dumps(data, ensure_ascii=False))
+-    _schrijf_nieuw(proefmap / f"{fase}-resultaat.json", data)
+-    fase_ids = set(identiteit["fasen"][fase])
+-    _schrijf_nieuw(
+-        proefmap / f"{fase}-bundel.json",
+-        {
+-            "soort": PAYLOAD_SOORT,
+-            "synthetisch": True,
+-            "fase": fase,
+-            "identiteit_sha256": manifest["identiteit_sha256"],
+-            "gevallen": [p for p in voorbereiding.payloads if p["id"] in fase_ids],
+-            "antwoorden": waarnemer.antwoorden,
+-        },
+-    )
+-    return data
++    return json.loads(json.dumps(data, ensure_ascii=False))
+ 
+ 
+ # --- CLI ----------------------------------------------------------------------------------
+@@ -2017,6 +2162,9 @@ def main(argv: list[str] | None = None) -> int:
+     except ProefGeweigerdError as fout:
+         logger.error("geweigerd: %s", fout.reden)
+         return 2
++    except ProefStopError as fout:
++        logger.error("gestopt: %s", fout.reden)
++        return 3
+     except FileExistsError as fout:
+         logger.error("bestaat al, niet overschreven: %s", fout)
+         return 2
+diff --git a/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/q1-F123-herstel-v1/test_def835_int02_modelproef.py.herstel b/tests/unit/validation/test_def835_int02_modelproef.py
+index ef0591cfe..cb86a8315 100644
+--- a/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/q1-F123-herstel-v1/test_def835_int02_modelproef.py.herstel
++++ b/tests/unit/validation/test_def835_int02_modelproef.py
+@@ -14,15 +14,18 @@ Niet bewezen: gedrag van de echte provider of kwaliteit van het model.
+ from __future__ import annotations
+ 
+ import asyncio
++import fcntl
+ import hashlib
+ import importlib.util
+ import json
+ import logging
+ import os
+ import socket
++import subprocess
+ import sys
+ import time
+ from pathlib import Path
++from types import SimpleNamespace
+ 
+ import httpx
+ import pytest
+@@ -1946,3 +1949,248 @@ def test_kwal_cli_voorbereiding(tmp_path):
+     data = json.loads((tmp_path / "manifest.json").read_text("utf-8"))
+     assert data["soort"] == m.KWALIFICATIE_MANIFEST_SOORT
+     assert not (tmp_path / "proef").exists()
++
++
++# --- Q1-correcties na review: F1 slot, F2 p95, F3 bewijs vóór afronding --------------
++
++#: Houdt in een apart proces een exclusief flock-slot vast tot stdin sluit.
++_SLOTHOUDER = (
++    "import fcntl, os, sys\n"
++    "fd = os.open(sys.argv[1], os.O_RDWR | os.O_CREAT, 0o600)\n"
++    "fcntl.flock(fd, fcntl.LOCK_EX)\n"
++    "print('vast', flush=True)\n"
++    "sys.stdin.readline()\n"
++)
++
++
++def _slot_bezet(slot: Path) -> bool:
++    """Eigen, onafhankelijke descriptor: is het slot nu door een ander bezet?"""
++    fd = os.open(slot, os.O_RDWR | os.O_CREAT, 0o600)
++    try:
++        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
++    except BlockingIOError:
++        return True
++    finally:
++        os.close(fd)
++    return False
++
++
++async def test_f1_tweede_proces_met_slot_blokkeert_vervolgfase_voor_transport(
++    tmp_path,
++):
++    k = await _kwal(tmp_path)
++    await _fase(k, "regressie", KwalProvider())
++    omgeving = {
++        n: w for n, w in os.environ.items() if not n.endswith(("_API_KEY", "_TOKEN"))
++    }
++    houder = subprocess.Popen(  # vaste interpreter, vast script
++        [sys.executable, "-c", _SLOTHOUDER, str(k.proefmap / m.SLOT_NAAM)],
++        stdin=subprocess.PIPE,
++        stdout=subprocess.PIPE,
++        text=True,
++        env=omgeving,
++    )
++    try:
++        assert houder.stdout.readline().strip() == "vast"
++        provider = KwalProvider()
++        gelezen = []
++        with pytest.raises(m.ProefGeweigerdError) as fout:
++            await _fase(
++                k,
++                "ontwikkeling",
++                provider,
++                sleutel=lambda: gelezen.append(1) or SLEUTEL,
++            )
++        assert fout.value.reden == "proefmap_in_gebruik"
++        assert provider.verzoeken == []
++        assert k.stand()["inferenties"] == 3
++        assert k.stand()["open_fase"] is None
++    finally:
++        houder.communicate("\n", timeout=10)
++    assert houder.returncode == 0
++    # Na vrijgave door het andere proces loopt dezelfde fase gewoon.
++    data = await _fase(k, "ontwikkeling", KwalProvider())
++    assert data["cumulatief"]["inferenties"] == 27
++
++
++async def test_f1_slot_vast_van_transport_tot_na_bewijs_en_afronding(
++    tmp_path, monkeypatch
++):
++    k = await _kwal(tmp_path)
++    slot = k.proefmap / m.SLOT_NAAM
++    bij_transport: list[bool] = []
++    bij_bewijs: list[tuple[str, bool, str]] = []
++    provider = KwalProvider()
++
++    def waarnemend(request):
++        bij_transport.append(_slot_bezet(slot))
++        return provider(request)
++
++    origineel = m._schrijf_nieuw
++
++    def schrijf(pad, data):
++        laatste = json.loads(k.grootboek.read_text("utf-8").splitlines()[-1])
++        bij_bewijs.append((pad.name, _slot_bezet(slot), laatste["gebeurtenis"]))
++        return origineel(pad, data)
++
++    monkeypatch.setattr(m, "_schrijf_nieuw", schrijf)
++    data = await _fase(k, "regressie", waarnemend)
++    assert data["evaluatie"]["mechanisch_geslaagd"] is True
++    assert bij_transport == [True] * 6  # 3 tokenmetingen + 3 inferenties
++    assert sorted(n for n, _, _ in bij_bewijs) == [
++        "regressie-bundel.json",
++        "regressie-resultaat.json",
++    ]
++    # Tijdens de bewijsopslag: slot vast en nog geen fase_einde.
++    assert all(bezet for _, bezet, _ in bij_bewijs)
++    assert all(g != "fase_einde" for _, _, g in bij_bewijs)
++    laatste = json.loads(k.grootboek.read_text("utf-8").splitlines()[-1])
++    assert laatste["gebeurtenis"] == "fase_einde"
++    assert laatste["bewijs_opgeslagen"] is True
++    assert _slot_bezet(slot) is False  # vrijgegeven na afronding
++
++
++class _Klok:
++    """Gesimuleerde monotone klok: tijd verstrijkt alleen per inferentie."""
++
++    def __init__(self) -> None:
++        self.nu = 0.0
++
++    def monotonic(self) -> float:
++        return self.nu
++
++
++@pytest.mark.parametrize(
++    ("seconden", "geslaagd"),
++    [(90.0, True), (90.001, False)],
++    ids=["p95-90000ms-toegestaan", "p95-90001ms-geweigerd"],
++)
++async def test_f2_holdout_p95_boven_90s_blokkeert_toelating(
++    tmp_path, monkeypatch, seconden, geslaagd
++):
++    k = await _kwal(tmp_path)
++    await _tot_en_met(k, "ontwikkeling")
++    klok = _Klok()
++    provider = KwalProvider()
++
++    def traag(request):
++        if request.url.path == "/v1/messages":
++            klok.nu += seconden
++        return provider(request)
++
++    monkeypatch.setattr(m, "time", SimpleNamespace(monotonic=klok.monotonic))
++    data = await _fase(k, "holdout", traag)
++    assert data["latentie"]["p95_ms"] == round(seconden * 1000)
++    assert data["evaluatie"]["criteria"]["max_p95_ms"] == 90000
++    assert data["evaluatie"]["tellers"]["juist"] == {"teller": 16, "noemer": 16}
++    assert data["evaluatie"]["mechanisch_geslaagd"] is geslaagd
++    assert ("p95_boven_grens" in data["evaluatie"]["redenen"]) is not geslaagd
++    assert k.stand()["fasen"]["holdout"] is geslaagd
++
++
++def _goede_evaluaties(fase: str) -> list[dict]:
++    return [
++        {
++            "verwacht": KWAL_PER_ID[i]["label"]["status"],
++            "waargenomen": KWAL_PER_ID[i]["label"]["status"],
++            "juist": True,
++            "technische_fout": False,
++            "citaatfout": False,
++            "kritieke_false_pass": False,
++        }
++        for i in FASE_IDS[fase]
++    ]
++
++
++@pytest.mark.parametrize(
++    ("duren", "reden"),
++    [
++        ([90000] * 16, None),
++        ([90000] * 15 + [None], "latentie_onvolledig"),
++        ([90000] * 15 + ["90000"], "latentie_onvolledig"),
++        ([90000] * 15 + [True], "latentie_onvolledig"),
++        ([90000] * 15 + [-1], "latentie_onvolledig"),
++        ([90000] * 15, "latentie_onvolledig"),
++        ([1000] * 15 + [90001], "p95_boven_grens"),
++    ],
++    ids=["compleet", "ontbreekt", "tekst", "bool", "negatief", "te-weinig", "max"],
++)
++def test_f2_ontbrekende_of_ongeldige_latentie_geeft_geen_succes(duren, reden):
++    uitkomst = m._beoordeel_fase(
++        "holdout", _goede_evaluaties("holdout"), None, True, duren
++    )
++    assert uitkomst["mechanisch_geslaagd"] is (reden is None)
++    assert uitkomst["redenen"] == ([] if reden is None else [reden])
++
++
++def test_f2_p95_grens_geldt_alleen_voor_holdout():
++    for fase in ("regressie", "ontwikkeling"):
++        uitkomst = m._beoordeel_fase(fase, _goede_evaluaties(fase), None, True, [])
++        assert uitkomst["mechanisch_geslaagd"] is True
++    assert m.FASECRITERIA["holdout"]["max_p95_ms"] == 90000
++
++
++@pytest.mark.parametrize(
++    "artefact", ["regressie-resultaat.json", "regressie-bundel.json"]
++)
++async def test_f3_opslagfout_bewijs_blokkeert_fase_zonder_vervolgcalls(
++    tmp_path, monkeypatch, artefact
++):
++    k = await _kwal(tmp_path)
++    origineel = m._schrijf_nieuw
++
++    def faalt(pad, data):
++        if pad.name == artefact:
++            raise OSError("geinjecteerde opslagfout")
++        return origineel(pad, data)
++
++    monkeypatch.setattr(m, "_schrijf_nieuw", faalt)
++    provider = KwalProvider()
++    with pytest.raises(m.ProefStopError) as fout:
++        await _fase(k, "regressie", provider)
++    assert fout.value.reden == "bewijsopslag_mislukt"
++    assert len(provider.inferenties()) == 3
++    monkeypatch.setattr(m, "_schrijf_nieuw", origineel)
++    # Het andere artefact is wel veilig bewaard; niets overschreven of weg.
++    bestanden = {p.name for p in k.proefmap.iterdir()}
++    ander = ({"regressie-resultaat.json", "regressie-bundel.json"} - {artefact}).pop()
++    assert ander in bestanden and artefact not in bestanden
++    laatste = json.loads(k.grootboek.read_text("utf-8").splitlines()[-1])
++    assert laatste["gebeurtenis"] == "fase_einde"
++    assert laatste["mechanisch_geslaagd"] is False
++    assert laatste["bewijs_opgeslagen"] is False
++    assert laatste["stopreden"] == "bewijsopslag_mislukt"
++    assert k.stand()["fasen"] == {"regressie": False}
++    vervolg = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "ontwikkeling", vervolg)
++    assert fout.value.reden == "fasevolgorde"
++    assert vervolg.verzoeken == []
++
++
++async def test_f3_mislukte_grootboekafronding_laat_fase_open_en_geblokkeerd(
++    tmp_path, monkeypatch
++):
++    k = await _kwal(tmp_path)
++    origineel = m.Grootboek.schrijf
++
++    def faalt(self, regel):
++        if regel.get("gebeurtenis") == "fase_einde":
++            raise OSError("geinjecteerde grootboekfout")
++        return origineel(self, regel)
++
++    monkeypatch.setattr(m.Grootboek, "schrijf", faalt)
++    provider = KwalProvider()
++    with pytest.raises(OSError, match="grootboekfout"):
++        await _fase(k, "regressie", provider)
++    monkeypatch.setattr(m.Grootboek, "schrijf", origineel)
++    # Het bewijs staat er al; het grootboek meldt geen succes (fase open).
++    assert (k.proefmap / "regressie-resultaat.json").exists()
++    assert (k.proefmap / "regressie-bundel.json").exists()
++    assert k.stand()["open_fase"] == "regressie"
++    assert k.stand()["fasen"] == {}
++    vervolg = KwalProvider()
++    with pytest.raises(m.ProefGeweigerdError) as fout:
++        await _fase(k, "ontwikkeling", vervolg)
++    assert fout.value.reden == "grootboek_open"
++    assert vervolg.verzoeken == []

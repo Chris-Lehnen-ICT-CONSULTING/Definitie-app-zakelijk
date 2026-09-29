@@ -1,0 +1,46 @@
+# DEF-835 WP5a F3: onderscheidend vermogen herijkte guard — 2026-09-28T13:01:42Z
+# naïeve mutatie (in-memory plugin, buiten repo): /tmp/wp5a_f23_mutatie/wp5a_f3_naieve_autoconstructie.py sha256 ecf551ebf7a8800ae08214b833af13b4ff0bc6bd981940f428a1be5f2aab22d9
+1dcc0f9d99a297d119107b0b936ac302677b9d57c999f58998561f47a8b14e17  tests/unit/validation/test_def835_int02_assessment_service.py
+32a5ae789a0f131a036e4f1aa66d98cd05e4ea99ca1e77545529592de781e42a  src/services/container.py
+## A) zonder mutatie — commando: .venv/bin/python -m pytest tests/unit/validation/test_def835_int02_assessment_service.py::test_dienst_wordt_niet_door_de_container_aangemaakt -p no:cacheprovider -p no:randomly --tb=line -o addopts='-ra --strict-markers --import-mode=importlib'
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests/unit/validation/test_def835_int02_assessment_service.py .          [100%]
+
+============================== 1 passed in 0.92s ===============================
+# exit=0
+## B) met mutatie — commando: PYTHONPATH=/tmp/wp5a_f23_mutatie .venv/bin/python -m pytest tests/unit/validation/test_def835_int02_assessment_service.py::test_dienst_wordt_niet_door_de_container_aangemaakt -p wp5a_f3_naieve_autoconstructie -p no:cacheprovider -p no:randomly --tb=line -o addopts='-ra --strict-markers --import-mode=importlib'
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests/unit/validation/test_def835_int02_assessment_service.py F          [100%]
+
+=================================== FAILURES ===================================
+E   assert <services.validation.int02_assessment_service.Int02AssessmentService object at 0x10ee601a0> is None
+     +  where <services.validation.int02_assessment_service.Int02AssessmentService object at 0x10ee601a0> = <services.orchestrators.definition_orchestrator_v2.DefinitionOrchestratorV2 object at 0x10edd3cb0>.int02_assessment_service
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:347: assert <services.validation.int02_assessment_service.Int02AssessmentService object at 0x10ee601a0> is None
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_dienst_wordt_niet_door_de_container_aangemaakt
+============================== 1 failed in 0.72s ===============================
+# exit=1

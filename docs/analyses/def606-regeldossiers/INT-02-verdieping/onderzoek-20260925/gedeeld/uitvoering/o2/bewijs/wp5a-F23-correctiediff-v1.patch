@@ -1,0 +1,528 @@
+diff --git a/src/services/orchestrators/validation_orchestrator_v2.py b/src/services/orchestrators/validation_orchestrator_v2.py
+index c5cf8d4ce..53a1ad7af 100644
+--- a/src/services/orchestrators/validation_orchestrator_v2.py
++++ b/src/services/orchestrators/validation_orchestrator_v2.py
+@@ -17,7 +17,9 @@ from domain.context.normalisatie import canoniseer_contextlijst
+ from domain.ess03 import contract as ess03_contract
+ from domain.int02.contract import (
+     Beoordelingsdocument,
++    Configuratie,
+     Int02ContractError,
++    bereken_binding,
+     maak_invoer,
+     ontbrekende_invoer,
+ )
+@@ -701,9 +703,12 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
+         ontbrekende context NE, beide zonder aanroep; (3) een fout in de
+         dienst, een resultaat zonder WP1-document of een document voor andere
+         invoer is een technische fout, nooit een oordeel. Alleen een
+-        foutsoort of uitzonderingstype wordt gelogd. De configuratie komt uit
+-        de binding van het zojuist verkregen document; de evaluator toetst
+-        het daarmee opnieuw tegen de verse invoer.
++        foutsoort of uitzonderingstype wordt gelogd. Review F2: de verwachte
++        configuratie is de publieke dienstsnapshot `configuratie()`, vastgelegd
++        vóór `assess` — nooit het teruggegeven document. Ontbreekt of faalt die
++        snapshot, dan geen aanroep; wijkt de volledige documentbinding af van
++        `bereken_binding(verse invoer, snapshot)`, ook door een wijziging rond
++        de aanroep, dan een technische fout. De evaluator krijgt de snapshot.
+         """
+         for sleutel in _INT02_WRAPPERSLEUTELS:
+             context_dict.pop(sleutel, None)
+@@ -728,21 +733,30 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
+             return
+         if ontbrekende_invoer(invoer):
+             return
++        snapshot = getattr(dienst, "configuratie", None)
++        if not callable(snapshot):
++            self._int02_fout(context_dict, "configuration_unavailable", correlation_id)
++            return
+         try:
++            verwacht = snapshot()
++            if not isinstance(verwacht, Configuratie):
++                self._int02_fout(context_dict, "invalid_configuration", correlation_id)
++                return
+             beoordeling = await dienst.assess(invoer, correlation_id=correlation_id)
+             document = getattr(beoordeling, "document", None)
+             if not isinstance(document, Beoordelingsdocument):
+                 self._int02_fout(context_dict, "invalid_result", correlation_id)
+                 return
+-            if document.invoer != invoer:
++            if document.invoer != invoer or document.binding != bereken_binding(
++                invoer, verwacht
++            ):
+                 self._int02_fout(context_dict, "binding_mismatch", correlation_id)
+                 return
+-            configuratie = document.binding.configuratie()
+         except Exception as exc:
+             self._int02_fout(context_dict, type(exc).__name__, correlation_id)
+             return
+         context_dict[METADATA_DOCUMENT] = document
+-        context_dict[METADATA_CONFIGURATIE] = configuratie
++        context_dict[METADATA_CONFIGURATIE] = verwacht
+ 
+     def _int02_is_o2(self, correlation_id: str) -> bool:
+         """Zet de actieve regelset INT-02 op `decision_rule_assessment`?"""
+diff --git a/src/services/validation/int02_assessment_service.py b/src/services/validation/int02_assessment_service.py
+index 6510a3a65..91762ab5e 100644
+--- a/src/services/validation/int02_assessment_service.py
++++ b/src/services/validation/int02_assessment_service.py
+@@ -611,6 +611,18 @@ class Int02AssessmentService:
+         self._onthoud(sleutel, resultaat)
+         return resultaat
+ 
++    def configuratie(self) -> Configuratie:
++        """Onafhankelijke snapshot van de actuele WP1-configuratie (DEF-835 WP5a F2).
++
++        Exact wat `assess` op dit moment in de binding zou leggen: norm,
++        promptversie, routering (routeruitkomst en capability-beleid),
++        profiel, budget en gevraagde provider/model. Alleen een routerlookup,
++        geen modelaanroep. Een onveranderlijke, nieuwe `Configuratie` per
++        aanroep; een aanroeper legt haar vóór `assess` vast en toetst het
++        teruggegeven document ertegen.
++        """
++        return self._configuratie(self._route(), PROMPT_VERSION)
++
+     # --- vóór de aanroep ------------------------------------------------------
+ 
+     def _route(self) -> _Route:
+diff --git a/tests/unit/services/orchestrators/test_def835_int02_wrappers.py b/tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+index bab4bb627..d660c0bcf 100644
+--- a/tests/unit/services/orchestrators/test_def835_int02_wrappers.py
++++ b/tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+@@ -25,7 +25,7 @@ from __future__ import annotations
+ import copy
+ import json
+ import logging
+-from dataclasses import dataclass
++from dataclasses import asdict, dataclass, replace
+ from pathlib import Path
+ from typing import Any
+ 
+@@ -162,23 +162,56 @@ _GEEN = object()
+ 
+ 
+ class FakeDienst:
+-    """INT-02-dienstgrens: legt elke ontvangen invoer vast; geen model."""
+-
+-    def __init__(self, respons=None, *, fout=None, resultaat=_GEEN, invoer=None):
++    """INT-02-dienstgrens: legt elke ontvangen invoer vast; geen model.
++
++    F2: `configuratie()` is de publieke snapshot (standaard `CONFIG`; een
++    uitzondering wordt opgeworpen). Het document wordt gebonden aan
++    `document_config`, anders aan de snapshot zoals die bij `assess` geldt;
++    `wijzig_naar` wisselt de snapshot tijdens de aanroep.
++    """
++
++    def __init__(
++        self,
++        respons=None,
++        *,
++        fout=None,
++        resultaat=_GEEN,
++        invoer=None,
++        snapshot: Any = CONFIG,
++        document_config: Configuratie | None = None,
++        wijzig_naar: Configuratie | None = None,
++    ):
+         self.respons = C105["modelrespons"] if respons is None else respons
+         self.fout = fout
+         self.resultaat = resultaat
+         self.andere_invoer = invoer
++        self.snapshot = snapshot
++        self.document_config = document_config
++        self.wijzig_naar = wijzig_naar
+         self.calls: list[Any] = []
++        self.snapshots_gelezen = 0
++        self.snapshots_voor_assess: list[int] = []
++
++    def configuratie(self):
++        self.snapshots_gelezen += 1
++        if isinstance(self.snapshot, BaseException):
++            raise self.snapshot
++        return self.snapshot
+ 
+     async def assess(self, invoer, *, correlation_id=None):
+         self.calls.append(invoer)
++        self.snapshots_voor_assess.append(self.snapshots_gelezen)
++        if self.wijzig_naar is not None:
++            self.snapshot = self.wijzig_naar
+         if self.fout is not None:
+             raise self.fout
+         if self.resultaat is not _GEEN:
+             return self.resultaat
+         doel = invoer if self.andere_invoer is None else self.andere_invoer
+-        return _Beoordeling(beoordeel(doel, CONFIG, self.respons, VOLTOOID))
++        config = self.document_config or (
++            self.snapshot if isinstance(self.snapshot, Configuratie) else CONFIG
++        )
++        return _Beoordeling(beoordeel(doel, config, self.respons, VOLTOOID))
+ 
+ 
+ # --- regelsets ------------------------------------------------------------------
+@@ -517,6 +550,9 @@ class Spion:
+         self.dienst = dienst
+         self.resultaten: list[Any] = []
+ 
++    def configuratie(self):
++        return self.dienst.configuratie()
++
+     async def assess(self, invoer, **kwargs):
+         resultaat = await self.dienst.assess(invoer, **kwargs)
+         self.resultaten.append(resultaat)
+@@ -744,3 +780,177 @@ async def test_f1_zonder_context_beslist_de_o2_evaluator_zonder_aanroep(
+     assert detail["assessment"] is None
+     (deel,) = detail["parts"]
+     assert deel["id"] == "beoordeling"
++
++
++# --- F2 (review WP5a): onafhankelijke configuratiesnapshot vóór de aanroep ------
++#
++# De verwachte WP1-configuratie komt uit de publieke dienstsnapshot die de
++# wrapper vóór `assess` vastlegt — nooit uit het teruggegeven document. Een
++# afwijkende binding, een ontbrekende of ongeldige snapshot of een wijziging
++# rond de aanroep is `error` zonder oordeel.
++
++
++async def test_f2_reviewerrepro_oud_document_voor_ander_model_is_error(o2_service):
++    oud = await Int02AssessmentService(
++        FakeAI(_pass_respons()), FakeRouter(), profiel=_profiel(), budget=_budget()
++    ).assess(_invoer())
++    assert oud.document.status == "pass"
++
++    class _NieuweRouter(FakeRouter):
++        def get_model(self, task_type):
++            return PROVIDER, "fake-new-model"
++
++    class _GeeftOudResultaat(Int02AssessmentService):
++        async def assess(self, invoer, **kwargs):
++            return oud
++
++    nieuwe_ai = FakeAI(_pass_respons())
++    dienst = _GeeftOudResultaat(
++        nieuwe_ai,
++        _NieuweRouter(),
++        profiel=_profiel(model="fake-new-model"),
++        budget=_budget(),
++    )
++    orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=dienst)
++
++    resultaat = await _via_tekst(orch)
++
++    detail = _int02(resultaat)
++    assert detail["status"] == "error"
++    assert detail["parts"][0]["reason"] == MELDING_E
++    assert detail["review"] == {"actuality": None}
++    assert detail["assessment"] is None
++    assert nieuwe_ai.calls == 0
++
++
++@pytest.mark.parametrize("route", ROUTES)
++@pytest.mark.parametrize(
++    ("veld", "waarde"),
++    [
++        ("normhash", "c" * 64),
++        ("normversie", "def771-int02/9"),
++        ("promptversie", "andere-prompt/1"),
++        ("routeringshash", "d" * 64),
++        ("provider", "anderprovider"),
++        ("model", "ander-model"),
++    ],
++)
++async def test_f2_documentbinding_afwijkend_van_snapshot_is_error(
++    o2_service, route, veld, waarde
++):
++    dienst = FakeDienst(
++        _pass_respons(), document_config=replace(CONFIG, **{veld: waarde})
++    )
++    orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=dienst)
++
++    resultaat = await route(orch)
++
++    assert len(dienst.calls) == 1
++    detail = _int02(resultaat)
++    assert detail["status"] == "error"
++    assert detail["parts"][0]["reason"] == MELDING_E
++    assert detail["assessment"] is None
++
++
++class _ZonderSnapshot:
++    """Dienst zonder publieke snapshot; `assess` zou een pass geven."""
++
++    def __init__(self):
++        self.binnen = FakeDienst(_pass_respons())
++        self.calls = self.binnen.calls
++
++    async def assess(self, invoer, **kwargs):
++        return await self.binnen.assess(invoer, **kwargs)
++
++
++class _NietAanroepbareSnapshot(_ZonderSnapshot):
++    configuratie = CONFIG
++
++
++@pytest.mark.parametrize("route", ROUTES)
++@pytest.mark.parametrize(
++    "maak_dienst",
++    [
++        pytest.param(_ZonderSnapshot, id="ontbreekt"),
++        pytest.param(_NietAanroepbareSnapshot, id="niet-aanroepbaar"),
++        pytest.param(lambda: FakeDienst(_pass_respons(), snapshot=None), id="none"),
++        pytest.param(
++            lambda: FakeDienst(_pass_respons(), snapshot=asdict(CONFIG)), id="dict"
++        ),
++        pytest.param(
++            lambda: FakeDienst(_pass_respons(), snapshot=RuntimeError(GEHEIM)),
++            id="uitzondering",
++        ),
++    ],
++)
++async def test_f2_ontbrekende_of_ongeldige_snapshot_is_error_zonder_aanroep(
++    o2_service, route, maak_dienst, caplog
++):
++    dienst = maak_dienst()
++    orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=dienst)
++
++    with caplog.at_level(logging.DEBUG):
++        resultaat = await route(orch)
++
++    assert dienst.calls == []
++    detail = _int02(resultaat)
++    assert detail["status"] == "error"
++    assert detail["parts"][0]["reason"] == MELDING_E
++    assert detail["assessment"] is None
++    assert GEHEIM not in caplog.text
++
++
++@pytest.mark.parametrize("route", ROUTES)
++async def test_f2_snapshotwijziging_tijdens_aanroep_is_nooit_current(o2_service, route):
++    dienst = FakeDienst(
++        _pass_respons(), wijzig_naar=replace(CONFIG, model="gewisseld-model")
++    )
++    orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=dienst)
++
++    resultaat = await route(orch)
++
++    assert len(dienst.calls) == 1
++    detail = _int02(resultaat)
++    assert detail["status"] == "error"
++    assert detail["review"] == {"actuality": None}
++    assert detail["assessment"] is None
++
++
++async def test_f2_routerwissel_tussen_snapshot_en_aanroep_is_error(o2_service):
++    class _WisselendeRouter(FakeRouter):
++        """Eerste routering (de snapshot) het profielmodel, daarna een ander."""
++
++        def __init__(self):
++            self.aantal = 0
++
++        def get_model(self, task_type):
++            self.aantal += 1
++            return PROVIDER, MODEL if self.aantal == 1 else "gewisseld-model"
++
++    ai = FakeAI(_pass_respons())
++    dienst = Int02AssessmentService(
++        ai, _WisselendeRouter(), profiel=_profiel(), budget=_budget()
++    )
++    orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=dienst)
++
++    resultaat = await _via_tekst(orch)
++
++    assert ai.calls == 0
++    detail = _int02(resultaat)
++    assert detail["status"] == "error"
++    assert detail["assessment"] is None
++
++
++async def test_f2_snapshot_wordt_voor_de_aanroep_vastgelegd(o2_service):
++    dienst = FakeDienst(_pass_respons())
++    orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=dienst)
++
++    resultaat = await _via_tekst(orch)
++
++    assert dienst.snapshots_voor_assess == [1]
++    detail = _int02(resultaat)
++    assert detail["status"] == "pass"
++    assert detail["review"]["actuality"] == "current"
++    assert detail["assessment"] == (
++        beoordeel(_invoer(), CONFIG, _pass_respons(), VOLTOOID).als_dict()
++    )
+diff --git a/tests/unit/validation/test_def835_int02_assessment_service.py b/tests/unit/validation/test_def835_int02_assessment_service.py
+index 76a2d530d..33b744ec0 100644
+--- a/tests/unit/validation/test_def835_int02_assessment_service.py
++++ b/tests/unit/validation/test_def835_int02_assessment_service.py
+@@ -33,7 +33,9 @@ from domain.int02.contract import (
+     MELDING_NIET_BEOORDEELD,
+     NORMVERSIE,
+     ONBEKEND,
++    Configuratie,
+     Int02ContractError,
++    bereken_binding,
+     maak_invoer,
+     toets_actualiteit,
+ )
+@@ -302,10 +304,63 @@ def test_taak_is_de_bestaande_routertaak_validation():
+     assert "validation" in ModelRouter._DEFAULT_CONFIG["task_tiers"]["critical"]
+ 
+ 
+-def test_dienst_wordt_niet_door_de_container_aangemaakt():
+-    container = (ROOT / "src/services/container.py").read_text(encoding="utf-8")
+-    assert "int02_assessment" not in container
+-    assert "Int02AssessmentService" not in container
++def test_dienst_wordt_niet_door_de_container_aangemaakt(monkeypatch):
++    """Gedragsguard (DEF-835 WP5a, review F3; was een tekstguard op container.py).
++
++    De normale container bouwt of injecteert de dienst nooit vanzelf en doet
++    geen modelaanroep. Toegestaan is alleen de expliciete factory met
++    verplicht profiel en budget (keyword-only, zonder default).
++    """
++    import inspect
++
++    from services.container import ServiceContainer
++
++    constructies: list[dict] = []
++    origineel = Int02AssessmentService.__init__
++
++    def _tel(self, *args, **kwargs):
++        constructies.append(kwargs)
++        origineel(self, *args, **kwargs)
++
++    monkeypatch.setattr(Int02AssessmentService, "__init__", _tel)
++    ai = FakeAI()
++    container = ServiceContainer.__new__(ServiceContainer)
++    container._instances = {}
++    container._lazy_instances = {}
++    container.use_json_rules = True
++    afhankelijkheden = {
++        "ai_service": ai,
++        "model_router": FakeRouter(),
++        "cleaning_service": object(),
++        "repository": SimpleNamespace(),
++        "web_lookup": None,
++        "synonym_orchestrator": None,
++        "source_assessment_service": object(),
++        "ess03_assessment_service": object(),
++        "int03_assessment_service": object(),
++    }
++    for naam, waarde in afhankelijkheden.items():
++        monkeypatch.setattr(container, naam, lambda w=waarde: w, raising=False)
++    monkeypatch.setattr(ServiceContainer, "rag_service", property(lambda _s: None))
++
++    orchestrator = container.orchestrator()
++    assert orchestrator.int02_assessment_service is None
++    assert orchestrator.validation_service.int02_assessment_service is None
++    assert constructies == []
++
++    handtekening = inspect.signature(container.int02_assessment_service)
++    for naam in ("profiel", "budget"):
++        parameter = handtekening.parameters[naam]
++        assert parameter.kind is inspect.Parameter.KEYWORD_ONLY
++        assert parameter.default is inspect.Parameter.empty
++    with pytest.raises(Int02ServiceConfigError):
++        container.int02_assessment_service(profiel=None, budget=_budget())
++    assert constructies == []
++
++    dienst = container.int02_assessment_service(profiel=_profiel(), budget=_budget())
++    assert isinstance(dienst, Int02AssessmentService)
++    assert len(constructies) == 1
++    assert ai.calls == []
+ 
+ 
+ async def test_aanroeper_moet_een_int02invoer_leveren():
+@@ -1316,3 +1371,96 @@ async def test_f3_uitzondering_van_de_ai_laag_geeft_onbekend_aantal_pogingen():
+     resultaat = await _dienst(FakeAI(AIServiceError("x"))).assess(_invoer())
+     assert resultaat.status == "error"
+     assert resultaat.document.uitvoering.transportpogingen == ONBEKEND
++
++
++# --- F2 (WP5a-review): publieke, onafhankelijke configuratiesnapshot ----------
++#
++# De validatiewrapper legt deze snapshot vóór `assess` vast en toetst het
++# teruggegeven document ertegen. Zij moet dus exact de WP1-configuratie zijn
++# die `assess` bindt (norm, promptversie, routering, profiel, budget,
++# provider/model), zonder modelaanroep en als onveranderlijke kopie.
++
++
++def _snapshot(dienst) -> Configuratie:
++    lees = getattr(dienst, "configuratie", None)
++    if not callable(lees):
++        pytest.fail("Int02AssessmentService.configuratie() ontbreekt")
++    return lees()
++
++
++async def test_f2_snapshot_is_exact_de_configuratie_die_assess_bindt():
++    ai = FakeAI(_fail_uitvoer())
++    dienst = _dienst(ai)
++
++    snapshot = _snapshot(dienst)
++    assert isinstance(snapshot, Configuratie)
++    resultaat = await dienst.assess(_invoer())
++
++    assert resultaat.status == "fail"
++    assert resultaat.document.binding.configuratie() == snapshot
++    assert resultaat.document.binding == bereken_binding(_invoer(), snapshot)
++
++
++async def test_f2_snapshot_ook_bij_blokkade_gelijk_aan_de_binding():
++    # Router onbeschikbaar of profiel ontbreekt: geen aanroep, maar de
++    # snapshot blijft de configuratie van het niet-uitgevoerde document.
++    for dienst in (
++        _dienst(router=FakeRouter(fout=RuntimeError("router weg"))),
++        _dienst(profiel=None),
++    ):
++        snapshot = _snapshot(dienst)
++        resultaat = await dienst.assess(_invoer())
++        assert resultaat.document.uitvoering.status == "not_executed"
++        assert resultaat.document.binding == bereken_binding(_invoer(), snapshot)
++
++
++def test_f2_snapshot_uitlezen_doet_geen_modelaanroep():
++    ai, router = FakeAI(), FakeRouter()
++    dienst = _dienst(ai, router)
++
++    _snapshot(dienst)
++    _snapshot(dienst)
++
++    assert ai.calls == []
++    assert set(router.calls) == {TASK_TYPE}
++
++
++def test_f2_snapshot_bevat_norm_prompt_profiel_budget_en_routering(monkeypatch):
++    basis = _snapshot(_dienst())
++    assert basis.normversie == NORMVERSIE
++    assert basis.normhash == laad_int02_norm().normhash
++    assert basis.promptversie == PROMPT_VERSION
++    assert (basis.provider, basis.model) == (PROVIDER, MODEL)
++
++    andere_norm = dataclasses.replace(laad_int02_norm(), toetsvraag="Andere vraag?")
++    varianten = {
++        "norm": _dienst(norm=andere_norm),
++        "profiel": _dienst(profiel=_profiel(profiel_id="ander-profiel")),
++        "budget": _dienst(budget=_budget(max_uitvoertokens=801)),
++        "routerbeleid": _dienst(router=FakeRouter(thinking=True)),
++        "model": _dienst(
++            router=FakeRouter(model="ander-model"),
++            profiel=_profiel(model="ander-model"),
++        ),
++    }
++    for naam, dienst in varianten.items():
++        assert _snapshot(dienst) != basis, naam
++
++    monkeypatch.setattr(dienstmodule, "PROMPT_VERSION", "def835-int02-prompt/test")
++    assert _snapshot(_dienst()).promptversie == "def835-int02-prompt/test"
++
++
++def test_f2_snapshot_is_een_onveranderlijke_losse_kopie():
++    router = FakeRouter()
++    dienst = _dienst(router=router)
++    eerste = _snapshot(dienst)
++
++    with pytest.raises(dataclasses.FrozenInstanceError):
++        eerste.model = "gemanipuleerd"  # type: ignore[misc]
++    object.__setattr__(eerste, "model", "gemanipuleerd")
++    assert _snapshot(dienst).model == MODEL  # de dienst deelt geen staat
++
++    router.thinking = True  # latere routerwijziging
++    tweede = _snapshot(dienst)
++    assert tweede != _snapshot(_dienst())
++    assert eerste.routeringshash == _snapshot(_dienst()).routeringshash

@@ -1,0 +1,265 @@
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_evaluator.py tests/integration/contracts/test_validation_result_schema.py tests/unit/validation/test_def771_int02_o1.py tests/unit/validation/test_def772_int03_evaluator.py tests/unit/validation/test_evaluator_registry_contract.py tests/unit/validation/test_rule_cache_runtime_contract.py tests/unit/domain/test_def835_int02_contract.py tests/unit/validation/test_validation_readiness.py tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py tests/unit/services/orchestrators/test_def772_int03_wrappers.py tests/unit/services/orchestrators/test_def766_ess03_wrappers.py -o addopts= --import-mode=importlib -q -ra
+# SHA256 c8a1c1705ae5c03faeb70db70e51efece47225e080629b487a2701c8a413d509 tests/unit/validation/test_def835_int02_evaluator.py
+# SHA256 712f5e527bd33a5ff3fecf13192b2a22ed67356208ac645ceb06b522f496369d tests/integration/contracts/test_validation_result_schema.py
+# SHA256 bc4b03ff81f354ff4cf15e27b677ddd5ed42ce2cd6a83ada72ff7062a5d6b040 tests/unit/validation/test_def771_int02_o1.py
+# SHA256 ab456620976665bb6121d4813cb0a48740e6450c173090714bb061da9f5e075b tests/unit/validation/test_def772_int03_evaluator.py
+# SHA256 c842a8f4aa6e0011d31e092ffbff1793e9f249022d8c03202d424c08eed84857 tests/unit/validation/test_evaluator_registry_contract.py
+# SHA256 f300b4374939162374cb3432fb7d208b25973e68eeda9cff0bfa757d09917712 tests/unit/validation/test_rule_cache_runtime_contract.py
+# SHA256 368401797e216de4cbcdb8373a9815e9d3f338b4116a485fe3c61971a14d7e97 tests/unit/domain/test_def835_int02_contract.py
+# SHA256 30f2ca4a5796810a4d1c9aae5b9b1bba4f9dbb2ac5bd8a4e5e4382bba9e74cee tests/unit/validation/test_validation_readiness.py
+# SHA256 d1d1bedbcab049e28a08325c6b2e346634a89a160ff3c490a0e8f453a2168d18 tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py
+# SHA256 a0f437ef90f6da00e86d292c6a2e4fde85fef4a4dd2687ac989182c7ceda3f9b tests/unit/services/orchestrators/test_def772_int03_wrappers.py
+# SHA256 ee93ae4ed17b7c5215ba483b88e1319a6886ef773ba1d150db473cca4fdd5497 tests/unit/services/orchestrators/test_def766_ess03_wrappers.py
+.F...................................................................... [ 13%]
+..........F...............................................F.....F....... [ 26%]
+.....FF................................................................. [ 39%]
+..................................................................F..... [ 52%]
+...................................F.................................... [ 65%]
+........................................................................ [ 78%]
+........................................................................ [ 92%]
+...........................................                              [100%]
+=================================== FAILURES ===================================
+______ test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug ______
+
+    async def test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug():
+        service, assessor = _service(), FakeEss03Assessor(scenario="pass")
+        orch = ValidationOrchestratorV2(service, ess03_assessment_service=assessor)
+        metadata = {
+            **CONTEXT,
+            "provenance_sources": [BRON],
+            "toelichting": "Synthetische conventie.",
+            "ontologische_categorie": "type",
+            "ess03_verduidelijking": "Peil P is het zomerpeil.",
+            # Een meegegeven beoordeling is nooit de bron van waarheid.
+            "ess03_assessment": {"status": "assessed", "judgment": {"verdict": "pass"}},
+        }
+        before = deepcopy(metadata)
+    
+        result = await orch.validate_text(
+            BEGRIP, TEKST, context=ValidationContext(metadata=metadata)
+        )
+    
+        assert metadata == before
+        (call,) = assessor.calls
+        assert call["begrip"] == BEGRIP
+        assert call["tekst"] == TEKST
+        assert call["bronnen"] == [BRON]
+        assert call["intentie"] == Intentie(
+            toelichting="Synthetische conventie.",
+            categorie="type",
+            verduidelijking="Peil P is het zomerpeil.",
+        )
+        doorgegeven = service.received["ess03_assessment"]
+        assert doorgegeven["status"] == "assessed"
+        assert doorgegeven["contract_version"] == CONTRACTVERSIE
+        assert doorgegeven["fingerprint"] == bereken_ess03_vingerafdruk(
+            BEGRIP, TEKST, CONTEXT, [BRON], intentie=call["intentie"]
+        )
+        assert doorgegeven["attribution"]["model"] == "fake-ess03-model"
+        assert result["ess03_assessment"] == doorgegeven
+        # DEF-771: 2.2.0 (additief: not_evaluated als deeluitkomst).
+>       assert result["version"] == CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/services/orchestrators/test_def766_ess03_wrappers.py:95: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:414 DEF-743: geen SourceAssessmentService geïnjecteerd; CON-02 blijft open (correlation_id=017c5f29-57e1-494b-80d1-10f17f95520c)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:579 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=017c5f29-57e1-494b-80d1-10f17f95520c)
+__________________ test_contractversie_is_verhoogd_naar_2_2_0 __________________
+
+    def test_contractversie_is_verhoogd_naar_2_2_0() -> None:
+        # 1.2.0 (DEF-621) voegde validation_status toe; 1.3.0 (DEF-622) voegt
+        # rule_results toe en maakt overall_score nullable; 1.4.0 (DEF-743) voegt
+        # source_assessment toe (de volledige AI-bronbeoordeling van CON-02).
+        # 2.0.0 (DEF-624): validation_status verplicht en zonder default; een
+        # afwezige status betekent niet langer "validated" (SemVer-major).
+        # 2.1.0 (DEF-766, additief): resultaatstatus not_applicable en
+        # ess03_assessment (de AI-telbaarheidsbeoordeling van ESS-03).
+        # 2.2.0 (DEF-771, additief): deeluitkomststatus not_evaluated.
+>       assert CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/validation/test_validation_readiness.py:188: AssertionError
+__ test_ne_resultaat_past_in_schema_en_conversie[C23-Toegang:-context1-kern] ___
+
+casus = 'C23', tekst = 'Toegang:'
+context = {'organisatorische_context': ['Synthetisch loket']}, grond = 'kern'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_resultaat_past_in_schema_en_conversie(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+>       assert CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/validation/test_def771_int02_o1.py:291: AssertionError
+______ test_ne_resultaat_past_in_schema_en_conversie[C06--context0-kern] _______
+
+casus = 'C06', tekst = ''
+context = {'organisatorische_context': ['Synthetisch loket']}, grond = 'kern'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_resultaat_past_in_schema_en_conversie(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+>       assert CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/validation/test_def771_int02_o1.py:291: AssertionError
+________ test_onbekende_velden_en_int03_velden_elders_blijven_afgewezen ________
+
+    async def test_onbekende_velden_en_int03_velden_elders_blijven_afgewezen():
+        met = await _met_int03_beoordeling("pass")
+        ne = await _publiek(C50, {})
+        assert _fouten(met["rule_results"]) == []
+        assert _fouten(ne["rule_results"]) == []
+        for rule_results, regel, veld, waarde in (
+            (met["rule_results"], "INT-03", "onbekend", 1),
+            (ne["rule_results"], "INT-02", "signals", []),
+            (ne["rule_results"], "INT-02", "assessment", None),
+        ):
+            kopie = json.loads(json.dumps(rule_results))
+            kopie[regel][veld] = waarde
+>           assert _fouten(kopie), (regel, veld)
+E           AssertionError: ('INT-02', 'signals')
+E           assert []
+E            +  where [] = _fouten({'CON-01': {'contract_version': 'con01/1', 'fingerprint': '27338e3f15b299394b40ea0bd476b1b03ab9061272d911dbd4aa0ece2f6... oordeel en verzin er geen.', 'context_value': None, 'evidence': None, 'field': None, ...}], 'review': None, ...}, ...})
+
+tests/unit/validation/test_def771_int02_o1.py:376: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=d476ba58-d27e-4e35-add5-341928877c1d)
+_ test_ne_resultaat_past_in_schema_en_conversie[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context] _
+
+casus = 'C56'
+tekst = 'Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.'
+context = {}, grond = 'context'
+
+    @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
+    async def test_ne_resultaat_past_in_schema_en_conversie(casus, tekst, context, grond):
+        resultaat = await _publiek(tekst, context)
+>       assert CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/validation/test_def771_int02_o1.py:291: AssertionError
+__________ test_validate_text_verkrijgt_verse_beoordeling_met_binding __________
+
+    async def test_validate_text_verkrijgt_verse_beoordeling_met_binding():
+        service, assessor = _service(), FakeInt03Assessor(scenario="pass")
+        orch = ValidationOrchestratorV2(service, int03_assessment_service=assessor)
+        metadata = {
+            **CONTEXT,
+            "toelichting": "Synthetische toelichting.",
+            # Een meegegeven beoordeling is nooit de bron van waarheid.
+            "int03_assessment": {"status": "assessed", "judgment": {"verdict": "pass"}},
+        }
+        before = deepcopy(metadata)
+    
+        result = await orch.validate_text(
+            BEGRIP, TEKST, context=ValidationContext(metadata=metadata)
+        )
+    
+        assert metadata == before
+        (call,) = assessor.calls
+        assert call["begrip"] == BEGRIP
+        assert call["tekst"] == TEKST
+        assert call["toelichting"] == "Synthetische toelichting."
+        assert call["contexten"]["organisatorische_context"] == ["Synthetische Organisatie"]
+        doorgegeven = service.received["int03_assessment"]
+        assert doorgegeven["status"] == "assessed"
+        assert doorgegeven["contract_version"] == CONTRACTVERSIE
+        assert doorgegeven["fingerprint"] == bereken_int03_vingerafdruk(
+            BEGRIP, TEKST, CONTEXT, "Synthetische toelichting."
+        )
+        assert doorgegeven["attribution"]["model"] == "fake-int03-model"
+        assert service.received["int03_binding"] == BINDING.als_dict()
+        # Geen nieuw top-level veld: de actuele contractversie is 2.2.0 (DEF-771);
+        # die beschrijft ook assessment/signals in rule_results['INT-03'].
+>       assert result["version"] == CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/services/orchestrators/test_def772_int03_wrappers.py:103: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=18176988-4dbf-40cd-8746-5f10eefd3507)
+______ test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug ______
+
+    async def test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug():
+        service, assessor = _service(), FakeAssessor()
+        orch = ValidationOrchestratorV2(service, source_assessment_service=assessor)
+        metadata = {**CONTEXT, "provenance_sources": [BRON], "peildatum": "2026-09-15"}
+        before = deepcopy(metadata)
+    
+        result = await orch.validate_text(
+            BEGRIP, TEKST, context=ValidationContext(metadata=metadata)
+        )
+    
+        assert metadata == before
+        (call,) = assessor.calls
+        assert call["begrip"] == BEGRIP and call["tekst"] == TEKST
+        assert call["bronnen"] == [BRON]
+        assert call["peildatum"] == "2026-09-15"
+        assert call["contexten"]["wettelijke_basis"] == ["Synthetische Bestuurswet"]
+        assert service.received["source_assessment"]["parts"] == {
+            "marker": "vers-verkregen"
+        }
+        assert service.received["provenance_sources"] == [BRON]
+        assert service.received["record_text"] == TEKST
+        assert result["source_assessment"]["status"] == "assessed"
+        assert result["source_assessment"]["fingerprint"] == bereken_bronvingerafdruk(
+            BEGRIP, TEKST, CONTEXT, [BRON], peildatum="2026-09-15"
+        )
+        # DEF-624: 2.0.0 (validation_status verplicht, geen default); DEF-766:
+        # 2.1.0 (additief: not_applicable, ess03_assessment); DEF-771: 2.2.0
+        # (additief: not_evaluated als deeluitkomst). De bronbeoordeling
+        # (1.4.0-veld) reist ongewijzigd mee.
+>       assert result["version"] == CONTRACT_VERSION == "2.2.0"
+E       AssertionError: assert '2.3.0' == '2.2.0'
+E         
+E         - 2.2.0
+E         ?   ^
+E         + 2.3.0
+E         ?   ^
+
+tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py:138: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:497 DEF-766: geen Ess03AssessmentService geïnjecteerd; ESS-03 blijft open (correlation_id=585b8bff-846c-4741-a7fb-b17be62db14e)
+WARNING  services.orchestrators.validation_orchestrator_v2:validation_orchestrator_v2.py:579 DEF-772: geen Int03AssessmentService geïnjecteerd; INT-03 blijft open (correlation_id=585b8bff-846c-4741-a7fb-b17be62db14e)
+=========================== short test summary info ============================
+FAILED tests/unit/services/orchestrators/test_def766_ess03_wrappers.py::test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug
+FAILED tests/unit/validation/test_validation_readiness.py::test_contractversie_is_verhoogd_naar_2_2_0
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C23-Toegang:-context1-kern]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C06--context0-kern]
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_onbekende_velden_en_int03_velden_elders_blijven_afgewezen
+FAILED tests/unit/validation/test_def771_int02_o1.py::test_ne_resultaat_past_in_schema_en_conversie[C56-Persoon die als stelselmatige dader geldt indien hij in de vijf jaar voorafgaand aan het laatste feit drie maal wegens een misdrijf onherroepelijk is veroordeeld.-context2-context]
+FAILED tests/unit/services/orchestrators/test_def772_int03_wrappers.py::test_validate_text_verkrijgt_verse_beoordeling_met_binding
+FAILED tests/unit/services/orchestrators/test_def743_source_assessment_wrappers.py::test_validate_text_verkrijgt_verse_beoordeling_en_geeft_haar_terug
+8 failed, 539 passed in 2.63s
+
+# exitcode: 1

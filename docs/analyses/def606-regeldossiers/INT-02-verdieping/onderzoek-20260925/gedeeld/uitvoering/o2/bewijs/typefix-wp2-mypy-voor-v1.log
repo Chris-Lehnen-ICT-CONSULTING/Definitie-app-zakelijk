@@ -1,0 +1,16 @@
+# DEF-835 typefix WP2 - mypy VOOR correctie (bevestiging baseline)
+# tijdstip: 2026-09-28T13:27:57Z  branch: feature/DEF-835-int02-o2  HEAD: d769276041e619103ace7bc66e65419d480dae99
+#   6dcae57bc60d1edec09d49fa35d21d135cf0dd43e587ef7e8ba60dac22f16ca8  src/domain/int02/contract.py
+#   99f1381ed4d2c8c2505a4acb5daeae809ccaabb840be7e0bc0424601e6b87b3a  src/services/validation/int02_assessment_service.py
+# herstelkopie dienst: typefix-vooraf-v1/src/services/validation/int02_assessment_service.py (99f1381ed4d2c8c2505a4acb5daeae809ccaabb840be7e0bc0424601e6b87b3a)
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m mypy src/ --check-untyped-defs --no-incremental
+# --- uitvoer ---
+src/services/validation/int02_assessment_service.py:245: error: Argument "normversie" to "Int02Norm" has incompatible type "Any | None"; expected "str"  [arg-type]
+src/services/validation/int02_assessment_service.py:246: error: Argument "uitleg" to "Int02Norm" has incompatible type "Any | None"; expected "str"  [arg-type]
+src/services/validation/int02_assessment_service.py:247: error: Argument "toelichting" to "Int02Norm" has incompatible type "Any | None"; expected "str"  [arg-type]
+src/services/validation/int02_assessment_service.py:248: error: Argument "toetsvraag" to "Int02Norm" has incompatible type "Any | None"; expected "str"  [arg-type]
+src/services/validation/int02_assessment_service.py:765: error: Incompatible types in assignment (expression has type "str | None", variable has type "str")  [assignment]
+src/services/validation/int02_assessment_service.py:829: error: Argument 3 to "_log" of "Int02AssessmentService" has incompatible type "str | None"; expected "str"  [arg-type]
+Found 6 errors in 1 file (checked 411 source files)
+# --- einde uitvoer ---
+# exitcode: 1

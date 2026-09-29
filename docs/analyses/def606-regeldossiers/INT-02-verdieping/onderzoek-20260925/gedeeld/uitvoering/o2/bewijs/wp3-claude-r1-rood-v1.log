@@ -1,0 +1,317 @@
+# WP3-R1 RED — vóór correctie. HEAD d3fc53eaed14e6a303605146b7e5f8b9ea3cef5e branch feature/DEF-835-int02-o2 tijdstip 2026-09-27T22:23:25Z
+# commando: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/validation/test_def835_int02_evaluator.py tests/integration/contracts/test_validation_result_schema.py -o addopts= -p no:cacheprovider -q -ra
+# sha256:
+#   2b8ee83d85a8c6d02069b15d4eef8927b58b857dc95ea02681c7ab33818ab8a1  src/services/validation/evaluators/decision_rule_assessment.py
+#   b6cc73787a4618b9b99964350f8ae87b2b0f82dcef8528f5ff8d43f74d99981e  tests/unit/validation/test_def835_int02_evaluator.py
+#   712f5e527bd33a5ff3fecf13192b2a22ed67356208ac645ceb06b522f496369d  tests/integration/contracts/test_validation_result_schema.py
+....................F.F......FFFF....F...F.............................. [ 60%]
+...............................................                          [100%]
+=================================== FAILURES ===================================
+_ TestFoutEnOngeldig.test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[fail-lijst] _
+
+self = <test_def835_int02_evaluator.TestFoutEnOngeldig object at 0x10c5fcb90>
+scenario = 'fail', waarde = []
+
+    @pytest.mark.parametrize(
+        "waarde", [None, 42, [], {}], ids=["none", "getal", "lijst", "dict"]
+    )
+    @pytest.mark.parametrize("scenario", ["pass", "fail"])
+    def test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text(
+        self, scenario, waarde
+    ):
+        # WP3-R1 (Codex-review): terugval op raw_text alleen bij een ontbrekende
+        # sleutel; een aanwezige niet-tekst is ongeldige metadata en mag het
+        # meegegeven oordeel nooit actueel maken.
+        kern = SCENARIO[scenario][0]
+        md = _metadata(kern, _document(scenario), record_text=waarde)
+>       _assert_fout(_evalueer(md, tekst=kern))
+
+tests/unit/validation/test_def835_int02_evaluator.py:882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_evaluator.py:755: in _assert_fout
+    detail = _assert_scoreloos_met_melding(uitkomst, ResultStatus.ERROR, MELDING_E)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+uitkomst = EvaluationOutcome(status=<ResultStatus.FAIL: 'fail'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...hetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'fail'}}, 'signals': ['\\bmoet\\b']}})
+status = <ResultStatus.ERROR: 'error'>
+melding = 'INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.'
+
+    def _assert_scoreloos_met_melding(uitkomst, status: ResultStatus, melding: str):
+        """Gemeenschappelijke vorm van elke O2-uitkomst (zes statussen)."""
+>       assert uitkomst.status is status
+E       AssertionError: assert <ResultStatus.FAIL: 'fail'> is <ResultStatus.ERROR: 'error'>
+E        +  where <ResultStatus.FAIL: 'fail'> = EvaluationOutcome(status=<ResultStatus.FAIL: 'fail'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...hetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'fail'}}, 'signals': ['\\bmoet\\b']}}).status
+
+tests/unit/validation/test_def835_int02_evaluator.py:399: AssertionError
+_ TestFoutEnOngeldig.test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[pass-getal] _
+
+self = <test_def835_int02_evaluator.TestFoutEnOngeldig object at 0x10c57b290>
+scenario = 'pass', waarde = 42
+
+    @pytest.mark.parametrize(
+        "waarde", [None, 42, [], {}], ids=["none", "getal", "lijst", "dict"]
+    )
+    @pytest.mark.parametrize("scenario", ["pass", "fail"])
+    def test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text(
+        self, scenario, waarde
+    ):
+        # WP3-R1 (Codex-review): terugval op raw_text alleen bij een ontbrekende
+        # sleutel; een aanwezige niet-tekst is ongeldige metadata en mag het
+        # meegegeven oordeel nooit actueel maken.
+        kern = SCENARIO[scenario][0]
+        md = _metadata(kern, _document(scenario), record_text=waarde)
+>       _assert_fout(_evalueer(md, tekst=kern))
+
+tests/unit/validation/test_def835_int02_evaluator.py:882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_evaluator.py:755: in _assert_fout
+    detail = _assert_scoreloos_met_melding(uitkomst, ResultStatus.ERROR, MELDING_E)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+uitkomst = EvaluationOutcome(status=<ResultStatus.PASS: 'pass'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...ason': 'Synthetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'pass'}}, 'signals': []}})
+status = <ResultStatus.ERROR: 'error'>
+melding = 'INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.'
+
+    def _assert_scoreloos_met_melding(uitkomst, status: ResultStatus, melding: str):
+        """Gemeenschappelijke vorm van elke O2-uitkomst (zes statussen)."""
+>       assert uitkomst.status is status
+E       AssertionError: assert <ResultStatus.PASS: 'pass'> is <ResultStatus.ERROR: 'error'>
+E        +  where <ResultStatus.PASS: 'pass'> = EvaluationOutcome(status=<ResultStatus.PASS: 'pass'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...ason': 'Synthetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'pass'}}, 'signals': []}}).status
+
+tests/unit/validation/test_def835_int02_evaluator.py:399: AssertionError
+_ TestFoutEnOngeldig.test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[pass-dict] _
+
+self = <test_def835_int02_evaluator.TestFoutEnOngeldig object at 0x10c5e5de0>
+scenario = 'pass', waarde = {}
+
+    @pytest.mark.parametrize(
+        "waarde", [None, 42, [], {}], ids=["none", "getal", "lijst", "dict"]
+    )
+    @pytest.mark.parametrize("scenario", ["pass", "fail"])
+    def test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text(
+        self, scenario, waarde
+    ):
+        # WP3-R1 (Codex-review): terugval op raw_text alleen bij een ontbrekende
+        # sleutel; een aanwezige niet-tekst is ongeldige metadata en mag het
+        # meegegeven oordeel nooit actueel maken.
+        kern = SCENARIO[scenario][0]
+        md = _metadata(kern, _document(scenario), record_text=waarde)
+>       _assert_fout(_evalueer(md, tekst=kern))
+
+tests/unit/validation/test_def835_int02_evaluator.py:882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_evaluator.py:755: in _assert_fout
+    detail = _assert_scoreloos_met_melding(uitkomst, ResultStatus.ERROR, MELDING_E)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+uitkomst = EvaluationOutcome(status=<ResultStatus.PASS: 'pass'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...ason': 'Synthetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'pass'}}, 'signals': []}})
+status = <ResultStatus.ERROR: 'error'>
+melding = 'INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.'
+
+    def _assert_scoreloos_met_melding(uitkomst, status: ResultStatus, melding: str):
+        """Gemeenschappelijke vorm van elke O2-uitkomst (zes statussen)."""
+>       assert uitkomst.status is status
+E       AssertionError: assert <ResultStatus.PASS: 'pass'> is <ResultStatus.ERROR: 'error'>
+E        +  where <ResultStatus.PASS: 'pass'> = EvaluationOutcome(status=<ResultStatus.PASS: 'pass'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...ason': 'Synthetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'pass'}}, 'signals': []}}).status
+
+tests/unit/validation/test_def835_int02_evaluator.py:399: AssertionError
+_ TestFoutEnOngeldig.test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[fail-getal] _
+
+self = <test_def835_int02_evaluator.TestFoutEnOngeldig object at 0x10c5fc370>
+scenario = 'fail', waarde = 42
+
+    @pytest.mark.parametrize(
+        "waarde", [None, 42, [], {}], ids=["none", "getal", "lijst", "dict"]
+    )
+    @pytest.mark.parametrize("scenario", ["pass", "fail"])
+    def test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text(
+        self, scenario, waarde
+    ):
+        # WP3-R1 (Codex-review): terugval op raw_text alleen bij een ontbrekende
+        # sleutel; een aanwezige niet-tekst is ongeldige metadata en mag het
+        # meegegeven oordeel nooit actueel maken.
+        kern = SCENARIO[scenario][0]
+        md = _metadata(kern, _document(scenario), record_text=waarde)
+>       _assert_fout(_evalueer(md, tekst=kern))
+
+tests/unit/validation/test_def835_int02_evaluator.py:882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_evaluator.py:755: in _assert_fout
+    detail = _assert_scoreloos_met_melding(uitkomst, ResultStatus.ERROR, MELDING_E)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+uitkomst = EvaluationOutcome(status=<ResultStatus.FAIL: 'fail'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...hetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'fail'}}, 'signals': ['\\bmoet\\b']}})
+status = <ResultStatus.ERROR: 'error'>
+melding = 'INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.'
+
+    def _assert_scoreloos_met_melding(uitkomst, status: ResultStatus, melding: str):
+        """Gemeenschappelijke vorm van elke O2-uitkomst (zes statussen)."""
+>       assert uitkomst.status is status
+E       AssertionError: assert <ResultStatus.FAIL: 'fail'> is <ResultStatus.ERROR: 'error'>
+E        +  where <ResultStatus.FAIL: 'fail'> = EvaluationOutcome(status=<ResultStatus.FAIL: 'fail'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...hetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'fail'}}, 'signals': ['\\bmoet\\b']}}).status
+
+tests/unit/validation/test_def835_int02_evaluator.py:399: AssertionError
+_ TestFoutEnOngeldig.test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[pass-none] _
+
+self = <test_def835_int02_evaluator.TestFoutEnOngeldig object at 0x10c5bb040>
+scenario = 'pass', waarde = None
+
+    @pytest.mark.parametrize(
+        "waarde", [None, 42, [], {}], ids=["none", "getal", "lijst", "dict"]
+    )
+    @pytest.mark.parametrize("scenario", ["pass", "fail"])
+    def test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text(
+        self, scenario, waarde
+    ):
+        # WP3-R1 (Codex-review): terugval op raw_text alleen bij een ontbrekende
+        # sleutel; een aanwezige niet-tekst is ongeldige metadata en mag het
+        # meegegeven oordeel nooit actueel maken.
+        kern = SCENARIO[scenario][0]
+        md = _metadata(kern, _document(scenario), record_text=waarde)
+>       _assert_fout(_evalueer(md, tekst=kern))
+
+tests/unit/validation/test_def835_int02_evaluator.py:882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_evaluator.py:755: in _assert_fout
+    detail = _assert_scoreloos_met_melding(uitkomst, ResultStatus.ERROR, MELDING_E)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+uitkomst = EvaluationOutcome(status=<ResultStatus.PASS: 'pass'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...ason': 'Synthetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'pass'}}, 'signals': []}})
+status = <ResultStatus.ERROR: 'error'>
+melding = 'INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.'
+
+    def _assert_scoreloos_met_melding(uitkomst, status: ResultStatus, melding: str):
+        """Gemeenschappelijke vorm van elke O2-uitkomst (zes statussen)."""
+>       assert uitkomst.status is status
+E       AssertionError: assert <ResultStatus.PASS: 'pass'> is <ResultStatus.ERROR: 'error'>
+E        +  where <ResultStatus.PASS: 'pass'> = EvaluationOutcome(status=<ResultStatus.PASS: 'pass'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...ason': 'Synthetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'pass'}}, 'signals': []}}).status
+
+tests/unit/validation/test_def835_int02_evaluator.py:399: AssertionError
+_ TestFoutEnOngeldig.test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[pass-lijst] _
+
+self = <test_def835_int02_evaluator.TestFoutEnOngeldig object at 0x10c57b410>
+scenario = 'pass', waarde = []
+
+    @pytest.mark.parametrize(
+        "waarde", [None, 42, [], {}], ids=["none", "getal", "lijst", "dict"]
+    )
+    @pytest.mark.parametrize("scenario", ["pass", "fail"])
+    def test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text(
+        self, scenario, waarde
+    ):
+        # WP3-R1 (Codex-review): terugval op raw_text alleen bij een ontbrekende
+        # sleutel; een aanwezige niet-tekst is ongeldige metadata en mag het
+        # meegegeven oordeel nooit actueel maken.
+        kern = SCENARIO[scenario][0]
+        md = _metadata(kern, _document(scenario), record_text=waarde)
+>       _assert_fout(_evalueer(md, tekst=kern))
+
+tests/unit/validation/test_def835_int02_evaluator.py:882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_evaluator.py:755: in _assert_fout
+    detail = _assert_scoreloos_met_melding(uitkomst, ResultStatus.ERROR, MELDING_E)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+uitkomst = EvaluationOutcome(status=<ResultStatus.PASS: 'pass'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...ason': 'Synthetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'pass'}}, 'signals': []}})
+status = <ResultStatus.ERROR: 'error'>
+melding = 'INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.'
+
+    def _assert_scoreloos_met_melding(uitkomst, status: ResultStatus, melding: str):
+        """Gemeenschappelijke vorm van elke O2-uitkomst (zes statussen)."""
+>       assert uitkomst.status is status
+E       AssertionError: assert <ResultStatus.PASS: 'pass'> is <ResultStatus.ERROR: 'error'>
+E        +  where <ResultStatus.PASS: 'pass'> = EvaluationOutcome(status=<ResultStatus.PASS: 'pass'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...ason': 'Synthetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'pass'}}, 'signals': []}}).status
+
+tests/unit/validation/test_def835_int02_evaluator.py:399: AssertionError
+_ TestFoutEnOngeldig.test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[fail-dict] _
+
+self = <test_def835_int02_evaluator.TestFoutEnOngeldig object at 0x10c4aaf00>
+scenario = 'fail', waarde = {}
+
+    @pytest.mark.parametrize(
+        "waarde", [None, 42, [], {}], ids=["none", "getal", "lijst", "dict"]
+    )
+    @pytest.mark.parametrize("scenario", ["pass", "fail"])
+    def test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text(
+        self, scenario, waarde
+    ):
+        # WP3-R1 (Codex-review): terugval op raw_text alleen bij een ontbrekende
+        # sleutel; een aanwezige niet-tekst is ongeldige metadata en mag het
+        # meegegeven oordeel nooit actueel maken.
+        kern = SCENARIO[scenario][0]
+        md = _metadata(kern, _document(scenario), record_text=waarde)
+>       _assert_fout(_evalueer(md, tekst=kern))
+
+tests/unit/validation/test_def835_int02_evaluator.py:882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_evaluator.py:755: in _assert_fout
+    detail = _assert_scoreloos_met_melding(uitkomst, ResultStatus.ERROR, MELDING_E)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+uitkomst = EvaluationOutcome(status=<ResultStatus.FAIL: 'fail'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...hetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'fail'}}, 'signals': ['\\bmoet\\b']}})
+status = <ResultStatus.ERROR: 'error'>
+melding = 'INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.'
+
+    def _assert_scoreloos_met_melding(uitkomst, status: ResultStatus, melding: str):
+        """Gemeenschappelijke vorm van elke O2-uitkomst (zes statussen)."""
+>       assert uitkomst.status is status
+E       AssertionError: assert <ResultStatus.FAIL: 'fail'> is <ResultStatus.ERROR: 'error'>
+E        +  where <ResultStatus.FAIL: 'fail'> = EvaluationOutcome(status=<ResultStatus.FAIL: 'fail'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...hetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'fail'}}, 'signals': ['\\bmoet\\b']}}).status
+
+tests/unit/validation/test_def835_int02_evaluator.py:399: AssertionError
+_ TestFoutEnOngeldig.test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[fail-none] _
+
+self = <test_def835_int02_evaluator.TestFoutEnOngeldig object at 0x10c5e5e90>
+scenario = 'fail', waarde = None
+
+    @pytest.mark.parametrize(
+        "waarde", [None, 42, [], {}], ids=["none", "getal", "lijst", "dict"]
+    )
+    @pytest.mark.parametrize("scenario", ["pass", "fail"])
+    def test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text(
+        self, scenario, waarde
+    ):
+        # WP3-R1 (Codex-review): terugval op raw_text alleen bij een ontbrekende
+        # sleutel; een aanwezige niet-tekst is ongeldige metadata en mag het
+        # meegegeven oordeel nooit actueel maken.
+        kern = SCENARIO[scenario][0]
+        md = _metadata(kern, _document(scenario), record_text=waarde)
+>       _assert_fout(_evalueer(md, tekst=kern))
+
+tests/unit/validation/test_def835_int02_evaluator.py:882: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/validation/test_def835_int02_evaluator.py:755: in _assert_fout
+    detail = _assert_scoreloos_met_melding(uitkomst, ResultStatus.ERROR, MELDING_E)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+uitkomst = EvaluationOutcome(status=<ResultStatus.FAIL: 'fail'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...hetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'fail'}}, 'signals': ['\\bmoet\\b']}})
+status = <ResultStatus.ERROR: 'error'>
+melding = 'INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.'
+
+    def _assert_scoreloos_met_melding(uitkomst, status: ResultStatus, melding: str):
+        """Gemeenschappelijke vorm van elke O2-uitkomst (zes statussen)."""
+>       assert uitkomst.status is status
+E       AssertionError: assert <ResultStatus.FAIL: 'fail'> is <ResultStatus.ERROR: 'error'>
+E        +  where <ResultStatus.FAIL: 'fail'> = EvaluationOutcome(status=<ResultStatus.FAIL: 'fail'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...hetische onderbouwing.', 'scope_reason': None, 'uncertainty': 'none', 'verdict': 'fail'}}, 'signals': ['\\bmoet\\b']}}).status
+
+tests/unit/validation/test_def835_int02_evaluator.py:399: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[fail-lijst]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[pass-getal]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[pass-dict]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[fail-getal]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[pass-none]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[pass-lijst]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[fail-dict]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestFoutEnOngeldig::test_aanwezige_ongeldige_recordtekst_valt_niet_terug_op_raw_text[fail-none]
+8 failed, 111 passed in 1.25s
+
+# exitcode: 1

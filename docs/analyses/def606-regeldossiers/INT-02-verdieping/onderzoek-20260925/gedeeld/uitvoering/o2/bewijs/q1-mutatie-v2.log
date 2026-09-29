@@ -1,0 +1,79 @@
+# DEF-835 Q1 MUTATIECONTROLE v2-log — 2026-09-28T16:13:42Z
+# plugin: bewijs/q1-mutatie-v3.py (in-memory, repo-bron ongewijzigd); selectie -k 'kwal or driecasus'; per mutatie de falende tests en de samenvatting
+f4d09238998b1233f888eb1c702fa2334eb84b50dcbfd80f32ac53fd879a7f06  scripts/analysis/def835_int02_modelproef.py
+423239789cbbce6a47c8245cee08acc8d7e205b199401163b172e9129e2e9b46  docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/q1-mutatie-v3.py
+## mutatie geen_telreservering
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_tokengrenzen_stoppen_zonder_vervolgcall
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_waarnemer_start_met_cumulatieve_stand
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_drie_fasen_in_volgorde_cumulatief_binnen_43_calls
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_regressiefase_precies_drie_calls_en_duurzaam_grootboek
+4 failed, 78 passed, 74 deselected in 19.80s
+## mutatie stand_niet_overnemen
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_ontwikkelcriterium_21_van_24[21-van-24]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[alles-juist]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_ontwikkelcriterium_21_van_24[20-van-24]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[14-van-16]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_mislukte_call_telt_mee_tegen_volle_reservering
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[rr-2-van-4]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[ontwikkeling-providerfout]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[holdout-false-pass]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[ontwikkeling-ontwikkeling-fase_al_uitgevoerd]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[ontwikkeling-citaat]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[fail-3-van-4]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_drie_fasen_in_volgorde_cumulatief_binnen_43_calls
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[ontwikkeling-false-pass]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_waarnemer_start_met_cumulatieve_stand
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[rr-pass]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_nieuw_akkoord_op_zelfde_manifest_reset_de_administratie_niet
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[pass-6-van-8]
+17 failed, 65 passed, 74 deselected in 18.80s
+## mutatie geen_false_pass_stop
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[holdout-false-pass]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[regressie-false-pass]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_fout_of_kritieke_false_pass_stopt_direct[ontwikkeling-false-pass]
+3 failed, 79 passed, 74 deselected in 20.08s
+## mutatie geen_fasevolgorde
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_onjuiste_regressiestatus_blokkeert_volgende_fase
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_verkeerde_fasevolgorde_weigert_zonder_calls[regressie-holdout-fasevolgorde]
+2 failed, 80 passed, 74 deselected in 21.06s
+## mutatie geen_ruimtecontrole
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_cumulatieve_looptijd_weigert_voor_de_fase
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_cumulatief_budget_weigert_voor_de_fase
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_calllimiet_ontoereikend_bij_verbruikte_calls
+3 failed, 79 passed, 74 deselected in 20.63s
+## mutatie label_niet_in_identiteit
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_bindt_invoer_labels_splitsing_en_profiel
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_labels_raken_payload_niet_maar_wel_de_identiteit
+2 failed, 80 passed, 74 deselected in 20.32s
+## mutatie testfixture_live
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_testfixture_gaat_nooit_echt_live
+1 failed, 81 passed, 74 deselected in 19.83s
+## mutatie geen_labelminima
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[fail-3-van-4]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[pass-6-van-8]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_holdoutcriteria[rr-2-van-4]
+3 failed, 79 passed, 74 deselected in 20.22s
+## mutatie onzekere_call_gratis
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_open_fase_in_grootboek_blokkeert_hergebruik
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_mislukte_call_telt_mee_tegen_volle_reservering
+2 failed, 80 passed, 74 deselected in 20.50s
+## mutatie oud_akkoordtype
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_weigert_ongeldig_akkoord_zonder_verzoek_sleutel_of_proefmap[soort]
+1 failed, 81 passed, 74 deselected in 20.02s
+## mutatie freeze_niet_vereist
+exit=1
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[geen-freeze]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[freeze-concept]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[freeze-datum]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_voorbereiding_weigert_ongeldig_of_niet_bevroren_manifest[freeze-zonder-acceptant]
+4 failed, 78 passed, 74 deselected in 21.29s

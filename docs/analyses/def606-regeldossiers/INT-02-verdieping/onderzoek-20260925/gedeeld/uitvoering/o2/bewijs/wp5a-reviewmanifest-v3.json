@@ -1,0 +1,24 @@
+{
+  "base": "d769276041e619103ace7bc66e65419d480dae99",
+  "reviewroot_base": "979ca0585100d94b613829d924c6d8bba4f24f1b",
+  "files": {
+    "src/services/container.py": "32a5ae789a0f131a036e4f1aa66d98cd05e4ea99ca1e77545529592de781e42a",
+    "src/services/orchestrators/definition_orchestrator_v2.py": "db1093e54c6c917fb6b37f49b153cdd1f2465274da94fb1bb74bfe1ef724d4ca",
+    "src/services/orchestrators/validation_orchestrator_v2.py": "1d592767c6d946b924f5eaf617fb76d4aca537b44ab78324bf7628e229ff354e",
+    "src/services/validation/modular_validation_service.py": "84a9e330c263afeea519363e1ac692950c93df3c1c15a2634fef5d5d722ab6c2",
+    "tests/unit/services/orchestrators/test_def835_int02_wrappers.py": "17446549d6f1688cf5af0efd9bddb6b926b402ce40b19f92db328fdf0b7de90f",
+    "tests/unit/validation/test_def835_int02_modular.py": "ca09aa5220b4e25cc55f8d90831abfc03a69034328b259b11d1227afcb799400",
+    "tests/unit/services/test_def835_int02_container.py": "5048a1c4bf68fe58d8315a85129269e3eff27737e0b833b6bef177e2c3f69ae9",
+    "src/services/validation/int02_assessment_service.py": "99f1381ed4d2c8c2505a4acb5daeae809ccaabb840be7e0bc0424601e6b87b3a",
+    "tests/unit/validation/test_def835_int02_assessment_service.py": "1dcc0f9d99a297d119107b0b936ac302677b9d57c999f58998561f47a8b14e17"
+  },
+  "changed_since_v2": [
+    "src/services/orchestrators/validation_orchestrator_v2.py",
+    "tests/unit/services/orchestrators/test_def835_int02_wrappers.py",
+    "src/services/validation/int02_assessment_service.py",
+    "tests/unit/validation/test_def835_int02_assessment_service.py"
+  ],
+  "delta_sha256": "02d0502166249f565fbb6efb9396cb16995a4b631a14c550eebc37fd298e634d",
+  "full_patch_sha256": "2c8638723a4aff213ad90333769b20f16a22a32041c5ff30004bca43f93b623a",
+  "reviewroot": "/private/tmp/def835-wp2-review-20260927"
+}

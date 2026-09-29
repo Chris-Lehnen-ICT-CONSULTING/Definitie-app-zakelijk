@@ -59,6 +59,11 @@ if TYPE_CHECKING:
     from services.synonym_orchestrator import SynonymOrchestrator
     from services.synonym_suggester import SynonymSuggester
     from services.validation.ess03_assessment_service import Ess03AssessmentService
+    from services.validation.int02_assessment_service import (
+        Budget,
+        Int02AssessmentService,
+        Modelprofiel,
+    )
     from services.validation.int03_assessment_service import Int03AssessmentService
     from services.validation.interfaces import ValidationOrchestratorInterface
     from services.validation.source_assessment_service import SourceAssessmentService
@@ -346,6 +351,31 @@ class ServiceContainer:
             )
         return cast(
             "Int03AssessmentService", self._instances["int03_assessment_service"]
+        )
+
+    def int02_assessment_service(
+        self, *, profiel: "Modelprofiel", budget: "Budget"
+    ) -> "Int02AssessmentService":
+        """De INT-02-beoordeling (O2, DEF-835 WP5a) — alleen op expliciet verzoek.
+
+        Profiel en budget zijn verplicht en worden nooit afgeleid (geen
+        default, geen routerdefault, geen profiel van een andere regel). Geen
+        singleton en geen bedrading in `orchestrator()`: de actieve route
+        blijft O1. De aanroeper injecteert de dienst zelf, bijvoorbeeld in
+        `DefinitionOrchestratorV2(int02_assessment_service=...)`.
+        """
+        from services.validation.int02_assessment_service import (
+            Budget,
+            Int02AssessmentService,
+            Int02ServiceConfigError,
+            Modelprofiel,
+        )
+
+        if not isinstance(profiel, Modelprofiel) or not isinstance(budget, Budget):
+            msg = "INT-02: een expliciet Modelprofiel en Budget zijn vereist"
+            raise Int02ServiceConfigError(msg)
+        return Int02AssessmentService(
+            self.ai_service(), self.model_router(), profiel=profiel, budget=budget
         )
 
     def orchestrator(self) -> DefinitionOrchestratorInterface:

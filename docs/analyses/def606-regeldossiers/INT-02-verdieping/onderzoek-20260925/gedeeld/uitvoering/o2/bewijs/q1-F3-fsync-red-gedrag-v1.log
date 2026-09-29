@@ -1,0 +1,222 @@
+# DEF-835 Q1 F3 fsync-na-flush ROOD (gedrag) — 2026-09-28T16:36:44Z
+# plugin bewijs/q1-F3-fsync-redplugin-v1.py zet alleen AFRONDING_OPEN/VOLTOOID; runnerbron ongewijzigd
+af59b9e0e2d86d29442a4e17865f8dc42c272ba11cb30e4fcd9ea3f5962373ab  scripts/analysis/def835_int02_modelproef.py
+14b0ecfa52508ff4046e8f6ca5514a1e89c83ba758e3a50207da7654e55250b3  tests/unit/validation/test_def835_int02_modelproef.py
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+_____________ test_f3_geslaagde_afronding_heft_blokkade_atomair_op _____________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_geslaagde_afronding_he0')
+
+    async def test_f3_geslaagde_afronding_heft_blokkade_atomair_op(tmp_path):
+        k = await _kwal(tmp_path)
+        await _fase(k, "regressie", KwalProvider())
+        assert not (k.proefmap / f"regressie{m.AFRONDING_OPEN}").exists()
+        voltooid = k.proefmap / f"regressie{m.AFRONDING_VOLTOOID}"
+>       assert json.loads(voltooid.read_text("utf-8"))["fase"] == "regressie"
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/validation/test_def835_int02_modelproef.py:2304: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_geslaagde_afronding_he0/proef/regressie-afronding.voltooid')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_geslaagde_afronding_he0/proef/regressie-afronding.voltooid'
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+------------------------------ Captured log call -------------------------------
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: High Error Rate - 1.000 gt 0.1 (Severity: error)
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+_ test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[opheffen-blokkade-afronding_onvolledig] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_fout_na_flush_van_afro0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x109f427b0>
+moment = 'opheffen-blokkade', vervolgreden = 'afronding_onvolledig'
+
+    @pytest.mark.parametrize(
+        ("moment", "vervolgreden"),
+        [
+            ("fsync-fase-einde", "afronding_onvolledig"),
+            ("fsync-blokkade", "grootboek_open"),
+            ("opheffen-blokkade", "afronding_onvolledig"),
+        ],
+    )
+    async def test_f3_fout_na_flush_van_afronding_blokkeert_blijvend(
+        tmp_path, monkeypatch, moment, vervolgreden
+    ):
+        k = await _kwal(tmp_path)
+        blokkade = k.proefmap / f"regressie{m.AFRONDING_OPEN}"
+        echt_fsync, echt_rename = os.fsync, os.rename
+        if moment == "fsync-fase-einde":
+            fsync, geinjecteerd = _fsync_faalt_op(k.grootboek, alleen_na="fase_einde")
+            monkeypatch.setattr(os, "fsync", fsync)
+        elif moment == "fsync-blokkade":
+            fsync, geinjecteerd = _fsync_faalt_op(blokkade)
+            monkeypatch.setattr(os, "fsync", fsync)
+        else:
+            geinjecteerd = []
+    
+            def rename(bron, doel):
+                if Path(bron).resolve() == blokkade.resolve():
+                    geinjecteerd.append(True)
+                    raise OSError(errno.EIO, "geinjecteerde fout bij opheffen")
+                return echt_rename(bron, doel)
+    
+            monkeypatch.setattr(os, "rename", rename)
+        provider = KwalProvider()
+>       with pytest.raises(OSError, match="geinjecteerde"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'OSError'>
+
+tests/unit/validation/test_def835_int02_modelproef.py:2267: Failed
+_ test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[fsync-fase-einde-afronding_onvolledig] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_fout_na_flush_van_afro1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10a6c4d10>
+moment = 'fsync-fase-einde', vervolgreden = 'afronding_onvolledig'
+
+    @pytest.mark.parametrize(
+        ("moment", "vervolgreden"),
+        [
+            ("fsync-fase-einde", "afronding_onvolledig"),
+            ("fsync-blokkade", "grootboek_open"),
+            ("opheffen-blokkade", "afronding_onvolledig"),
+        ],
+    )
+    async def test_f3_fout_na_flush_van_afronding_blokkeert_blijvend(
+        tmp_path, monkeypatch, moment, vervolgreden
+    ):
+        k = await _kwal(tmp_path)
+        blokkade = k.proefmap / f"regressie{m.AFRONDING_OPEN}"
+        echt_fsync, echt_rename = os.fsync, os.rename
+        if moment == "fsync-fase-einde":
+            fsync, geinjecteerd = _fsync_faalt_op(k.grootboek, alleen_na="fase_einde")
+            monkeypatch.setattr(os, "fsync", fsync)
+        elif moment == "fsync-blokkade":
+            fsync, geinjecteerd = _fsync_faalt_op(blokkade)
+            monkeypatch.setattr(os, "fsync", fsync)
+        else:
+            geinjecteerd = []
+    
+            def rename(bron, doel):
+                if Path(bron).resolve() == blokkade.resolve():
+                    geinjecteerd.append(True)
+                    raise OSError(errno.EIO, "geinjecteerde fout bij opheffen")
+                return echt_rename(bron, doel)
+    
+            monkeypatch.setattr(os, "rename", rename)
+        provider = KwalProvider()
+        with pytest.raises(OSError, match="geinjecteerde"):
+            await _fase(k, "regressie", provider)
+        monkeypatch.setattr(os, "fsync", echt_fsync)
+        monkeypatch.setattr(os, "rename", echt_rename)
+        assert geinjecteerd == [True]
+        assert len(provider.inferenties()) == 3
+>       assert blokkade.exists()  # de vooraf vastgelegde blokkade staat
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: assert False
+E        +  where False = exists()
+E        +    where exists = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_fout_na_flush_van_afro1/proef/regressie-afronding.open').exists
+
+tests/unit/validation/test_def835_int02_modelproef.py:2273: AssertionError
+_ test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[fsync-blokkade-grootboek_open] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_fout_na_flush_van_afro2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10a6c3950>
+moment = 'fsync-blokkade', vervolgreden = 'grootboek_open'
+
+    @pytest.mark.parametrize(
+        ("moment", "vervolgreden"),
+        [
+            ("fsync-fase-einde", "afronding_onvolledig"),
+            ("fsync-blokkade", "grootboek_open"),
+            ("opheffen-blokkade", "afronding_onvolledig"),
+        ],
+    )
+    async def test_f3_fout_na_flush_van_afronding_blokkeert_blijvend(
+        tmp_path, monkeypatch, moment, vervolgreden
+    ):
+        k = await _kwal(tmp_path)
+        blokkade = k.proefmap / f"regressie{m.AFRONDING_OPEN}"
+        echt_fsync, echt_rename = os.fsync, os.rename
+        if moment == "fsync-fase-einde":
+            fsync, geinjecteerd = _fsync_faalt_op(k.grootboek, alleen_na="fase_einde")
+            monkeypatch.setattr(os, "fsync", fsync)
+        elif moment == "fsync-blokkade":
+            fsync, geinjecteerd = _fsync_faalt_op(blokkade)
+            monkeypatch.setattr(os, "fsync", fsync)
+        else:
+            geinjecteerd = []
+    
+            def rename(bron, doel):
+                if Path(bron).resolve() == blokkade.resolve():
+                    geinjecteerd.append(True)
+                    raise OSError(errno.EIO, "geinjecteerde fout bij opheffen")
+                return echt_rename(bron, doel)
+    
+            monkeypatch.setattr(os, "rename", rename)
+        provider = KwalProvider()
+>       with pytest.raises(OSError, match="geinjecteerde"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'OSError'>
+
+tests/unit/validation/test_def835_int02_modelproef.py:2267: Failed
+__________ test_f3_beeindigde_fase_zonder_voltooiingsbewijs_blokkeert __________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_beeindigde_fase_zonder0')
+
+    async def test_f3_beeindigde_fase_zonder_voltooiingsbewijs_blokkeert(tmp_path):
+        k = await _kwal(tmp_path)
+        await _fase(k, "regressie", KwalProvider())
+        # Alleen een succesregel in het grootboek is geen voltooiingsbewijs.
+        voltooid = k.proefmap / f"regressie{m.AFRONDING_VOLTOOID}"
+>       voltooid.rename(k.tmp / "elders-bewaard.json")
+
+tests/unit/validation/test_def835_int02_modelproef.py:2314: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_beeindigde_fase_zonder0/proef/regressie-afronding.voltooid')
+target = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_beeindigde_fase_zonder0/elders-bewaard.json')
+
+    def rename(self, target):
+        """
+        Rename this path to the target path.
+    
+        The target path may be absolute or relative. Relative paths are
+        interpreted relative to the current working directory, *not* the
+        directory of the Path object.
+    
+        Returns the new Path instance pointing to the target path.
+        """
+>       os.rename(self, target)
+E       FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_beeindigde_fase_zonder0/proef/regressie-afronding.voltooid' -> '/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-ypby59y8/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_beeindigde_fase_zonder0/elders-bewaard.json'
+
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:767: FileNotFoundError
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_geslaagde_afronding_heft_blokkade_atomair_op
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[opheffen-blokkade-afronding_onvolledig]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[fsync-fase-einde-afronding_onvolledig]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[fsync-blokkade-grootboek_open]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_beeindigde_fase_zonder_voltooiingsbewijs_blokkeert
+5 failed, 171 deselected in 1.94s
+exit=1

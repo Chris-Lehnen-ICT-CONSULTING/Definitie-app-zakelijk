@@ -1,0 +1,17 @@
+# mutatiecontrole WP2 op de definitieve bron na refactor (vervangt v2); sha256 voor: e2ab9f9aef0fbc536179481b10063373cab4b6adc3d7c22bb2cc630ff5154174
+M1 geen duplicaatdetectie: exit 1; 3 failed, 166 passed in 0.93s
+M2b alles cachen behalve bij cache_size 0: exit 1; 5 failed, 164 passed in 0.85s
+M3 geen antwoordgrens: exit 1; 2 failed, 167 passed in 0.84s
+M4 geen modelcontrole: exit 1; 3 failed, 166 passed in 0.89s
+M5 NaN/oneindig toegestaan: exit 1; 3 failed, 166 passed in 0.86s
+M6b exceptiontekst als uitzonderingstype: exit 1; 5 failed, 164 passed in 0.84s
+M7 geen ruwe-cache-opt-in: exit 1; 5 failed, 164 passed in 0.84s
+M8 router niet met profiel vergeleken: exit 1; 3 failed, 166 passed in 0.85s
+M9 NE na profielblokkade: exit 1; 5 failed, 164 passed in 0.86s
+M10 geen max_attempts=1: exit 1; 2 failed, 167 passed in 1.86s
+M11 geen deadline: exit 1; +++++++++++++++++++++++++++++++++++ Timeout ++++++++++++++++++++++++++++++++++++
+M12 budget niet in routeringshash: exit 1; 1 failed, 168 passed in 0.88s
+M13 afgekapt antwoord niet geweigerd: exit 1; 2 failed, 167 passed in 0.86s
+M14 ruwe cache niet geweigerd: exit 1; 1 failed, 168 passed in 0.80s
+M15 te late terugkomst niet geweigerd: exit 1; 1 failed, 168 passed in 0.80s
+# sha256 na herstel: e2ab9f9aef0fbc536179481b10063373cab4b6adc3d7c22bb2cc630ff5154174

@@ -1,0 +1,213 @@
+diff --git a/src/services/orchestrators/validation_orchestrator_v2.py b/src/services/orchestrators/validation_orchestrator_v2.py
+index 53a1ad7af..f88cc3233 100644
+--- a/src/services/orchestrators/validation_orchestrator_v2.py
++++ b/src/services/orchestrators/validation_orchestrator_v2.py
+@@ -709,6 +709,11 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
+         snapshot, dan geen aanroep; wijkt de volledige documentbinding af van
+         `bereken_binding(verse invoer, snapshot)`, ook door een wijziging rond
+         de aanroep, dan een technische fout. De evaluator krijgt de snapshot.
++        Review F24: vóór publicatie wordt dezelfde publieke snapshot opnieuw
++        gelezen (geen extra modelcall); is die ongeldig of wijkt hij af van de
++        voor-snapshot — ook door een wijziging ná de interne routering — dan
++        een technische fout. Ook het ophalen van `configuratie` valt binnen
++        de veilige foutgrens.
+         """
+         for sleutel in _INT02_WRAPPERSLEUTELS:
+             context_dict.pop(sleutel, None)
+@@ -733,11 +738,13 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
+             return
+         if ontbrekende_invoer(invoer):
+             return
+-        snapshot = getattr(dienst, "configuratie", None)
+-        if not callable(snapshot):
+-            self._int02_fout(context_dict, "configuration_unavailable", correlation_id)
+-            return
+         try:
++            snapshot = getattr(dienst, "configuratie", None)
++            if not callable(snapshot):
++                self._int02_fout(
++                    context_dict, "configuration_unavailable", correlation_id
++                )
++                return
+             verwacht = snapshot()
+             if not isinstance(verwacht, Configuratie):
+                 self._int02_fout(context_dict, "invalid_configuration", correlation_id)
+@@ -752,6 +759,13 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
+             ):
+                 self._int02_fout(context_dict, "binding_mismatch", correlation_id)
+                 return
++            na = snapshot()
++            if not isinstance(na, Configuratie):
++                self._int02_fout(context_dict, "invalid_configuration", correlation_id)
++                return
++            if na != verwacht:
++                self._int02_fout(context_dict, "configuration_changed", correlation_id)
++                return
+         except Exception as exc:
+             self._int02_fout(context_dict, type(exc).__name__, correlation_id)
+             return
+diff --git a/tests/unit/services/orchestrators/test_def835_int02_wrappers.py b/tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+index d660c0bcf..9d5a3ffec 100644
+--- a/tests/unit/services/orchestrators/test_def835_int02_wrappers.py
++++ b/tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+@@ -22,6 +22,7 @@ vallen buiten dit pakket.
+ 
+ from __future__ import annotations
+ 
++import asyncio
+ import copy
+ import json
+ import logging
+@@ -954,3 +955,152 @@ async def test_f2_snapshot_wordt_voor_de_aanroep_vastgelegd(o2_service):
+     assert detail["assessment"] == (
+         beoordeel(_invoer(), CONFIG, _pass_respons(), VOLTOOID).als_dict()
+     )
++
++
++# --- F2-restpunt en F4 (herreview WP5a F2/F3) -----------------------------------
++#
++# F2-restpunt: ook een wijziging ná de interne routering, tijdens de awaited
++# modelcall, mag nooit pass/current worden. De wrapper leest daarom na de
++# aanroep opnieuw de publieke snapshot en eist dat die geldig is en gelijk aan
++# de voor-snapshot. F4: ook het ophalen van `configuratie` zelf valt binnen de
++# veilige foutgrens.
++
++
++class _WijzigendeRouter(FakeRouter):
++    thinking = False
++
++    def thinking_default_on(self, model, provider=None):
++        return self.thinking
++
++
++class _WijzigtTijdensAI(FakeAI):
++    """Wijzigt het routerbeleid tijdens de awaited modelcall (na de routering)."""
++
++    def __init__(self, router):
++        super().__init__(_pass_respons())
++        self.router = router
++
++    async def generate_definition(self, prompt, **kwargs):
++        await asyncio.sleep(0)
++        self.router.thinking = True
++        return await super().generate_definition(prompt, **kwargs)
++
++
++@pytest.mark.parametrize("route", ROUTES)
++async def test_f2_beleidswijziging_tijdens_modelcall_is_error(o2_service, route):
++    router = _WijzigendeRouter()
++    ai = _WijzigtTijdensAI(router)
++    spion = Spion(
++        Int02AssessmentService(ai, router, profiel=_profiel(), budget=_budget())
++    )
++    orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=spion)
++
++    resultaat = await route(orch)
++
++    assert ai.calls == 1  # geen extra modelcall
++    (beoordeling,) = spion.resultaten
++    assert beoordeling.document.status == "pass"  # de dienst zelf gaf een oordeel
++    detail = _int02(resultaat)
++    assert detail["status"] == "error"
++    assert detail["parts"][0]["reason"] == MELDING_E
++    assert detail["review"] == {"actuality": None}
++    assert detail["assessment"] is None
++
++
++@pytest.mark.parametrize("route", ROUTES)
++async def test_f2_stabiele_configuratie_blijft_pass_current(o2_service, route):
++    router = _WijzigendeRouter()
++    ai = FakeAI(_pass_respons())
++    orch = ValidationOrchestratorV2(
++        o2_service,
++        int02_assessment_service=Int02AssessmentService(
++            ai, router, profiel=_profiel(), budget=_budget()
++        ),
++    )
++
++    resultaat = await route(orch)
++
++    assert ai.calls == 1
++    detail = _int02(resultaat)
++    assert detail["status"] == "pass"
++    assert detail["review"]["actuality"] == "current"
++    assert detail["assessment"]["binding"]["model"] == MODEL
++
++
++class _NaSnapshot(FakeDienst):
++    """Voor-snapshot geldig (`CONFIG`); elke latere snapshot is `na`."""
++
++    def __init__(self, na):
++        super().__init__(_pass_respons())
++        self.na = na
++
++    def configuratie(self):
++        self.snapshots_gelezen += 1
++        waarde = CONFIG if self.snapshots_gelezen == 1 else self.na
++        if isinstance(waarde, BaseException):
++            raise waarde
++        return waarde
++
++
++@pytest.mark.parametrize("route", ROUTES)
++@pytest.mark.parametrize(
++    "na",
++    [
++        pytest.param(replace(CONFIG, model="na-model"), id="gewijzigd"),
++        pytest.param(None, id="none"),
++        pytest.param(asdict(CONFIG), id="dict"),
++        pytest.param(RuntimeError(GEHEIM), id="uitzondering"),
++    ],
++)
++async def test_f2_ongeldige_of_afwijkende_na_snapshot_is_error(
++    o2_service, route, na, caplog
++):
++    dienst = _NaSnapshot(na)
++    orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=dienst)
++
++    with caplog.at_level(logging.DEBUG):
++        resultaat = await route(orch)
++
++    # Eerst de uitkomst, daarna het mechanisme (voor- en na-snapshot).
++    detail = _int02(resultaat)
++    assert detail["status"] == "error"
++    assert detail["parts"][0]["reason"] == MELDING_E
++    assert detail["assessment"] is None
++    assert GEHEIM not in caplog.text
++    assert len(dienst.calls) == 1
++    assert dienst.snapshots_gelezen == 2
++
++
++class _FalendeSnapshotProperty:
++    """Het ophalen van `configuratie` zelf faalt (F4-foutinjectie)."""
++
++    def __init__(self):
++        self.calls: list[Any] = []
++
++    @property
++    def configuratie(self):
++        raise RuntimeError(GEHEIM)
++
++    async def assess(self, invoer, **kwargs):  # pragma: no cover - mag niet
++        self.calls.append(invoer)
++        raise AssertionError("assess mag niet worden bereikt")
++
++
++@pytest.mark.parametrize("route", ROUTES)
++async def test_f4_falend_ophalen_van_snapshot_is_error_zonder_aanroep(
++    o2_service, route, caplog
++):
++    dienst = _FalendeSnapshotProperty()
++    orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=dienst)
++
++    with caplog.at_level(logging.DEBUG):
++        resultaat = await route(orch)
++
++    assert dienst.calls == []
++    assert resultaat["validation_status"] == "validated"
++    detail = _int02(resultaat)
++    assert detail["status"] == "error"
++    assert detail["parts"][0]["reason"] == MELDING_E
++    assert detail["assessment"] is None
++    assert GEHEIM not in caplog.text
++    assert "GEHEIME" not in json.dumps(resultaat, default=str)

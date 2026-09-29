@@ -288,7 +288,8 @@ async def test_ne_reist_publiek_mee_in_rule_results(casus, tekst, context, grond
 @pytest.mark.parametrize(("casus", "tekst", "context", "grond"), NE_GEVALLEN)
 async def test_ne_resultaat_past_in_schema_en_conversie(casus, tekst, context, grond):
     resultaat = await _publiek(tekst, context)
-    assert CONTRACT_VERSION == "2.2.0"
+    # DEF-835 (2.3.0, additief): de NE-uitkomst van 2.2.0 blijft ongewijzigd geldig.
+    assert CONTRACT_VERSION == "2.3.0"
     assert resultaat["version"] == CONTRACT_VERSION
     _valideer_rule_results(resultaat)
     omgezet: dict = {}
@@ -309,6 +310,8 @@ async def test_rr_boekt_geen_int02_deeluitkomst_en_andere_regels_blijven():
 # (beoordelingsdocument of null) en `signals` (patroonlijst) in
 # rule_results['INT-03']; andere regels krijgen die velden niet en onbekende
 # velden blijven overal afgewezen (DEF-771/DEF-772, integratie met main).
+# Contract 2.3.0 (DEF-835) staat dezelfde twee velden ook toe in
+# rule_results['INT-02']; voor alle andere regels blijven ze afgewezen.
 RULE_RESULTS = Draft202012Validator(SCHEMA["properties"]["rule_results"])
 
 
@@ -366,14 +369,27 @@ async def test_onbekende_velden_en_int03_velden_elders_blijven_afgewezen():
     ne = await _publiek(C50, {})
     assert _fouten(met["rule_results"]) == []
     assert _fouten(ne["rule_results"]) == []
+    # Een regel buiten INT-02/INT-03 die in beide uitkomsten een deeluitkomst heeft.
+    assert "CON-01" in met["rule_results"] and "CON-01" in ne["rule_results"]
     for rule_results, regel, veld, waarde in (
         (met["rule_results"], "INT-03", "onbekend", 1),
-        (ne["rule_results"], "INT-02", "signals", []),
-        (ne["rule_results"], "INT-02", "assessment", None),
+        (ne["rule_results"], "INT-02", "onbekend", 1),
+        (ne["rule_results"], "INT-02", "signals", "\\bmoet\\b"),
+        (ne["rule_results"], "INT-02", "assessment", "beoordeeld"),
+        (ne["rule_results"], "CON-01", "signals", []),
+        (ne["rule_results"], "CON-01", "assessment", None),
+        (met["rule_results"], "CON-01", "signals", []),
+        (met["rule_results"], "CON-01", "assessment", None),
     ):
         kopie = json.loads(json.dumps(rule_results))
         kopie[regel][veld] = waarde
         assert _fouten(kopie), (regel, veld)
+    # DEF-835 (2.3.0): dezelfde twee INT-02-gevallen die tot 2.2.0 werden
+    # geweigerd, zijn nu toegestaan (alleen voor INT-02 naast INT-03).
+    for veld, waarde in (("signals", []), ("assessment", None)):
+        kopie = json.loads(json.dumps(ne["rule_results"]))
+        kopie["INT-02"][veld] = waarde
+        assert _fouten(kopie) == [], ("INT-02", veld)
     # De INT-02-NE-uitkomst zelf is ongewijzigd.
     (onderdeel,) = ne["rule_results"]["INT-02"]["parts"]
     assert onderdeel["reason"] == NE.replace("{kern/context}", "context")

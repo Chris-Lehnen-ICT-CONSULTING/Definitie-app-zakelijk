@@ -1,0 +1,14 @@
+# DEF-835 WP2 correcties — lint, alleen de drie eigen bestanden — 2026-09-27T08:12:20Z
+# sha256 dda9d274e3b7a93973f9df0bc3de0b422fe4d96d1766beb536162914a68c049e  src/services/validation/int02_assessment_service.py
+# sha256 ca82cce18816e1f5b714678a5234596a536abb26ee202d56437d94a5173a0c1b  tests/unit/validation/test_def835_int02_assessment_service.py
+# sha256 2efcd7ae505a58f2b93731b36fd763c718f073776745e7a28944dc4967426a0b  tests/unit/services/prompts/test_def835_int02_prompt.py
+## ruff 0.15.17
+All checks passed!
+# exitcode: 0
+## ruff 0.16.5 (hookversie, offline uv-cache)
+All checks passed!
+# exitcode: 0
+## black, 26.5.1 (compiled: yes)
+All done! ✨ 🍰 ✨
+3 files would be left unchanged.
+# exitcode: 0

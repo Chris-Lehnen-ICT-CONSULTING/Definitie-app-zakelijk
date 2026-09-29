@@ -1,0 +1,16 @@
+# HEAD 2be81c577653f8efbab6fa2c3794598556d32d13 tijdstip 2026-09-27T22:12:30Z
+# ruff 0.15.17; black, 26.5.1 (compiled: yes)
+# bestanden: src/services/validation/evaluators/decision_rule_assessment.py src/toetsregels/runtime_contract.py src/services/validation/evaluators/__init__.py src/services/validation/interfaces.py tests/unit/validation/test_def835_int02_evaluator.py tests/integration/contracts/test_validation_result_schema.py
+## ruff check
+All checks passed!
+# exitcode ruff check: 0
+## black --check
+All done! ✨ 🍰 ✨
+6 files would be left unchanged.
+# exitcode black --check: 0
+## json/yaml laadbaar
+ok
+# exitcode json/yaml: 0
+## ruff check met pre-commit-versie (/Users/chrislehnen/.cache/pre-commit/repoy903793m/py_env-python3.13/bin/ruff; zonder --fix)
+All checks passed!
+# exitcode ruff 0.16.5: 0

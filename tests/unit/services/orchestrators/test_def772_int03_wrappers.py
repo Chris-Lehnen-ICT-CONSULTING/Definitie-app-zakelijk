@@ -98,9 +98,10 @@ async def test_validate_text_verkrijgt_verse_beoordeling_met_binding():
     )
     assert doorgegeven["attribution"]["model"] == "fake-int03-model"
     assert service.received["int03_binding"] == BINDING.als_dict()
-    # Geen nieuw top-level veld: de actuele contractversie is 2.2.0 (DEF-771);
-    # die beschrijft ook assessment/signals in rule_results['INT-03'].
-    assert result["version"] == CONTRACT_VERSION == "2.2.0"
+    # Geen nieuw top-level veld: sinds 2.2.0 (DEF-771) beschrijft het contract
+    # assessment/signals in rule_results['INT-03']; de actuele contractversie
+    # is 2.3.0 (DEF-835, additief: dezelfde velden ook voor INT-02).
+    assert result["version"] == CONTRACT_VERSION == "2.3.0"
     assert "int03_assessment" not in result
 
 

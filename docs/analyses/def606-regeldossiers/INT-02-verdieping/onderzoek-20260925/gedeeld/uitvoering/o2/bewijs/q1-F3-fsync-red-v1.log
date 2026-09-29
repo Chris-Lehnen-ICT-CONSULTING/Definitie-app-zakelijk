@@ -1,0 +1,112 @@
+# DEF-835 Q1 F3 fsync-na-flush ROOD — 2026-09-28T16:35:52Z
+f9bb9e6973926a3cf768995f5d879f6edfd6322d
+af59b9e0e2d86d29442a4e17865f8dc42c272ba11cb30e4fcd9ea3f5962373ab  scripts/analysis/def835_int02_modelproef.py
+14b0ecfa52508ff4046e8f6ca5514a1e89c83ba758e3a50207da7654e55250b3  tests/unit/validation/test_def835_int02_modelproef.py
+2f50c456756614cc35e78b81f57f4c8afc748b79d4cfcd6da053306e6c8fd7a7  tests/fixtures/def835_int02_kwalificatie_runner.json
+$ env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 .venv/bin/python -m pytest tests/unit/validation/test_def835_int02_modelproef.py -o addopts= -q -ra -p no:cacheprovider
+...............F.F..............................................FF...... [ 40%]
+.........................F.............................................. [ 81%]
+................................                                         [100%]
+=================================== FAILURES ===================================
+_ test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[fsync-fase-einde-afronding_onvolledig] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-e59c7da6/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_fout_na_flush_van_afro0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10acfba80>
+moment = 'fsync-fase-einde', vervolgreden = 'afronding_onvolledig'
+
+    @pytest.mark.parametrize(
+        ("moment", "vervolgreden"),
+        [
+            ("fsync-fase-einde", "afronding_onvolledig"),
+            ("fsync-blokkade", "grootboek_open"),
+            ("opheffen-blokkade", "afronding_onvolledig"),
+        ],
+    )
+    async def test_f3_fout_na_flush_van_afronding_blokkeert_blijvend(
+        tmp_path, monkeypatch, moment, vervolgreden
+    ):
+        k = await _kwal(tmp_path)
+>       blokkade = k.proefmap / f"regressie{m.AFRONDING_OPEN}"
+                                            ^^^^^^^^^^^^^^^^
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'AFRONDING_OPEN'
+
+tests/unit/validation/test_def835_int02_modelproef.py:2248: AttributeError
+__________ test_f3_beeindigde_fase_zonder_voltooiingsbewijs_blokkeert __________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-e59c7da6/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_beeindigde_fase_zonder0')
+
+    async def test_f3_beeindigde_fase_zonder_voltooiingsbewijs_blokkeert(tmp_path):
+        k = await _kwal(tmp_path)
+        await _fase(k, "regressie", KwalProvider())
+        # Alleen een succesregel in het grootboek is geen voltooiingsbewijs.
+>       voltooid = k.proefmap / f"regressie{m.AFRONDING_VOLTOOID}"
+                                            ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'AFRONDING_VOLTOOID'
+
+tests/unit/validation/test_def835_int02_modelproef.py:2313: AttributeError
+_ test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[fsync-blokkade-grootboek_open] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-e59c7da6/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_fout_na_flush_van_afro1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10acee2e0>
+moment = 'fsync-blokkade', vervolgreden = 'grootboek_open'
+
+    @pytest.mark.parametrize(
+        ("moment", "vervolgreden"),
+        [
+            ("fsync-fase-einde", "afronding_onvolledig"),
+            ("fsync-blokkade", "grootboek_open"),
+            ("opheffen-blokkade", "afronding_onvolledig"),
+        ],
+    )
+    async def test_f3_fout_na_flush_van_afronding_blokkeert_blijvend(
+        tmp_path, monkeypatch, moment, vervolgreden
+    ):
+        k = await _kwal(tmp_path)
+>       blokkade = k.proefmap / f"regressie{m.AFRONDING_OPEN}"
+                                            ^^^^^^^^^^^^^^^^
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'AFRONDING_OPEN'
+
+tests/unit/validation/test_def835_int02_modelproef.py:2248: AttributeError
+_____________ test_f3_geslaagde_afronding_heft_blokkade_atomair_op _____________
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-e59c7da6/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_geslaagde_afronding_he0')
+
+    async def test_f3_geslaagde_afronding_heft_blokkade_atomair_op(tmp_path):
+        k = await _kwal(tmp_path)
+        await _fase(k, "regressie", KwalProvider())
+>       assert not (k.proefmap / f"regressie{m.AFRONDING_OPEN}").exists()
+                                             ^^^^^^^^^^^^^^^^
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'AFRONDING_OPEN'
+
+tests/unit/validation/test_def835_int02_modelproef.py:2302: AttributeError
+_ test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[opheffen-blokkade-afronding_onvolledig] _
+
+tmp_path = PosixPath('/private/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def519-sessie-e59c7da6/tempfiles/pytest-of-chrislehnen/pytest-0/test_f3_fout_na_flush_van_afro2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1083394e0>
+moment = 'opheffen-blokkade', vervolgreden = 'afronding_onvolledig'
+
+    @pytest.mark.parametrize(
+        ("moment", "vervolgreden"),
+        [
+            ("fsync-fase-einde", "afronding_onvolledig"),
+            ("fsync-blokkade", "grootboek_open"),
+            ("opheffen-blokkade", "afronding_onvolledig"),
+        ],
+    )
+    async def test_f3_fout_na_flush_van_afronding_blokkeert_blijvend(
+        tmp_path, monkeypatch, moment, vervolgreden
+    ):
+        k = await _kwal(tmp_path)
+>       blokkade = k.proefmap / f"regressie{m.AFRONDING_OPEN}"
+                                            ^^^^^^^^^^^^^^^^
+E       AttributeError: module 'def835_int02_modelproef' has no attribute 'AFRONDING_OPEN'
+
+tests/unit/validation/test_def835_int02_modelproef.py:2248: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[fsync-fase-einde-afronding_onvolledig]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_beeindigde_fase_zonder_voltooiingsbewijs_blokkeert
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[fsync-blokkade-grootboek_open]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_geslaagde_afronding_heft_blokkade_atomair_op
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[opheffen-blokkade-afronding_onvolledig]
+5 failed, 171 passed in 31.32s
+exit=1

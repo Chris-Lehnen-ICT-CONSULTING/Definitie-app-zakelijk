@@ -1,0 +1,54 @@
+# DEF-835 WP5a F2/F3 GREEN — WP5a-tests + volledige WP2-dienstentests (incl. RED-selectie) — 2026-09-28T13:02:02Z
+# HEAD d769276041e619103ace7bc66e65419d480dae99
+32a5ae789a0f131a036e4f1aa66d98cd05e4ea99ca1e77545529592de781e42a  src/services/container.py
+db1093e54c6c917fb6b37f49b153cdd1f2465274da94fb1bb74bfe1ef724d4ca  src/services/orchestrators/definition_orchestrator_v2.py
+1d592767c6d946b924f5eaf617fb76d4aca537b44ab78324bf7628e229ff354e  src/services/orchestrators/validation_orchestrator_v2.py
+84a9e330c263afeea519363e1ac692950c93df3c1c15a2634fef5d5d722ab6c2  src/services/validation/modular_validation_service.py
+99f1381ed4d2c8c2505a4acb5daeae809ccaabb840be7e0bc0424601e6b87b3a  src/services/validation/int02_assessment_service.py
+17446549d6f1688cf5af0efd9bddb6b926b402ce40b19f92db328fdf0b7de90f  tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+ca09aa5220b4e25cc55f8d90831abfc03a69034328b259b11d1227afcb799400  tests/unit/validation/test_def835_int02_modular.py
+5048a1c4bf68fe58d8315a85129269e3eff27737e0b833b6bef177e2c3f69ae9  tests/unit/services/test_def835_int02_container.py
+1dcc0f9d99a297d119107b0b936ac302677b9d57c999f58998561f47a8b14e17  tests/unit/validation/test_def835_int02_assessment_service.py
+# commando: .venv/bin/python -m pytest tests/unit/validation/test_def835_int02_assessment_service.py tests/unit/services/orchestrators/test_def835_int02_wrappers.py tests/unit/validation/test_def835_int02_modular.py tests/unit/services/test_def835_int02_container.py -p no:cacheprovider -p no:randomly --tb=short -o addopts='-ra --strict-markers --import-mode=importlib'
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 221 items
+
+tests/unit/validation/test_def835_int02_assessment_service.py .......... [  4%]
+........................................................................ [ 37%]
+.....................................................                    [ 61%]
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py ........ [ 64%]
+....................................................                     [ 88%]
+tests/unit/validation/test_def835_int02_modular.py ....................  [ 97%]
+tests/unit/services/test_def835_int02_container.py ......                [100%]
+
+============================= 221 passed in 2.27s ==============================
+# exit=0
+## RED-selectie apart: -k 'f2_ or dienst_wordt_niet_door_de_container' op assessment_service + wrappers
+============================= test session starts ==============================
+platform darwin -- Python 3.13.15, pytest-9.0.3, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2
+configfile: pytest.ini
+plugins: benchmark-5.2.3, mock-3.15.1, locust-2.44.1, xdist-3.8.0, timeout-2.4.0, asyncio-1.4.0, Faker-40.21.0, cov-7.0.0, anyio-4.13.0
+timeout: 120.0s
+timeout method: thread
+timeout func_only: False
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 195 items / 155 deselected / 40 selected
+
+tests/unit/validation/test_def835_int02_assessment_service.py .......... [ 25%]
+...                                                                      [ 32%]
+tests/unit/services/orchestrators/test_def835_int02_wrappers.py ........ [ 52%]
+...................                                                      [100%]
+
+====================== 40 passed, 155 deselected in 1.00s ======================
+# exit=0

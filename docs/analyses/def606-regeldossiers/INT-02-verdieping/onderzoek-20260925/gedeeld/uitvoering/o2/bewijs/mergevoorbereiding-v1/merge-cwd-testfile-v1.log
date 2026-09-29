@@ -1,0 +1,10 @@
+# DEF-835 merge cwd HELE TESTFILE — 2026-09-29T08:59:51Z
+ebe9c1b7c26ffe6040bffb66db4937b932406dc8
+63bf07a24c638d22a94d03b4ecdec5cd05778bc5e8f82c41411cca091e653834  tests/unit/validation/test_def835_int02_modelproef.py
+94adea36ffa555a8d9fee790f5eb96ce54ece96efd107adf25dd147ccb1a637f  scripts/analysis/def835_int02_modelproef.py
+$ cd /tmp/def835-cwd-bestand-T3HQ && env -u ANTHROPIC_API_KEY -u OPENAI_API_KEY DEFINITIE_DISABLE_DOTENV=1 /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py -o addopts= -q -ra -p no:cacheprovider
+........................................................................ [ 40%]
+........................................................................ [ 81%]
+.................................                                        [100%]
+177 passed in 33.04s
+exit=0
