@@ -213,7 +213,8 @@ _KANDIDAATVELDEN: frozenset[str] = frozenset({"quote", "reason"})
 #: semantische eis (geen minimumlengte of -aantal): de lokale controles
 #: blijven gezaghebbend. De eigenschapsvolgorde (references → reason →
 #: verdict → question → uncertainty) is een ontwerpkeuze en hoort bij de
-#: schema-identiteit.
+#: schema-identiteit. DEF-836 P4: per verwijzing staat status als laatste
+#: (word → passage → reading → candidates → status), na de onderbouwing.
 _NUL_OF_TEKST: dict[str, Any] = {"anyOf": [{"type": "string"}, {"type": "null"}]}
 ANTWOORDSCHEMA: dict[str, Any] = {
     "type": "object",
@@ -225,7 +226,6 @@ ANTWOORDSCHEMA: dict[str, Any] = {
                 "properties": {
                     "word": {"type": "string"},
                     "passage": {"type": "string"},
-                    "status": {"type": "string", "enum": list(VERWIJZINGSSTATUSSEN)},
                     "reading": {"type": "string"},
                     "candidates": {
                         "type": "array",
@@ -239,8 +239,9 @@ ANTWOORDSCHEMA: dict[str, Any] = {
                             "additionalProperties": False,
                         },
                     },
+                    "status": {"type": "string", "enum": list(VERWIJZINGSSTATUSSEN)},
                 },
-                "required": ["word", "passage", "status", "reading", "candidates"],
+                "required": ["word", "passage", "reading", "candidates", "status"],
                 "additionalProperties": False,
             },
         },
@@ -254,9 +255,10 @@ ANTWOORDSCHEMA: dict[str, Any] = {
 }
 #: Gepinde, eigenschapsvolgorde-gevoelige sha256 van `ANTWOORDSCHEMA`
 #: (`services.ai.base_client.response_schema_sha256`). Hoort bij
-#: promptversie int03-assess/3; een ander schema vraagt een nieuwe versie.
+#: beoordelingsversie int03-assess/6 (P4); een ander schema vraagt een nieuwe
+#: versie.
 ANTWOORDSCHEMA_SHA256 = (
-    "17390e57f7d02ca7b74b658687555e885a9cdf3a33bf9e1f0431a54299bf4a99"
+    "8f04da5d652597bdae13e14b5db6165a6018df31180b376d9a06a32e1b358047"
 )
 
 _WHITESPACE = re.compile(r"\s+")

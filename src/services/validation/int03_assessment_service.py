@@ -343,7 +343,9 @@ class Int03AssessmentService:
     #:     formaatslot `_FORMAATSLOT` (DEF-836 P1); oordelen onder /1 en /2
     #:     worden historisch. Norm en contract blijven gelijk.
     #: /5: toelaatbaarheidstoets aan het begin van stap 3 (DEF-836 P3); /4 historisch.
-    PROMPT_VERSION = "int03-assess/5"
+    #: /6: status als laatste veld per verwijzing in `ANTWOORDSCHEMA` (DEF-836
+    #:     P4); prompttekst gelijk aan /5, /5 historisch.
+    PROMPT_VERSION = "int03-assess/6"
     TASK_TYPE = "validation"
 
     def __init__(

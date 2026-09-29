@@ -19,8 +19,9 @@ Bewezen (besluitnotitie-v3 §3 en §5, opdracht P1 punten 1–8):
   of ontbrekende stopreden, een extra blok, een ongeldige enum, een ontbrekend
   veld, twee objecten, een inconsistent oordeel of een verzonnen citaat is een
   technische fout zonder oordeel;
-* promptversie ``int03-assess/5`` (P3) met het exacte formaatslot; normhash en
-  contract ongewijzigd; /1 t/m /4 historisch; schemahash lokaal berekend,
+* beoordelingsversie ``int03-assess/6`` (P4: status als laatste veld per
+  verwijzing, prompt gelijk aan P3); normhash en contract ongewijzigd; /1 t/m
+  /5 historisch; schemahash lokaal berekend,
   gepind en gecontroleerd tegen het werkelijk verzonden schema; schema in de
   cachesleutels;
 * gevraagd en gemeld model apart; nul gestapelde retries; geen aanroep bij
@@ -139,6 +140,22 @@ P2_SYSTEEM_SHA256 = "bc3a2001f4ae7b83125e9b981542627d54af483c6ddf9b2ad24bb4551c8
 #: DEF-836 P3: exacte invoeging (promptvoorstel-P3-v2.md, 1479 tekens).
 P3_BEGIN, P3_EINDE = "3. Eenduidigheid: ", " nabijheid alleen is geen bewijs"
 P3_SHA256 = "4ff3a92f884c3c172980d00f647a4e468504dc4f4e62a8fc87ebf7be40586084"
+P3_SYSTEEM_SHA256 = "58de0834f5f11e84c0c354f7dfda51bc999d8e6737ae8245d0a6404851a77cec"
+#: DEF-836 P4 (alternatief-correctievoorstel-P4-v2.md §3): alleen de volgorde
+#: van de velden per verwijzing wijzigt; status komt na reading en candidates.
+P3_VERWIJZING = ["word", "passage", "status", "reading", "candidates"]
+P4_VERWIJZING = ["word", "passage", "reading", "candidates", "status"]
+P3_SCHEMA_SHA256 = "17390e57f7d02ca7b74b658687555e885a9cdf3a33bf9e1f0431a54299bf4a99"
+P4_SCHEMA_SHA256 = "8f04da5d652597bdae13e14b5db6165a6018df31180b376d9a06a32e1b358047"
+
+
+def _als_p3(schema: dict[str, Any]) -> dict[str, Any]:
+    """Het schema met de verwijzingsvelden terug in de P3-volgorde."""
+    p3 = deepcopy(schema)
+    items = p3["properties"]["references"]["items"]
+    items["properties"] = {k: items["properties"][k] for k in P3_VERWIJZING}
+    items["required"] = list(P3_VERWIJZING)
+    return p3
 
 
 def _oordeel(**over: Any) -> dict[str, Any]:
@@ -313,10 +330,18 @@ async def test_sdk_body_draagt_exact_het_antwoordschema_zonder_hashveld(
     assert not any("sha" in k.lower() for k in _alle_sleutels(body))
     assert ANTWOORDSCHEMA_SHA256 not in request.content.decode("utf-8")
     # Het werkelijk verzonden schema (bytes van het request) heeft de gepinde hash.
-    assert _ordegevoelige_hash(verzonden) == ANTWOORDSCHEMA_SHA256
+    assert _ordegevoelige_hash(verzonden) == ANTWOORDSCHEMA_SHA256 == P4_SCHEMA_SHA256
+    # P4: status als laatste verwijzingsveld; verder uitsluitend P3 herschikt.
+    items = verzonden["properties"]["references"]["items"]
+    assert list(items["properties"]) == items["required"] == P4_VERWIJZING
+    assert list(items["properties"]["candidates"]["items"]["properties"]) == [
+        "quote",
+        "reason",
+    ]
+    assert _ordegevoelige_hash(_als_p3(verzonden)) == P3_SCHEMA_SHA256
 
     assert doc["status"] == "assessed", doc["error"]
-    assert doc["prompt_version"] == "int03-assess/5"
+    assert doc["prompt_version"] == "int03-assess/6"
     assert doc["contract_version"] == CONTRACTVERSIE == "int03/1"
     assert doc["input"]["response_schema_sha256"] == ANTWOORDSCHEMA_SHA256
     assert doc["judgment"]["verdict"] == VERDICT_FAIL
@@ -367,13 +392,17 @@ async def test_p3_systeemtekst_is_p2_plus_alleen_de_toelaatbaarheid_rest_gelijk(
     assert hashlib.sha256(zonder.encode("utf-8")).hexdigest() == P2_SYSTEEM_SHA256
     zonder = zonder.replace(f" {ONDERBOUWING_P2}", "", 1)
     assert hashlib.sha256(zonder.encode("utf-8")).hexdigest() == P1_SYSTEEM_SHA256
-    # Userpayload, schema(volgorde), model en instellingen byte-gelijk aan P1.
+    # P4: systeemtekst exact P3; userpayload, model en instellingen byte-gelijk
+    # aan P1 zodra het schema terug in de P3-volgorde staat.
+    assert hashlib.sha256(systeem.encode("utf-8")).hexdigest() == P3_SYSTEEM_SHA256
     rest = {k: v for k, v in body.items() if k != "system"}
+    schema = rest["output_config"]["format"]["schema"]
+    rest["output_config"]["format"]["schema"] = _als_p3(schema)
     rest = json.dumps(rest, ensure_ascii=False, separators=(",", ":"))
     assert hashlib.sha256(rest.encode("utf-8")).hexdigest() == P1_REST_SHA256
     assert doc["status"] == "assessed", doc["error"]
     assert (
-        doc["prompt_version"] == service.binding().prompt_version == ("int03-assess/5")
+        doc["prompt_version"] == service.binding().prompt_version == ("int03-assess/6")
     )
 
 
@@ -416,7 +445,7 @@ def test_antwoordschema_is_gesloten_volledig_verplicht_en_behoudt_enums():
     beoordeling = ANTWOORDSCHEMA["properties"]
     assert list(beoordeling) == VOLGORDE
     verwijzing = beoordeling["references"]["items"]["properties"]
-    assert list(verwijzing) == ["word", "passage", "status", "reading", "candidates"]
+    assert list(verwijzing) == P4_VERWIJZING
     kandidaat = verwijzing["candidates"]["items"]["properties"]
     assert list(kandidaat) == ["quote", "reason"]
     assert set(beoordeling["verdict"]["enum"]) == set(VERDICTS)
@@ -433,6 +462,7 @@ def test_antwoordschema_is_gesloten_volledig_verplicht_en_behoudt_enums():
 def test_schemahash_is_ordegevoelig_en_gepind():
     assert re.fullmatch(r"[0-9a-f]{64}", ANTWOORDSCHEMA_SHA256)
     assert response_schema_sha256(ANTWOORDSCHEMA) == ANTWOORDSCHEMA_SHA256
+    assert ANTWOORDSCHEMA_SHA256 == P4_SCHEMA_SHA256
     assert _ordegevoelige_hash(ANTWOORDSCHEMA) == ANTWOORDSCHEMA_SHA256
     omgekeerd = deepcopy(ANTWOORDSCHEMA)
     omgekeerd["properties"] = dict(reversed(list(omgekeerd["properties"].items())))
@@ -757,11 +787,11 @@ async def test_gevraagd_en_gemeld_model_apart_en_binding_actueel(anthropic_actie
     fp = bereken_int03_vingerafdruk(BEGRIP, TEKST, CONTEXT, TOELICHTING)
     oordeel, _ = valideer_beoordeling(doc, fp, TEKST, binding=service.binding())
     assert oordeel is not None
-    assert service.binding().prompt_version == "int03-assess/5"
+    assert service.binding().prompt_version == "int03-assess/6"
     assert service.norm_sha256 == (
         "d2f0cc1c834f36b264f2c82a496e0ff3108aa358e8bc65f518870c6179d3bb2d"
     )
-    for oud in ("int03-assess/1", "int03-assess/2", "int03-assess/3", "int03-assess/4"):
+    for oud in (f"int03-assess/{n}" for n in (1, 2, 3, 4, 5)):
         historisch, samenvatting = valideer_beoordeling(
             {**doc, "prompt_version": oud}, fp, TEKST, binding=service.binding()
         )
@@ -778,7 +808,7 @@ async def test_interne_cache_is_gebonden_aan_de_schemarevisie(anthropic_actief):
     assert tweede["attribution"]["cached"] is True
     (sleutel,) = list(service._cache)
     assert ANTWOORDSCHEMA_SHA256 in sleutel
-    assert "int03-assess/5" in sleutel
+    assert "int03-assess/6" in sleutel and P4_SCHEMA_SHA256 in sleutel
 
 
 async def test_schema_dat_niet_bij_de_pin_hoort_gaat_niet_naar_de_sdk(

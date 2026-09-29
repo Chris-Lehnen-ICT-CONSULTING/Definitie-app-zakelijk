@@ -289,8 +289,8 @@ async def test_schema_en_formaatslot_bereiken_de_ai_grens():
 
 
 async def test_oordeel_onder_vorige_promptversie_is_historisch():
-    # DEF-836: de gewijzigde prompt maakt oordelen onder int03-assess/1 t/m /3 en
-    # (P3) /4 historisch; de norm (en dus de normhash) blijft ongewijzigd.
+    # DEF-836: prompt- en schemawijzigingen maken oordelen onder int03-assess/1
+    # t/m /4 en (P4) /5 historisch; de norm (en dus de normhash) blijft gelijk.
     service, _ = _service(_uitvoer())
     doc = (await _assess(service)).als_dict()
     # FakeAI rapporteert een ander model dan de router; bind daaraan.
@@ -299,8 +299,8 @@ async def test_oordeel_onder_vorige_promptversie_is_historisch():
     )
     actueel, _ = valideer_beoordeling(doc, _vingerafdruk(), TEKST, binding=binding)
     assert actueel is not None
-    assert binding.prompt_version == "int03-assess/5"
-    for vorige in (f"int03-assess/{n}" for n in (1, 2, 3, 4)):
+    assert binding.prompt_version == "int03-assess/6"
+    for vorige in (f"int03-assess/{n}" for n in (1, 2, 3, 4, 5)):
         oordeel, samenvatting = valideer_beoordeling(
             {**doc, "prompt_version": vorige}, _vingerafdruk(), TEKST, binding=binding
         )
@@ -766,19 +766,19 @@ async def test_zonder_cache_elke_keer_naar_het_model():
     assert len(ai.calls) == 2
 
 
-async def test_cachetreffer_onder_4_vervangt_geen_beoordeling_onder_5(monkeypatch):
-    # DEF-836 P3: een gecachet /4-oordeel vervangt de /5-aanroep niet en is onder
-    # de actieve /5-binding historisch; /5 zelf wordt wel hergebruikt.
+async def test_cachetreffer_onder_5_vervangt_geen_beoordeling_onder_6(monkeypatch):
+    # DEF-836 P4: een gecachet /5-oordeel vervangt de /6-aanroep niet en is onder
+    # de actieve /6-binding historisch; /6 zelf wordt wel hergebruikt.
     service, ai = _service(_uitvoer(), _uitvoer(), _uitvoer())
     with monkeypatch.context() as m:
-        m.setattr(Int03AssessmentService, "PROMPT_VERSION", "int03-assess/4")
+        m.setattr(Int03AssessmentService, "PROMPT_VERSION", "int03-assess/5")
         oud = (await _assess(service)).als_dict()
     nieuw = (await _assess(service)).als_dict()
     herhaald = (await _assess(service)).als_dict()
     assert len(ai.calls) == 2
     assert (oud["prompt_version"], nieuw["prompt_version"]) == (
-        "int03-assess/4",
         "int03-assess/5",
+        "int03-assess/6",
     )
     assert nieuw["attribution"]["cached"] is False
     assert herhaald["attribution"]["cached"] is True
