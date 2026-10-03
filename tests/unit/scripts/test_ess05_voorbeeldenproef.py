@@ -7,6 +7,7 @@ De goldset komt uit een fixture-kopie (logs/ is niet getrackt).
 from __future__ import annotations
 
 import importlib.util
+import inspect
 import json
 import socket
 import sys
@@ -242,6 +243,52 @@ def test_a_onbruikbaar_geeft_uitkomst_onbruikbaar(tmp_path):
     assert aanroepen == [proef.SYSTEEM_A]
 
 
+def test_afgekapte_a_meldt_max_tokens_en_blijft_onbruikbaar():
+    def client(systeem, gebruiker):
+        return proef.Antwoord('{"verwante_begrippen":[{"beg', 10, 8000, "max_tokens")
+
+    record = proef.verwerk_item(ITEMS["db-277"], client, proef.Budget())
+    assert (record["uitkomst"], record["onbruikbaar"]) == ("twijfel", True)
+    assert record["reden"].startswith(
+        "uitvoer onbruikbaar: A afgekapt op max_tokens (A is geen geldige JSON"
+    )
+    assert record["aanroep_a"]["stop_reason"] == "max_tokens"
+    assert "aanroep_b" not in record
+
+
+def test_afgekapte_b_meldt_max_tokens_en_blijft_onbruikbaar():
+    def client(systeem, gebruiker):
+        if systeem == proef.SYSTEEM_A:
+            return proef.Antwoord(_a_json(1, 1), 10, 10, "end_turn")
+        return proef.Antwoord('{"oordelen":[{"nr":1,"valt_on', 10, 8000, "max_tokens")
+
+    record = proef.verwerk_item(ITEMS["db-277"], client, proef.Budget())
+    assert (record["uitkomst"], record["onbruikbaar"]) == ("twijfel", True)
+    assert record["reden"].startswith(
+        "uitvoer onbruikbaar: B afgekapt op max_tokens (B is geen geldige JSON"
+    )
+
+
+def test_geen_afkapmelding_zonder_max_tokens():
+    def client(systeem, gebruiker):
+        return proef.Antwoord("geen json", 10, 10, "end_turn")
+
+    record = proef.verwerk_item(ITEMS["db-277"], client, proef.Budget())
+    assert "afgekapt" not in record["reden"]
+    assert record["reden"].startswith("uitvoer onbruikbaar: A is geen geldige JSON")
+
+
+def test_uitvoer_gaat_naar_v2_en_goldset_blijft_in_v1():
+    basis = _REPO / "logs" / "def768"
+    assert proef.PROEFVERSIE == "v2"
+    v1_goldset = basis / "voorbeeldenproef-v1" / "goldset-v1.json"
+    assert basis / "voorbeeldenproef-v2" == proef.UITVOERBASIS
+    assert v1_goldset == proef.GOLDSET_PAD
+    for functie in (proef.voer_echt_uit, proef.vergelijk):
+        standaard = inspect.signature(functie).parameters["basis"].default
+        assert standaard == proef.UITVOERBASIS
+
+
 def test_a_buiten_schema_is_onbruikbaar():
     tekst = json.dumps({"verwante_begrippen": [{"begrip": "x", "gevallen": []}] * 2})
     gevallen, fout = proef.parse_a(tekst)
@@ -433,20 +480,28 @@ def test_budgetstop_op_aantal_aanroepen(tmp_path):
     assert "aanroep_b" not in item2
 
 
-def test_budgetstop_op_kosten(tmp_path):
-    budget = proef.Budget(plafond_nusd=proef.STAPMARGE_NUSD + 1)
-    s = proef.voer_proef_uit(
-        GOLDSET, tmp_path / "uit", proef.StubClient(), "droog", budget=budget
-    )
-    assert s["aantal_aanroepen"] == 1
-    assert s["aantal_niet_gedraaid"] == 10
-    assert "boven plafond" in s["budget"]["stopreden"]
+def test_budgetstop_op_kosten_blijft_onder_plafond_van_drie_dollar(tmp_path):
+    """Elke aanroep kost USD 0,20 (8000 uitvoertokens): stop na 14 aanroepen."""
+    stub = proef.StubClient(scenarios=("voldoet",))
+
+    def duur(systeem, gebruiker):
+        antwoord = stub(systeem, gebruiker)
+        return proef.Antwoord(antwoord.tekst, 0, proef.MAX_TOKENS, "end_turn")
+
+    s = proef.voer_proef_uit(GOLDSET, tmp_path / "uit", duur, "droog")
+    # Na 14: 2,80 + bovengrens (~0,20) > 3,00; na 13: 2,60 + ~0,20 <= 3,00.
+    assert s["aantal_aanroepen"] == 14
+    assert s["kosten_bekend_usd"] == "2.800000"
+    assert s["kosten_bekend_nusd"] <= proef.PLAFOND_NUSD
+    assert "boven plafond USD 3.000000" in s["budget"]["stopreden"]
+    assert s["aantal_niet_gedraaid"] == 3
 
 
-def test_budget_standaardwaarden():
+def test_budget_en_limieten_standaardwaarden():
     budget = proef.Budget()
     assert budget.max_aanroepen == 25
-    assert proef.usd(budget.plafond_nusd) == "2.000000"
+    assert proef.MAX_TOKENS == 8000
+    assert proef.usd(budget.plafond_nusd) == "3.000000"
     assert proef.usd(budget.marge_nusd) == "0.150000"
     assert proef.kosten_nusd(1_000_000, 0) == 5_000_000_000
     assert proef.kosten_nusd(0, 1_000_000) == 25_000_000_000
@@ -461,19 +516,19 @@ def test_budget_grens_is_exclusief():
 
 
 def test_bovengrens_aanroep_rondt_tekens_gedeeld_door_twee_naar_boven_af():
-    # 3 tekens -> 2 invoertokens; plus 2000 uitvoertokens tegen 5/25 USD per M.
-    assert proef.bovengrens_nusd("ab", "c") == 2 * 5_000 + 2000 * 25_000
-    assert proef.bovengrens_nusd("ab", "cd") == 2 * 5_000 + 2000 * 25_000
+    # 3 tekens -> 2 invoertokens; plus 8000 uitvoertokens tegen 5/25 USD per M.
+    assert proef.bovengrens_nusd("ab", "c") == 2 * 5_000 + 8000 * 25_000
+    assert proef.bovengrens_nusd("ab", "cd") == 2 * 5_000 + 8000 * 25_000
 
 
 def test_bovengrens_blokkeert_waar_alleen_de_marge_zou_doorlaten():
     budget = proef.Budget()
-    budget.kosten_nusd = 1_800_000_000  # USD 1,80: 1,80 + 0,15 <= 2,00
-    lang = "x" * 100_000  # 50.000 invoertokens: bovengrens USD 0,30
-    assert proef.bovengrens_nusd("", lang) == 300_000_000
+    budget.kosten_nusd = 2_800_000_000  # USD 2,80: 2,80 + 0,15 <= 3,00
+    lang = "x" * 100_000  # 50.000 invoer (0,25) + 8000 uitvoer (0,20) = USD 0,45
+    assert proef.bovengrens_nusd("", lang) == 450_000_000
     assert budget.mag_aanroepen(0) is True  # alleen de marge: zou doorgaan
     assert budget.mag_aanroepen(proef.bovengrens_nusd("", lang)) is False
-    assert "bovengrens aanroep USD 0.300000" in budget.stopreden
+    assert "bovengrens aanroep USD 0.450000" in budget.stopreden
 
 
 def test_bovengrens_slaat_een_te_dure_aanroep_over_in_de_run(tmp_path):
@@ -481,7 +536,7 @@ def test_bovengrens_slaat_een_te_dure_aanroep_over_in_de_run(tmp_path):
     item = {**ITEMS["db-277"], "begrip": "x" * 100_000}
     goldset.write_text(json.dumps({"definities": [item]}), "utf-8")
     budget = proef.Budget()
-    budget.kosten_nusd = 1_800_000_000
+    budget.kosten_nusd = 2_800_000_000
     aanroepen = []
 
     def client(systeem, gebruiker):
@@ -653,10 +708,17 @@ def test_echte_client_negeert_anthropic_base_url_uit_omgeving(monkeypatch):
                 "type": "message",
                 "role": "assistant",
                 "model": "claude-opus-5",
-                "content": [{"type": "text", "text": "{}"}],
-                "stop_reason": "end_turn",
+                "content": [
+                    {
+                        "type": "thinking",
+                        "thinking": "geheim denkwerk",
+                        "signature": "sig",
+                    },
+                    {"type": "text", "text": "{}"},
+                ],
+                "stop_reason": "max_tokens",
                 "stop_sequence": None,
-                "usage": {"input_tokens": 7, "output_tokens": 3},
+                "usage": {"input_tokens": 7, "output_tokens": 8000},
             },
         )
 
@@ -668,16 +730,21 @@ def test_echte_client_negeert_anthropic_base_url_uit_omgeving(monkeypatch):
 
     monkeypatch.setattr(anthropic, "Anthropic", met_onderschepping)
     client = proef.EchteClient("sk-ant-test")
-    antwoord = client("systeem", "gebruiker")
+    record = proef._roep(client, proef.Budget(), "systeem", "gebruiker")
 
     assert len(verzoeken) == 1
     assert str(verzoeken[0].url) == "https://api.anthropic.com/v1/messages"
     assert verzoeken[0].headers["x-api-key"] == "sk-ant-test"
     body = json.loads(verzoeken[0].content)
     assert body["model"] == "claude-opus-5"
-    assert body["max_tokens"] == 2000
+    assert body["max_tokens"] == 8000
     assert "temperature" not in body
-    assert (antwoord.invoer_tokens, antwoord.uitvoer_tokens) == (7, 3)
+    assert record["usage"] == {"input_tokens": 7, "output_tokens": 8000}
+    # Alleen bloktypen en stop_reason vastgelegd; denktekst nergens.
+    assert record["bloktypen"] == ["thinking", "text"]
+    assert record["stop_reason"] == "max_tokens"
+    assert record["ruw"] == "{}"
+    assert "geheim denkwerk" not in json.dumps(record)
 
 
 def test_echte_client_verbergt_sleutel_in_foutmelding():
@@ -690,7 +757,7 @@ def test_echte_client_verbergt_sleutel_in_foutmelding():
             def create(**kwargs):
                 assert "temperature" not in kwargs
                 assert kwargs["model"] == "claude-opus-5"
-                assert kwargs["max_tokens"] == 2000
+                assert kwargs["max_tokens"] == 8000
                 msg = "fout met sk-ant-geheim erin"
                 raise RuntimeError(msg)
 
@@ -832,7 +899,7 @@ def test_droogrun_van_begin_tot_eind(tmp_path, geen_netwerk):
         "voldoet niet",  # minimaal B-antwoord: ja zonder citaat/toelichting
         "twijfel",  # onzeker
         "twijfel",  # citaat niet letterlijk
-        "twijfel",  # A onparseerbaar
+        "twijfel",  # A afgekapt op max_tokens
         "twijfel",  # A met 1 verwant begrip (bandbreedte 2-5)
         "twijfel",  # B mist nr
         "twijfel",  # B onbekende waarde
@@ -859,6 +926,14 @@ def test_droogrun_van_begin_tot_eind(tmp_path, geen_netwerk):
     assert item2["oordelen"][0]["toelichting"] is None
     item6 = json.loads((uitmap / "item-06-db-140.json").read_text("utf-8"))
     assert "1 verwante begrippen, vereist 2 tot 5" in item6["reden"]
+    assert s["proefversie"] == "v2"
+    item5 = json.loads((uitmap / "item-05-db-142.json").read_text("utf-8"))
+    assert "A afgekapt op max_tokens" in item5["reden"]
+    assert item5["aanroep_a"]["stop_reason"] == "max_tokens"
+    assert item5["aanroep_a"]["bloktypen"] == ["thinking", "text"]
+    assert item2["aanroep_b"]["bloktypen"] == ["text"]
+    md = (uitmap / "samenvatting.md").read_text("utf-8")
+    assert md.startswith("# ESS-05 voorbeeldenproef v2 — droog")
 
     item = json.loads((uitmap / "item-03-db-278.json").read_text("utf-8"))
     for veld in ("systeem", "prompt", "ruw", "usage", "kosten_usd"):

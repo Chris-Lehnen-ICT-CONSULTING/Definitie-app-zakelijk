@@ -41,14 +41,18 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 REPO = Path(__file__).resolve().parents[2]
-UITVOERBASIS = REPO / "logs" / "def768" / "voorbeeldenproef-v1"
-GOLDSET_PAD = UITVOERBASIS / "goldset-v1.json"
+PROEFVERSIE = "v2"
+#: v1 bevat de mislukte echte run 1 (afgekapt op max_tokens) en blijft ongemoeid.
+UITVOERBASIS = REPO / "logs" / "def768" / f"voorbeeldenproef-{PROEFVERSIE}"
+GOLDSET_PAD = REPO / "logs" / "def768" / "voorbeeldenproef-v1" / "goldset-v1.json"
 STANDAARD_ENV = Path("/Users/chrislehnen/Projecten/Definitie-app/.env")
 
 MODEL = "claude-opus-5"
 #: Vast, zodat een ANTHROPIC_BASE_URL in de omgeving de sleutel niet omleidt.
 API_BASIS_URL = "https://api.anthropic.com"
-MAX_TOKENS = 2000
+#: 8000: in run 1 (v1) stopten 10 van 12 aanroepen op 2000, vermoedelijk door
+#: intern denken dat meetelt in de uitvoertokens.
+MAX_TOKENS = 8000
 MAX_RETRIES = 0
 TEMPERATUUR = "niet gezet (API-standaard gebruikt)"
 
@@ -56,7 +60,7 @@ TEMPERATUUR = "niet gezet (API-standaard gebruikt)"
 #: (zelfde tarieven als scripts/ess05/praktijktest_p1.py op de DEF-768-branch).
 TARIEF_INVOER_NUSD = 5_000
 TARIEF_UITVOER_NUSD = 25_000
-PLAFOND_NUSD = 2_000_000_000  # USD 2,00 per run
+PLAFOND_NUSD = 3_000_000_000  # USD 3,00 per run
 STAPMARGE_NUSD = 150_000_000  # USD 0,15 ruimte voor de volgende aanroep
 MAX_AANROEPEN = 25
 
@@ -368,6 +372,8 @@ class Antwoord:
     stop_reason: str | None = None
     model_gemeld: str | None = None
     bericht_id: str | None = None
+    #: Alleen de typen van de inhoudsblokken (bijv. thinking, text), nooit de inhoud.
+    bloktypen: tuple[str, ...] = ()
 
 
 Client = Callable[[str, str], Antwoord]
@@ -440,6 +446,7 @@ def _roep(
         {
             "ruw": antwoord.tekst,
             "stop_reason": antwoord.stop_reason,
+            "bloktypen": list(antwoord.bloktypen),
             "model_gemeld": antwoord.model_gemeld,
             "bericht_id": antwoord.bericht_id,
             "usage": {
@@ -495,6 +502,9 @@ class EchteClient:
                 stop_reason=respons.stop_reason,
                 model_gemeld=respons.model,
                 bericht_id=respons.id,
+                bloktypen=tuple(
+                    str(getattr(blok, "type", None)) for blok in respons.content
+                ),
             )
         except Exception as fout:
             melding = str(fout).replace(self._sleutel, "[verborgen]")[:500]
@@ -509,7 +519,7 @@ STUBSCENARIOS = (
     "voldoet_niet",
     "onzeker",
     "citaat_ongeldig",
-    "a_onparseerbaar",
+    "a_afgekapt",
     "a_te_weinig",
     "b_mist_nr",
     "b_onbekende_waarde",
@@ -535,18 +545,21 @@ class StubClient:
             tekst = self._antwoord_a()
         else:
             tekst = self._antwoord_b(gebruiker)
+        afgekapt = systeem == SYSTEEM_A and self._huidig == "a_afgekapt"
         return Antwoord(
             tekst=tekst,
             invoer_tokens=len(systeem + gebruiker) // 4,
-            uitvoer_tokens=len(tekst) // 4,
-            stop_reason="end_turn",
+            uitvoer_tokens=MAX_TOKENS if afgekapt else len(tekst) // 4,
+            stop_reason="max_tokens" if afgekapt else "end_turn",
             model_gemeld=f"stub-{MODEL}",
             bericht_id=f"stub-{len(self.prompts)}",
+            bloktypen=("thinking", "text") if afgekapt else ("text",),
         )
 
     def _antwoord_a(self) -> str:
-        if self._huidig == "a_onparseerbaar":
-            return "Hier zijn de verwante begrippen: ontvluchting, ontsnapping."
+        if self._huidig == "a_afgekapt":
+            # Midden in de JSON afgebroken, zoals in echte run 1 (v1).
+            return '{"verwante_begrippen":[{"begrip":"ontvluchting","reden_verw'
         verwanten = [
             {
                 "begrip": "stub-verwant-1",
@@ -615,6 +628,15 @@ class StubClient:
 # --- de proef ----------------------------------------------------------------
 
 
+def _markeer_afkapping(
+    fout: str | None, aanroep: str, record: dict[str, Any]
+) -> str | None:
+    """Maak afkapping op max_tokens expliciet in de reden; geen reparatie."""
+    if fout is None or record.get("stop_reason") != "max_tokens":
+        return fout
+    return f"{aanroep} afgekapt op max_tokens ({fout})"
+
+
 def verwerk_item(
     item: dict[str, Any], client: Client, budget: Budget
 ) -> dict[str, Any]:
@@ -641,6 +663,7 @@ def verwerk_item(
     if "fout" in record["aanroep_a"]:
         return niet_gedraaid()
     gevallen, fout = parse_a(record["aanroep_a"]["ruw"])
+    fout = _markeer_afkapping(fout, "A", record["aanroep_a"])
     record["gevallen"] = gevallen
     oordelen = None
     if fout is None and gevallen is not None:
@@ -651,6 +674,7 @@ def verwerk_item(
         if "fout" in record["aanroep_b"]:
             return niet_gedraaid()
         oordelen, fout = parse_b(record["aanroep_b"]["ruw"], len(gevallen))
+        fout = _markeer_afkapping(fout, "B", record["aanroep_b"])
         if oordelen is not None:
             for oordeel in oordelen:
                 oordeel["citaat_letterlijk"] = citaat_staat_in(
@@ -741,7 +765,7 @@ def _kostentekst(s: dict[str, Any]) -> str:
 
 def samenvatting_md(s: dict[str, Any]) -> str:
     regels = [
-        f"# ESS-05 voorbeeldenproef — {s['modus']}",
+        f"# ESS-05 voorbeeldenproef {s['proefversie']} — {s['modus']}",
         "",
         f"Vooraf vastgelegde criteria: {s['criteria']}",
         "",
@@ -802,6 +826,7 @@ def voer_proef_uit(
         raise ProefError(msg) from None
     status = _git("status", "--porcelain")
     kop = {
+        "proefversie": PROEFVERSIE,
         "modus": modus,
         "model": MODEL,
         "temperatuur": TEMPERATUUR,
