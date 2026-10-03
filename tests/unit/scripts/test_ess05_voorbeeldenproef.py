@@ -60,16 +60,31 @@ def _nee(nr, citaat="advocaat optreedt"):
 
 def test_schoonmaken_echte_tekst_db278():
     assert ITEMS["db-278"]["definitie_db"] == DB_278
-    # Alleen de markers gaan weg; de spatie ervoor blijft (samengevoegd) staan.
+    # Markers weg, witruimte samengevoegd, geen spatie vóór de punt.
     assert proef.maak_schoon(DB_278) == (
         "rechtsbijstandverlener die als advocaat optreedt voor een verdachte in een "
         "strafvorderlijke procedure op grond van een keuze door de verdachte of een "
-        "aanwijzing door het bestuur van de raad voor rechtsbijstand ."
+        "aanwijzing door het bestuur van de raad voor rechtsbijstand."
     )
 
 
 def test_bronmarker_voegt_geen_woorden_samen():
     assert proef.maak_schoon("persoon [Bron 1]die handelt") == "persoon die handelt"
+
+
+def test_bronmarker_voor_leesteken_laat_geen_spatie_achter():
+    assert proef.maak_schoon("persoon [Bron 1].") == "persoon."
+
+
+@pytest.mark.parametrize(
+    ("tekst", "verwacht"),
+    [
+        ("a , b ; c : d )", "a, b; c: d)"),
+        ("( a\n.", "( a."),
+    ],
+)
+def test_geen_witruimte_voor_leestekens(tekst, verwacht):
+    assert proef.maak_schoon(tekst) == verwacht
 
 
 def test_schoonmaken_echte_tekst_db40():

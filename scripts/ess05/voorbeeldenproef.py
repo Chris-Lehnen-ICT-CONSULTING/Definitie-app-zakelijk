@@ -148,7 +148,9 @@ def maak_schoon(definitie_db: str) -> str:
         behouden.append(regel)
     tekst = "\n".join(behouden)
     tekst = re.sub(r"\[Bron\s*\d+\]", "", tekst)
-    return re.sub(r"\s+", " ", tekst).strip()
+    tekst = re.sub(r"\s+", " ", tekst)
+    # Geen spatie vóór leestekens (bijv. na een verwijderde marker).
+    return re.sub(r"\s+([.,;:)])", r"\1", tekst).strip()
 
 
 def _normaliseer(tekst: str) -> str:
