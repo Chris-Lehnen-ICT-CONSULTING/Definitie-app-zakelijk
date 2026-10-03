@@ -60,11 +60,16 @@ def _nee(nr, citaat="advocaat optreedt"):
 
 def test_schoonmaken_echte_tekst_db278():
     assert ITEMS["db-278"]["definitie_db"] == DB_278
+    # Alleen de markers gaan weg; de spatie ervoor blijft (samengevoegd) staan.
     assert proef.maak_schoon(DB_278) == (
         "rechtsbijstandverlener die als advocaat optreedt voor een verdachte in een "
         "strafvorderlijke procedure op grond van een keuze door de verdachte of een "
-        "aanwijzing door het bestuur van de raad voor rechtsbijstand."
+        "aanwijzing door het bestuur van de raad voor rechtsbijstand ."
     )
+
+
+def test_bronmarker_voegt_geen_woorden_samen():
+    assert proef.maak_schoon("persoon [Bron 1]die handelt") == "persoon die handelt"
 
 
 def test_schoonmaken_echte_tekst_db40():
@@ -167,23 +172,63 @@ def test_onparseerbare_a_is_onbruikbaar(tekst):
     assert fout.startswith("A is geen geldige JSON")
 
 
-def test_a_met_minder_dan_twee_gevallen_is_onbruikbaar():
-    tekst = json.dumps(
+def _a_json(*aantallen_gevallen):
+    """A-antwoord met per verwant begrip het opgegeven aantal gevallen."""
+    return json.dumps(
         {
             "verwante_begrippen": [
                 {
-                    "begrip": "ontvluchting",
+                    "begrip": f"verwant-{b}",
                     "reden_verwant": "r",
-                    "gevallen": [{"geval": "g", "waarom_niet_doelbegrip": "w"}],
+                    "gevallen": [
+                        {"geval": f"geval {b}.{g}", "waarom_niet_doelbegrip": "w"}
+                        for g in range(n)
+                    ],
                 }
+                for b, n in enumerate(aantallen_gevallen)
             ]
         }
     )
-    assert proef.parse_a(tekst) == (None, "A levert 1 geval(len), minimaal 2 vereist")
+
+
+@pytest.mark.parametrize(
+    ("aantallen", "fout"),
+    [
+        ((2,), "A levert 1 verwante begrippen, vereist 2 tot 5"),
+        ((1,) * 6, "A levert 6 verwante begrippen, vereist 2 tot 5"),
+        ((1, 0), "A: verwant begrip 2 heeft 0 gevallen, vereist 1 of 2"),
+        ((3, 1), "A: verwant begrip 1 heeft 3 gevallen, vereist 1 of 2"),
+    ],
+)
+def test_a_buiten_bandbreedte_is_onbruikbaar(aantallen, fout):
+    assert proef.parse_a(_a_json(*aantallen)) == (None, fout)
+
+
+@pytest.mark.parametrize("aantallen", [(1, 1), (2,) * 5])
+def test_a_binnen_bandbreedte_is_bruikbaar(aantallen):
+    gevallen, fout = proef.parse_a(_a_json(*aantallen))
+    assert fout is None
+    assert len(gevallen) == sum(aantallen)
+
+
+def test_a_onbruikbaar_geeft_uitkomst_onbruikbaar(tmp_path):
+    """Een afwijkende bandbreedte leidt tot twijfel/onbruikbaar, zonder B."""
+    aanroepen = []
+
+    def client(systeem, gebruiker):
+        aanroepen.append(systeem)
+        return proef.Antwoord(_a_json(2), 10, 10)  # 1 begrip met 2 gevallen
+
+    record = proef.verwerk_item(ITEMS["db-277"], client, proef.Budget())
+    assert (record["uitkomst"], record["onbruikbaar"]) == ("twijfel", True)
+    assert record["reden"] == (
+        "uitvoer onbruikbaar: A levert 1 verwante begrippen, vereist 2 tot 5"
+    )
+    assert aanroepen == [proef.SYSTEEM_A]
 
 
 def test_a_buiten_schema_is_onbruikbaar():
-    tekst = json.dumps({"verwante_begrippen": [{"begrip": "x", "gevallen": []}]})
+    tekst = json.dumps({"verwante_begrippen": [{"begrip": "x", "gevallen": []}] * 2})
     gevallen, fout = proef.parse_a(tekst)
     assert gevallen is None
     assert "reden_verwant" in fout
@@ -208,7 +253,11 @@ def test_a_nummert_doorlopend_vanaf_een():
         ([_nee(1), {**_nee(2), "valt_onder": "Nee"}], "onbekende waarde"),
         ([_nee(1), _nee(1)], "dubbel"),
         ([_nee(1), _nee(2), _nee(3)], "onbekend nr 3"),
-        ([_nee(1), {"nr": 2, "valt_onder": "nee"}], "mist 'citaat'"),
+        ([_nee(1), {"nr": 2, "valt_onder": "nee"}], "'nee' zonder niet-leeg"),
+        ([_nee(1), _nee(2, citaat="  ")], "'nee' zonder niet-leeg"),
+        ([_nee(1), _nee(2, citaat=None)], "'nee' zonder niet-leeg"),
+        ([_nee(1), {"nr": 2, "valt_onder": "ja", "citaat": 5}], "geen tekst"),
+        ([_nee(1), {**_nee(2), "toelichting": ["x"]}], "geen tekst"),
         ([_nee(1), {**_nee(2), "nr": "2"}], "geen geheel getal"),
     ],
 )
@@ -236,6 +285,48 @@ def test_b_accepteert_null_citaat_en_sorteert():
     resultaat, fout = proef.parse_b(tekst, 2)
     assert fout is None
     assert [o["nr"] for o in resultaat] == [1, 2]
+
+
+def test_b_minimaal_geldig_antwoord():
+    """Alleen nr en valt_onder, plus citaat bij 'nee'; geen toelichting."""
+    tekst = json.dumps(
+        {
+            "oordelen": [
+                {"nr": 1, "valt_onder": "ja"},
+                {"nr": 2, "valt_onder": "nee", "citaat": "als advocaat optreedt"},
+                {"nr": 3, "valt_onder": "onzeker"},
+            ]
+        }
+    )
+    oordelen, fout = proef.parse_b(tekst, 3)
+    assert fout is None
+    assert oordelen[0] == {
+        "nr": 1,
+        "valt_onder": "ja",
+        "citaat": None,
+        "toelichting": None,
+    }
+    u = proef.bepaal_uitkomst(fout, oordelen, proef.maak_schoon(DB_278))
+    assert (u.uitkomst, u.onbruikbaar) == ("voldoet niet", False)
+
+    zonder_ja = json.dumps(
+        {
+            "oordelen": [
+                {"nr": 1, "valt_onder": "nee", "citaat": "als advocaat optreedt"},
+                {"nr": 2, "valt_onder": "nee", "citaat": "strafvorderlijke procedure"},
+            ]
+        }
+    )
+    oordelen, fout = proef.parse_b(zonder_ja, 2)
+    u = proef.bepaal_uitkomst(fout, oordelen, proef.maak_schoon(DB_278))
+    assert u.uitkomst == "voldoet"
+
+
+def test_prompt_b_vraagt_citaat_alleen_bij_nee():
+    assert (
+        'Geef "citaat" alleen bij "nee"; "toelichting" is optioneel:'
+        in proef.SJABLOON_B
+    )
 
 
 # --- prompts -----------------------------------------------------------------
@@ -349,9 +440,43 @@ def test_budget_standaardwaarden():
 def test_budget_grens_is_exclusief():
     budget = proef.Budget(plafond_nusd=1_000, marge_nusd=150)
     budget.kosten_nusd = 850
-    assert budget.mag_aanroepen() is True
+    assert budget.mag_aanroepen(0) is True
     budget.kosten_nusd = 851
-    assert budget.mag_aanroepen() is False
+    assert budget.mag_aanroepen(0) is False
+
+
+def test_bovengrens_aanroep_rondt_tekens_gedeeld_door_twee_naar_boven_af():
+    # 3 tekens -> 2 invoertokens; plus 2000 uitvoertokens tegen 5/25 USD per M.
+    assert proef.bovengrens_nusd("ab", "c") == 2 * 5_000 + 2000 * 25_000
+    assert proef.bovengrens_nusd("ab", "cd") == 2 * 5_000 + 2000 * 25_000
+
+
+def test_bovengrens_blokkeert_waar_alleen_de_marge_zou_doorlaten():
+    budget = proef.Budget()
+    budget.kosten_nusd = 1_800_000_000  # USD 1,80: 1,80 + 0,15 <= 2,00
+    lang = "x" * 100_000  # 50.000 invoertokens: bovengrens USD 0,30
+    assert proef.bovengrens_nusd("", lang) == 300_000_000
+    assert budget.mag_aanroepen(0) is True  # alleen de marge: zou doorgaan
+    assert budget.mag_aanroepen(proef.bovengrens_nusd("", lang)) is False
+    assert "bovengrens aanroep USD 0.300000" in budget.stopreden
+
+
+def test_bovengrens_slaat_een_te_dure_aanroep_over_in_de_run(tmp_path):
+    goldset = tmp_path / "goldset.json"
+    item = {**ITEMS["db-277"], "begrip": "x" * 100_000}
+    goldset.write_text(json.dumps({"definities": [item]}), "utf-8")
+    budget = proef.Budget()
+    budget.kosten_nusd = 1_800_000_000
+    aanroepen = []
+
+    def client(systeem, gebruiker):
+        aanroepen.append(systeem)
+        return proef.StubClient()(systeem, gebruiker)
+
+    s = proef.voer_proef_uit(goldset, tmp_path / "uit", client, "droog", budget)
+    assert aanroepen == []
+    assert s["items"][0]["uitkomst"] == "niet gedraaid"
+    assert "bovengrens aanroep" in s["budget"]["stopreden"]
 
 
 def test_aanroepfout_stopt_zonder_herhaalpoging(tmp_path):
@@ -366,9 +491,10 @@ def test_aanroepfout_stopt_zonder_herhaalpoging(tmp_path):
     assert len(aanroepen) == 1
     assert s["aantal_niet_gedraaid"] == 10
     assert "aanroep mislukt" in s["budget"]["stopreden"]
+    assert s["kosten_volledig"] is False
 
 
-def test_ontbrekende_usage_stopt_de_run(tmp_path):
+def test_ontbrekende_usage_stopt_de_run_en_kosten_zijn_niet_volledig(tmp_path):
     def zonder_usage(systeem, gebruiker):
         return proef.Antwoord(
             tekst=proef.StubClient()._antwoord_a(),
@@ -379,6 +505,22 @@ def test_ontbrekende_usage_stopt_de_run(tmp_path):
     s = proef.voer_proef_uit(GOLDSET, tmp_path / "uit", zonder_usage, "droog")
     assert s["aantal_aanroepen"] == 1
     assert "usage ontbreekt" in s["budget"]["stopreden"]
+    assert s["kosten_volledig"] is False
+    assert s["kosten_bekend_usd"] == "0.000000"
+    assert "kosten_usd" not in s
+    md = (tmp_path / "uit" / "samenvatting.md").read_text("utf-8")
+    assert "- Kosten: totaal onbekend; bekend deel USD 0.000000" in md
+    assert "(volledig)" not in md
+    item = json.loads((tmp_path / "uit" / "item-01-db-277.json").read_text("utf-8"))
+    assert item["aanroep_a"]["kosten_usd"] is None
+
+
+def test_kosten_volledig_bij_bekende_usage(tmp_path):
+    s = proef.voer_proef_uit(GOLDSET, tmp_path / "uit", proef.StubClient(), "droog")
+    assert s["kosten_volledig"] is True
+    assert int(s["kosten_bekend_nusd"]) > 0
+    md = (tmp_path / "uit" / "samenvatting.md").read_text("utf-8")
+    assert f"- Kosten: USD {s['kosten_bekend_usd']} (volledig)" in md
 
 
 # --- echte modus zonder netwerk ----------------------------------------------
@@ -435,6 +577,94 @@ def test_sleutel_ontbreekt_in_env(tmp_path):
         proef.lees_api_sleutel(env)
 
 
+def test_inlinecommentaar_na_ongequote_sleutel_geweigerd_voor_run_map(tmp_path):
+    env = tmp_path / ".env"
+    env.write_text("ANTHROPIC_API_KEY=sk-ant-test-geheim # uitleg\n", "utf-8")
+    fabriek_aangeroepen = []
+    with pytest.raises(proef.ProefError, match="inlinecommentaar") as fout:
+        proef.voer_echt_uit(
+            1,
+            env,
+            basis=tmp_path / "basis",
+            goldset_pad=GOLDSET,
+            client_fabriek=fabriek_aangeroepen.append,
+        )
+    assert "sk-ant-test-geheim" not in str(fout.value)
+    assert fabriek_aangeroepen == []
+    assert not (tmp_path / "basis" / "run-1").exists()
+
+
+@pytest.mark.parametrize(
+    ("regel", "verwacht"),
+    [
+        ('ANTHROPIC_API_KEY="sk-ant-test" # uitleg', "sk-ant-test"),
+        ("ANTHROPIC_API_KEY='sk-ant-test'", "sk-ant-test"),
+        ('ANTHROPIC_API_KEY="sk-ant # binnen quotes"', "sk-ant # binnen quotes"),
+        ("ANTHROPIC_API_KEY=sk-ant-test", "sk-ant-test"),
+        ("ANTHROPIC_API_KEY=sk-ant#geen-commentaar", "sk-ant#geen-commentaar"),
+    ],
+)
+def test_env_quotes_blijven_werken(tmp_path, regel, verwacht):
+    env = tmp_path / ".env"
+    env.write_text(regel + "\n", "utf-8")
+    assert proef.lees_api_sleutel(env) == verwacht
+
+
+@pytest.mark.parametrize(
+    "regel",
+    ['ANTHROPIC_API_KEY="sk-ant-geheim', 'ANTHROPIC_API_KEY="sk-ant-geheim" extra'],
+)
+def test_env_ongeldige_quotes_geweigerd_zonder_waarde(tmp_path, regel):
+    env = tmp_path / ".env"
+    env.write_text(regel + "\n", "utf-8")
+    with pytest.raises(proef.ProefError, match="ongeldige quotes") as fout:
+        proef.lees_api_sleutel(env)
+    assert "sk-ant-geheim" not in str(fout.value)
+
+
+def test_echte_client_negeert_anthropic_base_url_uit_omgeving(monkeypatch):
+    """Het echte SDK-verzoek gaat naar de vaste URL, niet naar de omgevingswaarde."""
+    anthropic = pytest.importorskip("anthropic")
+    httpx = pytest.importorskip("httpx")
+    monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://kwaadaardig.example")
+    verzoeken = []
+
+    def onderschep(verzoek):
+        verzoeken.append(verzoek)
+        return httpx.Response(
+            200,
+            json={
+                "id": "msg_test",
+                "type": "message",
+                "role": "assistant",
+                "model": "claude-opus-5",
+                "content": [{"type": "text", "text": "{}"}],
+                "stop_reason": "end_turn",
+                "stop_sequence": None,
+                "usage": {"input_tokens": 7, "output_tokens": 3},
+            },
+        )
+
+    echte_klasse = anthropic.Anthropic
+
+    def met_onderschepping(**kwargs):
+        transport = httpx.MockTransport(onderschep)
+        return echte_klasse(**kwargs, http_client=httpx.Client(transport=transport))
+
+    monkeypatch.setattr(anthropic, "Anthropic", met_onderschepping)
+    client = proef.EchteClient("sk-ant-test")
+    antwoord = client("systeem", "gebruiker")
+
+    assert len(verzoeken) == 1
+    assert str(verzoeken[0].url) == "https://api.anthropic.com/v1/messages"
+    assert verzoeken[0].headers["x-api-key"] == "sk-ant-test"
+    body = json.loads(verzoeken[0].content)
+    assert body["model"] == "claude-opus-5"
+    assert body["max_tokens"] == 2000
+    assert "temperature" not in body
+    assert (antwoord.invoer_tokens, antwoord.uitvoer_tokens) == (7, 3)
+
+
 def test_echte_client_verbergt_sleutel_in_foutmelding():
     client = proef.EchteClient.__new__(proef.EchteClient)
     client._sleutel = "sk-ant-geheim"
@@ -467,6 +697,7 @@ def test_echte_client_zet_max_retries_nul(monkeypatch):
     monkeypatch.setattr(anthropic, "Anthropic", _Nep)
     proef.EchteClient("sk-test")
     assert gezien["max_retries"] == 0
+    assert gezien["base_url"] == "https://api.anthropic.com"
 
 
 # --- samenvatting en vergelijk -----------------------------------------------
@@ -540,6 +771,25 @@ def test_vergelijk_telt_gelijke_uitkomsten(tmp_path):
     assert proef.main(["--vergelijk", "--basis", str(tmp_path)]) == 2
 
 
+def test_vergelijk_koppelt_op_id_ongeacht_volgorde(tmp_path):
+    _schrijf_run(tmp_path, 1, {"x": "voldoet", "y": "twijfel", "z": "voldoet niet"})
+    _schrijf_run(tmp_path, 2, {"z": "voldoet niet", "x": "twijfel", "y": "twijfel"})
+    resultaat = proef.vergelijk(tmp_path)
+    assert resultaat["aantal_gelijk"] == 2
+    assert [(i["id"], i["gelijk"]) for i in resultaat["items"]] == [
+        ("x", False),
+        ("y", True),
+        ("z", True),
+    ]
+
+
+def test_vergelijk_weigert_andere_itemverzameling(tmp_path):
+    _schrijf_run(tmp_path, 1, {"x": "voldoet", "y": "twijfel"})
+    _schrijf_run(tmp_path, 2, {"x": "voldoet", "q": "twijfel"})
+    with pytest.raises(proef.ProefError, match="niet dezelfde items"):
+        proef.vergelijk(tmp_path)
+
+
 def test_vergelijk_weigert_zonder_tweede_run(tmp_path):
     _schrijf_run(tmp_path, 1, {"x": "voldoet"})
     assert proef.main(["--vergelijk", "--basis", str(tmp_path)]) == 2
@@ -564,11 +814,11 @@ def test_droogrun_van_begin_tot_eind(tmp_path, geen_netwerk):
     s = json.loads((uitmap / "samenvatting.json").read_text("utf-8"))
     assert [i["uitkomst"] for i in s["items"]] == [
         "voldoet",  # alles nee, citaat met afwijkende hoofdletters/witruimte
-        "voldoet niet",
+        "voldoet niet",  # minimaal B-antwoord: ja zonder citaat/toelichting
         "twijfel",  # onzeker
         "twijfel",  # citaat niet letterlijk
         "twijfel",  # A onparseerbaar
-        "twijfel",  # A < 2 gevallen
+        "twijfel",  # A met 1 verwant begrip (bandbreedte 2-5)
         "twijfel",  # B mist nr
         "twijfel",  # B onbekende waarde
         "voldoet",  # astra-fout: onterecht voldoet
@@ -586,6 +836,14 @@ def test_droogrun_van_begin_tot_eind(tmp_path, geen_netwerk):
     assert s["goldset_sha256"] == proef.sha256_bestand(GOLDSET)
     assert len(s["sjabloon_a_sha256"]) == len(s["sjabloon_b_sha256"]) == 64
     assert s["modus"] == "droog"
+    assert s["kosten_volledig"] is True
+    assert s["sjabloon_b_sha256"] == proef.sha256_tekst(proef.SJABLOON_B)
+
+    item2 = json.loads((uitmap / "item-02-db-365.json").read_text("utf-8"))
+    assert item2["oordelen"][0]["citaat"] is None
+    assert item2["oordelen"][0]["toelichting"] is None
+    item6 = json.loads((uitmap / "item-06-db-140.json").read_text("utf-8"))
+    assert "1 verwante begrippen, vereist 2 tot 5" in item6["reden"]
 
     item = json.loads((uitmap / "item-03-db-278.json").read_text("utf-8"))
     for veld in ("systeem", "prompt", "ruw", "usage", "kosten_usd"):

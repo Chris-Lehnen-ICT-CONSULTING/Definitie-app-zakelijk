@@ -46,6 +46,8 @@ GOLDSET_PAD = UITVOERBASIS / "goldset-v1.json"
 STANDAARD_ENV = Path("/Users/chrislehnen/Projecten/Definitie-app/.env")
 
 MODEL = "claude-opus-5"
+#: Vast, zodat een ANTHROPIC_BASE_URL in de omgeving de sleutel niet omleidt.
+API_BASIS_URL = "https://api.anthropic.com"
 MAX_TOKENS = 2000
 MAX_RETRIES = 0
 TEMPERATUUR = "niet gezet (API-standaard gebruikt)"
@@ -102,7 +104,7 @@ Beoordeel per geval uitsluitend aan de hand van de tekst van de definitie of het
 Gevallen:
 {gevallen}
 
-Antwoord uitsluitend met JSON, zonder tekst eromheen:
+Antwoord uitsluitend met JSON, zonder tekst eromheen. Geef "citaat" alleen bij "nee"; "toelichting" is optioneel:
 {"oordelen":[{"nr":1,"valt_onder":"ja|nee|onzeker","citaat":"...","toelichting":"..."}]}"""
 
 _PLAATSHOUDER = re.compile(r"\{([a-z_]+)\}")
@@ -145,7 +147,7 @@ def maak_schoon(definitie_db: str) -> str:
             continue
         behouden.append(regel)
     tekst = "\n".join(behouden)
-    tekst = re.sub(r"\s*\[Bron\s*\d+\]", "", tekst)
+    tekst = re.sub(r"\[Bron\s*\d+\]", "", tekst)
     return re.sub(r"\s+", " ", tekst).strip()
 
 
@@ -219,6 +221,9 @@ def parse_a(tekst: str) -> tuple[list[dict[str, Any]] | None, str | None]:
         data.get("verwante_begrippen"), list
     ):
         return None, "A mist de lijst 'verwante_begrippen'"
+    aantal_verwant = len(data["verwante_begrippen"])
+    if not 2 <= aantal_verwant <= 5:
+        return None, f"A levert {aantal_verwant} verwante begrippen, vereist 2 tot 5"
     gevallen: list[dict[str, Any]] = []
     for i, verwant in enumerate(data["verwante_begrippen"], start=1):
         if not isinstance(verwant, dict):
@@ -229,6 +234,11 @@ def parse_a(tekst: str) -> tuple[list[dict[str, Any]] | None, str | None]:
             return None, f"A: verwant begrip {i} mist 'reden_verwant'"
         if not isinstance(verwant.get("gevallen"), list):
             return None, f"A: verwant begrip {i} mist de lijst 'gevallen'"
+        if not 1 <= len(verwant["gevallen"]) <= 2:
+            return None, (
+                f"A: verwant begrip {i} heeft {len(verwant['gevallen'])} gevallen, "
+                "vereist 1 of 2"
+            )
         for geval in verwant["gevallen"]:
             if not isinstance(geval, dict) or not _is_tekst(
                 geval.get("geval"), leeg_mag=False
@@ -247,8 +257,7 @@ def parse_a(tekst: str) -> tuple[list[dict[str, Any]] | None, str | None]:
                     "waarom_niet_doelbegrip": geval["waarom_niet_doelbegrip"],
                 }
             )
-    if len(gevallen) < 2:
-        return None, f"A levert {len(gevallen)} geval(len), minimaal 2 vereist"
+    # Minimaal 2 gevallen volgt uit 2-5 begrippen met elk 1-2 gevallen.
     return gevallen, None
 
 
@@ -276,16 +285,19 @@ def parse_b(tekst: str, aantal: int) -> tuple[list[dict[str, Any]] | None, str |
                 f"B: nr {nr} heeft onbekende waarde "
                 f"{oordeel.get('valt_onder')!r} voor 'valt_onder'"
             )
+        # citaat alleen verplicht (niet-leeg) bij "nee"; toelichting optioneel.
+        if oordeel["valt_onder"] == "nee" and not _is_tekst(
+            oordeel.get("citaat"), leeg_mag=False
+        ):
+            return None, f"B: nr {nr} is 'nee' zonder niet-leeg 'citaat'"
         for veld in ("citaat", "toelichting"):
-            if veld not in oordeel or not (
-                oordeel[veld] is None or isinstance(oordeel[veld], str)
-            ):
-                return None, f"B: nr {nr} mist '{veld}' als tekst"
+            if not (oordeel.get(veld) is None or isinstance(oordeel[veld], str)):
+                return None, f"B: nr {nr} heeft '{veld}' dat geen tekst is"
         oordelen[nr] = {
             "nr": nr,
             "valt_onder": oordeel["valt_onder"],
-            "citaat": oordeel["citaat"],
-            "toelichting": oordeel["toelichting"],
+            "citaat": oordeel.get("citaat"),
+            "toelichting": oordeel.get("toelichting"),
         }
     ontbrekend = [nr for nr in range(1, aantal + 1) if nr not in oordelen]
     if ontbrekend:
@@ -367,6 +379,12 @@ def usd(nusd: int) -> str:
     return f"{nusd / 1e9:.6f}"
 
 
+def bovengrens_nusd(systeem: str, gebruiker: str) -> int:
+    """Conservatieve kostengrens van één aanroep: tekens/2 invoer + max_tokens."""
+    invoer_tokens = -(-(len(systeem) + len(gebruiker)) // 2)
+    return kosten_nusd(invoer_tokens, MAX_TOKENS)
+
+
 class Budget:
     """Harde teller: stopt vóór een aanroep bij het maximum of het kostenplafond."""
 
@@ -381,18 +399,19 @@ class Budget:
         self.marge_nusd = marge_nusd
         self.aanroepen = 0
         self.kosten_nusd = 0
+        self.kosten_volledig = True
         self.stopreden: str | None = None
 
-    def mag_aanroepen(self) -> bool:
+    def mag_aanroepen(self, bovengrens: int) -> bool:
+        """Stop als kosten + max(marge, bovengrens van deze aanroep) > plafond."""
         if self.stopreden is None and self.aanroepen >= self.max_aanroepen:
             self.stopreden = f"maximum van {self.max_aanroepen} aanroepen bereikt"
-        if (
-            self.stopreden is None
-            and self.kosten_nusd + self.marge_nusd > self.plafond_nusd
-        ):
+        ruimte = max(self.marge_nusd, bovengrens)
+        if self.stopreden is None and self.kosten_nusd + ruimte > self.plafond_nusd:
             self.stopreden = (
-                f"kosten USD {usd(self.kosten_nusd)} + marge USD "
-                f"{usd(self.marge_nusd)} boven plafond USD {usd(self.plafond_nusd)}"
+                f"kosten USD {usd(self.kosten_nusd)} + max(marge USD "
+                f"{usd(self.marge_nusd)}, bovengrens aanroep USD {usd(bovengrens)})"
+                f" boven plafond USD {usd(self.plafond_nusd)}"
             )
         return self.stopreden is None
 
@@ -402,12 +421,18 @@ def _roep(
 ) -> dict[str, Any]:
     """Eén aanroep, geteld vóór verzending; geen herhaalpoging."""
     budget.aanroepen += 1
-    record: dict[str, Any] = {"systeem": systeem, "prompt": gebruiker}
+    record: dict[str, Any] = {
+        "systeem": systeem,
+        "prompt": gebruiker,
+        "bovengrens_kosten_usd": usd(bovengrens_nusd(systeem, gebruiker)),
+    }
     try:
         antwoord = client(systeem, gebruiker)
     except AanroepError as fout:
         budget.stopreden = f"aanroep mislukt ({fout}); kosten onbekend"
+        budget.kosten_volledig = False
         record["fout"] = str(fout)
+        record["kosten_usd"] = None
         return record
     record.update(
         {
@@ -423,7 +448,9 @@ def _roep(
     )
     if antwoord.invoer_tokens is None or antwoord.uitvoer_tokens is None:
         budget.stopreden = "usage ontbreekt in het antwoord; kosten onbekend"
+        budget.kosten_volledig = False
         record["kosten_nusd"] = None
+        record["kosten_usd"] = None
         return record
     kosten = kosten_nusd(antwoord.invoer_tokens, antwoord.uitvoer_tokens)
     budget.kosten_nusd += kosten
@@ -433,13 +460,17 @@ def _roep(
 
 
 class EchteClient:
-    """Anthropic-client met max_retries=0; temperatuur wordt niet gezet."""
+    """Anthropic-client met vaste base_url en max_retries=0; geen temperatuur."""
 
     def __init__(self, api_sleutel: str) -> None:
         import anthropic
 
         self._sleutel = api_sleutel
-        self._client = anthropic.Anthropic(api_key=api_sleutel, max_retries=MAX_RETRIES)
+        self._client = anthropic.Anthropic(
+            api_key=api_sleutel,
+            base_url=API_BASIS_URL,
+            max_retries=MAX_RETRIES,
+        )
 
     def __call__(self, systeem: str, gebruiker: str) -> Antwoord:
         try:
@@ -563,7 +594,8 @@ class StubClient:
         ]
         scenario = self._huidig
         if scenario == "voldoet_niet":
-            oordelen[0].update(valt_onder="ja", citaat="")
+            # Minimaal geldig: bij "ja" geen citaat en geen toelichting.
+            oordelen[0] = {"nr": 1, "valt_onder": "ja"}
         elif scenario == "onzeker":
             oordelen[0].update(valt_onder="onzeker", citaat="")
         elif scenario == "citaat_ongeldig":
@@ -600,20 +632,20 @@ def verwerk_item(
         record.update(uitkomst=NIET_GEDRAAID, reden=budget.stopreden, onbruikbaar=False)
         return record
 
-    if not budget.mag_aanroepen():
+    prompt_a = bouw_prompt_a(item)
+    if not budget.mag_aanroepen(bovengrens_nusd(SYSTEEM_A, prompt_a)):
         return niet_gedraaid()
-    record["aanroep_a"] = _roep(client, budget, SYSTEEM_A, bouw_prompt_a(item))
+    record["aanroep_a"] = _roep(client, budget, SYSTEEM_A, prompt_a)
     if "fout" in record["aanroep_a"]:
         return niet_gedraaid()
     gevallen, fout = parse_a(record["aanroep_a"]["ruw"])
     record["gevallen"] = gevallen
     oordelen = None
     if fout is None and gevallen is not None:
-        if not budget.mag_aanroepen():
+        prompt_b = bouw_prompt_b(item, definitie_schoon, gevallen)
+        if not budget.mag_aanroepen(bovengrens_nusd(SYSTEEM_B, prompt_b)):
             return niet_gedraaid()
-        record["aanroep_b"] = _roep(
-            client, budget, SYSTEEM_B, bouw_prompt_b(item, definitie_schoon, gevallen)
-        )
+        record["aanroep_b"] = _roep(client, budget, SYSTEEM_B, prompt_b)
         if "fout" in record["aanroep_b"]:
             return niet_gedraaid()
         oordelen, fout = parse_b(record["aanroep_b"]["ruw"], len(gevallen))
@@ -682,8 +714,10 @@ def vat_samen(
         "aantal_onbruikbaar": sum(i["onbruikbaar"] for i in items),
         "aantal_niet_gedraaid": sum(i["uitkomst"] == NIET_GEDRAAID for i in items),
         "aantal_aanroepen": budget.aanroepen,
-        "kosten_nusd": budget.kosten_nusd,
-        "kosten_usd": usd(budget.kosten_nusd),
+        # Bekende kosten en volledigheid apart: een onbekend totaal is nooit 0.
+        "kosten_bekend_nusd": budget.kosten_nusd,
+        "kosten_bekend_usd": usd(budget.kosten_nusd),
+        "kosten_volledig": budget.kosten_volledig,
         "budget": {
             "max_aanroepen": budget.max_aanroepen,
             "plafond_usd": usd(budget.plafond_nusd),
@@ -692,6 +726,15 @@ def vat_samen(
         },
         "items": items,
     }
+
+
+def _kostentekst(s: dict[str, Any]) -> str:
+    if s["kosten_volledig"]:
+        return f"USD {s['kosten_bekend_usd']} (volledig)"
+    return (
+        f"totaal onbekend; bekend deel USD {s['kosten_bekend_usd']}"
+        " (niet van alle aanroepen is usage bekend)"
+    )
 
 
 def samenvatting_md(s: dict[str, Any]) -> str:
@@ -724,7 +767,7 @@ def samenvatting_md(s: dict[str, Any]) -> str:
         f"- Onbruikbaar: {s['aantal_onbruikbaar']}",
         f"- Niet gedraaid: {s['aantal_niet_gedraaid']}",
         f"- Aanroepen: {s['aantal_aanroepen']}",
-        f"- Kosten: USD {s['kosten_usd']}",
+        f"- Kosten: {_kostentekst(s)}",
         f"- Budgetstop: {s['budget']['stopreden'] or '-'}",
         (
             f"- Model: {s['model']} (temperatuur: {s['temperatuur']},"
@@ -793,11 +836,32 @@ def lees_api_sleutel(env_bestand: Path) -> str:
             regel = regel[len("export ") :].strip()
         naam, is_gelijk, waarde = regel.partition("=")
         if is_gelijk and naam.strip() == "ANTHROPIC_API_KEY":
-            waarde = waarde.strip().strip("\"'")
+            waarde = _env_waarde(waarde.strip(), env_bestand)
             if waarde:
                 return waarde
     msg = f"ANTHROPIC_API_KEY ontbreekt of is leeg in {env_bestand}"
     raise ProefError(msg)
+
+
+def _env_waarde(ruw: str, env_bestand: Path) -> str:
+    """Gequote waarde letterlijk; ongequote waarde met inlinecommentaar geweigerd.
+
+    Foutmeldingen noemen nooit de waarde zelf.
+    """
+    if ruw[:1] in ("'", '"'):
+        einde = ruw.find(ruw[0], 1)
+        rest = ruw[einde + 1 :].strip() if einde > 0 else ""
+        if einde < 0 or (rest and not rest.startswith("#")):
+            msg = f"ANTHROPIC_API_KEY in {env_bestand} heeft ongeldige quotes"
+            raise ProefError(msg)
+        return ruw[1:einde]
+    if re.search(r"\s#", ruw):
+        msg = (
+            f"ANTHROPIC_API_KEY in {env_bestand} heeft inlinecommentaar achter een "
+            "ongequote waarde; zet de waarde tussen quotes of verwijder het commentaar"
+        )
+        raise ProefError(msg)
+    return ruw
 
 
 def voer_echt_uit(
@@ -828,7 +892,7 @@ def vergelijk(basis: Path = UITVOERBASIS) -> dict[str, Any]:
             raise ProefError(msg)
         runs.append(json.loads(pad.read_text("utf-8")))
     een, twee = ({i["id"]: i for i in run["items"]} for run in runs)
-    if list(een) != list(twee):
+    if set(een) != set(twee):
         msg = "run-1 en run-2 bevatten niet dezelfde items"
         raise ProefError(msg)
     items = [
@@ -925,13 +989,13 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     logger.info(
         "gelijk %s/%s, onterecht_voldoet %s, onbruikbaar %s, aanroepen %s, "
-        "kosten USD %s",
+        "kosten: %s",
         samenvatting["aantal_gelijk"],
         samenvatting["aantal_items"],
         samenvatting["onterecht_voldoet"],
         samenvatting["aantal_onbruikbaar"],
         samenvatting["aantal_aanroepen"],
-        samenvatting["kosten_usd"],
+        _kostentekst(samenvatting),
     )
     return 0
 
