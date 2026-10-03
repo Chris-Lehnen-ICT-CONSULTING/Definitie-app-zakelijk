@@ -1,0 +1,137 @@
+{
+  "naam": "ESS-05 goldset voorbeeldenproef v1",
+  "datum": "2026-10-03",
+  "database": "/Users/chrislehnen/Projecten/Definitie-app/data/definities.db",
+  "database_sha256": "ba043e22b2b899e366c448a86aa92e6652308f38a4d19ba417cb1fb4d4f34e56",
+  "definities": [
+    {
+      "id": "db-277",
+      "record_id": 277,
+      "begrip": "verdachte",
+      "definitie_db": "Natuurlijk persoon ten aanzien van wie uit feiten of omstandigheden een redelijk vermoeden van schuld aan een strafbaar feit voortvloeit.",
+      "organisatorische_context": [],
+      "juridische_context": [
+        "strafrecht",
+        "strafvordering"
+      ],
+      "oordeel_chris": "voldoet",
+      "bron_oordeel": "Chris, 3-10-2026 (Cowork)"
+    },
+    {
+      "id": "db-365",
+      "record_id": 365,
+      "begrip": "authenticatie",
+      "definitie_db": "Proces waarin de opgegeven identiteit van een gebruiker of systeem wordt geverifieerd aan de hand van vooraf geregistreerde authenticatiemiddelen voordat toegang tot gegevens of applicaties wordt verleend.",
+      "organisatorische_context": [
+        "OM"
+      ],
+      "juridische_context": [],
+      "oordeel_chris": "twijfel",
+      "bron_oordeel": "Chris, 3-10-2026 (Cowork)"
+    },
+    {
+      "id": "db-278",
+      "record_id": 278,
+      "begrip": "raadsman",
+      "definitie_db": "Soort  \nrechtsbijstandverlener die als advocaat optreedt voor een verdachte in een strafvorderlijke procedure op grond van een keuze door de verdachte of een aanwijzing door het bestuur van de raad voor rechtsbijstand [Bron 1] [Bron 2] [Bron 3].",
+      "organisatorische_context": [],
+      "juridische_context": [
+        "strafrecht",
+        "strafvordering"
+      ],
+      "oordeel_chris": "voldoet",
+      "bron_oordeel": "Chris, 3-10-2026 (Cowork)"
+    },
+    {
+      "id": "db-70",
+      "record_id": 70,
+      "begrip": "getuige",
+      "definitie_db": "Persoon die op basis van eigen waarneming of ervaring informatie verstrekt over feiten of omstandigheden die relevant zijn voor een onderzoek, procedure of beoordeling van een gebeurtenis.",
+      "organisatorische_context": [
+        "OM"
+      ],
+      "juridische_context": [
+        "Strafrecht"
+      ],
+      "oordeel_chris": "voldoet",
+      "bron_oordeel": "Chris, 3-10-2026 (Cowork)"
+    },
+    {
+      "id": "db-142",
+      "record_id": 142,
+      "begrip": "identificeren",
+      "definitie_db": "Activiteit waarbij een bevoegde functionaris of geautomatiseerd systeem de unieke identiteit van een persoon, object of gegevensset vaststelt door verificatie van kenmerken uit meerdere betrouwbare bronnen.",
+      "organisatorische_context": [
+        "Strafrechtketen"
+      ],
+      "juridische_context": [
+        "Strafrecht"
+      ],
+      "oordeel_chris": "twijfel",
+      "bron_oordeel": "Chris, 3-10-2026 (Cowork)"
+    },
+    {
+      "id": "db-140",
+      "record_id": 140,
+      "begrip": "verifiëren",
+      "definitie_db": "Activiteit waarbij een bevoegde functionaris de juistheid en volledigheid van gegevens, verklaringen of documenten vaststelt door vergelijking met betrouwbare bronnen.",
+      "organisatorische_context": [
+        "Strafrechtketen"
+      ],
+      "juridische_context": [
+        "Strafrecht"
+      ],
+      "oordeel_chris": "twijfel",
+      "bron_oordeel": "Chris, 3-10-2026 (Cowork)"
+    },
+    {
+      "id": "db-271",
+      "record_id": 271,
+      "begrip": "taakstraf",
+      "definitie_db": "Sanctie die bestaat uit het verrichten van onbetaalde arbeid of het deelnemen aan een educatieve of gedragsinterventie als opgelegd door de strafrechter.",
+      "organisatorische_context": [
+        "Reclassering",
+        "CJIB"
+      ],
+      "juridische_context": [
+        "Strafrecht"
+      ],
+      "oordeel_chris": "twijfel",
+      "bron_oordeel": "Chris, 3-10-2026 (Cowork)"
+    },
+    {
+      "id": "db-40",
+      "record_id": 40,
+      "begrip": "identiteitsbewijs",
+      "definitie_db": "- Ontologische categorie: soort\nEcht, eigen, geldig en gekwalificeerd document met unieke identificerende persoonsgebonden kenmerken.\n\nToelichting: De relatie met identiteitsmiddel is met deze definitie niet gelegd. Middelen zijn breder dan documenten (dit is een subset van middel).",
+      "organisatorische_context": [
+        "Strafrechtketen"
+      ],
+      "juridische_context": [
+        "Strafrecht"
+      ],
+      "oordeel_chris": "voldoet",
+      "bron_oordeel": "Chris, 3-10-2026 (Cowork)"
+    },
+    {
+      "id": "astra-fout",
+      "begrip": "onttrekking",
+      "definitie_db": "Incident waarbij een jeugdige zonder toestemming de justitiële jeugdinrichting verlaat.",
+      "verwant_volgens_bron": [
+        "ontvluchting"
+      ],
+      "oordeel_chris": "voldoet niet",
+      "bron_oordeel": "ASTRA, voorbeeldpaar in ESS-05.json"
+    },
+    {
+      "id": "astra-goed",
+      "begrip": "onttrekking",
+      "definitie_db": "Incident waarbij een jeugdige zonder toestemming één van de volgende justitiële voorzieningen verlaat: de open justitiële jeugdinrichting of het terrein dat tot de gesloten justitiële jeugdinrichting behoort.",
+      "verwant_volgens_bron": [
+        "ontvluchting"
+      ],
+      "oordeel_chris": "voldoet",
+      "bron_oordeel": "ASTRA, voorbeeldpaar in ESS-05.json"
+    }
+  ]
+}
