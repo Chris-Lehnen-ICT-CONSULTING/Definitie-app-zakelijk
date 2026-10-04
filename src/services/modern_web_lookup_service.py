@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from dataclasses import dataclass
 from typing import Any, cast
 
@@ -67,24 +68,31 @@ def _contextscore(item: dict[str, Any]) -> float:
 
 
 def _noemt_begrip(item: dict[str, Any], term: str | None) -> bool:
-    """Of titel, snippet of definitie het begrip noemt (hoofdletterongevoelig).
+    """Of titel of snippet het begrip noemt (hoofdletterongevoelig).
 
-    Een begrip van meer woorden telt als genoemd als de hele term voorkomt, of
-    als elk woord van minstens drie tekens voorkomt.
+    Het begrip moet aan het begin van een woord staan; een begrip van minder
+    dan vijf tekens moet een heel woord zijn, een langer begrip mag een
+    achtervoegsel hebben (meervoud, samenstelling). Een begrip van meer woorden telt als genoemd als de hele term
+    voorkomt, of als elk woord van minstens vier tekens voorkomt.
     """
     begrip = (term or "").strip().lower()
     if not begrip:
         return False
-    tekst = " ".join(
-        str(item.get(veld) or "")
-        for veld in ("title", "snippet", "definition", "summary")
-    ).lower()
+    tekst = " ".join(str(item.get(veld) or "") for veld in ("title", "snippet")).lower()
     if not tekst:
         return False
-    if begrip in tekst:
+
+    def _staat_erin(woord: str) -> bool:
+        # Korte woorden (zoals "OM") alleen als heel woord; langere mogen een
+        # achtervoegsel hebben (meervoud, samenstelling).
+        einde = r"(?!\w)" if len(woord) < 5 else ""
+        patroon = r"(?<!\w)" + re.escape(woord) + einde
+        return re.search(patroon, tekst) is not None
+
+    if _staat_erin(begrip):
         return True
-    woorden = [w for w in begrip.split() if len(w) >= 3]
-    return bool(woorden) and all(w in tekst for w in woorden)
+    woorden = [w for w in begrip.split() if len(w) >= 4]
+    return len(woorden) > 1 and all(_staat_erin(w) for w in woorden)
 
 
 class ModernWebLookupService(WebLookupServiceInterface):

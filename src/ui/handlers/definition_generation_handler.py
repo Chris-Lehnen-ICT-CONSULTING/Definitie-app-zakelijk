@@ -60,6 +60,20 @@ _STATUS_WEERGAVE = {
 }
 
 
+def _kanaaltekst(md: dict[str, Any], kanaal: str, statussleutel: str) -> str:
+    """'3 gevonden, 0 in prompt' uit de kwitantie; anders de status in woorden."""
+    kanalen = md.get("bronkanalen")
+    info = kanalen.get(kanaal) if isinstance(kanalen, dict) else None
+    status = _STATUS_WEERGAVE.get(str(md.get(statussleutel)), "onbekend")
+    if isinstance(info, dict) and info.get("aangeleverd"):
+        return (
+            f"{info.get('aangeleverd')} gevonden, {info.get('gebruikt', 0)} in prompt"
+        )
+    if status == "gelukt":
+        return "0 bruikbaar"
+    return status
+
+
 def waarschuwing_zonder_bronnen(metadata: Any) -> str | None:
     """DEF-620: tekst voor een generatie waarin geen enkele bron in de prompt stond.
 
@@ -70,12 +84,11 @@ def waarschuwing_zonder_bronnen(metadata: Any) -> str | None:
     aantal = md.get("bronnen_in_prompt")
     if not isinstance(aantal, int) or isinstance(aantal, bool) or aantal > 0:
         return None
-    web = _STATUS_WEERGAVE.get(str(md.get("web_lookup_status")), "onbekend")
-    rag = _STATUS_WEERGAVE.get(str(md.get("rag_status")), "onbekend")
+    web = _kanaaltekst(md, "web", "web_lookup_status")
+    rag = _kanaaltekst(md, "rag", "rag_status")
     return (
-        "⚠️ Gegenereerd zonder bronnen (webzoekactie: "
-        f"{web}; bronbibliotheek: {rag}). De definitie steunt alleen op "
-        "modelkennis."
+        f"⚠️ Gegenereerd zonder bronnen (webzoekactie: {web}; "
+        f"bronbibliotheek: {rag}). De definitie steunt alleen op modelkennis."
     )
 
 

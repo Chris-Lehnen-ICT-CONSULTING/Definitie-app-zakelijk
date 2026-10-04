@@ -487,6 +487,7 @@ class ServiceAdapter:
             # DEF-620: bronnen in de prompt en RAG-status, voor de waarschuwing
             # bij een generatie zonder bronnen.
             "bronnen_in_prompt",
+            "bronkanalen",
             "rag_status",
             "web_lookup_status",
             "web_lookup_available",

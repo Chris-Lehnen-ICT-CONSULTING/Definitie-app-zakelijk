@@ -23,6 +23,7 @@ from services.definition_generator_context import (
 from services.definition_generator_prompts import UnifiedPromptBuilder
 from services.interfaces import GenerationRequest
 from services.prompts.modules.definition_task_module import OPDRACHT_KOP
+from services.prompts.sanitization import DATABLOK_AFSPRAAK
 from services.web_lookup.config_loader import load_web_lookup_config
 from services.web_lookup.sanitization import sanitize_snippet
 from utils.type_helpers import ensure_string
@@ -286,19 +287,29 @@ def _web_limits(aug: dict[str, Any], selected_count: int) -> tuple[int, int, int
 
 
 def _voeg_bronnen_in(prompt_text: str, block: str) -> str:
-    """DEF-620: zet het bronnenblok direct vóór de definitieopdracht.
+    """DEF-620: zet het bronnenblok vóór de definitieopdracht.
 
     Voorheen werd het blok achter de slotopdracht geplakt, als bijlage na
-    "Geef nu de definitie …". Nu staat het vóór de opdracht, zodat de opdracht
-    op de bronnen volgt. Ontbreekt de opdrachtkop (onverwachte promptvorm),
-    dan blijft het oude gedrag: achteraan. De inhoud van het blok en de
-    kwitantie veranderen niet, alleen de positie.
+    "Geef nu de definitie …". Nu staat het vóór de DATA-AFSPRAAK die de
+    opdracht inleidt (DEF-590: die afspraak blijft vlak vóór de opdracht), of
+    — als die er niet direct voor staat — vóór de opdrachtkop.
+
+    Er wordt alleen op een verankerde vorm gezocht: een lege regel, dan de
+    vaste tekst, dan een regeleinde. Gesaniteerde gebruikersdata (context,
+    verduidelijking, documenten) kan geen lege regel bevatten, dus een kop in
+    de data kan het invoegpunt niet verplaatsen. Het eerste verankerde
+    voorkomen is het echte; ontbreekt het, dan blijft het oude gedrag:
+    achteraan. De inhoud van het blok en de kwitantie veranderen niet.
     """
-    positie = prompt_text.find(OPDRACHT_KOP)
-    if positie < 0:
-        return f"{prompt_text}\n\n{block}"
-    voor = prompt_text[:positie].rstrip("\n")
-    return f"{voor}\n\n{block}\n\n{prompt_text[positie:]}"
+    kandidaten = (
+        f"\n\n{DATABLOK_AFSPRAAK}\n\n{OPDRACHT_KOP}\n",
+        f"\n\n{OPDRACHT_KOP}\n",
+    )
+    for anker in kandidaten:
+        positie = prompt_text.find(anker)
+        if positie >= 0:
+            return f"{prompt_text[:positie]}\n\n{block}{prompt_text[positie:]}"
+    return f"{prompt_text}\n\n{block}"
 
 
 @dataclass

@@ -30,8 +30,8 @@ logger = logging.getLogger(__name__)
 _MAX_BEGRIP_LEN = 200
 
 #: DEF-620: kop van de definitieopdracht. Gedeeld met de promptservice, die het
-#: bronnenblok direct vóór deze kop invoegt; zo lopen opdracht en invoegpunt
-#: nooit uit elkaar.
+#: bronnenblok vóór de DATA-AFSPRAAK en deze kop invoegt; zo lopen opdracht en
+#: invoegpunt nooit uit elkaar.
 OPDRACHT_KOP = "#### ✏️ Definitieopdracht:"
 
 
@@ -214,7 +214,7 @@ class DefinitionTaskModule(BasePromptModule):
         """
         return (
             "#### BRONNEN INSTRUCTIE (CON-02):\n"
-            "Aangeleverde bronnen staan direct vóór de definitieopdracht als "
+            "Aangeleverde bronnen staan vóór de definitieopdracht als "
             '<bronnen><bron nr="..." type="..." ...>passage</bron></bronnen>; '
             "type = aanvoerroute, score = zoekscore, overige attributen = "
             "vindplaatsgegevens; route, score, confidence en reviewed-vlag zijn geen "
