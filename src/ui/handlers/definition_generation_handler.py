@@ -51,6 +51,56 @@ _BEGRIP_HAS_LETTER = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]")
 _BEGRIP_ALLOWED_CHARS = re.compile(r"[0-9A-Za-zÀ-ÖØ-öø-ÿ&/():.,'’\- ]+")
 
 
+_STATUS_WEERGAVE = {
+    "success": "gelukt",
+    "no_results": "geen resultaten",
+    "timeout": "tijdslimiet bereikt",
+    "error": "fout",
+    "not_available": "niet beschikbaar",
+}
+
+
+def _kanaaltekst(md: dict[str, Any], kanaal: str, statussleutel: str) -> str:
+    """'3 gevonden, 0 in prompt' uit de kwitantie; anders de status in woorden."""
+    kanalen = md.get("bronkanalen")
+    info = kanalen.get(kanaal) if isinstance(kanalen, dict) else None
+    status = _STATUS_WEERGAVE.get(str(md.get(statussleutel)), "onbekend")
+    if isinstance(info, dict) and info.get("aangeleverd"):
+        return (
+            f"{info.get('aangeleverd')} gevonden, {info.get('gebruikt', 0)} in prompt"
+        )
+    if status == "gelukt":
+        return "0 bruikbaar"
+    return status
+
+
+def waarschuwing_zonder_bronnen(metadata: Any) -> str | None:
+    """DEF-620: tekst voor een generatie waarin geen enkele bron in de prompt stond.
+
+    Geeft None als er bronnen in de prompt stonden of als dat onbekend is
+    (geen kwitantie). Signaal, geen blokkade.
+    """
+    md = metadata if isinstance(metadata, dict) else {}
+    aantal = md.get("bronnen_in_prompt")
+    if not isinstance(aantal, int) or isinstance(aantal, bool) or aantal > 0:
+        return None
+    web = _kanaaltekst(md, "web", "web_lookup_status")
+    rag = _kanaaltekst(md, "rag", "rag_status")
+    kanalen = md.get("bronkanalen")
+    doc = kanalen.get("document") if isinstance(kanalen, dict) else None
+    documenten = ""
+    if isinstance(doc, dict) and doc.get("aangeleverd"):
+        documenten = (
+            f"; documenten: {doc.get('aangeleverd')} aangeleverd, "
+            f"{doc.get('gebruikt', 0)} in prompt"
+        )
+    return (
+        f"⚠️ Gegenereerd zonder bronnen (webzoekactie: {web}; "
+        f"bronbibliotheek: {rag}{documenten}). "
+        "De definitie steunt alleen op modelkennis."
+    )
+
+
 def validate_begrip_input(begrip: str) -> str | None:
     """Valideer een begrip op de invoergrens.
 
@@ -661,6 +711,14 @@ class DefinitionGenerationHandler:
                 geslaagd = isinstance(service_result, dict) and bool(
                     service_result.get("success")
                 )
+                if geslaagd and open_conflict is None:
+                    zonder_bronnen = waarschuwing_zonder_bronnen(
+                        service_result.get("metadata")
+                        if isinstance(service_result, dict)
+                        else None
+                    )
+                    if zonder_bronnen:
+                        st.warning(zonder_bronnen)
                 if open_conflict is not None:
                     st.warning(
                         "⚠️ Verduidelijking nodig: het model meldt een "

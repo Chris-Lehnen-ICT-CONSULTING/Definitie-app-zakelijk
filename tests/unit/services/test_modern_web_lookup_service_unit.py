@@ -418,3 +418,143 @@ async def test_quality_gate_boundary_exactly_at_threshold(monkeypatch):
     assert (
         "Overheid" in results[0].source.name
     ), f"Expected Overheid.nl to win (boundary at threshold), got {results[0].source.name}"
+
+
+# DEF-620: contextfilter scoort en sorteert; het verwijdert alleen resultaten
+# zonder contextmatch die ook het begrip niet noemen.
+
+
+def _resultaat(
+    term: str, name: str, url: str, score: float, juridisch: bool, tekst: str
+):
+    return LookupResult(
+        term=term,
+        source=WebSource(name=name, url=url, confidence=score, is_juridical=juridisch),
+        definition=tekst,
+        success=True,
+    )
+
+
+def _sru_met(resultaten):
+    class _SRU:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *a):
+            return False
+
+        async def search(self, *a, **k):
+            return list(resultaten)
+
+        def get_attempts(self):
+            return []
+
+    return _SRU
+
+
+@pytest.mark.asyncio
+async def test_def620_resultaat_met_begrip_zonder_contextterm_blijft(monkeypatch):
+    async def wiki(term: str, language: str = "nl"):
+        return _resultaat(
+            "verdachte",
+            "Wikipedia",
+            "https://nl.wikipedia.org/wiki/Verdachte",
+            1.0,
+            False,
+            "Een verdachte is iemand tegen wie een redelijk vermoeden van schuld bestaat.",
+        )
+
+    monkeypatch.setattr("services.web_lookup.wikipedia_service.wikipedia_lookup", wiki)
+    monkeypatch.setattr("services.web_lookup.sru_service.SRUService", _sru_met([]))
+
+    svc = ModernWebLookupService()
+    req = LookupRequest(
+        term="verdachte",
+        sources=["wikipedia", "overheid"],
+        context="OM | Strafrecht",
+        max_results=5,
+    )
+    results = await svc.lookup(req)
+
+    assert [r.source.name for r in results] == ["Wikipedia"]
+
+
+@pytest.mark.asyncio
+async def test_def620_resultaat_zonder_begrip_en_zonder_contextterm_valt_weg(
+    monkeypatch,
+):
+    async def wiki(term: str, language: str = "nl"):
+        return _resultaat(
+            "onttrekking",
+            "Wikipedia",
+            "https://nl.wikipedia.org/wiki/Onttrekking",
+            0.9,
+            False,
+            "Onttrekking aan het toezicht door een gedetineerde.",
+        )
+
+    irrelevant = _resultaat(
+        "onttrekking",
+        "Overheid.nl",
+        "https://repository.overheid.nl/waterschap",
+        0.9,
+        True,
+        "Waterschapsverordening Hoogheemraadschap De Stichtse Rijnlanden 2024",
+    )
+    monkeypatch.setattr("services.web_lookup.wikipedia_service.wikipedia_lookup", wiki)
+    monkeypatch.setattr(
+        "services.web_lookup.sru_service.SRUService", _sru_met([irrelevant])
+    )
+
+    svc = ModernWebLookupService()
+    req = LookupRequest(
+        term="onttrekking",
+        sources=["wikipedia", "overheid"],
+        context="DJI | Strafrecht",
+        max_results=5,
+    )
+    results = await svc.lookup(req)
+
+    namen = [r.source.name for r in results]
+    assert "Wikipedia" in namen
+    assert "Overheid.nl" not in namen
+
+
+@pytest.mark.asyncio
+async def test_def620_contextmatch_sorteert_voor_zonder_contextmatch(monkeypatch):
+    async def wiki(term: str, language: str = "nl"):
+        return _resultaat(
+            "verdachte",
+            "Wikipedia",
+            "https://nl.wikipedia.org/wiki/Verdachte",
+            0.9,
+            False,
+            "Een verdachte is iemand tegen wie een vermoeden bestaat.",
+        )
+
+    met_context = _resultaat(
+        "verdachte",
+        "Overheid.nl",
+        "https://repository.overheid.nl/sv-27",
+        0.5,
+        True,
+        "Als verdachte wordt aangemerkt degene te wiens aanzien uit feiten of "
+        "omstandigheden een redelijk vermoeden van schuld aan een strafbaar feit "
+        "voortvloeit (strafrecht).",
+    )
+    monkeypatch.setattr("services.web_lookup.wikipedia_service.wikipedia_lookup", wiki)
+    monkeypatch.setattr(
+        "services.web_lookup.sru_service.SRUService", _sru_met([met_context])
+    )
+
+    svc = ModernWebLookupService()
+    req = LookupRequest(
+        term="verdachte",
+        sources=["wikipedia", "overheid"],
+        context="OM | Strafrecht",
+        max_results=5,
+    )
+    results = await svc.lookup(req)
+
+    namen = [r.source.name for r in results]
+    assert namen == ["Overheid.nl", "Wikipedia"]

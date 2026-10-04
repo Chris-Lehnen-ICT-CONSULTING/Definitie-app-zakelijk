@@ -1378,6 +1378,30 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "int03_assessment": self._int03_beoordeling_uit(raw_validation),
                     "peildatum": peildatum,
                     "generation_id": generation_id,
+                    # DEF-620: hoeveel bronnen werkelijk in de prompt stonden
+                    # (uit de kwitantie). 0 = de definitie steunt alleen op
+                    # modelkennis; None = geen kwitantie beschikbaar.
+                    "bronnen_in_prompt": (
+                        len(source_receipt.get("sources") or [])
+                        if isinstance(source_receipt, dict)
+                        else None
+                    ),
+                    # DEF-620: per kanaal aangeleverd/gebruikt (kwitantie), zodat
+                    # "gevonden maar niet in de prompt" zichtbaar is.
+                    "bronkanalen": (
+                        {
+                            kanaal: {
+                                "aangeleverd": int(info.get("supplied", 0) or 0),
+                                "gebruikt": int(info.get("used", 0) or 0),
+                            }
+                            for kanaal, info in (
+                                source_receipt.get("channels") or {}
+                            ).items()
+                            if isinstance(info, dict)
+                        }
+                        if isinstance(source_receipt, dict)
+                        else None
+                    ),
                     "web_lookup_status": web_lookup_status,
                     "web_lookup_available": self.web_lookup_service is not None,
                     "web_lookup_timeout": web_lookup_timeout,
