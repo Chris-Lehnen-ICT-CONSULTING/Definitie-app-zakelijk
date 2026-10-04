@@ -73,13 +73,13 @@ streamlit==1.62.0
 tenacity==9.1.4
 tiktoken==0.14.0
 toml==0.10.2
-tornado==6.5.8
+tornado==6.5.9
 tqdm==4.70.0
 typing-inspection==0.4.4
 fastapi==0.141.1
 typing_extensions==4.16.0
 uvicorn==0.52.4
 tzdata==2026.3
-urllib3==2.7.0
+urllib3==2.8.0
 watchdog==6.0.0
 yarl==1.24.5
