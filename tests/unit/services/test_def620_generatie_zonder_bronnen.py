@@ -267,3 +267,51 @@ async def test_orchestrator_telt_een_webbron_in_de_prompt(tmp_path, monkeypatch)
     md = antwoord.definition.metadata
     assert md["bronnen_in_prompt"] == 1
     assert md["bronkanalen"]["web"] == {"aangeleverd": 1, "gebruikt": 1}
+
+
+def test_waarschuwing_noemt_documenten_alleen_als_ze_aangeleverd_zijn():
+    basis = {
+        "bronnen_in_prompt": 0,
+        "web_lookup_status": "no_results",
+        "rag_status": "error",
+    }
+    zonder_doc = waarschuwing_zonder_bronnen(
+        {**basis, "bronkanalen": {"document": {"aangeleverd": 0, "gebruikt": 0}}}
+    )
+    assert "documenten" not in zonder_doc
+    met_doc = waarschuwing_zonder_bronnen(
+        {**basis, "bronkanalen": {"document": {"aangeleverd": 2, "gebruikt": 0}}}
+    )
+    assert "documenten: 2 aangeleverd, 0 in prompt" in met_doc
+
+
+def test_handler_geen_bronwaarschuwing_bij_conflict_of_mislukking():
+    from unittest.mock import MagicMock
+
+    from tests.unit.ui.handlers.test_def751_betekenisconflict_handler import (
+        FakeService,
+        FakeSM,
+        _handler,
+        _run,
+        conflict_ui,
+    )
+
+    zonder = {
+        "bronnen_in_prompt": 0,
+        "web_lookup_status": "no_results",
+        "rag_status": "error",
+    }
+    conflict = conflict_ui()
+    conflict["metadata"] = {**(conflict.get("metadata") or {}), **zonder}
+    mislukt = {
+        "success": False,
+        "error_message": "Generation failed: boem",
+        "metadata": dict(zonder),
+    }
+    for ui in (conflict, mislukt):
+        handler, _repo = _handler(FakeService(ui))
+        st = MagicMock()
+        _run(handler, FakeSM(determined_category="proces", category_reasoning="r"), st)
+        meldingen = " ".join(str(a) for c in st.warning.call_args_list for a in c.args)
+        assert "zonder bronnen" not in meldingen
+        assert not st.success.called

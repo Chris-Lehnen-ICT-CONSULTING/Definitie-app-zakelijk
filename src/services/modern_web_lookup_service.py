@@ -72,8 +72,9 @@ def _noemt_begrip(item: dict[str, Any], term: str | None) -> bool:
 
     Het begrip moet aan het begin van een woord staan; een begrip van minder
     dan vijf tekens moet een heel woord zijn, een langer begrip mag een
-    achtervoegsel hebben (meervoud, samenstelling). Een begrip van meer woorden telt als genoemd als de hele term
-    voorkomt, of als elk woord van minstens vier tekens voorkomt.
+    achtervoegsel hebben (meervoud, samenstelling). Een begrip van meer
+    woorden telt als genoemd als de hele term voorkomt, of als elk woord van
+    minstens vier tekens voorkomt (alleen bij twee of meer zulke woorden).
     """
     begrip = (term or "").strip().lower()
     if not begrip:

@@ -86,9 +86,18 @@ def waarschuwing_zonder_bronnen(metadata: Any) -> str | None:
         return None
     web = _kanaaltekst(md, "web", "web_lookup_status")
     rag = _kanaaltekst(md, "rag", "rag_status")
+    kanalen = md.get("bronkanalen")
+    doc = kanalen.get("document") if isinstance(kanalen, dict) else None
+    documenten = ""
+    if isinstance(doc, dict) and doc.get("aangeleverd"):
+        documenten = (
+            f"; documenten: {doc.get('aangeleverd')} aangeleverd, "
+            f"{doc.get('gebruikt', 0)} in prompt"
+        )
     return (
         f"⚠️ Gegenereerd zonder bronnen (webzoekactie: {web}; "
-        f"bronbibliotheek: {rag}). De definitie steunt alleen op modelkennis."
+        f"bronbibliotheek: {rag}{documenten}). "
+        "De definitie steunt alleen op modelkennis."
     )
 
 
