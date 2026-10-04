@@ -22,6 +22,7 @@ from services.definition_generator_context import (
 )
 from services.definition_generator_prompts import UnifiedPromptBuilder
 from services.interfaces import GenerationRequest
+from services.prompts.modules.definition_task_module import OPDRACHT_KOP
 from services.web_lookup.config_loader import load_web_lookup_config
 from services.web_lookup.sanitization import sanitize_snippet
 from utils.type_helpers import ensure_string
@@ -282,6 +283,22 @@ def _web_limits(aug: dict[str, Any], selected_count: int) -> tuple[int, int, int
         # Set a generous budget to avoid early truncation; final model limits still apply
         total_budget = max(total_budget, 5000)
     return max_snippets, max_tokens_per_snippet, total_budget
+
+
+def _voeg_bronnen_in(prompt_text: str, block: str) -> str:
+    """DEF-620: zet het bronnenblok direct vóór de definitieopdracht.
+
+    Voorheen werd het blok achter de slotopdracht geplakt, als bijlage na
+    "Geef nu de definitie …". Nu staat het vóór de opdracht, zodat de opdracht
+    op de bronnen volgt. Ontbreekt de opdrachtkop (onverwachte promptvorm),
+    dan blijft het oude gedrag: achteraan. De inhoud van het blok en de
+    kwitantie veranderen niet, alleen de positie.
+    """
+    positie = prompt_text.find(OPDRACHT_KOP)
+    if positie < 0:
+        return f"{prompt_text}\n\n{block}"
+    voor = prompt_text[:positie].rstrip("\n")
+    return f"{voor}\n\n{block}\n\n{prompt_text[positie:]}"
 
 
 @dataclass
@@ -597,7 +614,7 @@ class PromptServiceV2:
         try:
             if receipt.sources:
                 block = wrap_bronnen(receipt.xml)
-                prompt_text = f"{prompt_text}\n\n{block}"
+                prompt_text = _voeg_bronnen_in(prompt_text, block)
         except Exception as e:
             # Fail-safe: generatie gaat door zonder bronnen, en zegt dat ook.
             logger.warning(
