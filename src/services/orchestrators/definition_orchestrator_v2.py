@@ -1378,6 +1378,14 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "int03_assessment": self._int03_beoordeling_uit(raw_validation),
                     "peildatum": peildatum,
                     "generation_id": generation_id,
+                    # DEF-620: hoeveel bronnen werkelijk in de prompt stonden
+                    # (uit de kwitantie). 0 = de definitie steunt alleen op
+                    # modelkennis; None = geen kwitantie beschikbaar.
+                    "bronnen_in_prompt": (
+                        len(source_receipt.get("sources") or [])
+                        if isinstance(source_receipt, dict)
+                        else None
+                    ),
                     "web_lookup_status": web_lookup_status,
                     "web_lookup_available": self.web_lookup_service is not None,
                     "web_lookup_timeout": web_lookup_timeout,

@@ -484,6 +484,10 @@ class ServiceAdapter:
             "model": ensure_string(safe_dict_get(md, "model", "")),
         }
         for k in (
+            # DEF-620: bronnen in de prompt en RAG-status, voor de waarschuwing
+            # bij een generatie zonder bronnen.
+            "bronnen_in_prompt",
+            "rag_status",
             "web_lookup_status",
             "web_lookup_available",
             "web_lookup_timeout",

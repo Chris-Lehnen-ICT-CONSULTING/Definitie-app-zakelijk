@@ -51,6 +51,34 @@ _BEGRIP_HAS_LETTER = re.compile(r"[A-Za-zÀ-ÖØ-öø-ÿ]")
 _BEGRIP_ALLOWED_CHARS = re.compile(r"[0-9A-Za-zÀ-ÖØ-öø-ÿ&/():.,'’\- ]+")
 
 
+_STATUS_WEERGAVE = {
+    "success": "gelukt",
+    "no_results": "geen resultaten",
+    "timeout": "tijdslimiet bereikt",
+    "error": "fout",
+    "not_available": "niet beschikbaar",
+}
+
+
+def waarschuwing_zonder_bronnen(metadata: Any) -> str | None:
+    """DEF-620: tekst voor een generatie waarin geen enkele bron in de prompt stond.
+
+    Geeft None als er bronnen in de prompt stonden of als dat onbekend is
+    (geen kwitantie). Signaal, geen blokkade.
+    """
+    md = metadata if isinstance(metadata, dict) else {}
+    aantal = md.get("bronnen_in_prompt")
+    if not isinstance(aantal, int) or isinstance(aantal, bool) or aantal > 0:
+        return None
+    web = _STATUS_WEERGAVE.get(str(md.get("web_lookup_status")), "onbekend")
+    rag = _STATUS_WEERGAVE.get(str(md.get("rag_status")), "onbekend")
+    return (
+        "⚠️ Gegenereerd zonder bronnen (webzoekactie: "
+        f"{web}; bronbibliotheek: {rag}). De definitie steunt alleen op "
+        "modelkennis."
+    )
+
+
 def validate_begrip_input(begrip: str) -> str | None:
     """Valideer een begrip op de invoergrens.
 
@@ -661,6 +689,14 @@ class DefinitionGenerationHandler:
                 geslaagd = isinstance(service_result, dict) and bool(
                     service_result.get("success")
                 )
+                if geslaagd and open_conflict is None:
+                    zonder_bronnen = waarschuwing_zonder_bronnen(
+                        service_result.get("metadata")
+                        if isinstance(service_result, dict)
+                        else None
+                    )
+                    if zonder_bronnen:
+                        st.warning(zonder_bronnen)
                 if open_conflict is not None:
                     st.warning(
                         "⚠️ Verduidelijking nodig: het model meldt een "
