@@ -33,7 +33,10 @@ jsonschema-specifications==2025.9.1
 markdown-it-py==4.2.0
 MarkupSafe==3.0.3
 mdurl==0.1.2
-multidict==6.7.1
+# Transitief via aiohttp en yarl; expliciet gepind op de fix voor
+# CVE-2026-104874 / GHSA-54p9-h82j-f925 (ongemerkte geheugengroei door
+# refcount-lek in ItemsView-union/-verschil) — DEF-426.
+multidict==6.9.1
 numpy==2.5.2
 openai==2.44.0
 openpyxl==3.1.5  # Excel-export (export_service.to_excel engine) — DEF-506/DEF-519
