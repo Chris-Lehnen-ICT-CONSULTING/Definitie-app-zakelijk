@@ -326,3 +326,41 @@ def test_vervangscript_projectcontrole_bij_bronnenbestand(
     else:
         _maak_db(basis / "data" / "definities.db")  # naast bronnen.db
         assert mod.main(argv) == 0  # droge run met afgeleide definitiedatabase
+
+
+def test_afwijkende_teller_in_kopie_plaatst_niets(verhuis, monkeypatch, capsys):
+    mod, van, naar, _tmp = verhuis
+    echt = mod._kopieer
+
+    def kopieer_met_fout(bron, tijdelijk):
+        echt(bron, tijdelijk)
+        conn = sqlite3.connect(tijdelijk)
+        conn.execute("UPDATE sqlite_sequence SET seq = 1 WHERE name = 'rag_chunks'")
+        conn.commit()
+        conn.close()
+
+    monkeypatch.setattr(mod, "_kopieer", kopieer_met_fout)
+    assert mod.main(["--van", str(van), "--naar", str(naar), "--bevestig"]) == 3
+    assert "wijkt af" in capsys.readouterr().out
+    assert not naar.exists()
+
+
+def test_doel_dat_tijdens_kopie_gevuld_raakt_blijft_behouden(verhuis, monkeypatch):
+    mod, van, naar, _tmp = verhuis
+    echt = mod._kopieer
+
+    def kopieer_en_ander_vult_doel(bron, tijdelijk):
+        echt(bron, tijdelijk)
+        zorg_voor_bronnen_schema(naar)
+        conn = sqlite3.connect(naar)
+        conn.execute("INSERT INTO rag_collections (collection_name) VALUES ('ander')")
+        conn.commit()
+        conn.close()
+
+    monkeypatch.setattr(mod, "_kopieer", kopieer_en_ander_vult_doel)
+    assert mod.main(["--van", str(van), "--naar", str(naar), "--bevestig"]) == 3
+    conn = sqlite3.connect(naar)
+    namen = [r[0] for r in conn.execute("SELECT collection_name FROM rag_collections")]
+    conn.close()
+    assert namen == ["ander"]
+    assert not list(naar.parent.glob(".bronnen.db.verhuizing-*"))
