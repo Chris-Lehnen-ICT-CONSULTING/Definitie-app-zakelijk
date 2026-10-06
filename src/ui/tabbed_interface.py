@@ -427,11 +427,15 @@ class TabbedInterface:
                 prev = SessionStateManager.get_value(
                     "rag_selected_collection_ids", None
                 )
+                # DEF-620: een bewaarde selectie kan ids bevatten van collecties
+                # die inmiddels verwijderd zijn; st.multiselect weigert die als
+                # default. Alleen bestaande ids overnemen.
+                prev_geldig = [cid for cid in (prev or []) if cid in options]
 
                 selected = st.multiselect(
                     "Zoek in collections",
                     options=all_ids,
-                    default=prev if prev else all_ids,
+                    default=prev_geldig or all_ids,
                     format_func=lambda x: options.get(x, str(x)),
                     key="rag_collection_multiselect",
                     help="Selecteer in welke RAG collections gezocht wordt bij generatie. Standaard: alle.",

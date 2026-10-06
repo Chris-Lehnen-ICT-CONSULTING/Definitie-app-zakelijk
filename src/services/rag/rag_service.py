@@ -20,6 +20,7 @@ from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
 from services.rag.metadata_schemas import valideer_chunk_metadata
+from services.rag.models import ChunkingResult
 from utils.xml_source_formatter import format_bron, wrap_bronnen
 
 logger = logging.getLogger(__name__)
@@ -107,8 +108,14 @@ class RAGService:
         rechtsgebied: str | None = None,
         file_path: str | None = None,
         bron_type: str | None = None,
+        chunking_result: ChunkingResult | None = None,
     ) -> int:
         """Chunk, embed en sla een document op in één call.
+
+        DEF-620 (RAG fase 2): met ``chunking_result`` wordt de chunkstap
+        overgeslagen en worden de al geknipte chunks opgeslagen (bijvoorbeeld
+        per artikel uit een officiële publicatie); ``tekst`` mag dan leeg zijn.
+        Registratie, embedding, opslag en rollback blijven gelijk.
 
         Flow:
         1. Insert rij in rag_documents
@@ -121,7 +128,7 @@ class RAGService:
         Returns:
             document_id
         """
-        if not tekst or not tekst.strip():
+        if chunking_result is None and (not tekst or not tekst.strip()):
             raise ValueError("tekst mag niet leeg zijn")
 
         # DEF-371: Normaliseer rechtsgebied naar gestandaardiseerde key
@@ -174,7 +181,11 @@ class RAGService:
 
         try:
             # Stap 2: Chunk de tekst
-            result = self._chunker.chunk_tekst(tekst, filename, file_type, rechtsgebied)
+            result = (
+                chunking_result
+                if chunking_result is not None
+                else self._chunker.chunk_tekst(tekst, filename, file_type, rechtsgebied)
+            )
 
             if result.fout_melding:
                 raise RuntimeError(f"Chunking mislukt: {result.fout_melding}")
@@ -263,6 +274,35 @@ class RAGService:
             finally:
                 conn.close()
             raise
+
+    def ingest_chunks(
+        self,
+        chunking_result: ChunkingResult,
+        collection_id: int,
+        filename: str,
+        file_type: str = "application/xml",
+        rechtsgebied: str | None = None,
+        file_path: str | None = None,
+        bron_type: str | None = None,
+    ) -> int:
+        """Sla al geknipte chunks op als één document (DEF-620, RAG fase 2).
+
+        Dunne laag over ``ingest_document``: zelfde validatie (rechtsgebied,
+        bron_type), registratie, embedding, opslag en rollback.
+
+        Returns:
+            document_id
+        """
+        return self.ingest_document(
+            tekst="",
+            collection_id=collection_id,
+            filename=filename,
+            file_type=file_type,
+            rechtsgebied=rechtsgebied,
+            file_path=file_path,
+            bron_type=bron_type,
+            chunking_result=chunking_result,
+        )
 
     def retrieve_context(
         self,
