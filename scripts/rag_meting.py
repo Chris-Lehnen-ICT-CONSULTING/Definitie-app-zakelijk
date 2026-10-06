@@ -90,9 +90,14 @@ def main() -> int:
     ap.add_argument("--db", required=True, help="pad naar een KOPIE van definities.db")
     ap.add_argument("--modus", choices=["oud", "nieuw"], required=True)
     ap.add_argument("--uit", required=True)
+    ap.add_argument(
+        "--meetset",
+        default=str(FIXTURE),
+        help="pad naar de meetset (standaard: de Sv-meetset van fase 1)",
+    )
     args = ap.parse_args()
 
-    meetset = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    meetset = json.loads(Path(args.meetset).read_text(encoding="utf-8"))
     sleutel = os.environ.get("OPENAI_API_KEY", "")
     svc = RAGService(
         DocumentChunker(), EmbeddingService(sleutel), EmbeddingStore(args.db), args.db
