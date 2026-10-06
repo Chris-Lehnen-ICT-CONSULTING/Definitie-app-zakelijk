@@ -153,8 +153,18 @@ def _eu_identiteit_klopt(
         d = gevonden.group("d")
         kenmerk = f"{celex[:10]} — NL — {d[6:8]}.{d[4:6]}.{d[0:4]}"
         return kenmerk in tekst
-    titel = " ".join(titels or [])
-    return f"{jaar}/{nr}" in titel or f"{nr}/{jaar}" in titel
+    # Het eigen nummer staat vooraan in de titel: "VERORDENING (EU) 2016/679 …"
+    # of "Verordening (EU) nr. 910/2014 …"; een verwijzing verderop in de titel
+    # ("… tot wijziging van Verordening (EU) 2016/679") telt niet.
+    eigen = re.match(
+        r"^\s*(?:\w+\s+)?\((?:EU|EG|EEG|Euratom)\)\s*(?:nr\.?\s*)?(\d{1,4})/(\d{1,4})\b",
+        (titels or [""])[0],
+        re.IGNORECASE,
+    )
+    if not eigen:
+        return False
+    a, b = eigen.groups()
+    return (a, int(b)) == (jaar, nr) or (int(a), b) == (nr, jaar)
 
 
 def controleer_inhoud(bron: Bron, inhoud: bytes, url: str | None = None) -> None:

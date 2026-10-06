@@ -254,6 +254,16 @@ def test_identiteit_op_en_eu(bl):
     )
     with pytest.raises(mod.BronError, match="niet CELEX"):
         mod.controleer_inhoud(avg, citeert.encode())
+    # wijzigingsverordening die de AVG in haar eigen titel noemt
+    wijziging = EU_OJ.replace(
+        "Verordening (EU) 2016/679",
+        "Verordening (EU) 2026/1234 tot wijziging van Verordening (EU) 2016/679",
+    )
+    with pytest.raises(mod.BronError, match="niet CELEX"):
+        mod.controleer_inhoud(avg, wijziging.encode())
+    assert mod._eu_identiteit_klopt(
+        "32014R0910", "", ["VERORDENING (EU) Nr. 910/2014 VAN"]
+    )
     with pytest.raises(mod.BronError, match="geen Nederlandse tekst"):
         mod.controleer_inhoud(avg, EU_OJ.replace("Artikel 4", "Article 4").encode())
 
