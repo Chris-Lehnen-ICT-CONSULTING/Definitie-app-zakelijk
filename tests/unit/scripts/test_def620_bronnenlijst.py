@@ -248,6 +248,12 @@ def test_identiteit_op_en_eu(bl):
         )
     with pytest.raises(mod.BronError, match="niet CELEX"):
         mod.controleer_inhoud(avg, EU_OJ.replace("2016/679", "2016/680").encode())
+    # ander document dat de AVG alleen citeert: titel 2016/680, citaat 2016/679
+    citeert = EU_OJ.replace("2016/679", "2016/680").replace(
+        "Overweging die niet meegaat.", "Zie Verordening (EU) 2016/679."
+    )
+    with pytest.raises(mod.BronError, match="niet CELEX"):
+        mod.controleer_inhoud(avg, citeert.encode())
     with pytest.raises(mod.BronError, match="geen Nederlandse tekst"):
         mod.controleer_inhoud(avg, EU_OJ.replace("Artikel 4", "Article 4").encode())
 

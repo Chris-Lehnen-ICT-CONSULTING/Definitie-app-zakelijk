@@ -289,3 +289,25 @@ def test_rechtsgebiedfilter_verruimt_pas_als_geen_enkele_collectie_treft(tmp_pat
         zoektermen=["persoonsgegevens"],
     )
     assert sorted(c["wet_regeling"] for c in ctx.chunks) == ["AVG", "Wpg"]
+
+
+@pytest.mark.parametrize("status", ["vervallen", "nogniet"])
+def test_bwb_begripsbepalingen_in_niet_geldend_lid_vallen_weg(tmp_path, status):
+    xml = BWB_XML.replace(
+        "<al>Voor de toepassing van deze wet wordt verstaan onder: </al>",
+        f'<lid status="{status}"><lidnr>1</lidnr>'
+        "<al>Voor de toepassing van deze wet wordt verstaan onder: </al>"
+        "<lijst><li><li.nr>z.</li.nr><al>oud begrip: vervallen omschrijving;</al></li>"
+        "</lijst></lid>"
+        "<al>Voor de toepassing van deze wet wordt verstaan onder: </al>",
+    )
+    pad = tmp_path / "w.xml"
+    pad.write_text(xml, encoding="utf-8")
+    res = parse_bwb_toestand(pad, "T")
+    termen = [
+        c.tekst.split("\n")[1].split(":")[0]
+        for c in res.chunks
+        if c.metadata.structuur_type == "definitie"
+    ]
+    assert termen == ["inrichting", "gedetineerde"]
+    assert "oud begrip" not in res.chunks[0].tekst

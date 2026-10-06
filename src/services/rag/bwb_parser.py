@@ -62,10 +62,19 @@ def _structuur_omschrijving(element: ET.Element) -> str | None:
     return tekst or None
 
 
+def _geldend(element: ET.Element):
+    """Element en alle onderliggende elementen, zonder de subbomen die niet
+    gelden of geen tekst zijn (vervallen/nog niet in werking, metagegevens)."""
+    yield element
+    for kind in element:
+        if not _overslaan(kind):
+            yield from _geldend(kind)
+
+
 def _begripsbepalingen(artikel: ET.Element) -> list[tuple[str, str, str]]:
     """(onderdeel, term, omschrijving) uit lijsten na "wordt verstaan onder:"."""
     items: list[tuple[str, str, str]] = []
-    for ouder in artikel.iter():
+    for ouder in _geldend(artikel):
         kinderen = [k for k in ouder if not _overslaan(k)]
         for vorige, lijst in pairwise(kinderen):
             if lijst.tag != "lijst" or vorige.tag != "al":

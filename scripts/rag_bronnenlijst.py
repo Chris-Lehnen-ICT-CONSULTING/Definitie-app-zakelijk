@@ -137,9 +137,12 @@ def _download(url: str, formaat: str) -> bytes:
         return antwoord.read()
 
 
-def _eu_identiteit_klopt(celex: str, tekst: str) -> bool:
+def _eu_identiteit_klopt(
+    celex: str, tekst: str, titels: list[str] | None = None
+) -> bool:
     """Geconsolideerd (``0YYYYRNNNN-JJJJMMDD``): kenmerk "0YYYYRNNNN — NL —
-    DD.MM.JJJJ" in de tekst. Oorspronkelijk (``3YYYYRNNNN``): "YYYY/NNN"."""
+    DD.MM.JJJJ" in de tekst. Oorspronkelijk (``3YYYYRNNNN``): "YYYY/NNN" in de
+    eerste documenttitel."""
     gevonden = re.fullmatch(
         r"(?P<soort>[03])(?P<jaar>\d{4})R(?P<nr>\d{4})(?:-(?P<d>\d{8}))?", celex
     )
@@ -150,7 +153,8 @@ def _eu_identiteit_klopt(celex: str, tekst: str) -> bool:
         d = gevonden.group("d")
         kenmerk = f"{celex[:10]} — NL — {d[6:8]}.{d[4:6]}.{d[0:4]}"
         return kenmerk in tekst
-    return f"{jaar}/{nr}" in tekst or f"{nr}/{jaar}" in tekst
+    titel = " ".join(titels or [])
+    return f"{jaar}/{nr}" in titel or f"{nr}/{jaar}" in titel
 
 
 def controleer_inhoud(bron: Bron, inhoud: bytes, url: str | None = None) -> None:
@@ -194,7 +198,14 @@ def controleer_inhoud(bron: Bron, inhoud: bytes, url: str | None = None) -> None
         if not all(k.startswith("Artikel ") for k in koppen):
             raise BronError(f"{bron.sleutel}: geen Nederlandse tekst (artikelkoppen)")
         tekst = " ".join(" ".join(wortel.itertext()).split())
-        if not _eu_identiteit_klopt(bron.celex or "", tekst):
+        titels = [
+            " ".join(" ".join(p.itertext()).split())
+            for p in wortel.iter(f"{ns}p")
+            if {"oj-doc-ti", "title-doc-first"} & set((p.get("class") or "").split())
+        ]
+        # Oorspronkelijk: het nummer staat in de eigen documenttitel (niet in een
+        # citaat elders); geconsolideerd: het vaste kenmerk bovenaan.
+        if not _eu_identiteit_klopt(bron.celex or "", tekst, titels[:1]):
             raise BronError(f"{bron.sleutel}: document is niet CELEX {bron.celex}")
 
 
@@ -229,9 +240,10 @@ def ophalen(
 ) -> dict:
     """Haal de bestanden op; geeft het bijgewerkte manifest.
 
-    Na elke geslaagde download wordt het manifest direct (atomair) bijgewerkt,
-    zodat een onderbroken ophaalronde nooit een bestand zonder manifestregel
-    achterlaat. Een al aanwezig bestand wordt opnieuw gecontroleerd; zonder
+    Na elke geslaagde download wordt het manifest direct (atomair) bijgewerkt.
+    Valt het proces precies tussen het plaatsen van een bestand en het
+    bijwerken van het manifest weg, dan wordt dat bestand bij de volgende ronde
+    inhoudelijk gecontroleerd en alsnog vastgelegd. Een al aanwezig bestand wordt opnieuw gecontroleerd; zonder
     (kloppende) manifestregel wordt het als nieuw vastgelegd na de controle.
     """
     map_.mkdir(parents=True, exist_ok=True)
