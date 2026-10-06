@@ -300,8 +300,8 @@ def test_wijziging_tijdens_backup_verwijdert_niets(vervang, monkeypatch, capsys)
     mod, basis, db, oud, _nieuw, argv, _elders = vervang
     echte_backup = mod.create_verified_backup
 
-    def backup_en_daarna_wijziging(bron, doel):
-        manifest = echte_backup(bron, doel)
+    def backup_en_daarna_wijziging(bron, doel, **kw):
+        manifest = echte_backup(bron, doel, **kw)
         conn = sqlite3.connect(bron)
         conn.execute(
             "INSERT INTO rag_documents (collection_id, filename, chunk_count,"
@@ -379,7 +379,7 @@ def test_wijziging_voor_backup_verwijdert_niets(vervang, monkeypatch, capsys):
     mod, basis, db, oud, _nieuw, argv, _elders = vervang
     echte_backup = mod.create_verified_backup
 
-    def wijziging_en_dan_backup(bron, doel):
+    def wijziging_en_dan_backup(bron, doel, **kw):
         conn = sqlite3.connect(bron)
         conn.execute(
             "UPDATE rag_chunks SET chunk_text = 'gewijzigd' WHERE collection_id = ?",
@@ -387,7 +387,7 @@ def test_wijziging_voor_backup_verwijdert_niets(vervang, monkeypatch, capsys):
         )
         conn.commit()
         conn.close()
-        return echte_backup(bron, doel)
+        return echte_backup(bron, doel, **kw)
 
     monkeypatch.setattr(mod, "create_verified_backup", wijziging_en_dan_backup)
     assert mod.main([*argv, "--bevestig"]) == 3
@@ -400,8 +400,8 @@ def test_chunkinhoud_gewijzigd_na_backup_verwijdert_niets(vervang, monkeypatch, 
     mod, _basis, db, oud, _nieuw, argv, _elders = vervang
     echte_backup = mod.create_verified_backup
 
-    def backup_en_dan_wijziging(bron, doel):
-        manifest = echte_backup(bron, doel)
+    def backup_en_dan_wijziging(bron, doel, **kw):
+        manifest = echte_backup(bron, doel, **kw)
         conn = sqlite3.connect(bron)
         conn.execute(
             "UPDATE rag_chunks SET chunk_text = 'nieuwer' WHERE collection_id = ?",
