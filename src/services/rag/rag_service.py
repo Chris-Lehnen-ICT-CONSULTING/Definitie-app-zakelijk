@@ -511,7 +511,8 @@ class RAGService:
            nooit als bron geleverd.
         2. Filters: anders dan de driestaps-fallback van het betekenispad (bij
            < 2 resultaten) wordt hier alleen verruimd bij **nul** treffers mét
-           filters, en dan in één keer zonder filters (per collection).
+           filters over alle geselecteerde collecties samen, en dan in één keer
+           zonder filters (DEF-620 fase 3; daarvoor per collection).
         3. Rangorde (betekenis): binnen de poort op cosine-score ten opzichte
            van één embedding van begrip + zoektermen. Gemeten op de Sv-meetset
            (``scripts/rag_meting.py``) beter dan een RRF-menging met het aantal
@@ -529,17 +530,26 @@ class RAGService:
 
         treffers: list[dict] = []
         for cid in collection_ids:
-            gevonden = self._store.search_keyword(
-                query_embedding,
-                cid,
-                termen,
-                rechtsgebied=rechtsgebied,
-                wet_regeling=wet_regeling,
-                bron_type=bron_type,
+            treffers.extend(
+                self._store.search_keyword(
+                    query_embedding,
+                    cid,
+                    termen,
+                    rechtsgebied=rechtsgebied,
+                    wet_regeling=wet_regeling,
+                    bron_type=bron_type,
+                )
             )
-            if not gevonden and (rechtsgebied or wet_regeling or bron_type):
-                gevonden = self._store.search_keyword(query_embedding, cid, termen)
-            treffers.extend(gevonden)
+        # DEF-620 fase 3: verruimen over álle geselecteerde collecties samen.
+        # Met één collectie per wet (elk met één rechtsgebied) zou verruimen per
+        # collectie het filter onwerkzaam maken: elke andere wet viel dan terug
+        # op "zonder filter". Nu geldt: treffers binnen het rechtsgebied gaan
+        # voor; alleen als er nergens één is, wordt zonder filters gezocht.
+        if not treffers and (rechtsgebied or wet_regeling or bron_type):
+            for cid in collection_ids:
+                treffers.extend(
+                    self._store.search_keyword(query_embedding, cid, termen)
+                )
 
         treffers.sort(key=lambda c: c.get("score", 0), reverse=True)
         geselecteerd = treffers[:top_k]

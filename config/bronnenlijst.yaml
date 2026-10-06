@@ -1,0 +1,180 @@
+# Bronnenlijst van de bronbibliotheek (DEF-620, RAG fase 3).
+#
+# Elke regel wordt één collectie in data/bronnen.db. De versie staat in de
+# collectienaam, zodat een gebruiker bewust kiest welke tekst als context
+# dient (bijv. huidig Sv naast nieuw Sv). Vastgesteld met Chris op 06-10-2026;
+# BWB-id's en geldigheidsdata gecontroleerd via de SRU-zoekservice
+# (zoekservice.overheid.nl) op 06-10-2026.
+#
+# formaat:
+#   bwb  geldende toestand uit het Basiswettenbestand (wetten.overheid.nl)
+#   op   officiële publicatie (Staatsblad) uit officielebekendmakingen.nl
+#   eu   EU-verordening (Nederlands, XHTML) uit Cellar (publications.europa.eu)
+#
+# Bewust NIET opgenomen (wijzigingswetten; hun BWB-tekst bevat alleen
+# wijzigingsopdrachten, de inhoud staat in de wetten hieronder):
+#   Wet identiteitsvaststelling verdachten, veroordeelden en getuigen (BWBR0026180)
+#   Wet straffen en beschermen (BWBR0043990)
+#   Wet modernisering elektronisch bestuurlijk verkeer (BWBR0048252)
+
+bronnen:
+  # --- Strafrecht en strafprocesrecht -------------------------------------
+  - sleutel: sv-nieuw
+    formaat: op
+    urls:
+      - https://zoek.officielebekendmakingen.nl/stb-2026-56.xml
+      - https://zoek.officielebekendmakingen.nl/stb-2026-57.xml
+    bestanden:
+      - Nieuw-Wetboek-van-Strafvordering-Staatsblad-2026-56.xml
+      - Nieuw-Wetboek-van-Strafvordering-Tweede-vaststellingswet-Staatsblad-2026-57.xml
+    collectie: "Sv (nieuw, i.w.t. 1-4-2029)"
+    wet_regeling: "Wetboek van Strafvordering (nieuw, i.w.t. 1-4-2029)"
+    rechtsgebied: strafrecht
+  - sleutel: sv-geldend
+    formaat: bwb
+    bwb_id: BWBR0001903
+    versie: "2026-07-01"
+    collectie: "Sv (geldend, versie 1-7-2026)"
+    wet_regeling: "Wetboek van Strafvordering (geldend, versie 1-7-2026)"
+    rechtsgebied: strafrecht
+  - sleutel: sr
+    formaat: bwb
+    bwb_id: BWBR0001854
+    versie: "2026-07-01"
+    collectie: "Sr (versie 1-7-2026)"
+    wet_regeling: "Wetboek van Strafrecht (versie 1-7-2026)"
+    rechtsgebied: strafrecht
+  - sleutel: gratiewet
+    formaat: bwb
+    bwb_id: BWBR0004257
+    versie: "2021-04-01"
+    collectie: "Gratiewet (versie 1-4-2021)"
+    wet_regeling: "Gratiewet (versie 1-4-2021)"
+    rechtsgebied: strafrecht
+  - sleutel: pbw
+    formaat: bwb
+    bwb_id: BWBR0009709
+    versie: "2025-11-01"
+    collectie: "Pbw (versie 1-11-2025)"
+    wet_regeling: "Penitentiaire beginselenwet (versie 1-11-2025)"
+    rechtsgebied: penitentiair_recht
+  - sleutel: reclasseringsregeling
+    formaat: bwb
+    bwb_id: BWBR0007120
+    versie: "2019-06-26"
+    collectie: "Reclasseringsregeling 1995 (versie 26-6-2019)"
+    wet_regeling: "Reclasseringsregeling 1995 (versie 26-6-2019)"
+    rechtsgebied: strafrecht
+  - sleutel: wet-ro
+    formaat: bwb
+    bwb_id: BWBR0001830
+    versie: "2025-07-01"
+    collectie: "Wet RO (versie 1-7-2025)"
+    wet_regeling: "Wet op de rechterlijke organisatie (versie 1-7-2025)"
+    rechtsgebied: staatsrecht
+
+  # --- Gegevensverwerking en privacy --------------------------------------
+  - sleutel: wpg
+    formaat: bwb
+    bwb_id: BWBR0022463
+    versie: "2026-09-01"
+    collectie: "Wpg (versie 1-9-2026)"
+    wet_regeling: "Wet politiegegevens (versie 1-9-2026)"
+    rechtsgebied: strafrecht
+  - sleutel: wjsg
+    formaat: bwb
+    bwb_id: BWBR0014194
+    versie: "2026-09-01"
+    collectie: "Wjsg (versie 1-9-2026)"
+    wet_regeling: "Wet justitiële en strafvorderlijke gegevens (versie 1-9-2026)"
+    rechtsgebied: strafrecht
+  - sleutel: uavg
+    formaat: bwb
+    bwb_id: BWBR0040940
+    versie: "2026-09-01"
+    collectie: "UAVG (versie 1-9-2026)"
+    wet_regeling: "Uitvoeringswet Algemene verordening gegevensbescherming (versie 1-9-2026)"
+    rechtsgebied: bestuursrecht
+  - sleutel: avg
+    formaat: eu
+    celex: 32016R0679
+    collectie: "AVG (Verordening (EU) 2016/679)"
+    wet_regeling: "Algemene verordening gegevensbescherming (Verordening (EU) 2016/679)"
+    rechtsgebied: europees_recht
+
+  # --- Bestuursrecht en digitale overheid ---------------------------------
+  - sleutel: awb
+    formaat: bwb
+    bwb_id: BWBR0005537
+    versie: "2026-08-15"
+    collectie: "Awb (versie 15-8-2026)"
+    wet_regeling: "Algemene wet bestuursrecht (versie 15-8-2026)"
+    rechtsgebied: bestuursrecht
+  - sleutel: wdo
+    formaat: bwb
+    bwb_id: BWBR0048156
+    versie: "2025-11-11"
+    collectie: "Wdo (versie 11-11-2025)"
+    wet_regeling: "Wet digitale overheid (versie 11-11-2025)"
+    rechtsgebied: bestuursrecht
+  - sleutel: bsdo
+    formaat: bwb
+    bwb_id: BWBR0046935
+    versie: "2022-07-19"
+    collectie: "Besluit Sturing Digitale Overheid 2022 (versie 19-7-2022)"
+    wet_regeling: "Besluit Sturing Digitale Overheid 2022 (versie 19-7-2022)"
+    rechtsgebied: bestuursrecht
+  - sleutel: tbdto
+    formaat: bwb
+    bwb_id: BWBR0040936
+    versie: "2018-07-01"
+    collectie: "Tijdelijk besluit digitale toegankelijkheid overheid (versie 1-7-2018)"
+    wet_regeling: "Tijdelijk besluit digitale toegankelijkheid overheid (versie 1-7-2018)"
+    rechtsgebied: bestuursrecht
+
+  # --- Basisregistraties en identificatie ---------------------------------
+  - sleutel: wet-brp
+    formaat: bwb
+    bwb_id: BWBR0033715
+    versie: "2026-10-01"
+    collectie: "Wet BRP (versie 1-10-2026)"
+    wet_regeling: "Wet basisregistratie personen (versie 1-10-2026)"
+    rechtsgebied: bestuursrecht
+  - sleutel: wabb
+    formaat: bwb
+    bwb_id: BWBR0022428
+    versie: "2025-11-11"
+    collectie: "Wabb (versie 11-11-2025)"
+    wet_regeling: "Wet algemene bepalingen burgerservicenummer (versie 11-11-2025)"
+    rechtsgebied: bestuursrecht
+  - sleutel: handelsregisterwet
+    formaat: bwb
+    bwb_id: BWBR0021777
+    versie: "2025-07-16"
+    collectie: "Handelsregisterwet 2007 (versie 16-7-2025)"
+    wet_regeling: "Handelsregisterwet 2007 (versie 16-7-2025)"
+    rechtsgebied: ondernemingsrecht
+
+  # --- Europees recht -----------------------------------------------------
+  - sleutel: eidas
+    formaat: eu
+    celex: 02014R0910-20241018
+    collectie: "eIDAS (geconsolideerd 18-10-2024)"
+    wet_regeling: "eIDAS-verordening (Verordening (EU) 910/2014, gewijzigd bij 2024/1183; geconsolideerd 18-10-2024)"
+    rechtsgebied: europees_recht
+
+  # --- Burgerlijk Wetboek -------------------------------------------------
+  - sleutel: bw1
+    formaat: bwb
+    bwb_id: BWBR0002656
+    versie: "2025-07-05"
+    collectie: "BW Boek 1 (versie 5-7-2025)"
+    wet_regeling: "Burgerlijk Wetboek Boek 1 (versie 5-7-2025)"
+    rechtsgebied: burgerlijk_recht
+  - sleutel: bw2
+    formaat: bwb
+    bwb_id: BWBR0003045
+    versie: "2026-07-01"
+    collectie: "BW Boek 2 (versie 1-7-2026)"
+    wet_regeling: "Burgerlijk Wetboek Boek 2 (versie 1-7-2026)"
+    rechtsgebied: burgerlijk_recht

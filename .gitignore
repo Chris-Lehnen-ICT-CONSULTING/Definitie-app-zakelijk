@@ -157,6 +157,8 @@ data/definities.db
 /*.sqlite3
 # Ignore any SQLite databases under data/
 data/*.db
+# DEF-620: opgehaalde wetteksten voor de bronbibliotheek (scripts/rag_bronnenlijst.py)
+data/bronnen/
 data/*.sqlite
 data/*.sqlite3
 
