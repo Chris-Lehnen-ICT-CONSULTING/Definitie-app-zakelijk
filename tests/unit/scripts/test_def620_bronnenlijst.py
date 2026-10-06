@@ -264,6 +264,14 @@ def test_identiteit_op_en_eu(bl):
     assert mod._eu_identiteit_klopt(
         "32014R0910", "", ["VERORDENING (EU) Nr. 910/2014 VAN"]
     )
+    assert mod._eu_identiteit_klopt(
+        "32022R1288", "", ["GEDELEGEERDE VERORDENING (EU) 2022/1288 VAN DE COMMISSIE"]
+    )
+    assert mod._eu_identiteit_klopt(
+        "32024R1183",
+        "",
+        ["Verordening (EU) 2024/1183 tot wijziging van Verordening (EU) nr. 910/2014"],
+    )
     with pytest.raises(mod.BronError, match="geen Nederlandse tekst"):
         mod.controleer_inhoud(avg, EU_OJ.replace("Artikel 4", "Article 4").encode())
 

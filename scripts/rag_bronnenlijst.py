@@ -157,7 +157,7 @@ def _eu_identiteit_klopt(
     # of "Verordening (EU) nr. 910/2014 …"; een verwijzing verderop in de titel
     # ("… tot wijziging van Verordening (EU) 2016/679") telt niet.
     eigen = re.match(
-        r"^\s*(?:\w+\s+)?\((?:EU|EG|EEG|Euratom)\)\s*(?:nr\.?\s*)?(\d{1,4})/(\d{1,4})\b",
+        r"^\s*(?:[\w-]+\s+){0,3}\((?:EU|EG|EEG|Euratom)\)\s*(?:nr\.?\s*)?(\d{1,4})/(\d{1,4})\b",
         (titels or [""])[0],
         re.IGNORECASE,
     )
