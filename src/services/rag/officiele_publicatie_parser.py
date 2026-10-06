@@ -38,9 +38,16 @@ _BLOK = {
 _SPATIE_VOOR_LEESTEKEN = re.compile(r"\s+([,.;:)])")
 
 
+# Metagegevens en redactionele noten (BWB-toestanden) horen niet bij de tekst.
+_OVERSLAAN = {"meta-data", "redactie", "opmerkingen-inhoud", "jcis"}
+
+
 def _verzamel(element: ET.Element, delen: list[str]) -> None:
     delen.append(element.text or "")
     for kind in element:
+        if kind.tag in _OVERSLAAN:
+            delen.append(kind.tail or "")
+            continue
         blok = kind.tag in _BLOK
         if blok:
             delen.append(" ")
@@ -83,7 +90,11 @@ def _kop_omschrijving(element: ET.Element) -> str | None:
 
 def _artikel_inhoud(artikel: ET.Element) -> str:
     """Artikeltekst zonder de kop (label/nummer), lid- en onderdeelnummers behouden."""
-    delen = [_tekst(kind) for kind in artikel if kind.tag != "kop"]
+    delen = [
+        _tekst(kind)
+        for kind in artikel
+        if kind.tag != "kop" and kind.tag not in _OVERSLAAN
+    ]
     return " ".join(d for d in delen if d)
 
 

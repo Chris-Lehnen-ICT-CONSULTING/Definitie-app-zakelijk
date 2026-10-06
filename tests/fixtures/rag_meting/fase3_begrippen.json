@@ -1,0 +1,26 @@
+{
+  "_toelichting": "Meetset RAG fase 3 (DEF-620): alle collecties uit config/bronnenlijst.yaml samen, zoals de app standaard zoekt (selectie 'alle'). 'patroon' is het onafhankelijke orakel (regex) of een fragment het begrip noemt (lexicale precisie). 'rechtsgebied' per begrip bootst de juridische context van de gebruiker na (filter met terugval). 'kernartikelen' als 'begin van de wetnaam (wet_regeling)|artikelnummer' (zelf gekozen met grep op de geparste artikelen, 06-10-2026; kleine set, risico op overfitting). De Sr-artikelen 51, 77a, 310/311 komen uit de lijst van Chris. 'dagvaarding' meet het verschil huidig/nieuw Sv: alleen het huidige Sv kent het begrip. Negatieven: 0 treffers in alle bronnen.",
+  "collecties": "alle",
+  "rechtsgebied": "strafrecht",
+  "top_k": 5,
+  "positief": [
+    {"begrip": "diefstal", "patroon": "(?<!\\w)diefstal", "kernartikelen": ["Wetboek van Strafrecht|310", "Wetboek van Strafrecht|311"]},
+    {"begrip": "rechtspersoon", "patroon": "(?<!\\w)rechtsperso(on|nen)\\b", "rechtsgebied": "burgerlijk_recht", "kernartikelen": ["Burgerlijk Wetboek Boek 2|3", "Burgerlijk Wetboek Boek 2|1", "Wetboek van Strafrecht|51"]},
+    {"begrip": "dagvaarding", "patroon": "(?<!\\w)dagvaarding", "kernartikelen": ["Wetboek van Strafvordering (geldend|258", "Wetboek van Strafvordering (geldend|260"]},
+    {"begrip": "procesinleiding", "patroon": "(?<!\\w)procesinleiding", "kernartikelen": ["Wetboek van Strafvordering (nieuw|4.1.1", "Wetboek van Strafvordering (nieuw|4.1.2"]},
+    {"begrip": "gedetineerde", "patroon": "(?<!\\w)gedetineerden?\\b", "rechtsgebied": "penitentiair_recht", "kernartikelen": ["Penitentiaire beginselenwet|1"]},
+    {"begrip": "reclasseringsinstelling", "patroon": "(?<!\\w)reclasseringsinstelling", "kernartikelen": ["Reclasseringsregeling 1995|1"]},
+    {"begrip": "politiegegeven", "patroon": "(?<!\\w)politiegegeven", "kernartikelen": ["Wet politiegegevens|1"]},
+    {"begrip": "justitiële gegevens", "patroon": "justitiële gegevens", "kernartikelen": ["Wet justitiële en strafvorderlijke gegevens|1"]},
+    {"begrip": "persoonsgegevens", "patroon": "(?<!\\w)persoonsgegeven", "rechtsgebied": "europees_recht", "kernartikelen": ["Algemene verordening gegevensbescherming|4"]},
+    {"begrip": "besluit", "patroon": "(?<!\\w)besluit\\b", "rechtsgebied": "bestuursrecht", "kernartikelen": ["Algemene wet bestuursrecht|1:3"]},
+    {"begrip": "bestuursorgaan", "patroon": "(?<!\\w)bestuursorga", "rechtsgebied": "bestuursrecht", "kernartikelen": ["Algemene wet bestuursrecht|1:1"]},
+    {"begrip": "burgerservicenummer", "patroon": "burgerservicenummer", "rechtsgebied": "bestuursrecht", "kernartikelen": ["Wet algemene bepalingen burgerservicenummer|1", "Wet algemene bepalingen burgerservicenummer|2", "Wet basisregistratie personen|1.1"]},
+    {"begrip": "ingezetene", "patroon": "(?<!\\w)ingezetene", "rechtsgebied": "bestuursrecht", "kernartikelen": ["Wet basisregistratie personen|1.1"]},
+    {"begrip": "elektronische handtekening", "patroon": "elektronische handtekening", "rechtsgebied": "europees_recht", "kernartikelen": ["eIDAS-verordening|3", "eIDAS-verordening|25"]}
+  ],
+  "negatief": [
+    {"begrip": "zelfmelder", "patroon": "zelfmeld"},
+    {"begrip": "fietsenstalling", "patroon": "fietsenstalling"}
+  ]
+}

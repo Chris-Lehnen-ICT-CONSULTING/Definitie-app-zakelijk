@@ -405,7 +405,7 @@ class EmbeddingStore:
             treffers = {
                 rij["id"]: (rij, aantal)
                 for rij in rijen
-                if (aantal := tel_treffers_rag(rij["chunk_text"], patronen)) > 0
+                if (aantal := tel_treffers_rag(self._poorttekst(rij), patronen)) > 0
             }
             vectoren = self._lees_embeddings(conn, list(treffers))
         finally:
@@ -429,6 +429,22 @@ class EmbeddingStore:
             results.append(resultaat)
         results.sort(key=lambda r: r["score"], reverse=True)
         return results
+
+    @staticmethod
+    def _poorttekst(rij: sqlite3.Row) -> str:
+        """Tekst waarop de relevantiepoort zoekt (DEF-620 fase 3).
+
+        Chunks van de wetparsers (officiële publicatie, BWB, EU) beginnen met
+        een kopregel die met de wetnaam opent ("Wet politiegegevens (…) — …
+        › Artikel 8"). Die regel hoort bij de embedding (context), maar niet bij
+        de poort: anders laat de wetnaam élk artikel van die wet door voor een
+        begrip uit de titel. Andere chunks (pdf, upload) blijven ongewijzigd.
+        """
+        tekst = rij["chunk_text"] or ""
+        wet = rij["wet_regeling"] or ""
+        if wet and tekst.startswith(wet) and "\n" in tekst:
+            return tekst.split("\n", 1)[1]
+        return tekst
 
     @staticmethod
     def _lees_embeddings(
