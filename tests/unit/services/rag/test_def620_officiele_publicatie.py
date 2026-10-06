@@ -321,3 +321,45 @@ def test_ingest_chunks_rolt_terug_bij_onderbreking_direct_na_registratie(
     conn = sqlite3.connect(db)
     assert conn.execute("SELECT COUNT(*) FROM rag_documents").fetchone()[0] == 0
     conn.close()
+
+
+def test_teruggedraaide_registratie_raakt_hergebruikt_id_niet(rag, xml_bestand):
+    """Een niet-gecommitte registratie wordt teruggedraaid; als SQLite het id
+    daarna aan een andere ingest geeft, mag de opruimstap dat document niet
+    verwijderen."""
+    svc, db, cid, _emb, _chunker = rag
+    echte_connect = svc._connect
+    eerste = {"klaar": False}
+
+    class Verbinding:
+        def __init__(self, conn):
+            self._conn = conn
+
+        def __getattr__(self, naam):
+            return getattr(self._conn, naam)
+
+        def commit(self):
+            if not eerste["klaar"]:
+                eerste["klaar"] = True
+                raise KeyboardInterrupt  # vóór de commit van de registratie
+            return self._conn.commit()
+
+        def rollback(self):
+            self._conn.rollback()
+            ander = sqlite3.connect(db)  # andere ingest krijgt hetzelfde id
+            ander.execute(
+                "INSERT INTO rag_documents (collection_id, filename, chunk_count)"
+                " VALUES (?, 'ander.xml', 0)",
+                (cid,),
+            )
+            ander.commit()
+            ander.close()
+
+    svc._connect = lambda: Verbinding(echte_connect())
+    res = parse_officiele_publicatie(xml_bestand, LABEL, "strafrecht")
+    with pytest.raises(KeyboardInterrupt):
+        svc.ingest_chunks(res, collection_id=cid, filename="stb-test.xml")
+    conn = sqlite3.connect(db)
+    namen = [r[0] for r in conn.execute("SELECT filename FROM rag_documents")]
+    conn.close()
+    assert namen == ["ander.xml"]

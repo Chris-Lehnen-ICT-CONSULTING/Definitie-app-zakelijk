@@ -160,7 +160,8 @@ class RAGService:
         # Stap 1: Registreer document. Registratie valt binnen hetzelfde
         # opruimblok als stap 2-4 (DEF-620): elke fout of onderbreking ná de
         # commit verwijdert de rij weer. document_id wordt vóór de commit gezet,
-        # zodat er geen moment is waarop een gecommitte rij onbekend is.
+        # zodat er geen moment is waarop een gecommitte rij onbekend is; bij een
+        # teruggedraaide registratie wordt het weer None.
         document_id: int | None = None
         try:
             conn = self._connect()
@@ -178,7 +179,12 @@ class RAGService:
                 document_id = cursor.lastrowid
                 conn.commit()
             except BaseException:
-                conn.rollback()
+                if conn.in_transaction:
+                    # Niet gecommit: terugdraaien en het id vergeten. SQLite kan
+                    # een teruggedraaid id opnieuw uitgeven aan een andere
+                    # ingest; de opruimstap mag dat document niet raken.
+                    conn.rollback()
+                    document_id = None
                 raise
             finally:
                 conn.close()

@@ -372,3 +372,124 @@ def test_bestand_niet_te_verwijderen_meldt_achtergebleven(vervang, monkeypatch, 
     assert "fase bestanden" in uit and "database AL gewijzigd" in uit
     assert str(doelwit) in uit
     assert _collecties(db) == [("nieuw", 2)]
+
+
+def test_wijziging_voor_backup_verwijdert_niets(vervang, monkeypatch, capsys):
+    mod, basis, db, oud, _nieuw, argv, _elders = vervang
+    echte_backup = mod.create_verified_backup
+
+    def wijziging_en_dan_backup(bron, doel):
+        conn = sqlite3.connect(bron)
+        conn.execute(
+            "UPDATE rag_chunks SET chunk_text = 'gewijzigd' WHERE collection_id = ?",
+            (oud,),
+        )
+        conn.commit()
+        conn.close()
+        return echte_backup(bron, doel)
+
+    monkeypatch.setattr(mod, "create_verified_backup", wijziging_en_dan_backup)
+    assert mod.main([*argv, "--bevestig"]) == 3
+    uit = capsys.readouterr().out
+    assert "vóór de backup" in uit and "database niet gewijzigd" in uit
+    assert _collecties(db) == [("oud", 3), ("nieuw", 2)]
+
+
+def test_chunkinhoud_gewijzigd_na_backup_verwijdert_niets(vervang, monkeypatch, capsys):
+    mod, _basis, db, oud, _nieuw, argv, _elders = vervang
+    echte_backup = mod.create_verified_backup
+
+    def backup_en_dan_wijziging(bron, doel):
+        manifest = echte_backup(bron, doel)
+        conn = sqlite3.connect(bron)
+        conn.execute(
+            "UPDATE rag_chunks SET chunk_text = 'nieuwer' WHERE collection_id = ?",
+            (oud,),
+        )
+        conn.commit()
+        conn.close()
+        return manifest
+
+    monkeypatch.setattr(mod, "create_verified_backup", backup_en_dan_wijziging)
+    assert mod.main([*argv, "--bevestig"]) == 3
+    assert "sinds de controle" in capsys.readouterr().out
+    assert _collecties(db) == [("oud", 3), ("nieuw", 2)]
+
+
+def test_upload_gedeeld_met_andere_collectie_weigert(vervang, capsys):
+    mod, basis, db, _oud, nieuw, argv, _elders = vervang
+    _zet_upload(db, nieuw, str(basis / UPLOAD))  # zelfde bestand, absoluut pad
+    assert mod.main([*argv, "--bevestig"]) == 2
+    assert "buiten de oude collectie" in capsys.readouterr().out
+    assert _collecties(db) == [("oud", 3), ("nieuw", 2)]
+    assert (basis / UPLOAD).exists()
+
+
+def test_upload_gewijzigd_na_kopie_wordt_niet_verwijderd(vervang, monkeypatch, capsys):
+    mod, basis, db, *_rest, argv, _elders = vervang
+    echt = mod._verwijder_collectie
+
+    def wijzig_upload_en_verwijder(plan):
+        (basis / UPLOAD).write_bytes(b"%PDF nieuwer")
+        echt(plan)
+
+    monkeypatch.setattr(mod, "_verwijder_collectie", wijzig_upload_en_verwijder)
+    assert mod.main([*argv, "--bevestig"]) == 3
+    uit = capsys.readouterr().out
+    assert "fase bestanden" in uit and "inhoud gewijzigd" in uit
+    assert (basis / UPLOAD).read_bytes() == b"%PDF nieuwer"
+    assert _collecties(db) == [("nieuw", 2)]
+
+
+def test_onderbreking_na_commit_meldt_werkelijke_status(vervang, monkeypatch, capsys):
+    mod, basis, db, *_rest, argv, _elders = vervang
+    echt = mod._verwijder_collectie
+
+    def verwijder_en_onderbreek(plan):
+        echt(plan)
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(mod, "_verwijder_collectie", verwijder_en_onderbreek)
+    assert mod.main([*argv, "--bevestig"]) == 3
+    uit = capsys.readouterr().out
+    assert "fase database" in uit and "database AL gewijzigd" in uit
+    assert str((basis / UPLOAD).resolve()) in uit  # achtergebleven upload
+    assert _collecties(db) == [("nieuw", 2)]
+
+
+def test_onderbreking_direct_na_commit_wordt_niet_gemaskeerd(
+    vervang, monkeypatch, capsys
+):
+    """KeyboardInterrupt ná COMMIT binnen de transactie: geen ROLLBACK-fout die
+    de onderbreking maskeert, en de status is 'AL gewijzigd'."""
+    mod, _basis, db, *_rest, argv, _elders = vervang
+    echt = mod._verwijder_collectie
+    echte_connect = sqlite3.connect
+
+    class Verbinding:
+        def __init__(self, conn):
+            self._conn = conn
+
+        def __getattr__(self, naam):
+            return getattr(self._conn, naam)
+
+        def execute(self, sql, *args):
+            resultaat = self._conn.execute(sql, *args)
+            if sql == "COMMIT":
+                raise KeyboardInterrupt
+            return resultaat
+
+    def verwijder_met_onderbreking(plan):
+        monkeypatch.setattr(
+            mod.sqlite3, "connect", lambda *a, **k: Verbinding(echte_connect(*a, **k))
+        )
+        try:
+            echt(plan)
+        finally:
+            monkeypatch.setattr(mod.sqlite3, "connect", echte_connect)
+
+    monkeypatch.setattr(mod, "_verwijder_collectie", verwijder_met_onderbreking)
+    assert mod.main([*argv, "--bevestig"]) == 3
+    uit = capsys.readouterr().out
+    assert "KeyboardInterrupt" in uit and "database AL gewijzigd" in uit
+    assert _collecties(db) == [("nieuw", 2)]

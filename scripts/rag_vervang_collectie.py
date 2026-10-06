@@ -27,8 +27,14 @@ Met ``--bevestig``, in vaste fasen:
 - ``nacontrole``: niets van de oude collectie over, integrity_check ok,
   nieuwe collectie ongewijzigd.
 
-Bij een fout of onderbreking meldt het script de fase, of de database al is
-gewijzigd, de achtergebleven bestanden en de herstelpaden.
+Bij een fout of onderbreking meldt het script de fase, de werkelijke
+databasestatus (opnieuw vastgesteld), de achtergebleven bestanden en de
+herstelpaden. De backup wordt na het maken vergeleken met de gecontroleerde
+toestand (ook de inhoud van de oude chunks); een upload wordt alleen
+verwijderd als pad en inhoud nog gelijk zijn aan de kopie.
+
+Draai dit alleen terwijl de app gestopt is: het script gaat uit van
+exclusieve toegang tot de database en de uploadmap.
 
 Uploadpaden in ``rag_documents.file_path`` zijn relatief aan de projectmap
 waarin de app draaide. Die map is hier vast: de map boven ``data/`` van de
@@ -45,6 +51,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import sqlite3
 import sys
@@ -70,9 +77,14 @@ class Staat:
     oud_id: int
     oud_chunks: int
     oud_documenten: tuple[tuple[int, str | None], ...]  # (id, file_path)
+    oud_inhoud: str  # sha256 over id, document, tekst en embedding van elke chunk
     nieuw_id: int
     nieuw_chunks: int
+    nieuw_dimensie: int
+    nieuw_incompleet: int  # documenten met chunk_count != werkelijke chunks
+    nieuw_ongeldig: int  # chunks zonder embedding van de juiste dimensie
     projectverwijzingen: int
+    gedeelde_uploads: int  # uploads van oud waar ook een ander document naar wijst
 
 
 @dataclass(frozen=True)
@@ -118,31 +130,82 @@ def _aantal_chunks(conn: sqlite3.Connection, cid: int) -> int:
     )
 
 
-def _lees_staat(conn: sqlite3.Connection, oud_naam: str, nieuw_naam: str) -> Staat:
+def _inhoud_hash(conn: sqlite3.Connection, cid: int) -> str:
+    h = hashlib.sha256()
+    for cid_, doc, tekst, emb in conn.execute(
+        "SELECT id, document_id, chunk_text, embedding FROM rag_chunks "
+        "WHERE collection_id = ? ORDER BY id",
+        (cid,),
+    ):
+        for deel in (cid_, doc, tekst):
+            h.update(repr(deel).encode())
+        h.update(emb or b"")
+    return h.hexdigest()
+
+
+def _zelfde_bestand(basis: Path, file_path: str) -> Path:
+    pad = Path(file_path)
+    return (pad if pad.is_absolute() else basis / pad).resolve()
+
+
+def _lees_staat(
+    conn: sqlite3.Connection, oud_naam: str, nieuw_naam: str, basis: Path
+) -> Staat:
+    """Lees alles wat tussen controle, backup en verwijderen gelijk moet blijven."""
     oud = _collectie(conn, oud_naam)
     nieuw = _collectie(conn, nieuw_naam)
     if oud is None:
         raise VervangError(f"oude collectie {oud_naam!r} niet gevonden")
     if nieuw is None:
         raise VervangError(f"nieuwe collectie {nieuw_naam!r} niet gevonden")
+    oud_id, nieuw_id = oud[0], nieuw[0]
+    dimensie = int(nieuw[1].get("dimensions") or 0)
+    oud_documenten = tuple(
+        (int(i), fp)
+        for i, fp in conn.execute(
+            "SELECT id, file_path FROM rag_documents WHERE collection_id = ? "
+            "ORDER BY id",
+            (oud_id,),
+        ).fetchall()
+    )
+    oud_bestanden = {_zelfde_bestand(basis, fp) for _i, fp in oud_documenten if fp}
+    andere = {
+        _zelfde_bestand(basis, fp)
+        for (fp,) in conn.execute(
+            "SELECT file_path FROM rag_documents WHERE file_path IS NOT NULL "
+            "AND collection_id IS NOT ?",
+            (oud_id,),
+        )
+    }
     return Staat(
-        oud_id=oud[0],
-        oud_chunks=_aantal_chunks(conn, oud[0]),
-        oud_documenten=tuple(
-            (int(i), fp)
-            for i, fp in conn.execute(
-                "SELECT id, file_path FROM rag_documents WHERE collection_id = ? "
-                "ORDER BY id",
-                (oud[0],),
-            ).fetchall()
-        ),
-        nieuw_id=nieuw[0],
-        nieuw_chunks=_aantal_chunks(conn, nieuw[0]),
-        projectverwijzingen=int(
+        oud_id=oud_id,
+        oud_chunks=_aantal_chunks(conn, oud_id),
+        oud_documenten=oud_documenten,
+        oud_inhoud=_inhoud_hash(conn, oud_id),
+        nieuw_id=nieuw_id,
+        nieuw_chunks=_aantal_chunks(conn, nieuw_id),
+        nieuw_dimensie=dimensie,
+        nieuw_incompleet=int(
             conn.execute(
-                "SELECT COUNT(*) FROM projects WHERE rag_collection_id = ?", (oud[0],)
+                "SELECT COUNT(*) FROM rag_documents d WHERE d.collection_id = ? "
+                "AND COALESCE(d.chunk_count, 0) != (SELECT COUNT(*) FROM rag_chunks c "
+                "WHERE c.document_id = d.id)",
+                (nieuw_id,),
             ).fetchone()[0]
         ),
+        nieuw_ongeldig=int(
+            conn.execute(
+                "SELECT COUNT(*) FROM rag_chunks WHERE collection_id = ? "
+                "AND (embedding IS NULL OR length(embedding) != ?)",
+                (nieuw_id, dimensie * 4),
+            ).fetchone()[0]
+        ),
+        projectverwijzingen=int(
+            conn.execute(
+                "SELECT COUNT(*) FROM projects WHERE rag_collection_id = ?", (oud_id,)
+            ).fetchone()[0]
+        ),
+        gedeelde_uploads=len(oud_bestanden & andere),
     )
 
 
@@ -176,7 +239,7 @@ def controleer(
     basis = db.parent.parent
     conn = _verbind(db)
     try:
-        staat = _lees_staat(conn, oud_naam, nieuw_naam)
+        staat = _lees_staat(conn, oud_naam, nieuw_naam, basis)
         if staat.oud_id != oud_id:
             raise VervangError(
                 f"oude collectie {oud_naam!r} heeft id {staat.oud_id}, verwacht {oud_id}"
@@ -197,34 +260,21 @@ def controleer(
                 f"{staat.projectverwijzingen} project(en) verwijzen naar de oude collectie"
             )
 
-        for doc_id, naam, chunk_count in conn.execute(
-            "SELECT id, filename, chunk_count FROM rag_documents "
-            "WHERE collection_id = ?",
-            (staat.nieuw_id,),
-        ).fetchall():
-            werkelijk = int(
-                conn.execute(
-                    "SELECT COUNT(*) FROM rag_chunks WHERE document_id = ?", (doc_id,)
-                ).fetchone()[0]
-            )
-            if int(chunk_count or 0) != werkelijk:
-                raise VervangError(
-                    f"nieuw document {naam!r} incompleet: chunk_count="
-                    f"{chunk_count}, chunks={werkelijk}"
-                )
-
-        nieuw_meta = _collectie(conn, nieuw_naam)
-        dimensie = int((nieuw_meta[1] if nieuw_meta else {}).get("dimensions") or 0)
-        if dimensie <= 0:
-            raise VervangError("nieuwe collectie heeft geen embeddingdimensie")
-        afwijkend = conn.execute(
-            "SELECT COUNT(*) FROM rag_chunks WHERE collection_id = ? "
-            "AND (embedding IS NULL OR length(embedding) != ?)",
-            (staat.nieuw_id, dimensie * 4),
-        ).fetchone()[0]
-        if afwijkend:
+        if staat.nieuw_incompleet:
             raise VervangError(
-                f"{afwijkend} chunks in de nieuwe collectie zonder geldige embedding"
+                f"{staat.nieuw_incompleet} document(en) in de nieuwe collectie incompleet"
+            )
+        if staat.nieuw_dimensie <= 0:
+            raise VervangError("nieuwe collectie heeft geen embeddingdimensie")
+        if staat.nieuw_ongeldig:
+            raise VervangError(
+                f"{staat.nieuw_ongeldig} chunks in de nieuwe collectie zonder "
+                "geldige embedding"
+            )
+        if staat.gedeelde_uploads:
+            raise VervangError(
+                f"{staat.gedeelde_uploads} uploadbestand(en) ook in gebruik buiten "
+                "de oude collectie"
             )
         eerste = conn.execute(
             "SELECT id FROM rag_chunks WHERE collection_id = ? ORDER BY id LIMIT 1",
@@ -262,28 +312,44 @@ def _sha256(pad: Path) -> str:
     return h.hexdigest()
 
 
-def _kopieer_uploads(plan: Plan, doelmap: Path) -> list[Upload]:
-    """Kopieer bestaande uploads met hun relatieve pad; controleer elke kopie."""
+def _kopieer_uploads(plan: Plan, doelmap: Path) -> list[tuple[Upload, str]]:
+    """Kopieer bestaande uploads met hun relatieve pad; controleer elke kopie.
+
+    Geeft (upload, sha256) per gekopieerd bestand.
+    """
     bestaand = [u for u in plan.uploads if u.pad.is_file()]
     if not bestaand:
         return []
     doelmap.mkdir()
-    manifest = []
+    gekopieerd = []
     for u in bestaand:
         doel = doelmap / u.relatief
         doel.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(u.pad, doel)
-        som = _sha256(u.pad)
-        if _sha256(doel) != som:
+        som = _sha256(doel)
+        if _sha256(u.pad) != som:
             raise VervangError(f"kopie wijkt af van het origineel: {u.pad}")
-        manifest.append(
-            {"origineel": str(u.pad), "file_path": u.opgeslagen,
-             "kopie": str(doel), "sha256": som}
-        )  # fmt: skip
+        gekopieerd.append((u, som))
+    manifest = [
+        {"origineel": str(u.pad), "file_path": u.opgeslagen,
+         "kopie": str(doelmap / u.relatief), "sha256": som}
+        for u, som in gekopieerd
+    ]  # fmt: skip
     (doelmap / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
     )
-    return bestaand
+    return gekopieerd
+
+
+def _controleer_backup(plan: Plan, backup: Path) -> None:
+    """De backup moet precies de gecontroleerde toestand bevatten."""
+    conn = _verbind(backup)
+    try:
+        in_backup = _lees_staat(conn, plan.oud_naam, plan.nieuw_naam, plan.basis)
+    finally:
+        conn.close()
+    if in_backup != plan.staat:
+        raise VervangError("database gewijzigd vóór de backup; niets verwijderd")
 
 
 def _verwijder_collectie(plan: Plan) -> None:
@@ -293,7 +359,7 @@ def _verwijder_collectie(plan: Plan) -> None:
         conn.execute("PRAGMA foreign_keys=ON")
         conn.execute("BEGIN IMMEDIATE")
         try:
-            nu = _lees_staat(conn, plan.oud_naam, plan.nieuw_naam)
+            nu = _lees_staat(conn, plan.oud_naam, plan.nieuw_naam, plan.basis)
             if nu != plan.staat:
                 raise VervangError(
                     "database gewijzigd sinds de controle; niets verwijderd"
@@ -305,10 +371,48 @@ def _verwijder_collectie(plan: Plan) -> None:
                 raise VervangError("collectie niet verwijderd")
             conn.execute("COMMIT")
         except BaseException:
-            conn.execute("ROLLBACK")
+            if conn.in_transaction:
+                conn.execute("ROLLBACK")
             raise
     finally:
         conn.close()
+
+
+def _oud_verwijderd(plan: Plan) -> bool | None:
+    """Werkelijke databasestatus na een fout; None als dat niet vast te stellen is."""
+    try:
+        conn = _verbind(plan.db)
+        try:
+            rij = conn.execute(
+                "SELECT COUNT(*) FROM rag_collections WHERE id = ?",
+                (plan.staat.oud_id,),
+            ).fetchone()
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        return None
+    return rij[0] == 0
+
+
+def _verwijder_bestanden(plan: Plan, gekopieerd: list[tuple[Upload, str]]) -> None:
+    """Verwijder alleen uploads die nog exact de gekopieerde inhoud hebben."""
+    uploadmap = (plan.basis / "data" / "uploads").resolve()
+    overgeslagen = []
+    for u, som in gekopieerd:
+        echt = Path(os.path.realpath(u.pad))
+        if (
+            echt != u.pad
+            or not echt.is_relative_to(uploadmap)
+            or not u.pad.is_file()
+            or _sha256(u.pad) != som
+        ):
+            overgeslagen.append(str(u.pad))
+            continue
+        u.pad.unlink()
+    if overgeslagen:
+        raise VervangError(
+            f"niet verwijderd (pad of inhoud gewijzigd na de kopie): {overgeslagen}"
+        )
 
 
 def _nacontrole(plan: Plan) -> None:
@@ -344,36 +448,35 @@ def voer_uit(plan: Plan, backupmap: Path, stempel: str | None = None) -> Path:
     backup = backupmap / f"definities_backup_voor_vervang_{stempel}.db"
     kopiemap = backupmap / f"uploads_voor_vervang_{stempel}"
     fase = "backup"
-    db_gewijzigd = False
-    achtergebleven: list[Path] = []
+    gekopieerd: list[tuple[Upload, str]] = []
     try:
         backupmap.mkdir(parents=True, exist_ok=True)
         try:
             create_verified_backup(plan.db, backup)
         except BackupError as exc:
             raise VervangError(f"backup mislukt: {exc.reason}") from exc
+        _controleer_backup(plan, backup)
 
         fase = "uploadkopie"
         gekopieerd = _kopieer_uploads(plan, kopiemap)
 
         fase = "database"
         _verwijder_collectie(plan)
-        db_gewijzigd = True
 
         fase = "bestanden"
-        achtergebleven = [u.pad for u in gekopieerd]
-        for u in gekopieerd:
-            u.pad.unlink(missing_ok=True)
-            achtergebleven.remove(u.pad)
+        _verwijder_bestanden(plan, gekopieerd)
+
         fase = "nacontrole"
         _nacontrole(plan)
     except BaseException as exc:
-        status = "AL gewijzigd" if db_gewijzigd else "niet gewijzigd"
-        rest = (
-            f"; achtergebleven uploads: {[str(p) for p in achtergebleven]}"
-            if achtergebleven
-            else ""
-        )
+        verwijderd = _oud_verwijderd(plan)
+        status = {
+            True: "AL gewijzigd (oude collectie verwijderd)",
+            False: "niet gewijzigd",
+            None: "ONBEKEND (controleer handmatig)",
+        }[verwijderd]
+        over = [str(u.pad) for u, _som in gekopieerd if u.pad.exists()]
+        rest = f"; achtergebleven uploads: {over}" if verwijderd and over else ""
         herstel = f"; backup: {backup}" if backup.exists() else ""
         if kopiemap.exists():
             herstel += f"; uploadkopieën: {kopiemap}"
