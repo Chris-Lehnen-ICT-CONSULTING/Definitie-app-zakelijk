@@ -727,6 +727,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             rag_status = "not_available"
             rag_collection_id: int | None = None
             rag_min_score = float(os.getenv("RAG_MIN_SCORE", "0.3"))
+            # DEF-620 (RAG fase 1): relevantiepoort op het begrip (plus stamvorm,
+            # zie RAGService._zoek_hybride). Bewust (nog) zonder synoniemen: het
+            # register bevat ook als 'active' te brede termen (bv. "mens",
+            # "individu" bij "verdachte"), die de poort zouden openzetten.
+            rag_zoektermen: list[str] = [sanitized_request.begrip]
+            rag_kandidaten: int | None = None
 
             if self.rag_service:
                 try:
@@ -766,6 +772,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             collection_ids=rag_collection_ids,
                             top_k=5,
                             rechtsgebied=rag_rechtsgebied,
+                            zoektermen=rag_zoektermen,
                         )
                         rag_collection_id = rag_context.collection_id
                     else:
@@ -776,10 +783,17 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             collection_id=rag_collection_id,
                             top_k=5,
                             rechtsgebied=rag_rechtsgebied,
+                            zoektermen=rag_zoektermen,
                         )
 
                     # Score threshold: filter lage-score chunks
                     all_rag_chunks = rag_context.chunks
+                    kandidaten = getattr(rag_context, "kandidaten", None)
+                    rag_kandidaten = kandidaten if isinstance(kandidaten, int) else None
+                    # De relevantiepoort (begrip genoemd) komt bovenop deze
+                    # drempel: een fragment moet het begrip noemen én er in
+                    # betekenis bij passen (homoniemen als "onttrekking aan het
+                    # verkeer" scoren laag op betekenis).
                     rag_chunks = [
                         c for c in all_rag_chunks if c.get("score", 0) >= rag_min_score
                     ]
@@ -1425,6 +1439,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     # DEF-271: RAG context metadata
                     "rag_status": rag_status,
                     "rag_chunks_count": len(rag_chunks),
+                    # DEF-620: waarom er wel/geen bibliotheekbron is
+                    "rag_zoektermen": rag_zoektermen,
+                    "rag_kandidaten": rag_kandidaten,
                     "rag_chunks_filtered": (
                         len(all_rag_chunks) - len(rag_chunks)
                         if rag_status == "success"
