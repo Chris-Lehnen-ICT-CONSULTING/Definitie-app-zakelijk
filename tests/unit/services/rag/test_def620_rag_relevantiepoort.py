@@ -262,6 +262,30 @@ def test_twee_collections_globale_top_k_en_filter_per_collection(tmp_path):
     assert ctx.collection_id == 0  # meerdere collections
 
 
+def test_bron_type_filter_wijst_af(sv):
+    _svc, store, cid, _emb = sv
+    assert (
+        store.search_keyword(
+            _vec(1, 0), cid, ["onttrekking"], bron_type="jurisprudentie"
+        )
+        == []
+    )
+
+
+def test_meerwoordige_terugval_telt_een_keer_en_blijft_snel():
+    import time
+
+    patronen = zoekpatronen("voorlopige hechtenis")
+    lang_met_term = "x " * 2000 + "Artikel 63 voorlopige hechtenis"
+    assert tel_treffers_rag(lang_met_term, patronen) == 1
+    lang_terugval = "x " * 2000 + "hechtenis en voorlopige maatregel"
+    assert tel_treffers_rag(lang_terugval, patronen) == 1
+    begin = time.perf_counter()
+    for _ in range(100):
+        tel_treffers_rag(lang_terugval, patronen)
+    assert time.perf_counter() - begin < 0.5
+
+
 def test_search_keyword_score_is_cosine(sv):
     _svc, store, cid, _emb = sv
     hits = store.search_keyword(_vec(1, 0), cid, ["onttrekking"])

@@ -792,8 +792,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     rag_kandidaten = kandidaten if isinstance(kandidaten, int) else None
                     # De relevantiepoort (begrip genoemd) komt bovenop deze
                     # drempel: een fragment moet het begrip noemen én er in
-                    # betekenis bij passen (homoniemen als "onttrekking aan het
-                    # verkeer" scoren laag op betekenis).
+                    # betekenis bij passen. Homoniemen als "onttrekking aan het
+                    # verkeer" scoren doorgaans laag op betekenis; de drempel
+                    # helpt die te weren, maar is geen garantie.
                     rag_chunks = [
                         c for c in all_rag_chunks if c.get("score", 0) >= rag_min_score
                     ]

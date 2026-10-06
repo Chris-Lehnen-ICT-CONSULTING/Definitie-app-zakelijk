@@ -58,6 +58,8 @@ _PDF_AFBREKING = re.compile(r"(\w)-[ \t]*\r?\n[ \t]*(?=[a-zà-ÿ])")
 _WITRUIMTE = re.compile(r"\s+")
 _KLINKERS = "aeiou"
 _MIN_STAM = 6
+# Herkenningsteken van het (verankerde) terugvalpatroon voor meerwoordige termen.
+_TERUGVAL_PREFIX = r"\A"
 
 
 def normaliseer_zoektekst(tekst: str | None) -> str:
@@ -123,9 +125,13 @@ def zoekpatronen(term: str | None) -> list[re.Pattern[str]]:
     patronen = [_voorvoegsel_patroon(begrip)]
     lange = [w for w in woorden if len(w) >= 4]
     if len(lange) > 1:
+        # Verankerd aan het begin van de tekst: treft hooguit één keer (één
+        # vindplaats) en wordt niet op elke positie opnieuw geprobeerd.
         patronen.append(
             re.compile(
-                "".join(f"(?=.*{_voorvoegsel_patroon(w).pattern})" for w in lange)
+                _TERUGVAL_PREFIX
+                + "".join(f"(?=.*{_voorvoegsel_patroon(w).pattern})" for w in lange),
+                re.DOTALL,
             )
         )
     voor = " ".join(woorden[:-1])
@@ -145,13 +151,19 @@ def tel_treffers_rag(tekst: str | None, patronen: list[re.Pattern[str]]) -> int:
 
     Patronen van één begrip die op dezelfde plek treffen, tellen één keer.
     De terugval voor meerwoordige termen (alle lange woorden los aanwezig)
-    telt als één vindplaats.
+    telt alleen als er geen andere vindplaats is, en dan als één.
     """
     inhoud = normaliseer_zoektekst(tekst)
     if not inhoud or not patronen:
         return 0
     posities: set[int] = set()
+    terugval = False
     for patroon in patronen:
+        if patroon.pattern.startswith(_TERUGVAL_PREFIX):
+            terugval = terugval or patroon.search(inhoud) is not None
+            continue
         for treffer in patroon.finditer(inhoud):
             posities.add(treffer.start())
-    return len(posities)
+    if posities:
+        return len(posities)
+    return 1 if terugval else 0

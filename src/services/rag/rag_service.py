@@ -459,7 +459,8 @@ class RAGService:
            vermeldingen, dat lange opsommingsartikelen bevoordeelt.
 
         ``score`` blijft de cosine-score; ``trefwoord_treffers`` komt erbij. De
-        orchestrator houdt daarbovenop ``RAG_MIN_SCORE`` aan (weert homoniemen).
+        orchestrator houdt daarbovenop ``RAG_MIN_SCORE`` aan; die helpt homoniemen
+        (andere betekenis, lage cosine) te weren, maar garandeert dat niet.
         Geen treffers → lege context.
         """
         termen = list(
