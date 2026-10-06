@@ -298,3 +298,26 @@ def test_ingest_chunks_rolt_terug_bij_onderbreking(rag, xml_bestand):
     conn = sqlite3.connect(db)
     assert conn.execute("SELECT COUNT(*) FROM rag_documents").fetchone()[0] == 0
     conn.close()
+
+
+def test_ingest_chunks_rolt_terug_bij_onderbreking_direct_na_registratie(
+    rag, xml_bestand, monkeypatch
+):
+    svc, db, cid, emb, _chunker = rag
+    from services.rag import rag_service
+
+    echte_info = rag_service.logger.info
+
+    def info(bericht, *args, **kwargs):
+        if bericht.startswith("Document geregistreerd"):
+            raise KeyboardInterrupt  # na de commit van de registratie
+        return echte_info(bericht, *args, **kwargs)
+
+    monkeypatch.setattr(rag_service.logger, "info", info)
+    res = parse_officiele_publicatie(xml_bestand, LABEL, "strafrecht")
+    with pytest.raises(KeyboardInterrupt):
+        svc.ingest_chunks(res, collection_id=cid, filename="stb-test.xml")
+    emb.embed_batch.assert_not_called()
+    conn = sqlite3.connect(db)
+    assert conn.execute("SELECT COUNT(*) FROM rag_documents").fetchone()[0] == 0
+    conn.close()

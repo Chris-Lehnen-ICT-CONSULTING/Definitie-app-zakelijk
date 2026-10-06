@@ -197,7 +197,9 @@ def test_droge_run_wijzigt_niets(vervang):
     [
         (("--oud-chunks", "3", "--oud-chunks", "4"), "oude collectie heeft 3"),
         (("--nieuw-chunks", "2", "--nieuw-chunks", "5"), "nieuwe collectie heeft 2"),
-        (("--oud-naam", "oud", "--oud-naam", "nieuw"), "niet gevonden"),
+        (("--oud-naam", "oud", "--oud-naam", "nieuw"), "heeft id 2, verwacht 1"),
+        (("--oud-naam", "oud", "--oud-naam", "bestaat-niet"), "niet gevonden"),
+        (("--nieuw-naam", "nieuw", "--nieuw-naam", "oud"), "dezelfde"),
     ],
 )
 def test_afwijkende_identiteit_weigert(vervang, capsys, vervanging, fout):
@@ -247,17 +249,31 @@ def test_projectverwijzing_weigert(vervang):
     assert _collecties(db) == [("oud", 3), ("nieuw", 2)]
 
 
-def test_uploadpad_buiten_projectmap_weigert(vervang):
+@pytest.mark.parametrize(
+    "pad",
+    [
+        "../../buiten.pdf",
+        "data/definities.db",  # binnen de projectmap, maar geen upload
+        "data/backups/oud.db",
+        "data/uploads",  # de uploadmap zelf
+        "/tmp/elders.pdf",
+    ],
+)
+def test_uploadpad_buiten_uploadmap_weigert(vervang, pad):
     mod, _basis, db, oud, _nieuw, argv, _elders = vervang
+    _zet_upload(db, oud, pad)
+    assert mod.main([*argv, "--bevestig"]) == 2
+    assert _collecties(db) == [("oud", 3), ("nieuw", 2)]
+    assert db.exists()
+
+
+def _zet_upload(db: Path, cid: int, pad: str) -> None:
     conn = sqlite3.connect(db)
     conn.execute(
-        "UPDATE rag_documents SET file_path = '../../buiten.pdf' WHERE collection_id = ?",
-        (oud,),
+        "UPDATE rag_documents SET file_path = ? WHERE collection_id = ?", (pad, cid)
     )
     conn.commit()
     conn.close()
-    assert mod.main([*argv, "--bevestig"]) == 2
-    assert _collecties(db) == [("oud", 3), ("nieuw", 2)]
 
 
 def test_bevestig_maakt_backup_bewaart_upload_en_verwijdert_oud(vervang):
@@ -270,9 +286,89 @@ def test_bevestig_maakt_backup_bewaart_upload_en_verwijdert_oud(vervang):
     conn = sqlite3.connect(backup)
     assert conn.execute("SELECT COUNT(*) FROM rag_chunks").fetchone()[0] == 5
     conn.close()
-    (kopie,) = backups.glob("uploads_voor_vervang_*/oud-sv.pdf")
+    (kopie,) = backups.glob(f"uploads_voor_vervang_*/{UPLOAD}")
     assert kopie.read_bytes() == b"%PDF oud"
+    (manifest,) = backups.glob("uploads_voor_vervang_*/manifest.json")
+    assert '"file_path": "data/uploads/oud-sv.pdf"' in manifest.read_text()
 
     assert not (basis / UPLOAD).exists()  # opgeruimd in de projectmap …
     assert (elders / UPLOAD).read_bytes() == b"niet aankomen"  # … niet in de werkmap
     assert Path.cwd() == elders
+
+
+def test_wijziging_tijdens_backup_verwijdert_niets(vervang, monkeypatch, capsys):
+    mod, basis, db, oud, _nieuw, argv, _elders = vervang
+    echte_backup = mod.create_verified_backup
+
+    def backup_en_daarna_wijziging(bron, doel):
+        manifest = echte_backup(bron, doel)
+        conn = sqlite3.connect(bron)
+        conn.execute(
+            "INSERT INTO rag_documents (collection_id, filename, chunk_count,"
+            " file_path) VALUES (?, 'later', 0, '/elders/later.pdf')",
+            (oud,),
+        )
+        conn.commit()
+        conn.close()
+        return manifest
+
+    monkeypatch.setattr(mod, "create_verified_backup", backup_en_daarna_wijziging)
+    assert mod.main([*argv, "--bevestig"]) == 3
+    uit = capsys.readouterr().out
+    assert "gewijzigd sinds de controle" in uit
+    assert "database niet gewijzigd" in uit
+    assert _collecties(db) == [("oud", 3), ("nieuw", 2)]
+    assert (basis / UPLOAD).exists()
+
+
+def test_uploads_met_zelfde_naam_beide_bewaard(vervang):
+    mod, basis, db, oud, _nieuw, argv, _elders = vervang
+    tweede = "data/uploads/sub/oud-sv.pdf"
+    (basis / tweede).parent.mkdir()
+    (basis / tweede).write_bytes(b"%PDF tweede")
+    conn = sqlite3.connect(db)
+    conn.execute(
+        "INSERT INTO rag_documents (collection_id, filename, chunk_count, file_path)"
+        " VALUES (?, 'doc-2', 0, ?)",
+        (oud, tweede),
+    )
+    conn.commit()
+    conn.close()
+    assert mod.main([*argv, "--bevestig"]) == 0
+    (kopiemap,) = (basis / "data" / "backups").glob("uploads_voor_vervang_*")
+    assert (kopiemap / UPLOAD).read_bytes() == b"%PDF oud"
+    assert (kopiemap / tweede).read_bytes() == b"%PDF tweede"
+    assert not (basis / UPLOAD).exists() and not (basis / tweede).exists()
+
+
+def test_onderbreking_in_databasefase_meldt_status(vervang, monkeypatch, capsys):
+    mod, basis, db, *_rest, argv, _elders = vervang
+
+    def onderbreek(_plan):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(mod, "_verwijder_collectie", onderbreek)
+    assert mod.main([*argv, "--bevestig"]) == 3
+    uit = capsys.readouterr().out
+    assert "fase database" in uit and "database niet gewijzigd" in uit
+    assert "backup:" in uit and "uploadkopieën:" in uit
+    assert _collecties(db) == [("oud", 3), ("nieuw", 2)]
+    assert (basis / UPLOAD).exists()
+
+
+def test_bestand_niet_te_verwijderen_meldt_achtergebleven(vervang, monkeypatch, capsys):
+    mod, basis, db, *_rest, argv, _elders = vervang
+    doelwit = (basis / UPLOAD).resolve()
+    echte_unlink = Path.unlink
+
+    def unlink(self, *a, **k):
+        if self == doelwit:
+            raise PermissionError("vergrendeld")
+        return echte_unlink(self, *a, **k)
+
+    monkeypatch.setattr(Path, "unlink", unlink)
+    assert mod.main([*argv, "--bevestig"]) == 3
+    uit = capsys.readouterr().out
+    assert "fase bestanden" in uit and "database AL gewijzigd" in uit
+    assert str(doelwit) in uit
+    assert _collecties(db) == [("nieuw", 2)]

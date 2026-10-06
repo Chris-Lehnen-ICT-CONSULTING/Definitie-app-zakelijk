@@ -157,35 +157,39 @@ class RAGService:
                 f"Geldige waarden: {', '.join(BRON_TYPES)}"
             )
 
-        # Stap 1: Registreer document
-        conn = self._connect()
+        # Stap 1: Registreer document. Registratie valt binnen hetzelfde
+        # opruimblok als stap 2-4 (DEF-620): elke fout of onderbreking ná de
+        # commit verwijdert de rij weer. document_id wordt vóór de commit gezet,
+        # zodat er geen moment is waarop een gecommitte rij onbekend is.
+        document_id: int | None = None
         try:
-            cursor = conn.execute(
-                "INSERT INTO rag_documents "
-                "(collection_id, filename, file_type, rechtsgebied, chunk_count, file_path) "
-                "VALUES (?, ?, ?, ?, 0, ?)",
-                (collection_id, filename, file_type, rechtsgebied, file_path),
+            conn = self._connect()
+            try:
+                cursor = conn.execute(
+                    "INSERT INTO rag_documents "
+                    "(collection_id, filename, file_type, rechtsgebied, chunk_count, file_path) "
+                    "VALUES (?, ?, ?, ?, 0, ?)",
+                    (collection_id, filename, file_type, rechtsgebied, file_path),
+                )
+                # Expliciete check (geen assert) zodat het ook onder python -O werkt
+                # en bij INSERT OR IGNORE op duplicate geen None doorpropageert.
+                if cursor.lastrowid is None:
+                    raise RuntimeError("INSERT gaf geen lastrowid terug")
+                document_id = cursor.lastrowid
+                conn.commit()
+            except BaseException:
+                conn.rollback()
+                raise
+            finally:
+                conn.close()
+
+            logger.info(
+                "Document geregistreerd: id=%d, filename=%s, collection=%d",
+                document_id,
+                filename,
+                collection_id,
             )
-            conn.commit()
-            # Expliciete check (geen assert) zodat het ook onder python -O werkt
-            # en bij INSERT OR IGNORE op duplicate geen None doorpropageert.
-            document_id = cursor.lastrowid
-            if document_id is None:
-                raise RuntimeError("INSERT gaf geen lastrowid terug")
-        except Exception:
-            conn.rollback()
-            raise
-        finally:
-            conn.close()
 
-        logger.info(
-            "Document geregistreerd: id=%d, filename=%s, collection=%d",
-            document_id,
-            filename,
-            collection_id,
-        )
-
-        try:
             # Stap 2: Chunk de tekst
             result = (
                 chunking_result
@@ -264,6 +268,8 @@ class RAGService:
         except BaseException:
             # Rollback: verwijder de rag_documents rij — ook bij een onderbreking
             # (KeyboardInterrupt), zodat er geen document zonder chunks achterblijft.
+            if document_id is None:
+                raise  # niets gecommit
             logger.warning(
                 "Ingest mislukt voor document %d — rollback rag_documents rij",
                 document_id,
