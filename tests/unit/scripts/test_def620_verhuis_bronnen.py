@@ -113,6 +113,80 @@ def test_gevuld_doel_wordt_geweigerd(verhuis, capsys):
     assert _sha(naar) == voor
 
 
+def test_doel_met_andere_tabel_wordt_geweigerd(verhuis, capsys):
+    mod, van, naar, _tmp = verhuis
+    naar.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(naar)
+    conn.execute("CREATE TABLE afspraken (id INTEGER PRIMARY KEY, tekst TEXT)")
+    conn.execute("INSERT INTO afspraken (tekst) VALUES ('belangrijk')")
+    conn.commit()
+    conn.close()
+    voor = _sha(naar)
+    assert mod.main(["--van", str(van), "--naar", str(naar), "--bevestig"]) == 2
+    assert "geen leeg bronnenbestand" in capsys.readouterr().out
+    assert _sha(naar) == voor
+
+
+def test_doel_geen_sqlite_wordt_geweigerd(verhuis):
+    mod, van, naar, _tmp = verhuis
+    naar.write_bytes(b"dit is geen database, maar wel belangrijk")
+    voor = _sha(naar)
+    assert mod.main(["--van", str(van), "--naar", str(naar), "--bevestig"]) == 2
+    assert _sha(naar) == voor
+
+
+def test_leeg_bestand_als_doel_wordt_geaccepteerd(verhuis):
+    mod, van, naar, _tmp = verhuis
+    naar.touch()
+    assert mod.main(["--van", str(van), "--naar", str(naar), "--bevestig"]) == 0
+    assert _inhoud(naar) == _inhoud(van)
+
+
+@pytest.mark.parametrize(
+    "sql",
+    [
+        (
+            "INSERT INTO rag_chunks (collection_id, document_id, chunk_text)"
+            " VALUES (NULL, 1, 'zonder collectie')"
+        ),
+        (
+            "INSERT INTO rag_chunks (collection_id, document_id, chunk_text)"
+            " VALUES (1, NULL, 'zonder document')"
+        ),
+        (
+            "INSERT INTO rag_chunks (collection_id, document_id, chunk_text)"
+            " VALUES (2, 1, 'document van andere collectie')"
+        ),
+        "INSERT INTO rag_documents (collection_id, filename) VALUES (NULL, 'los')",
+    ],
+)
+def test_ontbrekende_koppelingen_weigeren(verhuis, sql):
+    mod, van, naar, _tmp = verhuis
+    conn = sqlite3.connect(van)
+    conn.execute(sql)
+    conn.commit()
+    conn.close()
+    assert mod.main(["--van", str(van), "--naar", str(naar), "--bevestig"]) == 2
+    assert not naar.exists()
+
+
+def test_afwijkend_tijdstempel_in_kopie_wordt_gezien(verhuis, monkeypatch, capsys):
+    mod, van, naar, _tmp = verhuis
+    echt = mod._kopieer
+
+    def kopieer_met_fout(bron, tijdelijk):
+        echt(bron, tijdelijk)
+        conn = sqlite3.connect(tijdelijk)
+        conn.execute("UPDATE rag_chunks SET created_at = '1999-01-01' WHERE id = 1")
+        conn.commit()
+        conn.close()
+
+    monkeypatch.setattr(mod, "_kopieer", kopieer_met_fout)
+    assert mod.main(["--van", str(van), "--naar", str(naar), "--bevestig"]) == 3
+    assert "wijkt af" in capsys.readouterr().out
+    assert not naar.exists()
+
+
 @pytest.mark.parametrize("geval", ["zelfde", "definities"])
 def test_doel_mag_geen_definitiedatabase_zijn(verhuis, tmp_path, geval):
     mod, van, _naar, _tmp = verhuis
@@ -200,9 +274,55 @@ def test_vervangscript_op_bronnenbestand_met_projectcontrole(tmp_path, monkeypat
     conn.commit()
     conn.close()
     assert mod.main(argv) == 0  # backup met bronnenkern slaagt
-    (backup,) = (basis / "data" / "backups").glob("definities_backup_voor_vervang_*")
+    (backup,) = (basis / "data" / "backups").glob("bronnen_backup_voor_vervang_*")
     conn = sqlite3.connect(bronnen)
     namen = [r[0] for r in conn.execute("SELECT collection_name FROM rag_collections")]
     conn.close()
     assert namen == ["nieuw"]
     assert backup.exists()
+
+
+def _bronnen_met_twee_collecties(basis: Path) -> tuple[Path, int, int]:
+    bronnen = basis / "data" / "bronnen.db"
+    zorg_voor_bronnen_schema(bronnen)
+    store = EmbeddingStore(str(bronnen))
+    oud = store.create_collection("oud", dimensions=DIMS, model="test")
+    nieuw = store.create_collection("nieuw", dimensions=DIMS, model="test")
+    conn = sqlite3.connect(bronnen)
+    for cid in (oud, nieuw):
+        doc = conn.execute(
+            "INSERT INTO rag_documents (collection_id, filename, chunk_count)"
+            " VALUES (?, ?, 1)",
+            (cid, f"d{cid}"),
+        ).lastrowid
+        vec = np.ones(DIMS, dtype=np.float32)
+        conn.execute(
+            "INSERT INTO rag_chunks (collection_id, document_id, chunk_text, embedding,"
+            " chunk_index) VALUES (?, ?, 't', ?, 0)",
+            (cid, doc, vec.tobytes()),
+        )
+    conn.commit()
+    conn.close()
+    return bronnen, oud, nieuw
+
+
+@pytest.mark.parametrize("geval", ["ontbreekt", "verkeerd", "afgeleid"])
+def test_vervangscript_projectcontrole_bij_bronnenbestand(
+    tmp_path, monkeypatch, capsys, geval
+):
+    mod = _laad("rag_vervang_collectie", monkeypatch)
+    basis = tmp_path / "project"
+    bronnen, oud, _nieuw = _bronnen_met_twee_collecties(basis)
+    argv = [
+        "--db", str(bronnen), "--oud-id", str(oud), "--oud-naam", "oud",
+        "--oud-chunks", "1", "--nieuw-naam", "nieuw", "--nieuw-chunks", "1",
+    ]  # fmt: skip
+    if geval == "ontbreekt":
+        assert mod.main(argv) == 2
+        assert "niet gevonden" in capsys.readouterr().out
+    elif geval == "verkeerd":
+        assert mod.main([*argv, "--definities-db", str(bronnen)]) == 2
+        assert "geen definitiedatabase" in capsys.readouterr().out
+    else:
+        _maak_db(basis / "data" / "definities.db")  # naast bronnen.db
+        assert mod.main(argv) == 0  # droge run met afgeleide definitiedatabase

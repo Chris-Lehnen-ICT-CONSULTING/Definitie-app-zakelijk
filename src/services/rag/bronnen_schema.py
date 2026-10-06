@@ -12,10 +12,17 @@ De tabeldefinities zijn gelijk aan die van de RAG-tabellen in
 idempotent; de container roept het aan vóór het eerste gebruik.
 
 `projects.rag_collection_id` en `ontological_models.rag_collection_id` in
-`definities.db` verwijzen naar collecties; over twee bestanden heen dwingt
-SQLite die koppeling niet af. Beide kolommen worden in de code niet gelezen of
-geschreven (06-10-2026: `projects` leeg, één ontologisch model zonder
-collectie).
+`definities.db` hebben een foreign key naar de (lege, achtergebleven)
+RAG-tabellen in dat bestand, niet naar `bronnen.db`. Met foreign keys aan
+wordt een verwijzing naar een collectie die alleen in `bronnen.db` bestaat dus
+geweigerd. Beide kolommen worden in de code niet gelezen of geschreven
+(06-10-2026: `projects` leeg, één ontologisch model zonder collectie); wie ze
+gaat gebruiken, moet de koppeling eerst opnieuw ontwerpen.
+
+Bekende beperking: met ``:memory:`` werkt de RAG niet, omdat de services per
+bewerking een nieuwe verbinding openen (elke ``:memory:``-verbinding is een
+nieuwe lege database). Dat gold al vóór deze splitsing; tests gebruiken een
+tijdelijk bestand.
 """
 
 from __future__ import annotations

@@ -273,9 +273,27 @@ def controleer(
     db = db.resolve()
     if not db.is_file():
         raise VervangError(f"database niet gevonden: {db}")
-    if definities_db is not None:
-        dconn = _verbind(definities_db.resolve())
+    if _kern(db) is not None:
+        # Bronnenbestand: de projecten staan in de definitiedatabase. Verplicht
+        # controleren; standaard het bestand definities.db ernaast.
+        definities_db = (definities_db or db.with_name("definities.db")).resolve()
+        if not definities_db.is_file():
+            raise VervangError(
+                f"definitiedatabase voor de projectcontrole niet gevonden: "
+                f"{definities_db} (geef --definities-db)"
+            )
+        dconn = _verbind(definities_db)
         try:
+            tabellen = {
+                r[0]
+                for r in dconn.execute(
+                    "SELECT name FROM sqlite_master WHERE type = 'table'"
+                )
+            }
+            if not {"definities", "projects"} <= tabellen:
+                raise VervangError(
+                    f"{definities_db} is geen definitiedatabase met tabel projects"
+                )
             verwijzingen = _projectverwijzingen(dconn, oud_id)
         finally:
             dconn.close()
@@ -494,7 +512,7 @@ def voer_uit(plan: Plan, backupmap: Path, stempel: str | None = None) -> Path:
     backupmap = backupmap.resolve()
     if backupmap.is_relative_to((plan.basis / "data" / "uploads").resolve()):
         raise VervangError("backupmap mag niet in de uploadmap liggen")
-    backup = backupmap / f"definities_backup_voor_vervang_{stempel}.db"
+    backup = backupmap / f"{plan.db.stem}_backup_voor_vervang_{stempel}.db"
     kopiemap = backupmap / f"uploads_voor_vervang_{stempel}"
     fase = "backup"
     gekopieerd: list[tuple[Upload, str]] = []
