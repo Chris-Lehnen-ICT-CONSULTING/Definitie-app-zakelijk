@@ -37,6 +37,9 @@ class RAGContext:
     formatted_context: str
     collection_id: int
     query: str
+    # DEF-620 (hybride zoeken): aantal chunks dat een zoekterm noemt, vóór
+    # top_k. None = zonder zoektermen gezocht (alleen op betekenis).
+    kandidaten: int | None = None
 
 
 class RAGService:
@@ -269,6 +272,7 @@ class RAGService:
         rechtsgebied: str | None = None,
         wet_regeling: str | None = None,
         bron_type: str | None = None,
+        zoektermen: list[str] | None = None,
     ) -> RAGContext:
         """Embed query, zoek vergelijkbare chunks, return RAGContext.
 
@@ -279,6 +283,9 @@ class RAGService:
             rechtsgebied: Filter op rechtsgebied (optioneel).
             wet_regeling: Filter op wet/regeling (optioneel).
             bron_type: Filter op brontype (optioneel).
+            zoektermen: DEF-620. Indien opgegeven: hybride zoeken met
+                relevantiepoort (zie ``_zoek_hybride``); anders alleen op
+                betekenis, zoals voorheen.
 
         Returns:
             RAGContext met raw chunks en formatted context string.
@@ -289,6 +296,18 @@ class RAGService:
                 formatted_context="",
                 collection_id=collection_id,
                 query=query or "",
+            )
+
+        if zoektermen:
+            return self._zoek_hybride(
+                query,
+                [collection_id],
+                top_k,
+                zoektermen,
+                rechtsgebied=rechtsgebied,
+                wet_regeling=wet_regeling,
+                bron_type=bron_type,
+                collection_id_resultaat=collection_id,
             )
 
         query_embedding = self._embedder.embed(query)
@@ -334,6 +353,7 @@ class RAGService:
         rechtsgebied: str | None = None,
         wet_regeling: str | None = None,
         bron_type: str | None = None,
+        zoektermen: list[str] | None = None,
     ) -> RAGContext:
         """Zoek in meerdere collections tegelijk (DEF-366).
 
@@ -357,6 +377,20 @@ class RAGService:
         if not collection_ids:
             return RAGContext(
                 chunks=[], formatted_context="", collection_id=0, query=query
+            )
+
+        if zoektermen:
+            return self._zoek_hybride(
+                query,
+                collection_ids,
+                top_k,
+                zoektermen,
+                rechtsgebied=rechtsgebied,
+                wet_regeling=wet_regeling,
+                bron_type=bron_type,
+                collection_id_resultaat=(
+                    collection_ids[0] if len(collection_ids) == 1 else 0
+                ),
             )
 
         # Embed query eenmalig (review fix: voorkom N API calls bij N collections)
@@ -395,6 +429,76 @@ class RAGService:
             formatted_context=formatted,
             collection_id=collection_ids[0] if len(collection_ids) == 1 else 0,
             query=query,
+        )
+
+    def _zoek_hybride(
+        self,
+        query: str,
+        collection_ids: list[int],
+        top_k: int,
+        zoektermen: list[str],
+        *,
+        rechtsgebied: str | None,
+        wet_regeling: str | None,
+        bron_type: str | None,
+        collection_id_resultaat: int,
+    ) -> RAGContext:
+        """Zoeken met relevantiepoort (DEF-620, RAG fase 1).
+
+        1. Poort (trefwoord): alleen chunks die het begrip of een zoekterm
+           noemen (``EmbeddingStore.search_keyword``; genormaliseerde tekst,
+           het begrip plus vervoegde vormen als heel woord, bv. "onttrekking"
+           → ook "onttrekt"). Een fragment dat het begrip niet noemt, wordt
+           nooit als bron geleverd.
+        2. Filters: anders dan de driestaps-fallback van het betekenispad (bij
+           < 2 resultaten) wordt hier alleen verruimd bij **nul** treffers mét
+           filters, en dan in één keer zonder filters (per collection).
+        3. Rangorde (betekenis): binnen de poort op cosine-score ten opzichte
+           van één embedding van begrip + zoektermen. Gemeten op de Sv-meetset
+           (``scripts/rag_meting.py``) beter dan een RRF-menging met het aantal
+           vermeldingen, dat lange opsommingsartikelen bevoordeelt.
+
+        ``score`` blijft de cosine-score; ``trefwoord_treffers`` komt erbij. De
+        orchestrator houdt daarbovenop ``RAG_MIN_SCORE`` aan; die helpt homoniemen
+        (andere betekenis, lage cosine) te weren, maar garandeert dat niet.
+        Geen treffers → lege context.
+        """
+        termen = list(
+            dict.fromkeys(t.strip() for t in [query, *zoektermen] if t and t.strip())
+        )
+        query_embedding = self._embedder.embed("; ".join(termen))
+
+        treffers: list[dict] = []
+        for cid in collection_ids:
+            gevonden = self._store.search_keyword(
+                query_embedding,
+                cid,
+                termen,
+                rechtsgebied=rechtsgebied,
+                wet_regeling=wet_regeling,
+                bron_type=bron_type,
+            )
+            if not gevonden and (rechtsgebied or wet_regeling or bron_type):
+                gevonden = self._store.search_keyword(query_embedding, cid, termen)
+            treffers.extend(gevonden)
+
+        treffers.sort(key=lambda c: c.get("score", 0), reverse=True)
+        geselecteerd = treffers[:top_k]
+
+        logger.info(
+            "RAG-zoekactie met relevantiepoort: termen=%s, %d collections, "
+            "%d chunks noemen een zoekterm, %d geleverd",
+            [t[:30] for t in termen],
+            len(collection_ids),
+            len(treffers),
+            len(geselecteerd),
+        )
+        return RAGContext(
+            chunks=geselecteerd,
+            formatted_context=self._format_context(geselecteerd),
+            collection_id=collection_id_resultaat,
+            query=query,
+            kandidaten=len(treffers),
         )
 
     def _format_context(self, chunks: list[dict]) -> str:
