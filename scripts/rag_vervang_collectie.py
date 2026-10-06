@@ -143,9 +143,17 @@ def _inhoud_hash(conn: sqlite3.Connection, cid: int) -> str:
     return h.hexdigest()
 
 
-def _zelfde_bestand(basis: Path, file_path: str) -> Path:
+def _bestandsidentiteit(basis: Path, file_path: str) -> tuple:
+    """Identiteit van een uploadbestand: (apparaat, inode) als het bestaat, anders
+    het opgeloste pad zonder hoofdlettergevoeligheid (macOS: bestand.pdf en
+    BESTAND.PDF kunnen hetzelfde bestand zijn)."""
     pad = Path(file_path)
-    return (pad if pad.is_absolute() else basis / pad).resolve()
+    opgelost = (pad if pad.is_absolute() else basis / pad).resolve()
+    try:
+        st = opgelost.stat()
+    except OSError:
+        return ("pad", str(opgelost).casefold())
+    return ("inode", st.st_dev, st.st_ino)
 
 
 def _lees_staat(
@@ -168,9 +176,9 @@ def _lees_staat(
             (oud_id,),
         ).fetchall()
     )
-    oud_bestanden = {_zelfde_bestand(basis, fp) for _i, fp in oud_documenten if fp}
+    oud_bestanden = {_bestandsidentiteit(basis, fp) for _i, fp in oud_documenten if fp}
     andere = {
-        _zelfde_bestand(basis, fp)
+        _bestandsidentiteit(basis, fp)
         for (fp,) in conn.execute(
             "SELECT file_path FROM rag_documents WHERE file_path IS NOT NULL "
             "AND collection_id IS NOT ?",
@@ -286,7 +294,8 @@ def controleer(
     uploads = tuple(
         los_upload_op(basis, db, fp) for _id, fp in staat.oud_documenten if fp
     )
-    if len({u.pad for u in uploads}) != len(uploads):
+    identiteiten = {_bestandsidentiteit(basis, u.opgeslagen) for u in uploads}
+    if len(identiteiten) != len(uploads):
         raise VervangError("meerdere documenten delen hetzelfde uploadbestand")
 
     if eerste is None:
@@ -476,7 +485,11 @@ def voer_uit(plan: Plan, backupmap: Path, stempel: str | None = None) -> Path:
             None: "ONBEKEND (controleer handmatig)",
         }[verwijderd]
         over = [str(u.pad) for u, _som in gekopieerd if u.pad.exists()]
-        rest = f"; achtergebleven uploads: {over}" if verwijderd and over else ""
+        rest = (
+            f"; achtergebleven uploads: {over}"
+            if verwijderd is not False and over
+            else ""
+        )
         herstel = f"; backup: {backup}" if backup.exists() else ""
         if kopiemap.exists():
             herstel += f"; uploadkopieën: {kopiemap}"

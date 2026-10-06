@@ -369,8 +369,9 @@ def test_bestand_niet_te_verwijderen_meldt_achtergebleven(vervang, monkeypatch, 
     monkeypatch.setattr(Path, "unlink", unlink)
     assert mod.main([*argv, "--bevestig"]) == 3
     uit = capsys.readouterr().out
-    assert "fase bestanden" in uit and "database AL gewijzigd" in uit
-    assert str(doelwit) in uit
+    fout = uit[uit.index("FOUT:") :]
+    assert "fase bestanden" in fout and "database AL gewijzigd" in fout
+    assert f"achtergebleven uploads: ['{doelwit}']" in fout
     assert _collecties(db) == [("nieuw", 2)]
 
 
@@ -452,8 +453,9 @@ def test_onderbreking_na_commit_meldt_werkelijke_status(vervang, monkeypatch, ca
     monkeypatch.setattr(mod, "_verwijder_collectie", verwijder_en_onderbreek)
     assert mod.main([*argv, "--bevestig"]) == 3
     uit = capsys.readouterr().out
-    assert "fase database" in uit and "database AL gewijzigd" in uit
-    assert str((basis / UPLOAD).resolve()) in uit  # achtergebleven upload
+    fout = uit[uit.index("FOUT:") :]
+    assert "fase database" in fout and "database AL gewijzigd" in fout
+    assert f"achtergebleven uploads: ['{(basis / UPLOAD).resolve()}']" in fout
     assert _collecties(db) == [("nieuw", 2)]
 
 
@@ -493,3 +495,32 @@ def test_onderbreking_direct_na_commit_wordt_niet_gemaskeerd(
     uit = capsys.readouterr().out
     assert "KeyboardInterrupt" in uit and "database AL gewijzigd" in uit
     assert _collecties(db) == [("nieuw", 2)]
+
+
+def test_upload_gedeeld_via_ander_pad_naar_zelfde_bestand_weigert(vervang, capsys):
+    """Zelfde bestand onder een andere naam (hardlink; op macOS ook een andere
+    hoofdlettervorm): herkend op bestandsidentiteit, niet op padtekst."""
+    mod, basis, db, _oud, nieuw, argv, _elders = vervang
+    alias = basis / "data" / "uploads" / "ALIAS.PDF"
+    alias.hardlink_to(basis / UPLOAD)
+    _zet_upload(db, nieuw, "data/uploads/ALIAS.PDF")
+    assert mod.main([*argv, "--bevestig"]) == 2
+    assert "buiten de oude collectie" in capsys.readouterr().out
+    assert (basis / UPLOAD).exists()
+
+
+def test_onbekende_status_meldt_ook_achtergebleven_uploads(
+    vervang, monkeypatch, capsys
+):
+    mod, basis, *_rest, argv, _elders = vervang
+
+    def mislukt(_plan):
+        raise RuntimeError("schijf weg")
+
+    monkeypatch.setattr(mod, "_verwijder_collectie", mislukt)
+    monkeypatch.setattr(mod, "_oud_verwijderd", lambda _plan: None)
+    assert mod.main([*argv, "--bevestig"]) == 3
+    uit = capsys.readouterr().out
+    fout = uit[uit.index("FOUT:") :]
+    assert "ONBEKEND" in fout
+    assert f"achtergebleven uploads: ['{(basis / UPLOAD).resolve()}']" in fout
