@@ -15,7 +15,7 @@ from typing import cast
 
 import numpy as np
 
-from utils.term_match import tel_treffers
+from utils.term_match import tel_treffers_rag, zoekpatronen
 
 logger = logging.getLogger(__name__)
 
@@ -312,14 +312,21 @@ class EmbeddingStore:
         rechtsgebied: str | None,
         wet_regeling: str | None,
         bron_type: str | None,
+        met_embedding: bool = True,
     ) -> list[sqlite3.Row]:
-        """Lees chunk-rijen (met embedding) van een collection, optioneel gefilterd."""
+        """Lees chunk-rijen van een collection, optioneel gefilterd.
+
+        ``met_embedding=False`` laat de vectorkolom weg (de trefwoordscan heeft
+        alleen tekst nodig); alleen chunks mét embedding komen in aanmerking.
+        """
         conn.row_factory = sqlite3.Row
         # DEF-378 Bug 9: JOIN met rag_documents om filename als fallback
         # beschikbaar te stellen voor chunks zonder bronbestand in metadata
         # (pre-DEF-372 geïngeste documenten).
         sql = (
-            "SELECT rc.id, rc.chunk_text, rc.embedding, rc.rechtsgebied, "
+            "SELECT rc.id, rc.chunk_text, "
+            + ("rc.embedding, " if met_embedding else "")
+            + "rc.rechtsgebied, "
             "rc.wet_regeling, rc.artikel_lid, rc.bron_type, "
             "json(rc.metadata) AS metadata, "
             "rc.document_id, rc.chunk_index, rc.created_at, "
@@ -372,45 +379,73 @@ class EmbeddingStore:
     ) -> list[dict]:
         """Chunks die minstens één zoekterm noemen (DEF-620, RAG fase 1).
 
-        Trefwoordkant van het hybride zoeken: een chunk telt alleen mee als
-        ``utils.term_match`` een zoekterm in de tekst herkent. Elke treffer
-        krijgt ``trefwoord_treffers`` (totaal aantal vermeldingen) en de
-        cosine-score ten opzichte van ``query_embedding`` als ``score``.
+        Trefwoordkant van het zoeken met relevantiepoort. Herkenning via
+        ``utils.term_match.zoekpatronen`` (genormaliseerde tekst; het begrip
+        zelf plus vervoegde vormen als héél woord). Eerst een tekstscan zonder
+        vectoren; alleen voor de treffers worden de embeddings opgehaald.
 
         Returns:
             list[dict] in hetzelfde formaat als ``search_similar`` plus
-            ``trefwoord_treffers``; gesorteerd op score (aflopend).
+            ``trefwoord_treffers`` (aantal unieke vindplaatsen), met ``score`` =
+            cosine ten opzichte van ``query_embedding``; aflopend op score.
         """
-        termen = [t for t in (zoektermen or []) if t and t.strip()]
-        if not termen:
+        patronen = [patroon for t in (zoektermen or []) for patroon in zoekpatronen(t)]
+        if not patronen:
             return []
         conn = self._connect()
         try:
-            rows = self._lees_rijen(
-                conn, collection_id, rechtsgebied, wet_regeling, bron_type
+            rijen = self._lees_rijen(
+                conn,
+                collection_id,
+                rechtsgebied,
+                wet_regeling,
+                bron_type,
+                met_embedding=False,
             )
+            treffers = {
+                rij["id"]: (rij, aantal)
+                for rij in rijen
+                if (aantal := tel_treffers_rag(rij["chunk_text"], patronen)) > 0
+            }
+            vectoren = self._lees_embeddings(conn, list(treffers))
         finally:
             conn.close()
 
         query_vec = query_embedding.astype(np.float32)
         query_norm = float(np.linalg.norm(query_vec))
         results: list[dict] = []
-        for row in rows:
-            treffers = sum(tel_treffers(row["chunk_text"], t) for t in termen)
-            if treffers <= 0:
+        for chunk_id, (rij, aantal) in treffers.items():
+            vec = vectoren.get(chunk_id)
+            if vec is None:
                 continue
-            vec = np.frombuffer(row["embedding"], dtype=np.float32)
             norm = float(np.linalg.norm(vec))
             score = (
                 float(vec @ query_vec) / (norm * query_norm)
                 if norm and query_norm
                 else 0.0
             )
-            resultaat = self._naar_resultaat(row, score)
-            resultaat["trefwoord_treffers"] = treffers
+            resultaat = self._naar_resultaat(rij, score)
+            resultaat["trefwoord_treffers"] = aantal
             results.append(resultaat)
         results.sort(key=lambda r: r["score"], reverse=True)
         return results
+
+    @staticmethod
+    def _lees_embeddings(
+        conn: sqlite3.Connection, chunk_ids: list[int], batch: int = 500
+    ) -> dict[int, np.ndarray]:
+        """Embeddings voor de opgegeven chunks, in batches (IN-lijst)."""
+        vectoren: dict[int, np.ndarray] = {}
+        for i in range(0, len(chunk_ids), batch):
+            deel = chunk_ids[i : i + batch]
+            plaats = ",".join("?" * len(deel))
+            for chunk_id, blob in conn.execute(
+                f"SELECT id, embedding FROM rag_chunks WHERE id IN ({plaats})",
+                deel,
+            ):
+                if blob is not None:
+                    vectoren[chunk_id] = np.frombuffer(blob, dtype=np.float32)
+        return vectoren
 
     def search_similar(
         self,

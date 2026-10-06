@@ -25,8 +25,18 @@ class _Ctx:
 
 
 @dataclass
+class _CtxZonderKandidaten:
+    """Context zoals een oudere/andere RAG-implementatie hem levert."""
+
+    chunks: list[dict]
+    formatted_context: str = ""
+    collection_id: int = 9
+    query: str = ""
+
+
+@dataclass
 class _Rag:
-    antwoord: _Ctx
+    antwoord: _Ctx | _CtxZonderKandidaten
     aanroepen: list[dict] = field(default_factory=list)
 
     def _ensure_collection(self, _naam):
@@ -109,6 +119,7 @@ def _verzoek():
 
 @pytest.mark.asyncio
 async def test_zoektermen_alleen_het_begrip_geen_synoniemen(tmp_path, monkeypatch):
+    monkeypatch.setenv("RAG_MIN_SCORE", "0.3")
     rag = _Rag(_Ctx(chunks=[], kandidaten=0))
     antwoord = await _orchestrator(tmp_path, monkeypatch, rag).create_definition(
         _verzoek()
@@ -122,7 +133,11 @@ async def test_zoektermen_alleen_het_begrip_geen_synoniemen(tmp_path, monkeypatc
 
 
 @pytest.mark.asyncio
-async def test_drempel_blijft_bovenop_de_poort(tmp_path, monkeypatch):
+async def test_drempel_filtert_gepoorte_fragmenten_met_lage_score(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setenv("RAG_MIN_SCORE", "0.3")
+
     def _chunk(cid, tekst, score):
         return {
             "chunk_id": cid,
@@ -137,7 +152,7 @@ async def test_drempel_blijft_bovenop_de_poort(tmp_path, monkeypatch):
         _Ctx(
             chunks=[
                 _chunk(68, "Artikel 68 zich aan de hechtenis onttrekt", 0.45),
-                # noemt het begrip, maar andere betekenis: lage cosine
+                # noemt het begrip (bv. homoniem), maar score onder de drempel
                 _chunk(94, "onttrekking aan het verkeer van voorwerpen", 0.2),
             ],
             kandidaten=2,
@@ -155,8 +170,9 @@ async def test_drempel_blijft_bovenop_de_poort(tmp_path, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_zonder_kandidatenveld_oud_gedrag(tmp_path, monkeypatch):
+    monkeypatch.setenv("RAG_MIN_SCORE", "0.3")
     chunk = {"chunk_id": 1, "chunk_text": "x onttrekking", "score": 0.2, "metadata": {}}
-    rag = _Rag(_Ctx(chunks=[chunk], kandidaten=None))
+    rag = _Rag(_CtxZonderKandidaten(chunks=[chunk]))
     antwoord = await _orchestrator(tmp_path, monkeypatch, rag).create_definition(
         _verzoek()
     )

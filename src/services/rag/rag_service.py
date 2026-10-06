@@ -20,7 +20,6 @@ from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
 from services.rag.metadata_schemas import valideer_chunk_metadata
-from utils.term_match import zoekvormen
 from utils.xml_source_formatter import format_bron, wrap_bronnen
 
 logger = logging.getLogger(__name__)
@@ -447,39 +446,39 @@ class RAGService:
         """Zoeken met relevantiepoort (DEF-620, RAG fase 1).
 
         1. Poort (trefwoord): alleen chunks die het begrip of een zoekterm
-           noemen (``utils.term_match``, inclusief de stamvorm uit
-           ``zoekvormen``: "onttrekking" treft ook "onttrekt"). Een fragment dat het begrip niet
-           noemt, wordt nooit als bron geleverd. Zonder treffers mét filters
-           volgt één poging zonder filters.
-        2. Rangorde (betekenis): binnen die chunks op cosine-score ten opzichte
+           noemen (``EmbeddingStore.search_keyword``; genormaliseerde tekst,
+           het begrip plus vervoegde vormen als heel woord, bv. "onttrekking"
+           → ook "onttrekt"). Een fragment dat het begrip niet noemt, wordt
+           nooit als bron geleverd.
+        2. Filters: anders dan de driestaps-fallback van het betekenispad (bij
+           < 2 resultaten) wordt hier alleen verruimd bij **nul** treffers mét
+           filters, en dan in één keer zonder filters (per collection).
+        3. Rangorde (betekenis): binnen de poort op cosine-score ten opzichte
            van één embedding van begrip + zoektermen. Gemeten op de Sv-meetset
            (``scripts/rag_meting.py``) beter dan een RRF-menging met het aantal
            vermeldingen, dat lange opsommingsartikelen bevoordeelt.
 
-        ``score`` blijft de cosine-score; ``trefwoord_treffers`` komt erbij.
+        ``score`` blijft de cosine-score; ``trefwoord_treffers`` komt erbij. De
+        orchestrator houdt daarbovenop ``RAG_MIN_SCORE`` aan (weert homoniemen).
         Geen treffers → lege context.
         """
         termen = list(
             dict.fromkeys(t.strip() for t in [query, *zoektermen] if t and t.strip())
         )
         query_embedding = self._embedder.embed("; ".join(termen))
-        # Poort op het begrip én zijn stamvorm ("onttrekking" → ook "onttrekt").
-        poorttermen = list(
-            dict.fromkeys(vorm for t in termen for vorm in zoekvormen(t))
-        )
 
         treffers: list[dict] = []
         for cid in collection_ids:
             gevonden = self._store.search_keyword(
                 query_embedding,
                 cid,
-                poorttermen,
+                termen,
                 rechtsgebied=rechtsgebied,
                 wet_regeling=wet_regeling,
                 bron_type=bron_type,
             )
             if not gevonden and (rechtsgebied or wet_regeling or bron_type):
-                gevonden = self._store.search_keyword(query_embedding, cid, poorttermen)
+                gevonden = self._store.search_keyword(query_embedding, cid, termen)
             treffers.extend(gevonden)
 
         treffers.sort(key=lambda c: c.get("score", 0), reverse=True)
