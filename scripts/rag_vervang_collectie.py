@@ -38,10 +38,15 @@ exclusieve toegang tot de database en de uploadmap.
 
 Uploadpaden in ``rag_documents.file_path`` zijn relatief aan de projectmap
 waarin de app draaide. Die map is hier vast: de map boven ``data/`` van de
-database (``<basis>/data/definities.db`` → ``<basis>``), los van de werkmap.
+database (``<basis>/data/bronnen.db`` → ``<basis>``), los van de werkmap.
+
+Sinds RAG fase 3 staat de bronbibliotheek in ``data/bronnen.db``; geef dan
+``--definities-db data/definities.db`` mee voor de controle op projecten die
+naar de oude collectie verwijzen.
 
 Voorbeeld (eerst droog):
-    python scripts/rag_vervang_collectie.py --db data/definities.db \\
+    python scripts/rag_vervang_collectie.py --db data/bronnen.db \\
+        --definities-db data/definities.db \\
         --oud-id 9 --oud-naam WvSv --oud-chunks 1423 \\
         --nieuw-naam "Sv (nieuw, i.w.t. 1-4-2029)" --nieuw-chunks 1273
 """
@@ -63,6 +68,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from database.sqlite_backup import BackupError, create_verified_backup
+from services.rag.bronnen_schema import BRONNEN_KERN
 from services.rag.embedding_store import EmbeddingStore
 
 
@@ -208,13 +214,35 @@ def _lees_staat(
                 (nieuw_id, dimensie * 4),
             ).fetchone()[0]
         ),
-        projectverwijzingen=int(
-            conn.execute(
-                "SELECT COUNT(*) FROM projects WHERE rag_collection_id = ?", (oud_id,)
-            ).fetchone()[0]
-        ),
+        projectverwijzingen=_projectverwijzingen(conn, oud_id),
         gedeelde_uploads=len(oud_bestanden & andere),
     )
+
+
+def _projectverwijzingen(conn: sqlite3.Connection, oud_id: int) -> int:
+    """Projecten die naar de collectie verwijzen; 0 in een bronnenbestand zonder
+    tabel ``projects`` (die staat in de definitiedatabase, zie --definities-db)."""
+    if not conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'projects'"
+    ).fetchone():
+        return 0
+    return int(
+        conn.execute(
+            "SELECT COUNT(*) FROM projects WHERE rag_collection_id = ?", (oud_id,)
+        ).fetchone()[0]
+    )
+
+
+def _kern(db: Path) -> dict[str, tuple[str, ...]] | None:
+    """Kernmanifest voor de backup: definitiedatabase (standaard) of bronnenbestand."""
+    conn = _verbind(db)
+    try:
+        definities = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'definities'"
+        ).fetchone()
+    finally:
+        conn.close()
+    return None if definities else BRONNEN_KERN
 
 
 def los_upload_op(basis: Path, db: Path, file_path: str) -> Upload:
@@ -239,11 +267,41 @@ def controleer(
     oud_chunks: int,
     nieuw_naam: str,
     nieuw_chunks: int,
+    definities_db: Path | None = None,
 ) -> Plan:
     """Alle controles vóór het vervangen; raist VervangError bij een afwijking."""
     db = db.resolve()
     if not db.is_file():
         raise VervangError(f"database niet gevonden: {db}")
+    if _kern(db) is not None:
+        # Bronnenbestand: de projecten staan in de definitiedatabase. Verplicht
+        # controleren; standaard het bestand definities.db ernaast.
+        definities_db = (definities_db or db.with_name("definities.db")).resolve()
+        if not definities_db.is_file():
+            raise VervangError(
+                f"definitiedatabase voor de projectcontrole niet gevonden: "
+                f"{definities_db} (geef --definities-db)"
+            )
+        dconn = _verbind(definities_db)
+        try:
+            tabellen = {
+                r[0]
+                for r in dconn.execute(
+                    "SELECT name FROM sqlite_master WHERE type = 'table'"
+                )
+            }
+            if not {"definities", "projects"} <= tabellen:
+                raise VervangError(
+                    f"{definities_db} is geen definitiedatabase met tabel projects"
+                )
+            verwijzingen = _projectverwijzingen(dconn, oud_id)
+        finally:
+            dconn.close()
+        if verwijzingen:
+            raise VervangError(
+                f"{verwijzingen} project(en) in {definities_db} verwijzen naar de "
+                "oude collectie"
+            )
     basis = db.parent.parent
     conn = _verbind(db)
     try:
@@ -454,14 +512,14 @@ def voer_uit(plan: Plan, backupmap: Path, stempel: str | None = None) -> Path:
     backupmap = backupmap.resolve()
     if backupmap.is_relative_to((plan.basis / "data" / "uploads").resolve()):
         raise VervangError("backupmap mag niet in de uploadmap liggen")
-    backup = backupmap / f"definities_backup_voor_vervang_{stempel}.db"
+    backup = backupmap / f"{plan.db.stem}_backup_voor_vervang_{stempel}.db"
     kopiemap = backupmap / f"uploads_voor_vervang_{stempel}"
     fase = "backup"
     gekopieerd: list[tuple[Upload, str]] = []
     try:
         backupmap.mkdir(parents=True, exist_ok=True)
         try:
-            create_verified_backup(plan.db, backup)
+            create_verified_backup(plan.db, backup, kern=_kern(plan.db))
         except BackupError as exc:
             raise VervangError(f"backup mislukt: {exc.reason}") from exc
         _controleer_backup(plan, backup)
@@ -513,6 +571,11 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         help="standaard <basis>/data/backups naast de database",
     )
+    ap.add_argument(
+        "--definities-db",
+        type=Path,
+        help="definitiedatabase voor de projectcontrole als --db het bronnenbestand is",
+    )
     ap.add_argument("--bevestig", action="store_true", help="echt vervangen")
     args = ap.parse_args(argv)
 
@@ -524,6 +587,7 @@ def main(argv: list[str] | None = None) -> int:
             args.oud_chunks,
             args.nieuw_naam,
             args.nieuw_chunks,
+            args.definities_db,
         )
     except VervangError as exc:
         print(f"FOUT: {exc}. Niets gewijzigd.")

@@ -87,7 +87,11 @@ def _zoek(
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--db", required=True, help="pad naar een KOPIE van definities.db")
+    ap.add_argument(
+        "--db",
+        required=True,
+        help="pad naar een KOPIE van bronnen.db (of een oudere definities.db)",
+    )
     ap.add_argument("--modus", choices=["oud", "nieuw"], required=True)
     ap.add_argument("--uit", required=True)
     ap.add_argument(

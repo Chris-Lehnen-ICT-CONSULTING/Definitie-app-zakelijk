@@ -6,7 +6,7 @@ RAG fase 2: één chunk per artikel (plus één per definitie) via
 gewone upload).
 
 Voorbeeld (eerst droog, dan echt; werk bij voorkeur eerst op een kopie):
-    python scripts/rag_importeer_officiele_publicatie.py --db data/definities.db \\
+    python scripts/rag_importeer_officiele_publicatie.py --db data/bronnen.db \\
         --collectie "Sv (nieuw, i.w.t. 1-4-2029)" \\
         --wet-regeling "Wetboek van Strafvordering (nieuw, i.w.t. 1-4-2029)" \\
         --bestanden stb-2026-56.xml stb-2026-57.xml --droog
@@ -33,6 +33,7 @@ from dotenv import load_dotenv
 
 load_dotenv(ROOT / ".env", override=False)
 
+from services.rag.bronnen_schema import zorg_voor_bronnen_schema
 from services.rag.constants import normaliseer_rechtsgebied
 from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
@@ -103,6 +104,7 @@ def main(argv: list[str] | None = None) -> int:
         print("droog: niets geschreven")
         return 0
 
+    zorg_voor_bronnen_schema(args.db)  # DEF-620: bronnenbestand met schema
     store = EmbeddingStore(args.db)
     beheer = RAGManagementService(args.db, store)
     cid = _collectie_id(args.db, args.collectie)

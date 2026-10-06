@@ -7,6 +7,7 @@ Dit maakt het makkelijk om services te configureren, testen en swappen.
 
 import logging
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from config.config_manager import (
@@ -72,6 +73,17 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def _afgeleid_bronnenpad(db_path: str) -> str:
+    """Bronnenbestand naast de definitiedatabase (DEF-620): data/bronnen.db.
+
+    In-memory blijft in-memory; zo krijgt een test met een tijdelijke
+    definitiedatabase vanzelf een tijdelijk bronnenbestand ernaast.
+    """
+    if str(db_path) == ":memory:":
+        return ":memory:"
+    return str(Path(db_path).with_name("bronnen.db"))
+
+
 class ServiceContainer:
     """
     Simpele Dependency Injection container voor service management.
@@ -117,6 +129,11 @@ class ServiceContainer:
         """Laad configuratie uit environment en config dict."""
         # Basis configuratie
         self.db_path = self.config.get("db_path", "data/definities.db")
+        # DEF-620 (RAG fase 3): de bronbibliotheek staat in een eigen bestand
+        # naast de definitiedatabase (standaard data/bronnen.db).
+        self.bronnen_db_path = self.config.get(
+            "bronnen_db_path", _afgeleid_bronnenpad(self.db_path)
+        )
         self.openai_api_key = self.config.get(
             "openai_api_key",
             (os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")),
@@ -903,7 +920,7 @@ class ServiceContainer:
                 document_chunker=self.document_chunker(),
                 embedding_service=self.embedding_service,
                 embedding_store=self.embedding_store,
-                db_path=str(self.db_path),
+                db_path=str(self.bronnen_db_path),
             )
             logger.info("⚡ RAGService lazy-loaded (DEF-291)")
         return cast("RAGService", self._lazy_instances["rag_service"])
@@ -920,10 +937,26 @@ class ServiceContainer:
             Singleton instance van EmbeddingStore
         """
         if "embedding_store" not in self._lazy_instances:
+            from services.rag.bronnen_schema import (
+                aantal_rag_chunks,
+                zorg_voor_bronnen_schema,
+            )
             from services.rag.embedding_store import EmbeddingStore
 
+            zorg_voor_bronnen_schema(self.bronnen_db_path)
+            if (
+                str(self.bronnen_db_path) != str(self.db_path)
+                and aantal_rag_chunks(self.bronnen_db_path) == 0
+                and aantal_rag_chunks(self.db_path) > 0
+            ):
+                logger.warning(
+                    "Bronbibliotheek %s is leeg, maar %s bevat nog RAG-fragmenten; "
+                    "draai scripts/rag_verhuis_naar_bronnen.py (DEF-620)",
+                    self.bronnen_db_path,
+                    self.db_path,
+                )
             self._lazy_instances["embedding_store"] = EmbeddingStore(
-                db_path=str(self.db_path)
+                db_path=str(self.bronnen_db_path)
             )
             logger.info("⚡ EmbeddingStore lazy-loaded (DEF-304)")
         return cast("EmbeddingStore", self._lazy_instances["embedding_store"])
@@ -943,7 +976,7 @@ class ServiceContainer:
             from services.rag.rag_management_service import RAGManagementService
 
             self._lazy_instances["rag_management_service"] = RAGManagementService(
-                db_path=str(self.db_path),
+                db_path=str(self.bronnen_db_path),
                 embedding_store=self.embedding_store,
             )
             logger.info("⚡ RAGManagementService lazy-loaded (DEF-365)")
