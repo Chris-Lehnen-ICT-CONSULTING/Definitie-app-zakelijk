@@ -22,7 +22,9 @@ from services.rag.models import ChunkingResult, ChunkMetadata, DocumentChunk
 from services.rag.token_counter import tel_tokens
 
 _STRUCTUUR_LABELS = ("boek", "hoofdstuk", "titel", "afdeling", "paragraaf")
-_ROMEINS = re.compile(r"^[IVXLCDM]+$", re.IGNORECASE)
+# Formele artikelen van een vaststellingswet: "IV", "V", ook met lettersuffix ("IIIA").
+_ROMEINS = re.compile(r"^[IVXLCDM]+[A-Z]?$", re.IGNORECASE)
+_BOEK_IN_WAT = re.compile(r"\bBoek (\d+)\b")
 _WITRUIMTE = re.compile(r"\s+")
 
 
@@ -156,13 +158,22 @@ def parse_officiele_publicatie(
             continue
 
         plaats: list[str] = []
+        boek_uit_wat: str | None = None
         element = ouder.get(artikel)
         while element is not None:
             omschrijving = _kop_omschrijving(element)
             if omschrijving:
                 plaats.append(omschrijving)
+            if element.tag == "wijzig-artikel" and boek_uit_wat is None:
+                # Vaststellingswet: "Boek 1, Hoofdstuk 10, van het Wetboek …
+                # komt te luiden:" — de boekcontext staat alleen in <wat>.
+                gevonden = _BOEK_IN_WAT.search(_tekst(element.find("wat")))
+                boek_uit_wat = f"Boek {gevonden.group(1)}" if gevonden else None
             element = ouder.get(element)
-        sectie = " › ".join(reversed(plaats))
+        plaats.reverse()
+        if boek_uit_wat and not any(d.startswith("Boek ") for d in plaats):
+            plaats.insert(0, boek_uit_wat)
+        sectie = " › ".join(plaats)
         kopregel = " — ".join(d for d in (wet_regeling, sectie) if d)
 
         _maak(f"{kopregel} › Artikel {nr}\n{inhoud}", nr, "artikel", sectie)

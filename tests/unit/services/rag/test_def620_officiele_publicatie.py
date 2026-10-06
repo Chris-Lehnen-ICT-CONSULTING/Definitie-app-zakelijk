@@ -143,6 +143,62 @@ def test_onleesbaar_bestand_geeft_foutmelding(tmp_path):
     assert res.fout_melding and res.fout_melding.startswith("XML onleesbaar")
 
 
+# Nabootsing van Stb. 2026, 57: de wettekst staat genest in wijzig-artikelen; de
+# boekcontext van hoofdstuk 10 staat alleen in <wat>.
+OP_XML_57 = """<?xml version="1.0" encoding="utf-8"?>
+<officiele-publicatie>
+  <wijzig-artikel>
+    <kop><label>ARTIKEL</label><nr>I</nr></kop>
+    <wat>Boek 1, Hoofdstuk 10, van het Wetboek van Strafvordering komt te luiden:</wat>
+    <wijziging><wijzig-divisie>
+      <kop><label>HOOFDSTUK</label><nr>10</nr><titel>TENUITVOERLEGGING</titel></kop>
+      <artikel><kop><label>Artikel</label><nr>1.10.1</nr></kop>
+        <al>De tenuitvoerlegging wordt bevorderd door het openbaar ministerie.</al></artikel>
+    </wijzig-divisie></wijziging>
+  </wijzig-artikel>
+  <wijzig-artikel>
+    <kop><label>ARTIKEL</label><nr>II</nr></kop>
+    <wat>Boek 7 van het Wetboek van Strafvordering komt te luiden:</wat>
+    <wijziging><wijzig-divisie>
+      <kop><label>BOEK</label><nr>7</nr><titel>INTERNATIONALE SAMENWERKING</titel></kop>
+      <wijzig-divisie>
+        <kop><label>HOOFDSTUK</label><nr>1</nr><titel>Algemene bepalingen</titel></kop>
+        <artikel><kop><label>Artikel</label><nr>7.1.1</nr></kop>
+          <al>Dit boek is van toepassing op samenwerking.</al></artikel>
+      </wijzig-divisie>
+    </wijzig-divisie></wijziging>
+  </wijzig-artikel>
+  <artikel><kop><label>ARTIKEL</label><nr>IIIA</nr></kop><al>Artikel 24c wordt gewijzigd.</al></artikel>
+  <artikel><kop><label>ARTIKEL</label><nr>V</nr></kop><al>Deze wet wordt aangehaald als …</al></artikel>
+</officiele-publicatie>
+"""
+
+
+def test_vaststellingswet_boek_uit_wat_en_geen_dubbel_boek(tmp_path):
+    pad = tmp_path / "stb-57.xml"
+    pad.write_text(OP_XML_57, encoding="utf-8")
+    res = parse_officiele_publicatie(pad, LABEL, "strafrecht")
+    assert [(c.metadata.artikel_nummer, c.metadata.sectie) for c in res.chunks] == [
+        ("1.10.1", "Boek 1 › Hoofdstuk 10 Tenuitvoerlegging"),
+        (
+            "7.1.1",
+            "Boek 7 Internationale samenwerking › Hoofdstuk 1 Algemene bepalingen",
+        ),
+    ]
+    assert res.chunks[0].tekst.startswith(
+        f"{LABEL} — Boek 1 › Hoofdstuk 10 Tenuitvoerlegging › Artikel 1.10.1\n"
+    )
+
+
+def test_formeel_artikel_met_lettersuffix_overgeslagen(tmp_path):
+    pad = tmp_path / "stb-57.xml"
+    pad.write_text(OP_XML_57, encoding="utf-8")
+    nummers = {
+        c.metadata.artikel_nummer for c in parse_officiele_publicatie(pad, LABEL).chunks
+    }
+    assert nummers.isdisjoint({"IIIA", "V"})
+
+
 # --- opslag ------------------------------------------------------------------------
 
 
@@ -205,3 +261,40 @@ def test_ingest_document_zonder_tekst_blijft_fout_zonder_chunks(rag):
     svc, _db, cid, _emb, _chunker = rag
     with pytest.raises(ValueError, match="tekst mag niet leeg"):
         svc.ingest_document("", collection_id=cid, filename="leeg.txt")
+
+
+def test_ingest_chunks_normaliseert_rechtsgebied_per_chunk(rag, xml_bestand):
+    svc, db, cid, _emb, _chunker = rag
+    res = parse_officiele_publicatie(xml_bestand, LABEL, "Strafrecht")
+    doc_id = svc.ingest_chunks(res, collection_id=cid, filename="stb-test.xml")
+    conn = sqlite3.connect(db)
+    waarden = {
+        r[0]
+        for r in conn.execute(
+            "SELECT rechtsgebied FROM rag_chunks WHERE document_id = ?", (doc_id,)
+        )
+    }
+    conn.close()
+    assert waarden == {"strafrecht"}
+
+
+def test_ingest_chunks_weigert_onbekend_rechtsgebied_zonder_opslag(rag, xml_bestand):
+    svc, db, cid, emb, _chunker = rag
+    res = parse_officiele_publicatie(xml_bestand, LABEL, "sterrenkunde")
+    with pytest.raises(ValueError, match="Onbekend rechtsgebied"):
+        svc.ingest_chunks(res, collection_id=cid, filename="stb-test.xml")
+    emb.embed_batch.assert_not_called()
+    conn = sqlite3.connect(db)
+    assert conn.execute("SELECT COUNT(*) FROM rag_documents").fetchone()[0] == 0
+    conn.close()
+
+
+def test_ingest_chunks_rolt_terug_bij_onderbreking(rag, xml_bestand):
+    svc, db, cid, emb, _chunker = rag
+    emb.embed_batch.side_effect = KeyboardInterrupt
+    res = parse_officiele_publicatie(xml_bestand, LABEL, "strafrecht")
+    with pytest.raises(KeyboardInterrupt):
+        svc.ingest_chunks(res, collection_id=cid, filename="stb-test.xml")
+    conn = sqlite3.connect(db)
+    assert conn.execute("SELECT COUNT(*) FROM rag_documents").fetchone()[0] == 0
+    conn.close()

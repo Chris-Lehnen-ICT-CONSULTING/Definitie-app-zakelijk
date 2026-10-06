@@ -11,8 +11,10 @@ Voorbeeld (eerst droog, dan echt; werk bij voorkeur eerst op een kopie):
         --wet-regeling "Wetboek van Strafvordering (nieuw, i.w.t. 1-4-2029)" \\
         --bestanden stb-2026-56.xml stb-2026-57.xml --droog
 
-Bestaat de collectie al, dan wordt die gebruikt; een document met dezelfde
-bestandsnaam wordt niet opnieuw geïmporteerd. Verwijdert nooit iets.
+Bestaat de collectie al, dan wordt die gebruikt. Een document met dezelfde
+bestandsnaam wordt alleen overgeslagen als het compleet is (opgeslagen aantal
+chunks = verwacht aantal); een incompleet document geeft een fout (exitcode 2)
+zodat het eerst onderzocht wordt. Verwijdert nooit iets.
 """
 
 from __future__ import annotations
@@ -31,12 +33,32 @@ from dotenv import load_dotenv
 
 load_dotenv(ROOT / ".env", override=False)
 
+from services.rag.constants import normaliseer_rechtsgebied
 from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
 from services.rag.officiele_publicatie_parser import parse_officiele_publicatie
 from services.rag.rag_management_service import RAGManagementService
 from services.rag.rag_service import RAGService
+
+
+def _opgeslagen(db: str, cid: int, naam: str) -> tuple[int, int] | None:
+    """(chunk_count in rag_documents, werkelijk aantal chunks) of None."""
+    conn = sqlite3.connect(db)
+    try:
+        rij = conn.execute(
+            "SELECT id, chunk_count FROM rag_documents "
+            "WHERE collection_id = ? AND filename = ?",
+            (cid, naam),
+        ).fetchone()
+        if rij is None:
+            return None
+        echt = conn.execute(
+            "SELECT COUNT(*) FROM rag_chunks WHERE document_id = ?", (rij[0],)
+        ).fetchone()[0]
+        return int(rij[1] or 0), int(echt)
+    finally:
+        conn.close()
 
 
 def _collectie_id(db: str, naam: str) -> int | None:
@@ -50,7 +72,7 @@ def _collectie_id(db: str, naam: str) -> int | None:
         conn.close()
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--db", required=True)
     ap.add_argument("--collectie", required=True)
@@ -58,11 +80,16 @@ def main() -> int:
     ap.add_argument("--rechtsgebied", default="strafrecht")
     ap.add_argument("--bestanden", nargs="+", required=True)
     ap.add_argument("--droog", action="store_true", help="alleen parsen en tellen")
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
+
+    rechtsgebied = normaliseer_rechtsgebied(args.rechtsgebied)
+    if rechtsgebied is None:
+        print(f"FOUT: onbekend rechtsgebied {args.rechtsgebied!r}")
+        return 1
 
     resultaten = []
     for pad in args.bestanden:
-        res = parse_officiele_publicatie(pad, args.wet_regeling, args.rechtsgebied)
+        res = parse_officiele_publicatie(pad, args.wet_regeling, rechtsgebied)
         if res.fout_melding or not res.chunks:
             print(f"FOUT {pad}: {res.fout_melding or 'geen chunks'}")
             return 1
@@ -81,7 +108,7 @@ def main() -> int:
     cid = _collectie_id(args.db, args.collectie)
     if cid is None:
         cid = beheer.create_collection(
-            args.collectie, collection_type="wetgeving", rechtsgebied=args.rechtsgebied
+            args.collectie, collection_type="wetgeving", rechtsgebied=rechtsgebied
         )
         print(f"collectie aangemaakt: {args.collectie!r} (id {cid})")
     else:
@@ -95,14 +122,23 @@ def main() -> int:
     )
     for pad, res in resultaten:
         naam = Path(pad).name
-        if beheer.check_duplicate_document(cid, naam):
-            print(f"overgeslagen (bestaat al): {naam}")
-            continue
+        bestaand = _opgeslagen(args.db, cid, naam)
+        if bestaand is not None:
+            verwacht = len(res.chunks)
+            if bestaand == (verwacht, verwacht):
+                print(f"overgeslagen (compleet aanwezig, {verwacht} chunks): {naam}")
+                continue
+            print(
+                f"FOUT: {naam} staat al in de collectie maar is incompleet "
+                f"(chunk_count={bestaand[0]}, chunks={bestaand[1]}, verwacht={verwacht}). "
+                "Niets verwijderd; onderzoek dit document eerst."
+            )
+            return 2
         doc_id = svc.ingest_chunks(
             res,
             collection_id=cid,
             filename=naam,
-            rechtsgebied=args.rechtsgebied,
+            rechtsgebied=rechtsgebied,
             bron_type="wetgeving",
         )
         print(f"geïmporteerd: {naam} → document {doc_id}, {len(res.chunks)} chunks")

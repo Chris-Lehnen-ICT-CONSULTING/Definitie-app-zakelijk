@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import cast
 
@@ -144,6 +144,12 @@ class RAGService:
         else:
             rechtsgebied = None
 
+        # DEF-620: al geknipte chunks dragen hun eigen rechtsgebied; normaliseer
+        # dat net als het documentrechtsgebied, zodat filters (exacte match op
+        # de genormaliseerde key) ze vinden. Onbekend → fout vóór de INSERT.
+        if chunking_result is not None:
+            chunking_result = _normaliseer_chunk_rechtsgebied(chunking_result)
+
         # DEF-378 Bug 5: valideer bron_type vóór stap 1 (voor INSERT + chunking + embedding)
         if bron_type is not None and bron_type not in BRON_TYPES:
             raise ValueError(
@@ -255,8 +261,9 @@ class RAGService:
             )
             return document_id
 
-        except Exception:
-            # Rollback: verwijder de rag_documents rij
+        except BaseException:
+            # Rollback: verwijder de rag_documents rij — ook bij een onderbreking
+            # (KeyboardInterrupt), zodat er geen document zonder chunks achterblijft.
             logger.warning(
                 "Ingest mislukt voor document %d — rollback rag_documents rij",
                 document_id,
@@ -658,3 +665,26 @@ class RAGService:
             }
         finally:
             conn.close()
+
+
+def _normaliseer_chunk_rechtsgebied(resultaat: ChunkingResult) -> ChunkingResult:
+    """Zelfde normalisatie als het documentrechtsgebied, per chunk (DEF-620)."""
+    chunks = []
+    for chunk in resultaat.chunks:
+        ruw = chunk.metadata.rechtsgebied
+        if ruw and ruw.strip():
+            genormaliseerd = normaliseer_rechtsgebied(ruw)
+            if genormaliseerd is None:
+                geldige = ", ".join(RECHTSGEBIEDEN.values())
+                raise ValueError(
+                    f"Onbekend rechtsgebied '{ruw}' in chunk "
+                    f"{chunk.metadata.chunk_index}. Geldige waarden: {geldige}"
+                )
+        else:
+            genormaliseerd = None
+        if genormaliseerd != ruw:
+            chunk = replace(
+                chunk, metadata=replace(chunk.metadata, rechtsgebied=genormaliseerd)
+            )
+        chunks.append(chunk)
+    return replace(resultaat, chunks=tuple(chunks))
