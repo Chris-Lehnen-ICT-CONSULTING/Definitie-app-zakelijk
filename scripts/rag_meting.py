@@ -78,6 +78,16 @@ def _alle_collecties(db: str) -> tuple[list[int], list[tuple]]:
         conn.close()
 
 
+def _inhoud(chunk: dict) -> str:
+    """Tekst voor het orakel: zonder de synthetische kopregel van de wetparsers
+    (die noemt de wetnaam en zou het orakel anders altijd laten slagen)."""
+    tekst = chunk.get("chunk_text", "") or ""
+    wet = chunk.get("wet_regeling") or ""
+    if wet and tekst.startswith(wet) and "\n" in tekst:
+        return tekst.split("\n", 1)[1]
+    return tekst
+
+
 def _is_kern(chunk: dict, kern: set[str]) -> bool:
     """Kernartikel: '1.4.1' (elke bron) of 'Begin van wet_regeling|1.4.1'."""
     artikel = chunk.get("artikel_lid")
@@ -168,10 +178,8 @@ def main() -> int:
                     "artikel": c.get("artikel_lid"),
                     "wet": c.get("wet_regeling"),
                     "score": round(float(c.get("score", 0)), 3),
-                    "noemt": bool(patroon.search(c.get("chunk_text", ""))),
-                    "homoniem": bool(
-                        homoniem and homoniem.search(c.get("chunk_text", ""))
-                    ),
+                    "noemt": bool(patroon.search(_inhoud(c))),
+                    "homoniem": bool(homoniem and homoniem.search(_inhoud(c))),
                 }
                 for c in chunks
             ]

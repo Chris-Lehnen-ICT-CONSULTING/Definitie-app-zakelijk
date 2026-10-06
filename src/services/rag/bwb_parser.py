@@ -24,8 +24,9 @@ from pathlib import Path
 
 from services.rag.models import ChunkingResult, ChunkMetadata, DocumentChunk
 from services.rag.officiele_publicatie_parser import (
-    _OVERSLAAN,
+    NIET_GELDEND,
     _artikel_inhoud,
+    _overslaan,
     _tekst,
     _zin,
 )
@@ -39,8 +40,6 @@ _STANDAARD_LABEL = {
     "boek": "Boek", "titeldeel": "Titel", "hoofdstuk": "Hoofdstuk",
     "afdeling": "Afdeling", "paragraaf": "Paragraaf", "divisie": "", "bijlage": "Bijlage",
 }  # fmt: skip
-#: Artikelen die (nog) niet gelden: vervallen of nog niet in werking getreden.
-_NIET_GELDEND = {"vervallen", "nogniet"}
 _VERSTAAN_ONDER = re.compile(r"verstaan\s+onder\s*:?\s*$", re.IGNORECASE)
 _TERM_DEFINITIE = re.compile(
     r"^(?P<term>[^:;]{1,120}?)\s*:\s*(?P<def>\S.*)$", re.DOTALL
@@ -67,18 +66,20 @@ def _begripsbepalingen(artikel: ET.Element) -> list[tuple[str, str, str]]:
     """(onderdeel, term, omschrijving) uit lijsten na "wordt verstaan onder:"."""
     items: list[tuple[str, str, str]] = []
     for ouder in artikel.iter():
-        kinderen = [k for k in ouder if k.tag not in _OVERSLAAN]
+        kinderen = [k for k in ouder if not _overslaan(k)]
         for vorige, lijst in pairwise(kinderen):
             if lijst.tag != "lijst" or vorige.tag != "al":
                 continue
             if not _VERSTAAN_ONDER.search(_tekst(vorige)):
                 continue
             for li in lijst.findall("li"):
+                if _overslaan(li):
+                    continue
                 onderdeel = _tekst(li.find("li.nr")).rstrip(".")
                 if not any(t.isalnum() for t in onderdeel):
                     onderdeel = ""
                 inhoud = " ".join(
-                    _tekst(k) for k in li if k.tag not in ("li.nr", *_OVERSLAAN)
+                    _tekst(k) for k in li if k.tag != "li.nr" and not _overslaan(k)
                 ).strip()
                 gevonden = _TERM_DEFINITIE.match(inhoud)
                 if not gevonden:
@@ -140,7 +141,7 @@ def parse_bwb_toestand(
         )
 
     for artikel in wortel.iter("artikel"):
-        if artikel.get("status") in _NIET_GELDEND:
+        if artikel.get("status") in NIET_GELDEND:
             continue
         nr = _tekst(artikel.find("kop/nr"))
         titel = _tekst(artikel.find("kop/titel"))
@@ -149,11 +150,16 @@ def parse_bwb_toestand(
             continue
         plaats: list[str] = []
         element = ouder.get(artikel)
+        geldt = True
         while element is not None:
+            if element.get("status") in NIET_GELDEND:
+                geldt = False
             omschrijving = _structuur_omschrijving(element)
             if omschrijving:
                 plaats.append(omschrijving)
             element = ouder.get(element)
+        if not geldt:
+            continue  # hoofdstuk/afdeling/paragraaf vervallen of nog niet in werking
         sectie = " › ".join(reversed(plaats))
         kopregel = " — ".join(d for d in (wet_regeling, sectie) if d)
         artikelkop = " ".join(d for d in (f"Artikel {nr}", titel) if d)

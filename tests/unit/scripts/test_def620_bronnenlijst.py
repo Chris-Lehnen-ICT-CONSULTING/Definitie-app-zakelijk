@@ -13,6 +13,18 @@ from services.rag.bronnen_schema import zorg_voor_bronnen_schema
 from tests.unit.scripts.test_def620_rag_scripts import _laad, _NepEmbedder
 from tests.unit.services.rag.test_def620_wetparsers import BWB_XML, EU_OJ
 
+# EU_OJ noemt de verordening, zodat de identiteitscontrole slaagt.
+EU_OJ = EU_OJ.replace(
+    '<div id="rct_1">',
+    '<p class="oj-doc-ti">Verordening (EU) 2016/679</p><div id="rct_1">',
+)
+OP_XML = """<?xml version="1.0" encoding="utf-8"?>
+<officiele-publicatie><metadata>
+<meta name="OVERHEIDop.externMetadataRecord"
+ content="https://zoek.officielebekendmakingen.nl/stb-2026-56/metadata.xml"/>
+</metadata><artikel><kop><nr>1.1.1</nr></kop><al>Tekst.</al></artikel>
+</officiele-publicatie>"""
+
 pytestmark = [pytest.mark.unit]
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -217,3 +229,93 @@ def test_importscript_formaat_bwb(tmp_path, monkeypatch):
     assert conn.execute("SELECT COUNT(*) FROM rag_chunks").fetchone()[0] == 4
     conn.close()
     assert imp.importeer(str(db), "T", "T", "strafrecht", [str(xml)], "xyz") == 1
+
+
+def test_identiteit_op_en_eu(bl):
+    mod, lijst, _tmp = bl
+    _testwet, avg = mod.lees_lijst(lijst)
+    op = mod.Bron(
+        sleutel="sv", formaat="op", collectie="c", wet_regeling="w",
+        rechtsgebied="strafrecht", urls=("https://zoek.officielebekendmakingen.nl/stb-2026-56.xml",),
+        bestanden=("a.xml",),
+    )  # fmt: skip
+    mod.controleer_inhoud(op, OP_XML.encode(), op.urls[0])
+    with pytest.raises(mod.BronError, match="niet stb-2026-57"):
+        mod.controleer_inhoud(
+            op,
+            OP_XML.encode(),
+            "https://zoek.officielebekendmakingen.nl/stb-2026-57.xml",
+        )
+    with pytest.raises(mod.BronError, match="niet CELEX"):
+        mod.controleer_inhoud(avg, EU_OJ.replace("2016/679", "2016/680").encode())
+    with pytest.raises(mod.BronError, match="geen Nederlandse tekst"):
+        mod.controleer_inhoud(avg, EU_OJ.replace("Artikel 4", "Article 4").encode())
+
+
+def test_eu_identiteit_geconsolideerd(bl):
+    mod, _lijst, _tmp = bl
+    assert mod._eu_identiteit_klopt(
+        "02014R0910-20241018", "x 02014R0910 — NL — 18.10.2024 — 002.003 y"
+    )
+    assert not mod._eu_identiteit_klopt(
+        "02014R0910-20241018", "x 02014R0910 — EN — 18.10.2024 y"
+    )
+
+
+def test_onderbroken_ophaalronde_laat_geen_bestand_zonder_manifest(bl):
+    mod, lijst, tmp = bl
+    bronnen = mod.lees_lijst(lijst)
+    map_ = tmp / "xml"
+
+    def tweede_faalt(url, formaat):
+        if formaat == "eu":
+            raise OSError("netwerk weg")
+        return _nep_download(url, formaat)
+
+    with pytest.raises(OSError, match="netwerk weg"):
+        mod.ophalen(bronnen, map_, download=tweede_faalt)
+    manifest = json.loads((map_ / "manifest.json").read_text(encoding="utf-8"))
+    assert list(manifest) == ["BWBR0009999_2026-01-01_0.xml"]
+    # hervatten haalt alleen het ontbrekende bestand op
+    mod.ophalen(bronnen, map_, download=_nep_download)
+    manifest = json.loads((map_ / "manifest.json").read_text(encoding="utf-8"))
+    assert sorted(manifest) == ["BWBR0009999_2026-01-01_0.xml", "EU_32016R0679.xhtml"]
+
+
+def test_bestaand_bestand_zonder_manifest_wordt_gecontroleerd(bl):
+    mod, lijst, tmp = bl
+    bronnen = mod.lees_lijst(lijst)
+    map_ = tmp / "xml"
+    map_.mkdir()
+    (map_ / "BWBR0009999_2026-01-01_0.xml").write_text("<geen-wet/>", encoding="utf-8")
+    with pytest.raises(mod.BronError, match="geen BWB-toestand"):
+        mod.ophalen(bronnen[:1], map_, download=_nep_download)
+    (map_ / "BWBR0009999_2026-01-01_0.xml").write_text(BWB_XML, encoding="utf-8")
+    manifest = mod.ophalen(bronnen[:1], map_, download=_nep_download)
+    assert "BWBR0009999_2026-01-01_0.xml" in manifest
+    (map_ / "BWBR0009999_2026-01-01_0.xml").write_text(BWB_XML + " ", encoding="utf-8")
+    with pytest.raises(mod.BronError, match="wijkt af van het manifest"):
+        mod.ophalen(bronnen[:1], map_, download=_nep_download)
+
+
+def test_importeren_weigert_bestand_zonder_manifestregel(import_klaar, capsys):
+    mod, bronnen, map_, imp, db = import_klaar
+    (map_ / "manifest.json").write_text("{}", encoding="utf-8")
+    assert mod.importeren(bronnen, str(db), map_, module=imp) == 1
+    assert "staat niet in het manifest" in capsys.readouterr().out
+
+
+def test_gewijzigde_bron_in_bestaande_collectie_wordt_geweigerd(import_klaar, capsys):
+    mod, bronnen, map_, imp, db = import_klaar
+    assert mod.importeren(bronnen[:1], str(db), map_, module=imp) == 0
+    pad = map_ / "BWBR0009999_2026-01-01_0.xml"
+    gewijzigd = BWB_XML.replace("de directeur", "De directeur").replace(
+        "houdt", "oefent"
+    )
+    pad.write_text(gewijzigd, encoding="utf-8")
+    manifest = json.loads((map_ / "manifest.json").read_text(encoding="utf-8"))
+    manifest[pad.name]["sha256"] = hashlib.sha256(pad.read_bytes()).hexdigest()
+    (map_ / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    capsys.readouterr()
+    assert mod.importeren(bronnen[:1], str(db), map_, module=imp) == 2
+    assert "bron gewijzigd" in capsys.readouterr().out

@@ -44,15 +44,26 @@ def _klassen(element: ET.Element) -> set[str]:
     return set((element.get("class") or "").split())
 
 
+#: Blokelementen krijgen een spatie eromheen; inline-opmaak (span, a, sup, …)
+#: wordt aaneengesloten, zodat "hand<span>tekening</span>" één woord blijft.
+_BLOK = {
+    f"{_NS}{t}"
+    for t in ("p", "div", "td", "th", "tr", "table", "li", "ul", "ol", "br", "dd", "dt")
+}
+
+
 def _verzamel(element: ET.Element, delen: list[str]) -> None:
     delen.append(element.text or "")
     for kind in element:
         if _klassen(kind) & _OVERSLAAN_KLASSEN:
             delen.append(kind.tail or "")
             continue
-        delen.append(" ")
+        blok = kind.tag in _BLOK
+        if blok:
+            delen.append(" ")
         _verzamel(kind, delen)
-        delen.append(" ")
+        if blok:
+            delen.append(" ")
         delen.append(kind.tail or "")
 
 

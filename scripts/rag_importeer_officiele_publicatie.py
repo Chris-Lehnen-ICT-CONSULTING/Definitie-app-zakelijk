@@ -22,6 +22,7 @@ zodat het eerst onderzocht wordt. Verwijdert nooit iets.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sqlite3
 import sys
@@ -65,6 +66,21 @@ def _opgeslagen(db: str, cid: int, naam: str) -> tuple[int, int] | None:
         return int(rij[1] or 0), int(echt)
     finally:
         conn.close()
+
+
+def _collectie_meta(db: str, cid: int) -> dict:
+    conn = sqlite3.connect(db)
+    try:
+        rij = conn.execute(
+            "SELECT metadata_json FROM rag_collections WHERE id = ?", (cid,)
+        ).fetchone()
+    finally:
+        conn.close()
+    try:
+        meta = json.loads(rij[0] or "{}") if rij else {}
+    except json.JSONDecodeError:
+        meta = {}
+    return meta if isinstance(meta, dict) else {}
 
 
 def _collectie_id(db: str, naam: str) -> int | None:
@@ -142,6 +158,23 @@ def importeer(
         print(f"collectie aangemaakt: {collectie!r} (id {cid})")
     else:
         print(f"collectie bestaat al: {collectie!r} (id {cid})")
+        if bron:
+            # Zelfde collectienaam = zelfde versie: een gewijzigde bron mag niet
+            # stil als "compleet" worden overgeslagen (DEF-620 fase 3).
+            oud = (_collectie_meta(db, cid).get("bron") or {}).get("sha256") or {}
+            nieuw = bron.get("sha256") or {}
+            if not oud:
+                print("  (bestaande collectie zonder bronhash; inhoud niet vergeleken)")
+            verschil = sorted(
+                n for n, h in nieuw.items() if oud.get(n) not in (None, h)
+            )
+            if verschil:
+                print(
+                    f"FOUT: bron gewijzigd t.o.v. de bestaande collectie {collectie!r} "
+                    f"({verschil}); niets geïmporteerd. Een nieuwe versie hoort in een "
+                    "nieuwe collectie (andere versie in de naam)."
+                )
+                return 2
 
     svc = RAGService(
         DocumentChunker(),

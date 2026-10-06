@@ -36,8 +36,15 @@ BWB_XML = """<?xml version="1.0" encoding="UTF-8"?>
       <paragraaf>
         <kop><label>§</label><nr>2</nr><titel>Toezicht</titel></kop>
         <artikel status="goed"><kop><label>Artikel</label><nr>5</nr></kop>
-          <lid><lidnr>1</lidnr><al>De directeur houdt <nadruk>toezicht</nadruk>.</al></lid></artikel>
+          <lid><lidnr>1</lidnr><al>De directeur houdt <nadruk>toezicht</nadruk>.</al></lid>
+          <lid status="vervallen"><lidnr>2</lidnr><al>Vervallen lid.</al></lid>
+          <lid status="nogniet"><lidnr>3</lidnr><al>Toekomstig lid.</al></lid></artikel>
       </paragraaf>
+      <afdeling status="nogniet">
+        <kop><label>Afdeling</label><nr>3</nr><titel>Toekomst</titel></kop>
+        <artikel status="goed"><kop><label>Artikel</label><nr>6</nr></kop>
+          <al>Geldt nog niet.</al></artikel>
+      </afdeling>
     </hoofdstuk>
   </wettekst></wet-besluit></wetgeving>
 </toestand>
@@ -56,7 +63,7 @@ EU_OJ = """<?xml version="1.0" encoding="UTF-8"?>
    <p class="oj-normal">Voor de toepassing van deze verordening wordt verstaan onder:</p>
    <p class="oj-normal">1) <span class="oj-bold">„persoonsgegevens”</span>: alle informatie over een persoon;</p>
    <p class="oj-normal">11) <span class="oj-bold">„toestemming”</span> van de betrokkene: elke vrije wilsuiting;</p>
-   <p class="oj-normal">Zie<span class="oj-note-tag">1</span> ook hieronder.</p>
+   <p class="oj-normal">Zie<span class="oj-note-tag">1</span> ook hieronder over de hand<span class="oj-italic">tekening</span>.</p>
   </div>
  </div>
 </div>
@@ -159,7 +166,7 @@ def test_eu_oorspronkelijk_publicatieblad(tmp_path):
     kop, tekst = artikel.tekst.split("\n", 1)
     assert kop == "AVG — Hoofdstuk I Algemene bepalingen › Artikel 4 Definities"
     assert "Overweging" not in artikel.tekst and "Bijlagetekst" not in artikel.tekst
-    assert "Zie ook hieronder." in tekst  # voetnootmarkering weg
+    assert "Zie ook hieronder over de handtekening." in tekst  # inline aaneen
     defs = [
         c.tekst.split("\n")[1]
         for c in res.chunks
@@ -167,7 +174,10 @@ def test_eu_oorspronkelijk_publicatieblad(tmp_path):
     ]
     assert defs == [
         "persoonsgegevens: alle informatie over een persoon;",
-        "toestemming van de betrokkene: elke vrije wilsuiting; Zie ook hieronder.",
+        (
+            "toestemming van de betrokkene: elke vrije wilsuiting; "
+            "Zie ook hieronder over de handtekening."
+        ),
     ]
     assert [c.metadata.artikel_nummer for c in res.chunks] == ["4", "4", "4"]
 
@@ -212,8 +222,70 @@ def test_poort_negeert_wetnaam_in_kopregel(tmp_path):
              "chunk_index": 1, "wet_regeling": wet, "artikel_lid": "8"},
             {"chunk_text": "Politiegegevens in een pdf\nzonder wetkopregel.",
              "chunk_index": 2, "wet_regeling": "pdf", "artikel_lid": None},
+            {"chunk_text": f"{wet}\nInleiding over de korpschef.",
+             "chunk_index": 3, "wet_regeling": wet, "artikel_lid": "pdf-titel"},
+            {"chunk_text": f"{wet} — definitie (artikel 1, onder a)\nkorpschef: de chef.",
+             "chunk_index": 4, "wet_regeling": wet, "artikel_lid": "1"},
         ],
-        embeddings=[vec, vec, vec],
+        embeddings=[vec] * 5,
     )  # fmt: skip
     treffers = store.search_keyword(vec, cid, ["politiegegevens"])
-    assert sorted(t["artikel_lid"] or "pdf" for t in treffers) == ["8", "pdf"]
+    # wetchunks zonder het begrip in de tekst vallen af (artikel 2, definitie);
+    # een pdf-chunk die met de wetnaam begint, houdt zijn eerste regel
+    assert sorted(t["artikel_lid"] or "pdf" for t in treffers) == [
+        "8", "pdf", "pdf-titel",
+    ]  # fmt: skip
+
+
+def test_bwb_niet_geldende_leden_en_onderdelen(bwb):
+    vijf = next(c for c in bwb.chunks if c.metadata.artikel_nummer == "5")
+    assert "Vervallen lid" not in vijf.tekst and "Toekomstig lid" not in vijf.tekst
+    assert "6" not in {
+        c.metadata.artikel_nummer for c in bwb.chunks
+    }  # afdeling nogniet
+
+
+def test_rechtsgebiedfilter_verruimt_pas_als_geen_enkele_collectie_treft(tmp_path):
+    """Met één collectie per wet: treffers binnen het rechtsgebied gaan voor;
+    andere wetten vallen niet per collectie terug op 'zonder filter'."""
+    from unittest.mock import MagicMock
+
+    from services.rag.rag_service import RAGService
+
+    db = str(tmp_path / "rag.db")
+    conn = sqlite3.connect(db)
+    conn.executescript(SCHEMA_SQL)
+    conn.close()
+    store = EmbeddingStore(db_path=db)
+    vec = np.ones(DIMS, dtype=np.float32)
+    ids = {}
+    for naam, rg in (("Wpg", "strafrecht"), ("AVG", "europees_recht")):
+        cid = store.create_collection(naam, dimensions=DIMS, model="test")
+        ids[naam] = cid
+        store.store_batch(
+            collection_id=cid,
+            document_id=None,
+            chunks=[{"chunk_text": f"{naam}: persoonsgegevens worden verwerkt.",
+                     "chunk_index": 0, "rechtsgebied": rg, "wet_regeling": naam}],
+            embeddings=[vec],
+        )  # fmt: skip
+    embedder = MagicMock(spec=["embed", "embed_batch", "DIMENSIONS", "MODEL"])
+    embedder.embed.return_value = vec
+    svc = RAGService(MagicMock(), embedder, store, db)
+    alle = list(ids.values())
+
+    ctx = svc.retrieve_context_multi(
+        "persoonsgegevens",
+        alle,
+        rechtsgebied="strafrecht",
+        zoektermen=["persoonsgegevens"],
+    )
+    assert [c["wet_regeling"] for c in ctx.chunks] == ["Wpg"]
+
+    ctx = svc.retrieve_context_multi(
+        "persoonsgegevens",
+        alle,
+        rechtsgebied="bestuursrecht",
+        zoektermen=["persoonsgegevens"],
+    )
+    assert sorted(c["wet_regeling"] for c in ctx.chunks) == ["AVG", "Wpg"]

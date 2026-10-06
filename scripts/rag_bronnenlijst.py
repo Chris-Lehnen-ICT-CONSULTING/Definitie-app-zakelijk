@@ -45,7 +45,7 @@ BWB_URL = (
     "https://repository.officiele-overheidspublicaties.nl/bwb/"
     "{id}/{versie}_0/xml/{id}_{versie}_0.xml"
 )
-CELLAR_URL = "http://publications.europa.eu/resource/celex/{celex}"
+CELLAR_URL = "https://publications.europa.eu/resource/celex/{celex}"
 TIMEOUT = 120
 
 
@@ -137,8 +137,24 @@ def _download(url: str, formaat: str) -> bytes:
         return antwoord.read()
 
 
-def controleer_inhoud(bron: Bron, inhoud: bytes) -> None:
-    """Controleer dat de download het verwachte document is."""
+def _eu_identiteit_klopt(celex: str, tekst: str) -> bool:
+    """Geconsolideerd (``0YYYYRNNNN-JJJJMMDD``): kenmerk "0YYYYRNNNN — NL —
+    DD.MM.JJJJ" in de tekst. Oorspronkelijk (``3YYYYRNNNN``): "YYYY/NNN"."""
+    gevonden = re.fullmatch(
+        r"(?P<soort>[03])(?P<jaar>\d{4})R(?P<nr>\d{4})(?:-(?P<d>\d{8}))?", celex
+    )
+    if not gevonden:
+        return False
+    jaar, nr = gevonden.group("jaar"), int(gevonden.group("nr"))
+    if gevonden.group("d"):
+        d = gevonden.group("d")
+        kenmerk = f"{celex[:10]} — NL — {d[6:8]}.{d[4:6]}.{d[0:4]}"
+        return kenmerk in tekst
+    return f"{jaar}/{nr}" in tekst or f"{nr}/{jaar}" in tekst
+
+
+def controleer_inhoud(bron: Bron, inhoud: bytes, url: str | None = None) -> None:
+    """Controleer dat de download het verwachte document is (formaat én identiteit)."""
     try:
         wortel = ET.fromstring(inhoud)
     except ET.ParseError as exc:
@@ -152,6 +168,17 @@ def controleer_inhoud(bron: Bron, inhoud: bytes) -> None:
     elif bron.formaat == "op":
         if wortel.tag != "officiele-publicatie":
             raise BronError(f"{bron.sleutel}: geen officiële publicatie")
+        # Identiteit: het metadatarecord verwijst naar de bedoelde publicatie
+        # (bv. .../stb-2026-56/metadata.xml bij .../stb-2026-56.xml).
+        if url is not None:
+            kenmerk = url.rstrip("/").rsplit("/", 1)[-1].removesuffix(".xml")
+            records = [
+                m.get("content") or ""
+                for m in wortel.iter("meta")
+                if m.get("name") == "OVERHEIDop.externMetadataRecord"
+            ]
+            if not any(f"/{kenmerk}/" in r for r in records):
+                raise BronError(f"{bron.sleutel}: publicatie is niet {kenmerk}")
     else:
         ns = "{http://www.w3.org/1999/xhtml}"
         artikelen = [
@@ -161,42 +188,83 @@ def controleer_inhoud(bron: Bron, inhoud: bytes) -> None:
         ]
         if wortel.tag != f"{ns}html" or not artikelen:
             raise BronError(f"{bron.sleutel}: geen EU-XHTML met artikelen")
+        koppen = [
+            " ".join(" ".join(next(iter(d), d).itertext()).split()) for d in artikelen
+        ]
+        if not all(k.startswith("Artikel ") for k in koppen):
+            raise BronError(f"{bron.sleutel}: geen Nederlandse tekst (artikelkoppen)")
+        tekst = " ".join(" ".join(wortel.itertext()).split())
+        if not _eu_identiteit_klopt(bron.celex or "", tekst):
+            raise BronError(f"{bron.sleutel}: document is niet CELEX {bron.celex}")
+
+
+def _lees_manifest(map_: Path) -> dict:
+    pad = map_ / "manifest.json"
+    return json.loads(pad.read_text(encoding="utf-8")) if pad.exists() else {}
+
+
+def _schrijf_manifest(map_: Path, manifest: dict) -> None:
+    """Atomair: eerst een tijdelijk bestand, dan vervangen."""
+    pad = map_ / "manifest.json"
+    tijdelijk = map_ / ".manifest.json.schrijven"
+    tijdelijk.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+    tijdelijk.replace(pad)
+
+
+def _manifestregel(bron: Bron, url: str, inhoud: bytes) -> dict:
+    return {
+        "sleutel": bron.sleutel,
+        "url": url,
+        "sha256": hashlib.sha256(inhoud).hexdigest(),
+        "bytes": len(inhoud),
+        "opgehaald_op": datetime.now().isoformat(timespec="seconds"),
+    }
 
 
 def ophalen(
     bronnen: list[Bron], map_: Path, opnieuw: bool = False, download=_download
 ) -> dict:
-    """Haal de bestanden op; geeft het bijgewerkte manifest."""
+    """Haal de bestanden op; geeft het bijgewerkte manifest.
+
+    Na elke geslaagde download wordt het manifest direct (atomair) bijgewerkt,
+    zodat een onderbroken ophaalronde nooit een bestand zonder manifestregel
+    achterlaat. Een al aanwezig bestand wordt opnieuw gecontroleerd; zonder
+    (kloppende) manifestregel wordt het als nieuw vastgelegd na de controle.
+    """
     map_.mkdir(parents=True, exist_ok=True)
-    manifest_pad = map_ / "manifest.json"
-    manifest = (
-        json.loads(manifest_pad.read_text(encoding="utf-8"))
-        if manifest_pad.exists()
-        else {}
-    )
+    manifest = _lees_manifest(map_)
     for bron in bronnen:
         for url, naam in zip(bron.urls, bron.bestanden, strict=True):
             doel = map_ / naam
             if doel.exists() and not opnieuw:
-                print(f"aanwezig: {naam}")
+                inhoud = doel.read_bytes()
+                regel = manifest.get(naam)
+                som = hashlib.sha256(inhoud).hexdigest()
+                if regel and regel.get("sha256") == som and regel.get("url") == url:
+                    print(f"aanwezig: {naam}")
+                    continue
+                if regel:
+                    raise BronError(
+                        f"{bron.sleutel}: {naam} wijkt af van het manifest; "
+                        "gebruik --opnieuw om opnieuw op te halen"
+                    )
+                controleer_inhoud(bron, inhoud, url)
+                manifest[naam] = _manifestregel(bron, url, inhoud)
+                _schrijf_manifest(map_, manifest)
+                print(f"aanwezig, vastgelegd in manifest: {naam}")
                 continue
             inhoud = download(url, bron.formaat)
-            controleer_inhoud(bron, inhoud)
+            controleer_inhoud(bron, inhoud, url)
             tijdelijk = doel.with_name(f".{naam}.download")
             tijdelijk.write_bytes(inhoud)
             tijdelijk.replace(doel)
-            manifest[naam] = {
-                "sleutel": bron.sleutel,
-                "url": url,
-                "sha256": hashlib.sha256(inhoud).hexdigest(),
-                "bytes": len(inhoud),
-                "opgehaald_op": datetime.now().isoformat(timespec="seconds"),
-            }
+            manifest[naam] = _manifestregel(bron, url, inhoud)
+            _schrijf_manifest(map_, manifest)
             print(f"opgehaald: {naam} ({len(inhoud)} bytes)")
-    manifest_pad.write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True),
-        encoding="utf-8",
-    )
+    _schrijf_manifest(map_, manifest)
     return manifest
 
 
@@ -218,12 +286,7 @@ def importeren(
 ) -> int:
     """Importeer elke bron in zijn eigen collectie; stopt bij de eerste fout."""
     module = module or _importmodule()
-    manifest_pad = map_ / "manifest.json"
-    manifest = (
-        json.loads(manifest_pad.read_text(encoding="utf-8"))
-        if manifest_pad.exists()
-        else {}
-    )
+    manifest = _lees_manifest(map_)
     for bron in bronnen:
         paden = [map_ / naam for naam in bron.bestanden]
         ontbreekt = [p.name for p in paden if not p.is_file()]
@@ -234,7 +297,10 @@ def importeren(
             return 1
         for pad in paden:
             verwacht = manifest.get(pad.name, {}).get("sha256")
-            if verwacht and hashlib.sha256(pad.read_bytes()).hexdigest() != verwacht:
+            if not verwacht:
+                print(f"FOUT {bron.sleutel}: {pad.name} staat niet in het manifest")
+                return 1
+            if hashlib.sha256(pad.read_bytes()).hexdigest() != verwacht:
                 print(f"FOUT {bron.sleutel}: {pad.name} wijkt af van het manifest")
                 return 1
         print(f"== {bron.sleutel}: {bron.collectie}")

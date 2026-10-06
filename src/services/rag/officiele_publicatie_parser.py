@@ -40,12 +40,19 @@ _SPATIE_VOOR_LEESTEKEN = re.compile(r"\s+([,.;:)])")
 
 # Metagegevens en redactionele noten (BWB-toestanden) horen niet bij de tekst.
 _OVERSLAAN = {"meta-data", "redactie", "opmerkingen-inhoud", "jcis"}
+# BWB markeert onderdelen die (nog) niet gelden met een status; die tekst
+# (een vervallen lid, een nog niet in werking getreden onderdeel) gaat niet mee.
+NIET_GELDEND = {"vervallen", "nogniet"}
+
+
+def _overslaan(element: ET.Element) -> bool:
+    return element.tag in _OVERSLAAN or element.get("status") in NIET_GELDEND
 
 
 def _verzamel(element: ET.Element, delen: list[str]) -> None:
     delen.append(element.text or "")
     for kind in element:
-        if kind.tag in _OVERSLAAN:
+        if _overslaan(kind):
             delen.append(kind.tail or "")
             continue
         blok = kind.tag in _BLOK
@@ -91,9 +98,7 @@ def _kop_omschrijving(element: ET.Element) -> str | None:
 def _artikel_inhoud(artikel: ET.Element) -> str:
     """Artikeltekst zonder de kop (label/nummer), lid- en onderdeelnummers behouden."""
     delen = [
-        _tekst(kind)
-        for kind in artikel
-        if kind.tag != "kop" and kind.tag not in _OVERSLAAN
+        _tekst(kind) for kind in artikel if kind.tag != "kop" and not _overslaan(kind)
     ]
     return " ".join(d for d in delen if d)
 

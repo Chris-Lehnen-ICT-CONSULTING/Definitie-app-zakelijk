@@ -438,12 +438,23 @@ class EmbeddingStore:
         een kopregel die met de wetnaam opent ("Wet politiegegevens (…) — …
         › Artikel 8"). Die regel hoort bij de embedding (context), maar niet bij
         de poort: anders laat de wetnaam élk artikel van die wet door voor een
-        begrip uit de titel. Andere chunks (pdf, upload) blijven ongewijzigd.
+        begrip uit de titel. Alleen het vaste kopregelformaat wordt
+        herkend; andere chunks (pdf, upload), ook als die met de wetnaam
+        beginnen, blijven ongewijzigd.
         """
         tekst = rij["chunk_text"] or ""
         wet = rij["wet_regeling"] or ""
-        if wet and tekst.startswith(wet) and "\n" in tekst:
-            return tekst.split("\n", 1)[1]
+        if not wet or "\n" not in tekst:
+            return tekst
+        kop, rest = tekst.split("\n", 1)
+        # Alleen het vaste kopregelformaat van de wetparsers:
+        #   "<wet> — <plaats> › Artikel <nr> …"  of  "<wet> › Artikel <nr> …"
+        #   "<wet> — definitie (artikel …"
+        if kop.startswith(wet) and (
+            " › Artikel " in kop[len(wet) :]
+            or kop[len(wet) :].startswith(" — definitie (")
+        ):
+            return rest
         return tekst
 
     @staticmethod

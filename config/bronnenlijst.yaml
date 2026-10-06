@@ -121,14 +121,14 @@ bronnen:
     formaat: bwb
     bwb_id: BWBR0046935
     versie: "2022-07-19"
-    collectie: "Besluit Sturing Digitale Overheid 2022"
+    collectie: "Besluit Sturing Digitale Overheid 2022 (versie 19-7-2022)"
     wet_regeling: "Besluit Sturing Digitale Overheid 2022 (versie 19-7-2022)"
     rechtsgebied: bestuursrecht
   - sleutel: tbdto
     formaat: bwb
     bwb_id: BWBR0040936
     versie: "2018-07-01"
-    collectie: "Tijdelijk besluit digitale toegankelijkheid overheid"
+    collectie: "Tijdelijk besluit digitale toegankelijkheid overheid (versie 1-7-2018)"
     wet_regeling: "Tijdelijk besluit digitale toegankelijkheid overheid (versie 1-7-2018)"
     rechtsgebied: bestuursrecht
 
