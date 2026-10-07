@@ -62,8 +62,7 @@ DEFAULT_EXAMPLE_COUNTS = {
 
 # DEF-840: bovengrens voor gelijktijdige voorbeeldtypen binnen één generatie.
 # Zes = alle typen tegelijk; blijft onder `rate_limit_max_concurrent` (standaard
-# 10) van de AsyncRateLimiter in utils/async_api.py. Die limiter is niet
-# thread-safe over Streamlit-sessies heen; zie de restrisico's in DEF-840.
+# 10) van de AsyncRateLimiter in utils/async_api.py; die begrenst per event loop.
 MAX_GELIJKTIJDIGE_VOORBEELDTYPEN = 6
 
 
@@ -1174,6 +1173,7 @@ async def genereer_alle_voorbeelden_async(
 
     # Process results, handling individual failures gracefully
     results: dict[str, list[str] | str] = {}
+    leeg_door_fout: list[str] = []
     for example_type, raw_result in zip(example_types, all_results, strict=True):
         # Check if this individual call failed
         # BaseException: gather levert een geannuleerde taak als CancelledError op.
@@ -1183,6 +1183,7 @@ async def genereer_alle_voorbeelden_async(
                 f"Failed to generate {example_type.value}: "
                 f"{type(raw_result).__name__}: {raw_result}"
             )
+            leeg_door_fout.append(f"{example_type.value} ({type(raw_result).__name__})")
             # Voor toelichting een lege string, voor andere een lege lijst
             if example_type == ExampleType.TOELICHTING:
                 results[example_type.value] = ""
@@ -1195,6 +1196,14 @@ async def genereer_alle_voorbeelden_async(
                 results[example_type.value] = example_list[0] if example_list else ""
             else:
                 results[example_type.value] = example_list
+
+    # DEF-840: één samenvattende waarschuwing, zodat lege velden door een fout
+    # niet verward worden met "het model vond niets".
+    if leeg_door_fout:
+        logger.warning(
+            f"{len(leeg_door_fout)} van {len(requests)} voorbeeldtypen leeg door "
+            f"een fout voor '{begrip}': {', '.join(leeg_door_fout)}"
+        )
 
     total_duration = time.time() - start_time
     logger.info(

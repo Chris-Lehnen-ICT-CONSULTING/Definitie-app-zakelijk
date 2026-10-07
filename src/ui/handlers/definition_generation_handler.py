@@ -71,25 +71,31 @@ def generatie_budget_s() -> float:
 
 
 def foutmelding_generatie(fout: BaseException, budget_s: float) -> str:
-    """DEF-840: begrijpelijke UI-melding voor een mislukte generatie.
+    """DEF-840: vaste, begrijpelijke UI-melding voor een mislukte generatie.
 
-    Een ``TimeoutError`` (ook ``asyncio``/``concurrent.futures``) heeft geen
-    tekst; ``str(fout)`` gaf daardoor een lege melding. Nooit meer leeg: bij
-    een fout zonder tekst noemt de melding het type. Een TimeoutError mét
-    tekst komt van een interne tijdslimiet (niet het UI-budget) en toont die.
+    De exceptiontekst komt nooit in de melding: die kan geheimen, interne
+    paden of providerdetails bevatten en hoort alleen in de log. De melding
+    noemt hooguit het fouttype.
+
+    De time-out van de UI-bridge (``TimeoutError`` zonder tekst) noemt het
+    budget. Een ``TimeoutError`` mét tekst komt van een interne tijdslimiet,
+    niet van het UI-budget, en noemt dat budget dus niet.
     """
-    tekst = str(fout).strip()
     if isinstance(fout, TimeoutError):
-        if tekst:
-            return f"❌ Generatie afgebroken door een tijdslimiet: {tekst}"
+        if not str(fout).strip():
+            return (
+                f"❌ Generatie duurde langer dan {budget_s:g} s en is afgebroken. "
+                "Probeer het opnieuw; blijft dit gebeuren, selecteer dan minder "
+                "bronnen of documenten."
+            )
         return (
-            f"❌ Generatie duurde langer dan {budget_s:g} s en is afgebroken. "
-            "Probeer het opnieuw; blijft dit gebeuren, selecteer dan minder "
-            "bronnen of documenten."
+            "❌ Generatie afgebroken door een interne tijdslimiet. "
+            "Probeer het opnieuw."
         )
-    if not tekst:
-        tekst = f"onverwachte fout ({type(fout).__name__}) zonder verdere toelichting"
-    return f"❌ Fout bij generatie: {tekst}"
+    return (
+        f"❌ Generatie mislukt door een onverwachte fout ({type(fout).__name__}). "
+        "Probeer het opnieuw."
+    )
 
 
 def _kanaaltekst(md: dict[str, Any], kanaal: str, statussleutel: str) -> str:
