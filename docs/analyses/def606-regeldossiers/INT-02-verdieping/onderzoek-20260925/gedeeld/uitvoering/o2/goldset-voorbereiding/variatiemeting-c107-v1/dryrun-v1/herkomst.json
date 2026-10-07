@@ -1,0 +1,44 @@
+{
+  "soort": "def835-int02-variatiemeting-herkomst/1",
+  "claim": "Variatiemeting op C107 buiten het kwalificatieprotocol (besluit 11): dezelfde keten als kwalificatieproef v5, N losse calls. Geen kwalificatie, geen DEF-815-claim. Kosten = gemelde usage x routerprijzen; geen providerfactuur.",
+  "aangemaakt": "2026-10-07T14:07:40.690417+00:00",
+  "modus": "dry-run",
+  "aantal": 5,
+  "git_head": "ee04346760706f9e68628a7a194581cf591b4d5a",
+  "ketenbestanden_lokaal_gewijzigd": [],
+  "script_sha256": "d05ec9590c748ec62c11b8b04507079ef2d00691d9cd1c3125578af1dca1607a",
+  "contract_sha256": "c20543f09479b5ae3b079aed6d2ff13f40ee01525875313aa33766d823bf9747",
+  "dienst_sha256": "4d9d7200bb20616c541a9b12e5957addac085957725ab4cfa2c5856be9834a47",
+  "runner_sha256": "94adea36ffa555a8d9fee790f5eb96ce54ece96efd107adf25dd147ccb1a637f",
+  "gevallenbron_sha256": "af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953",
+  "geval": "C107",
+  "invoer_sha256": "795634542de6130b3722ebcfb903e1891b79028346d241e8d7991ac87749dd91",
+  "systeemprompt_sha256": "da4a4112b580da2924b5940ac2723ef5e177ad48ef15890b66d8d91f285a7ca6",
+  "dataprompt_sha256": "33614b0741364ce2a0a807beef93036fcb136c468d35dc1b113bcc265ba8b05e",
+  "payload_sha256": "6f3507192174a0a90d22c8f5d8da35a87cad1d9180f159b1f5f14f9072789866",
+  "payload_bytes": 8685,
+  "profiel_id": "def835-kwalificatieproef-opus5-v1",
+  "provider": "anthropic",
+  "model": "claude-opus-5",
+  "promptversie": "def835-int02-prompt/3",
+  "contractversie": "def835-int02-assessment/2",
+  "limieten": {
+    "max_inferentie": 5,
+    "max_telverzoeken": 5,
+    "max_uitvoertokens": 6000,
+    "max_geschatte_invoertokens": 16000,
+    "deadline_seconden": 120.0,
+    "totale_looptijd_seconden": 900.0,
+    "budget_usd": 0.5
+  },
+  "kostenstop_usd": 0.5,
+  "prijzen_per_token": {
+    "input": 5e-06,
+    "output": 2.5e-05
+  },
+  "reservering_per_call_usd": 0.22999999999999998,
+  "versies": {
+    "anthropic": "0.116.0",
+    "httpx": "0.28.1"
+  }
+}

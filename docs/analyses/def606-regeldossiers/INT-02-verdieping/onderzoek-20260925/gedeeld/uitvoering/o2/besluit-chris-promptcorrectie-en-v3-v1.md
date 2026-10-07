@@ -107,3 +107,16 @@ Gelijk aan v4: gevallen, per geval de invoer, dataprompt en label, model, SDK `a
 **Akkoord Chris: alleen fase 1** (`--fase regressie`, C105/C107/C112, maximaal 3 calls); daarna stoppen en bespreken. Het akkoordbestand `kwalificatie-akkoord-v5.json` bevat net als bij v4 het protocolkader (43 calls, US$12), omdat de runner dat veldformaat eist; de beperking tot fase 1 is deze procesafspraak. Besluit 8 (v4) is hiermee vervangen.
 
 **Sleutel.** Zoals bij v4 wordt de API-sleutel bij de run door de shell uit de `.env` van de hoofdcheckout gelezen en niet getoond; er komt geen `.env` in de werkboom.
+
+## Besluit 11 — variatiemeting C107 (07-10-2026)
+
+**Uitslag fase 1 (manifest v5).** 2/3 juist, mechanisch niet geslaagd (`te_weinig_juist`). C105 `fail` en C112 `pass` zijn juist, met 0 citaatfouten: de positiecorrectie van besluit 9 werkt. C107 werd `fail` (`discretionary_decision_rule`, onzekerheid `non_decisive`) terwijl `review_required` werd verwacht. In v2 was C107 ook `fail`, in v4 `review_required`. Kosten $0,07772. Details: `goldset-voorbereiding/goldset-freeze-v1/kwalificatieproef-v5-uitslag-v1.md`.
+
+**Keuze Chris: optie C — eerst de variatie meten.** Vóór een herstel wordt gemeten of de C107-uitkomst toeval is of structureel: 5 losse calls op C107, buiten de kwalificatie, voor ongeveer US$0,15. Er geldt een harde kostenstop van $0,50 en er is geen automatische herhaling. De uitkomst bepaalt de keuze tussen A en B.
+
+**Niet nu gekozen:**
+- A: direct een dienstregel;
+- B: prompt /4;
+- D: parkeren.
+
+**Uitvoering.** Meetscript `goldset-voorbereiding/variatiemeting-c107-v1/variatiemeting.py`. Het gebruikt dezelfde keten als de v5-proef: dienst, profiel, `claude-opus-5`, prompt /3, contract /2, limieten per call en `use_cache=False`. De verstuurde payload is byte-gelijk aan die van C107 in v5. Manifest, akkoord en grootboek van de kwalificatie worden niet gebruikt. De meting telt niet als kwalificatie.

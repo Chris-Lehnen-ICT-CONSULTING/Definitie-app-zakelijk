@@ -1,0 +1,12 @@
+{"akkoord_sha256": "83618a8503dbd7e41b4af5c1adafc20f8e928ce131c53b24c035590374eb3dfe", "gebeurtenis": "mandaat", "manifest_sha256": "6655153275346ffbc95d1b1c26c8b22c5ff7f9ff521e8900793a4ecfae498fe7", "soort": "def835-int02-kwalificatie-grootboek/1", "tijd": "2026-10-07T13:26:03.379260+00:00"}
+{"akkoord_sha256": "83618a8503dbd7e41b4af5c1adafc20f8e928ce131c53b24c035590374eb3dfe", "fase": "regressie", "gebeurtenis": "fase_start", "tijd": "2026-10-07T13:26:03.379665+00:00"}
+{"gebeurtenis": "tel_reservering", "geval": "C105", "tel": 1, "tijd": "2026-10-07T13:26:03.381042+00:00"}
+{"call": 1, "gebeurtenis": "inferentie_reservering", "geval": "C105", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-07T13:26:04.079197+00:00"}
+{"call": 1, "gebeurtenis": "inferentie_boeking", "geval": "C105", "kosten_usd": 0.024440000000000003, "tijd": "2026-10-07T13:26:09.080779+00:00", "usage": {"input_tokens": 3543, "output_tokens": 269}}
+{"gebeurtenis": "tel_reservering", "geval": "C107", "tel": 2, "tijd": "2026-10-07T13:26:09.098043+00:00"}
+{"call": 2, "gebeurtenis": "inferentie_reservering", "geval": "C107", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-07T13:26:09.286609+00:00"}
+{"call": 2, "gebeurtenis": "inferentie_boeking", "geval": "C107", "kosten_usd": 0.02832, "tijd": "2026-10-07T13:26:15.721107+00:00", "usage": {"input_tokens": 3574, "output_tokens": 418}}
+{"gebeurtenis": "tel_reservering", "geval": "C112", "tel": 3, "tijd": "2026-10-07T13:26:15.724115+00:00"}
+{"call": 3, "gebeurtenis": "inferentie_reservering", "geval": "C112", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-07T13:26:15.938553+00:00"}
+{"call": 3, "gebeurtenis": "inferentie_boeking", "geval": "C112", "kosten_usd": 0.02496, "tijd": "2026-10-07T13:26:20.132850+00:00", "usage": {"input_tokens": 3567, "output_tokens": 285}}
+{"bewijs_opgeslagen": true, "fase": "regressie", "gebeurtenis": "fase_einde", "looptijd_seconden": 17.625, "mechanisch_geslaagd": false, "stopreden": null, "tijd": "2026-10-07T13:26:20.137620+00:00"}

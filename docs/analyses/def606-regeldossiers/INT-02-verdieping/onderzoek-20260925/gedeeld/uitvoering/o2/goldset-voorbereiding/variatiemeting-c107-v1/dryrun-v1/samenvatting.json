@@ -1,0 +1,16 @@
+{
+  "soort": "def835-int02-variatiemeting-samenvatting/1",
+  "claim": "Variatiemeting op C107 buiten het kwalificatieprotocol (besluit 11): dezelfde keten als kwalificatieproef v5, N losse calls. Geen kwalificatie, geen DEF-815-claim. Kosten = gemelde usage x routerprijzen; geen providerfactuur.",
+  "modus": "dry-run",
+  "afgerond": "2026-10-07T14:07:40.713282+00:00",
+  "aantal_gevraagd": 5,
+  "aantal_uitgevoerd": 0,
+  "inferenties": 0,
+  "telverzoeken": 0,
+  "opgevangen_zonder_verzending": 1,
+  "stopreden": null,
+  "kosten_usd_conservatief": 0.0,
+  "kostenstop_usd": 0.5,
+  "telling": {},
+  "runs": []
+}
