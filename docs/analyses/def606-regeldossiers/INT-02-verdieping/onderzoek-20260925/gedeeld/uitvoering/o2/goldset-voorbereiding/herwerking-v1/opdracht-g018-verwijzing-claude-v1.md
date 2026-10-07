@@ -1,0 +1,8 @@
+# DEF-835 — één resterende tekstfout in G018
+Vervolg op jouw gerichte broncorrecties. Dit is documentredactie; geen code, Git, appcalls, agents of herdelegatie. Je bent niet alleen in de repository. Alleen lezen en JSON-antwoord, geen bestanden schrijven.
+
+Lees uitsluitend G018 in /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/../herwerking-v1/casuspool-kandidaat-v2.json en jouw eerdere G018 in casuspool-kandidaat-v1.json. De onafhankelijke hercontrole bevestigt dat de fout 'volgende dag' versus 'zodra' is opgelost. Er resteert één door jouw correctie veroorzaakte fout in B1: 'Bij een vaste uitzondering ontbreekt dat voorbehoud' verwijst naar een voorbehoud dat niet meer expliciet is geïntroduceerd. De vorige B1 had wel een benoemd herroepingsvoorbehoud.
+
+Herstel alleen deze samenhang binnen B1, met behoud van de goedgekeurde typebeschrijving en het herroepingskenmerk. De kern, bedoeling, context, overige metadata, B2 en alle andere gevallen blijven EXACT gelijk aan kandidaat-v2. 'Zodra' en de beoordelende actor blijven behouden. Introduceer geen nieuwe termijn, actor, procedure, rechtsgevolg of feit om een bepaald label te krijgen. Een correctiereferentie is geen opdracht pass/review_required/fail te forceren.
+
+Geef één JSON-object zonder fences: status='correctievoorstel_niet_geaccepteerd'; geval (het volledige G018-object met precies dezelfde zeven velden); dispositie (bevinding, afweging, actie, resterend_open). Benoem precies wat veranderd is. Geen labels. De coördinator controleert de beperkte diff; beide bestaande beoordelaars krijgen uitsluitend de gewijzigde B1 terug.

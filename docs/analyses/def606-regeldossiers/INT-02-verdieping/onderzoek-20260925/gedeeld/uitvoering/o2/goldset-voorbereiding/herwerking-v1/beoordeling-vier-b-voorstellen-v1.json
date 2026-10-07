@@ -1,0 +1,255 @@
+{
+  "beoordelaar": "B",
+  "status": "voorstel_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "casuspool_kandidaat_v4": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+    "vier_vervangers_concept_v1": "f8abedbd14106d3a7b54a813762dac911d45509e2e005a3461869cad6d4dc81b",
+    "normcontract": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten_chris": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734"
+  },
+  "gevallen": [
+    {
+      "id": "G053",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "De administratie berekent voor iedere gereden dienstkilometer 0,23 euro, beperkt het bedrag per dag tot 40 euro",
+          "functie": "Gebonden berekeningshandelingen binnen een uitvoeringsinstructie; de vaste parameters maken de handelingsopdracht niet tot een begripsdefinitie.",
+          "start": 0,
+          "end": 111
+        },
+        {
+          "citaat": "en maakt het maandtotaal over aan de vrijwilliger.",
+          "functie": "Zelfstandige betalingsopdracht aan de administratie; deze passage definieert geen bedrag.",
+          "start": 112,
+          "end": 162
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Voor iedere kilometer die een vrijwilliger in opdracht van de organisatie rijdt (dienstkilometer), bedraagt de reiskostenvergoeding 0,23 euro, met een maximum van 40 euro per dag.",
+          "start": 75,
+          "end": 254
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "De administratie berekent voor iedere gereden dienstkilometer 0,23 euro, beperkt het bedrag per dag tot 40 euro en maakt het maandtotaal over aan de vrijwilliger.",
+          "start": 93,
+          "end": 255
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil de term opnemen in de begrippenlijst van de vrijwilligersadministratie en biedt daarvoor stap 3 uit de werkinstructie van de administratie aan.",
+          "start": 0,
+          "end": 160
+        }
+      ],
+      "motivering": "De volledige kern voert stap 3 van de administratie uit: berekenen, begrenzen en overmaken. B1 draagt een deterministische bedragafleiding, maar de aangeboden kern richt die afleiding als werkzaamheid tot een actor en koppelt daaraan betaling. De overdrachtsopdracht bewijst zelfstandig een INT-02-gebrek, ook als men het rekenkundige deel als afleiding leest. B2 en de bedoeling bevestigen de uitvoeringsfunctie; niet alleen de documenttitel of de actieve zinsvorm draagt het oordeel.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C116",
+          "C102",
+          "C105",
+          "C64"
+        ],
+        "motivering": "C116 beschrijft een afgeleide grootheid; C102/C105 schrijven actorhandelen voor; C64 mengt beschrijving en uitvoering. G053 verweeft correcte berekening met een dagmaximum en maandbetaling in één actorprocedure. Daardoor moet determinisme van handelen worden onderscheiden; dit is meer dan vervanging van namen."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "G008, G012, G024 en G036 delen procedurele actorhandelingen; G027 deelt een rekenkundige afleiding. Geen van deze gevallen combineert bedragafleiding, begrenzing en daadwerkelijke betaling zoals G053.",
+        "Geen zelfstandig betekenisprobleem buiten INT-02 vastgesteld."
+      ]
+    },
+    {
+      "id": "G054",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Inschrijving op de wachtlijst die op de dag waarop een tuin vrijkomt meer wachtpunten heeft dan iedere andere inschrijving of, bij een gelijk hoogste aantal wachtpunten, van de inschrijvingen met dat aantal het laagste inschrijfnummer heeft.",
+          "functie": "Deterministische rangordebepaling op een peildag: hoogste puntenaantal, bij gelijkstand het laagste inschrijfnummer.",
+          "start": 0,
+          "end": 241
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Iedere inschrijving op de wachtlijst krijgt een inschrijfnummer; inschrijfnummers worden oplopend uitgegeven en niet hergebruikt.",
+          "start": 64,
+          "end": 193
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Eerstgerechtigd is de inschrijving die op de dag waarop de tuin vrijkomt de meeste wachtpunten heeft; hebben meer inschrijvingen dat hoogste aantal, dan is van die inschrijvingen de inschrijving met het laagste inschrijfnummer eerstgerechtigd.",
+          "start": 410,
+          "end": 653
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Komt een tuin vrij, dan biedt het bestuur die tuin binnen twee weken aan de eerstgerechtigde inschrijving aan.",
+          "start": 299,
+          "end": 409
+        }
+      ],
+      "motivering": "De kern bepaalt welke inschrijving eerstgerechtigd is door kandidaten onderling te vergelijken en een gelijkstand deterministisch te doorbreken. B1 ondersteunt beide criteria en de ordening van inschrijfnummers. Het afzonderlijke voorschrift aan het bestuur om binnen twee weken een tuin aan te bieden staat niet in de kern. Het gebruik in een aanbiedingsbrief verandert deze classificatie niet in een opdracht of discretionaire afweging. Onbekende actuele wachtlijstgegevens verhinderen toepassing op een concreet geval, niet beoordeling van de definitiefunctie.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C17",
+          "C54",
+          "C26",
+          "C116"
+        ],
+        "motivering": "C17/C54 gebruiken een individuele inschrijfvoorwaarde; C26 een terugvalcriterium; C116 een som. G054 classificeert relatief ten opzichte van alle concurrenten, met een peildag en tweede ordeningscriterium bij gelijkstand. Deze structuur ontstaat niet door alleen namen of drempels te vervangen."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "G027 bevat eveneens een deterministische afleiding, maar van een gewogen meetgrootheid. G019 en G031 gebruiken lokale objectcriteria. G052 betreft voorrang via afweging, niet de hier volledig bepaalde rangorde.",
+        "Geen zelfstandig betekenisprobleem buiten INT-02 vastgesteld."
+      ]
+    },
+    {
+      "id": "G055",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Vergadering van de ledenraad die de voorzitter niet vóór de aanvang besloten heeft verklaard.",
+          "functie": "Negatief constitutief statuscriterium: openbaar bij ontbreken van een voorafgaande beslotenverklaring.",
+          "start": 0,
+          "end": 93
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De vergaderingen van de ledenraad zijn openbaar. De voorzitter kan een vergadering vóór de aanvang besloten verklaren wanneer de voorzitter dat ter bescherming van de persoonlijke levenssfeer van een lid nodig acht.",
+          "start": 66,
+          "end": 281
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "12 februari: openbaar. 9 april: besloten (besloten verklaard op 2 april). 11 juni: openbaar.",
+          "start": 50,
+          "end": 142
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term wordt gebruikt in de vergaderkalender van de coöperatie, die bij iedere vergadering van de ledenraad vermeldt of zij openbaar of besloten is.",
+          "start": 0,
+          "end": 149
+        }
+      ],
+      "motivering": "B1 geeft openbaarheid als uitgangspunt en de voorafgaande beslotenverklaring als statusveranderend besluit. De kern beschrijft het ontbreken van dat besluit; zij draagt de voorzitter niet op te beslissen en voert de privacyafweging niet uit. Dat B1 voor het nemen van het besluit discretie bevat, maakt het daarvan afgeleide statuscriterium niet discretionair. Bedoeling en kalender ondersteunen de classificatiefunctie. De negatie en het tijdstip zijn betekenisdragende criteria, geen signalen van een overtreding.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C69",
+          "C113",
+          "C12",
+          "C107"
+        ],
+        "motivering": "C69 classificeert via een genomen afwijzingsbesluit; C113 bevat een negatief objectcriterium. G055 combineert een standaardstatus met het ontbreken van een tijdig constitutief besluit, terwijl alleen de bron de discretionaire afweging beschrijft. Die combinatie onderscheidt het van louter een hernoemde besluituitkomst."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "G003 en G014 raken positieve aanwijzing of registratie; G021 beschrijft een beslissingsdocument. G018 en G050 bevatten juist een afweging in de kern. G043 deelt een tijdsgebonden statusgevolg, maar geen standaardstatus met discretionaire uitzondering buiten de kern.",
+        "Geen zelfstandig betekenisprobleem buiten INT-02 vastgesteld."
+      ]
+    },
+    {
+      "id": "G056",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Medewerker die tijdens een voorstelling de nooduitgangen van de zaal vrijhoudt en bij alarm de ontruiming van de zaal leidt.",
+          "functie": "Beschrijvende afbakening van een medewerkersfunctie door haar reguliere en alarmgebonden taken.",
+          "start": 0,
+          "end": 124
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term wordt in het dienstrooster van het theater gebruikt als functienaam, naast de functies kassa en garderobe.",
+          "start": 0,
+          "end": 114
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Bij iedere voorstelling zijn twee zaalwachten aanwezig. Een zaalwacht houdt tijdens de voorstelling de nooduitgangen van de zaal vrij en leidt bij alarm de ontruiming van de zaal.",
+          "start": 78,
+          "end": 257
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Waarden: kassa, garderobe, zaalwacht.",
+          "start": 56,
+          "end": 93
+        }
+      ],
+      "motivering": "De referent is een medewerkersfunctie in het dienstrooster. De kern karakteriseert die functie met twee samenhangende taken; de alarmvoorwaarde begrenst de tweede taak. B1 beschrijft de taakinhoud en B2 bevestigt de plaats naast andere functies. Samen met de expliciete bedoeling draagt dit een beschrijvende lezing, zonder dat de kern de lezer een behandelstap laat uitvoeren. Het beschrijven van taken die verplicht kunnen zijn, is niet zelf een actorvoorschrift. De precieze verhouding tussen functietoewijzing en feitelijke taakuitvoering blijft een afzonderlijk afbakeningspunt.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C105",
+          "C112",
+          "C15"
+        ],
+        "motivering": "C105 en C15 betreffen uitvoeren van handelingen; C112 definieert een verplichting als object. G056 definieert juist een actorrol via taken, ondersteund door een functieveld. Het onderscheid tussen rolkarakterisering en opdracht ontbreekt als zelfstandige beslisstructuur in deze nabije ontwerpen."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "G036 beschrijft een proces met expliciete medewerkersopdrachten; G039 karakteriseert een proces door activiteiten. G056 betreft een medewerkersfunctie, geen proces. G041 deelt de vraag wanneer normatieve taakinhoud een begrip karakteriseert, maar heeft een wijziging als referent.",
+        "Buiten INT-02: de bronnen werken niet uit of een aangewezen medewerker die een taak niet uitvoert toch zaalwacht blijft. Dit raakt de precisie van het lidmaatschapscriterium; het levert hier geen zelfstandige grond voor INT-02-afkeur of een onbesliste passagefunctie."
+      ]
+    }
+  ],
+  "selectiepunten": [
+    "G053 overlapt met G008/G012/G024/G036 in actorprocedures en met G027 in afleiding; zijn afzonderlijke waarde ligt in de combinatie van deterministische berekening en betaling.",
+    "G054 voegt rangordebepaling met gelijkstand toe; G055 combineert een standaardstatus met de afwezigheid van een tijdig besluit. Hun gedeelde normfamilies zijn op zichzelf geen reden voor uitsluiting.",
+    "G056 is bruikbaar als grensgeval tussen functiebeschrijving en actoropdracht; het afzonderlijke afbakeningspunt over functietoewijzing en taakuitvoering verdient aandacht bij selectie.",
+    "Geen volledige redundantie met de overige 39 gevallen vastgesteld. De voorstellen en geschiktheidsoordelen zijn niet door Chris geaccepteerd."
+  ],
+  "bewijsgrenzen": [
+    "Alle vijf opgegeven bronnen volledig gelezen; 40 kandidaatgevallen en 76 ontwerp-ID's gecontroleerd. Alleen G053–G056 kregen een nieuw labelvoorstel.",
+    "De SHA-256-hashes van casuspool, normcontract, besluiten en ontwerpregister komen overeen met het manifest. De hash vier_vervangers_concept_v1 is letterlijk uit het manifest overgenomen; het bijbehorende bestand behoort niet tot de toegestane bronnen en is niet afzonderlijk gecontroleerd.",
+    "Citaten zijn unieke, exacte Unicode-deelstrings. Posities zijn nulgebaseerd en eind-exclusief, binnen kern, bedoeling of de tekst van de genoemde casusbron.",
+    "B1/B2 bij gronden verwijzen naar de bronnen binnen het geval, niet naar de gelijknamige normbesluiten.",
+    "De bronnen en gevallen zijn synthetisch en bewijzen geen geldend recht. Uitsluitend INT-02 is beoordeeld; andere betekenisvragen zijn apart vermeld.",
+    "Geen bestanden gewijzigd of verwijderd; geen agents, Git-, app-, netwerk-, modelproef- of productiedatahandelingen uitgevoerd.",
+    "Er is geen hold-outsplit of freeze. Deze blootstelling sluit latere deelname als O2-promptontwikkelaar of appimplementator procedureel uit.",
+    "Dit is een onafhankelijk voorstel van beoordelaar B; Chris beslist de labels. Geen claim over appkwaliteit of een expertgoldset."
+  ]
+}

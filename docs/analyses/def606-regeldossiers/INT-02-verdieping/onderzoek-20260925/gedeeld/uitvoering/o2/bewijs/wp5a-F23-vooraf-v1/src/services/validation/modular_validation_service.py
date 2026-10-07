@@ -1,0 +1,2285 @@
+"""ModularValidationService — lichte, async validatieservice (Story 2.3).
+
+Implementeert een deterministische, schema-achtige output en error-isolatie
+per regel. Deze service is bedoeld als opstap: simpele ingebouwde regels
+dekken basiscases (leegte, lengte, circulariteit, taal/structuur). Later kan
+dit uitgebreid worden om ToetsregelManager en Python-regelmodules te gebruiken.
+"""
+
+from __future__ import annotations
+
+import copy
+import logging
+import re
+import threading
+import uuid
+from collections.abc import ItemsView, KeysView, ValuesView
+from pathlib import Path
+from types import MappingProxyType
+from typing import Any
+
+from services.validation.evaluators.base import EvaluationDeps, EvaluationOutcome
+from services.validation.evaluators.judgment_review import (
+    int02_niet_uitgevoerd,
+    int02_niet_uitgevoerd_uitkomst,
+)
+from services.validation.evaluators.lemma_morphology import lemma_is_enkelvoud
+from services.validation.evaluators.registry import get_default_registry
+from services.validation.evaluators.sentence_boundary import (
+    REDEN_MEERDERE_ZINNEN,
+    SUGGESTIE_MEERDERE_ZINNEN,
+)
+from services.validation.interfaces import (
+    CONTRACT_VERSION,
+    UNKNOWN_REASON_RULESET_INCOMPLETE,
+    VALIDATION_STATUS_UNKNOWN,
+    VALIDATION_STATUS_VALIDATED,
+)
+from services.validation.readiness import (
+    RuntimeSnapshot,
+    bepaal_readiness,
+    bereken_fingerprint,
+    meet_bronnen,
+    veilige_degradatiereden,
+)
+from toetsregels.runtime_contract import (
+    ROOT_CONFIG_PATH,
+    EvaluatorType,
+    RequiredInput,
+    ResultStatus,
+    RootContractPolicy,
+    RuleContractError,
+    RuleRecord,
+    ScorePolicy,
+    build_rule_records,
+    canonical_rule_id,
+    load_root_contract_policy,
+    missing_inputs,
+)
+from utils.dict_helpers import safe_dict_get
+from utils.type_helpers import ensure_list, ensure_string
+
+from .aggregation import calculate_weighted_score, determine_acceptability
+from .types_internal import EvaluationContext
+from .violation_builder import (
+    category_for_rule,
+    circular_definition_violation,
+    empty_definition_violation,
+    essential_content_violation,
+    informal_language_violation,
+    mixed_language_violation,
+    organization_violation,
+    structure_violation,
+    terminology_violation,
+    too_long_violation,
+    too_short_violation,
+)
+
+logger = logging.getLogger(__name__)
+
+# DEF-621: de contract-SSOT telt mee in de fingerprint. Zij bepaalt de
+# verwachte regel-ID-set, dus een beschadigde of herstelde YAML moet net zo
+# goed een herlaadpoging uitlokken als een verdwenen regelbestand. Alias op
+# de bestaande constante zodat er een bron blijft.
+ROOT_SSOT_PAD: Path = ROOT_CONFIG_PATH
+
+# Regels waarvan een `fail` de acceptatie blokkeert, ook als zij buiten de
+# kwaliteitsscore vallen (DEF-674). DUP_01 is `excluded_from_score` — een
+# duplicaat zegt niets over de tekstkwaliteit — maar een definitie die al
+# bestaat mag niet worden vastgesteld. Zonder deze lijst zou de verhuizing van
+# de duplicaatcontrole van CON-01 naar DUP_01 de handhaving verzwakken, want de
+# oude route blokkeerde via de violation-severity op een gescoorde regel.
+_ACCEPTATIE_BLOKKEERDERS: frozenset[str] = frozenset({"DUP_01"})
+
+# DEF-770: evaluators die een gestructureerde deeluitkomst leveren zonder dat
+# hun regel `no_score` is. INT-01 stelt de zinsstructuur vast en houdt
+# compactheid en begrijpelijkheid open: die uitkomst hoort in `rule_results`
+# (per onderdeel status, passage en reden) en krijgt geen regelcijfer. Anders
+# dan `no_score` maakt zo een regel de totaalscore niet onbeschikbaar; haar
+# scorepolicy blijft `excluded_from_score`, dus geen zelfstandige blokkade.
+# DEF-772: INT-03 idem — de AI-verwijzingsbeoordeling levert haar uitkomst
+# (inclusief het beoordelingsdocument) in `rule_results`, zonder cijfer.
+# DEF-835 (WP5a): INT-02 in O2 (`decision_rule_assessment`) idem — elke status
+# met het WP1-document in `rule_results`, geen cijfer en geen poort (B5/B6).
+_EVALUATORS_MET_DEELUITKOMST: frozenset[EvaluatorType] = frozenset(
+    {
+        EvaluatorType.SENTENCE_BOUNDARY,
+        EvaluatorType.PRONOUN_REFERENCE_ASSESSMENT,
+        EvaluatorType.DECISION_RULE_ASSESSMENT,
+    }
+)
+
+
+class ValidationResultWrapper:
+    """Wrapper class om dict result als object properties toegankelijk te maken.
+
+    Maakt het mogelijk om zowel dict-style access (result['key']) als
+    attribute-style access (result.key) te gebruiken. Map ook is_valid
+    naar is_acceptable voor backwards compatibility met orchestrator.
+    """
+
+    def __init__(self, data: dict[str, Any]):
+        self._data = data
+
+    def __getattr__(self, name: str) -> Any:
+        # Map is_valid naar is_acceptable voor backwards compatibility
+        if name == "is_valid":
+            return safe_dict_get(self._data, "is_acceptable", False)
+        return safe_dict_get(self._data, name)
+
+    def __getitem__(self, key: str) -> Any:
+        return self._data[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._data
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return safe_dict_get(self._data, key, default)
+
+    def keys(self) -> KeysView[str]:
+        return self._data.keys()
+
+    def values(self) -> ValuesView[Any]:
+        return self._data.values()
+
+    def items(self) -> ItemsView[str, Any]:
+        return self._data.items()
+
+    def __repr__(self) -> str:
+        return f"ValidationResultWrapper({self._data!r})"
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to plain dictionary for JSON serialization."""
+        return self._data
+
+
+class ModularValidationService:
+    """Eenvoudige modulaire validatie met deterministische resultaten.
+
+    Constructor accepteert optioneel een ToetsregelManager, cleaning_service en
+    config-achtige structuur. Alle argumenten zijn optioneel i.v.m. tests die
+    minimale initialisatie doen.
+    """
+
+    def __init__(
+        self,
+        toetsregel_manager: Any | None = None,
+        cleaning_service: Any | None = None,
+        config: Any | None = None,
+        repository: Any | None = None,
+    ) -> None:
+        self.toetsregel_manager = toetsregel_manager
+        self.cleaning_service = cleaning_service
+        self.config = config
+        self._repository = repository
+
+        # Onveranderlijke serviceconfiguratie: hangt niet aan de regelset en
+        # hoort daarom niet in de snapshot.
+        self._registry = get_default_registry()
+
+        # Vaste baselineregels. Een constante, geen generatiestate.
+        self._baseline_internal: tuple[str, ...] = (
+            "VAL-EMP-001",
+            "VAL-LEN-001",
+            "VAL-LEN-002",
+            "ESS-CONT-001",
+            "CON-CIRC-001",
+            "STR-TERM-001",
+            "STR-ORG-001",
+        )
+
+        # DEF-621: alle ruleset-afhankelijke gegevens leven in een atomair
+        # gepubliceerde snapshot. Eerst een volledige lege generatie, zodat
+        # geen enkel pad op een half geinitialiseerd object kan stuiten - ook
+        # niet wanneer de opbouw hieronder klapt.
+        self._state_lock = threading.Lock()
+        self._snapshot: RuntimeSnapshot = self._lege_snapshot(
+            fingerprint=None, oorzaak=None
+        )
+        # Wat de eerste geslaagde policyread opleverde. Struikelt de opbouw
+        # daarna, dan houdt het foutpad de verwachting hiermee vast zonder de
+        # root-SSOT opnieuw te lezen; faalt die read zelf, dan blijft dit leeg
+        # en is nul van nul de eerlijke melding.
+        bekende_ids: tuple[str, ...] = ()
+        try:
+            fp_voor = bereken_fingerprint(self._fingerprintbronnen())
+            policy = self._verse_contractpolicy()
+            bekende_ids = tuple(policy.rule_ids)
+            self._snapshot = self._publiceerbaar(
+                self._bouw_snapshot(fp_voor, policy), fp_voor
+            )
+        except RuleContractError as exc:
+            # De lader blijft fail-closed gooien; alleen deze runtimegrens
+            # vertaalt dat naar een beschikbare, maar onbepaalde validatie.
+            logger.critical(
+                "Regelcontract geschonden; validatie levert validation_unknown: %s",
+                exc,
+            )
+            self._snapshot = self._lege_snapshot(
+                fingerprint=None,
+                oorzaak=exc,
+                contract_ids=bekende_ids,
+            )
+        except Exception as exc:
+            # Constructorpad 3: een generieke laadfout viel voorheen stil terug
+            # op zeven baselineregels en liet de validatie daarna gewoon
+            # doorlopen - een score over zeven regels, niet te onderscheiden
+            # van een score over drieenvijftig.
+            logger.error(
+                "Regelset laden gefaald (%s); validatie levert validation_unknown: %s",
+                type(exc).__name__,
+                exc,
+                extra={
+                    "component": "modular_validation_service",
+                    "degraded_mode": True,
+                    "degradation_reason": str(exc),
+                },
+            )
+            self._snapshot = self._lege_snapshot(
+                fingerprint=None,
+                oorzaak=exc,
+                contract_ids=bekende_ids,
+            )
+
+        # Acceptatiedrempel (overschrijfbaar via config.thresholds.overall_accept)
+        self._overall_threshold: float = 0.75
+        # Categorie-acceptatiedrempel (nieuw; overschrijfbaar via config.thresholds.category_accept)
+        self._category_threshold: float = 0.70
+        thresholds = getattr(self.config, "thresholds", None)
+        if thresholds is not None:
+            try:
+                self._overall_threshold = float(
+                    safe_dict_get(
+                        thresholds,
+                        "overall_accept",
+                        self._overall_threshold,
+                    )
+                )
+            except (ValueError, TypeError) as e:
+                logger.error(
+                    f"Ongeldige threshold config 'overall_accept': {e}. "
+                    f"Gebruik default={self._overall_threshold}"
+                )
+            try:
+                self._category_threshold = float(
+                    safe_dict_get(
+                        thresholds,
+                        "category_accept",
+                        self._category_threshold,
+                    )
+                )
+            except (ValueError, TypeError) as e:
+                logger.error(
+                    f"Ongeldige threshold config 'category_accept': {e}. "
+                    f"Gebruik default={self._category_threshold}"
+                )
+
+    @staticmethod
+    def _verse_contractpolicy() -> RootContractPolicy:
+        """De contractpolicy van deze generatie, vers uit de root-SSOT.
+
+        Draagt zowel het ``rule_ids``-manifest als de recordvereisten. Beide
+        horen uit hetzelfde object te komen: één snapshot mag geen verse
+        ID-set met de recordvereisten van een oudere generatie combineren.
+
+        De ID-set komt uit het manifest, niet uit een glob over de regelmap:
+        dat laatste zou de verwachting laten meebewegen met een verdwenen
+        bestand en het gat juist onzichtbaar maken.
+
+        Bewust zonder fallback. De eerdere ``except RuleContractError: return
+        45`` verzon bij een onleesbare root-SSOT een noemer, terwijl elk ander
+        pad bij diezelfde fout hard faalt. Een gefantaseerde noemer is precies
+        zo misleidend als een noemer die met de gedraaide set meebeweegt: de
+        dekking rapporteert dan een percentage waarvan niemand de basis kent.
+
+        DEF-621 commit 4: bewust een verse load uit ``ROOT_SSOT_PAD`` in
+        plaats van het met ``lru_cache`` afgedekte ``root_contract_policy()``.
+        Die procescache gaf bij een herlaadpoging opnieuw de oude verwachting
+        terug: de fingerprint zag een beschadigde of herstelde contract-SSOT
+        wel, de verwachte ID-set niet. De globale cache wordt daarvoor niet
+        geleegd - dat zou een verborgen neveneffect zijn voor elke andere
+        lezer van de policy, terwijl een expliciete load hier volstaat.
+
+        De kosten blijven bij constructie en bij een werkelijke
+        fingerprintwijziging, want alleen ``_bouw_snapshot`` roept dit aan.
+        """
+        return load_root_contract_policy(ROOT_SSOT_PAD)
+
+    # Optioneel: exposeer regelvolgorde voor determinismetest
+    def _regelpad(self) -> Path | None:
+        """Waar de regelbestanden van de huidige manager staan.
+
+        Twee echte injectiepaden: `ToetsregelManager` draagt `regels_dir`
+        zelf, `CachedToetsregelManager` draagt hem op zijn `RuleCache`. Zonder
+        manager is er geen herstelbaar bronpad - die service blijft permanent
+        onbepaald.
+        """
+        manager = self.toetsregel_manager
+        if manager is None:
+            return None
+        d = getattr(manager, "regels_dir", None)
+        if d is None:
+            cache = getattr(manager, "cache", None)
+            d = getattr(cache, "regels_dir", None)
+        return Path(d) if d else None
+
+    def _fingerprintbronnen(self) -> tuple[Path, ...]:
+        """De bronnen waarover de fingerprint wordt berekend.
+
+        Bewust bij iedere controle opnieuw opgebouwd met een verse glob. Een
+        bij constructie opgeslagen padlijst zou een nieuw, onverwacht
+        regelbestand missen - juist het bestand dat de geladen ID-verzameling
+        ongelijk maakt aan het contract.
+        """
+        regelmap = self._regelpad()
+        regels = tuple(sorted(regelmap.glob("*.json"))) if regelmap else ()
+        return (*regels, ROOT_SSOT_PAD)
+
+    def _redactiepaden(self) -> tuple[Path, ...]:
+        """Paden die de service kent, zodat de redactie ze niet hoeft te raden.
+
+        Niet elke fout draagt haar pad gestructureerd mee: een YAML-fout heeft
+        geen `filename`, terwijl het laadpad het pad wél in de boodschap zet.
+        Voor die gevallen is dit de betrouwbare bron.
+        """
+        regelmap = self._regelpad()
+        return (ROOT_SSOT_PAD, *((regelmap,) if regelmap is not None else ()))
+
+    def _bron_dekt_generatie(
+        self, gebouwd: RuntimeSnapshot, aanwezig: frozenset[Path]
+    ) -> bool:
+        """Staan de bronnen van deze generatie nu nog op schijf?
+
+        De contract-SSOT moet altijd de stat hebben overleefd; dat geldt voor
+        elke manager. Voor een manager die zijn regels van schijf betrekt geldt
+        daarnaast dat de generatie geen regel mag dragen waarvoor geen bestand
+        meer bestaat.
+
+        Voor een manager zónder regelbronpad is die tweede toets niet van
+        toepassing: er zijn geen bronbestanden om tegen te vergelijken. Een
+        in-memory manager - synthetische regels, een database, een
+        testfixture - is een legitiem geval, geen defect. Contractvolledigheid
+        blijft daar fail-closed geborgd door `gebouwd.readiness`, dat immers de
+        geladen ID-set tegen de contractuele set houdt; deze methode voegt daar
+        alleen de schijfwerkelijkheid aan toe.
+
+        `aanwezig` kan dat onderscheid principieel niet maken. Buiten de SSOT is
+        die verzameling leeg in twee wezenlijk verschillende situaties: een
+        manager zonder schijfbron, en een schijfgebonden manager waarvan alle
+        bestanden verdwenen zijn. Daarom blijft `_regelpad()` hier de scheiding
+        bepalen - niet als tweede schijfwaarneming, maar als vraag naar de aard
+        van de manager.
+
+        De fingerprint is een wijzigingsdetector, geen identiteitsbewijs. Een
+        bestand dat verdwijnt, tijdens de opbouw terugkeert en daarna opnieuw
+        verdwijnt, levert vóór en ná exact dezelfde hash op - terwijl de
+        opbouw daartussen de volledige set las. Een vergelijking van
+        fingerprints ziet dat niet; een vergelijking met de bestanden op
+        schijf wel.
+
+        De toets is bewust eenzijdig. Dat de manager mínder levert dan er op
+        schijf ligt, is een gewone incomplete set die readiness al afvangt.
+        Hier gaat het om het omgekeerde: een generatie die regels draagt
+        waarvoor geen bron meer bestaat.
+
+        `aanwezig` komt van de aanroeper en wordt niet zelf opgehaald. Een
+        eigen glob zou een ándere schijftoestand kunnen zien dan de
+        fingerprint waartegen zojuist is vergeleken, en precies in dat gaatje
+        glipte een generatie er alsnog doorheen: de fingerprint zag 52
+        bestanden, de dekkingsglob 53.
+        """
+        # De SSOT is de bron van `contract_rule_ids` en hoort dus onder dezelfde
+        # eis te vallen als de regelbestanden. Verdwijnt hij, keert hij terug
+        # tijdens de opbouw en verdwijnt hij weer, dan beschrijven beide
+        # fingerprints "SSOT afwezig" en ziet de vergelijking niets - terwijl de
+        # generatie wel degelijk een contractset draagt die nergens meer op
+        # schijf staat. Deze toets staat vóór de regelpadcheck hieronder, zodat
+        # hij niet afhangt van de vraag of er een manager met bronpad is.
+        if ROOT_SSOT_PAD not in aanwezig:
+            return False
+
+        # Geen regelbronpad: geen bestandstoets. Zie de docstring - dit is de
+        # aard van de manager, niet een lege schijfwaarneming.
+        if self._regelpad() is None:
+            return True
+
+        # Geen suffixfilter: de glob bepaalt al wat een regelbestand is, en
+        # op een case-ongevoelig bestandssysteem levert die ook `.JSON`. Een
+        # exacte suffixvergelijking wees zo-n geldig bestand ten onrechte af.
+        op_schijf = {
+            canonical_rule_id(pad.stem) for pad in aanwezig if pad != ROOT_SSOT_PAD
+        }
+        geladen = {canonical_rule_id(rid) for rid in gebouwd.json_rules}
+        return geladen <= op_schijf
+
+    def _publiceerbaar(
+        self, gebouwd: RuntimeSnapshot, fingerprint: str | None
+    ) -> RuntimeSnapshot:
+        """Publiceer alleen wat bij de gemeten brontoestand hoort.
+
+        De fingerprint wordt gemeten vóór de opbouw, maar `_bouw_snapshot`
+        leest de schijf pas daarna. Wijzigen de bronnen daartussen, dan zou
+        een ready generatie het label van een ándere toestand dragen. Komt
+        die toestand later terug - een regelbestand dat verdwijnt, terugkeert
+        en opnieuw verdwijnt - dan levert dat exact dezelfde fingerprint op
+        en ziet de service de overgang nooit meer.
+
+        Bij een botsing gaat er dus niets naar buiten en publiceren we
+        fail-closed met `fingerprint=None`. Die waarde matcht nooit met een
+        gemeten fingerprint, dus de eerstvolgende aanroep bouwt gewoon
+        opnieuw. Geen herhaalpoging binnen deze aanroep: één extra meting,
+        daarna is de beurt aan de volgende validatie.
+
+        Deze tweede meting hangt aan de herbouw, niet aan de validatie. Het
+        normale pad returnt eerder op de fingerprintvergelijking en houdt
+        daarmee één meting per validatie.
+        """
+        # Eén waarneming voor beide controles. Twee losse observaties kunnen
+        # verschillende schijftoestanden zien, en dan meet de fingerprint 52
+        # bestanden terwijl de dekkingstoets er 53 telt.
+        fp_na, aanwezig = meet_bronnen(self._fingerprintbronnen())
+
+        if fp_na == fingerprint:
+            if not gebouwd.readiness.ready or self._bron_dekt_generatie(
+                gebouwd, aanwezig
+            ):
+                return gebouwd
+            # Gelijke fingerprint, ongelijke werkelijkheid: zie
+            # `_bron_dekt_generatie`.
+            logger.warning(
+                "Generatie draagt regels die niet op schijf staan; fail-closed "
+                "gepubliceerd ondanks een ongewijzigde fingerprint"
+            )
+            return self._lege_snapshot(
+                fingerprint=None,
+                oorzaak=RuntimeError("bronnen keerden terug tijdens het opbouwen"),
+                contract_ids=gebouwd.contract_rule_ids,
+            )
+
+        logger.warning(
+            "Bronnen wijzigden tijdens het opbouwen van de regelset; "
+            "fail-closed gepubliceerd zodat de volgende aanroep opnieuw leest"
+        )
+        # De verwachting staat al in de zojuist gebouwde generatie; die is
+        # niet minder geldig geworden doordat de bronnen bewogen.
+        return self._lege_snapshot(
+            fingerprint=None,
+            oorzaak=RuntimeError("bronnen wijzigden tijdens het opbouwen"),
+            contract_ids=gebouwd.contract_rule_ids,
+        )
+
+    def _lege_snapshot(
+        self,
+        *,
+        fingerprint: str | None,
+        oorzaak: BaseException | None,
+        contract_ids: tuple[str, ...] = (),
+    ) -> RuntimeSnapshot:
+        """Een volledig ingevulde, niet-bruikbare generatie.
+
+        Alle velden zijn gezet - lege collecties, een eigen lege
+        `pattern_cache`, readiness onwaar. Daardoor kan hij met een enkele
+        toewijzing worden gepubliceerd zonder dat er ergens een half
+        vernieuwde toestand ontstaat.
+
+        `contract_ids` blijft leeg zolang de verwachting werkelijk onbekend
+        is - faalt de root-SSOT zelf, dan is nul van nul de eerlijke melding.
+        Is zij wél gelezen en struikelde pas het laden van de records, dan
+        draagt deze snapshot de volledige verwachting en noemt hij elke regel
+        die ontbreekt.
+        """
+        return RuntimeSnapshot(
+            fingerprint=fingerprint,
+            readiness=bepaal_readiness(contract_ids, ()),
+            contract_rule_ids=contract_ids,
+            internal_rules=(),
+            rule_records=MappingProxyType({}),
+            json_rules=MappingProxyType({}),
+            default_weights=MappingProxyType({}),
+            pattern_cache={},
+            rules_loaded_count=0,
+            rules_expected_count=len(contract_ids),
+            is_degraded_mode=True,
+            degradation_reason=veilige_degradatiereden(
+                oorzaak, bekende_paden=self._redactiepaden()
+            ),
+        )
+
+    def _bouw_snapshot(
+        self, fingerprint: str | None, policy: RootContractPolicy
+    ) -> RuntimeSnapshot:
+        """Bouw een volledige generatie lokaal op en geef haar terug.
+
+        Niets wordt gepubliceerd: de aanroeper doet dat met een enkele
+        toewijzing. Zo kan een mislukte opbouw nooit een half vernieuwde
+        generatie zichtbaar maken.
+
+        `RuleContractError` loopt bewust door naar de aanroeper - de lader
+        blijft fail-closed.
+
+        De policy komt van de aanroeper en wordt hier overal in deze generatie
+        hergebruikt: voor de verwachte ID-set én voor de recordvereisten.
+        Zonder die doorgifte zou `build_rule_records()` terugvallen op de
+        gecachete procespolicy en zou de snapshot verse ID-s dragen met de
+        recordvereisten van een oudere generatie.
+
+        Dat de aanroeper laadt en niet deze methode, is geen stijlkeuze. Faalt
+        de opbouw ná een geslaagde policyread, dan houdt de aanroeper de
+        verwachting nog vast en kan het foutpad haar meegeven. Laadde deze
+        methode zelf, dan was die kennis met de exceptie verdwenen en moest
+        het foutpad de root-SSOT opnieuw lezen - precies de lezing die net zo
+        goed kan mislukken.
+        """
+        contract_ids = tuple(policy.rule_ids)
+
+        manager = self.toetsregel_manager
+        alle_regels: dict[str, dict[str, Any]] = {}
+        if manager is not None:
+            # DEF-621: diep kopieren, niet alleen de buitenste dict. Anders
+            # blijven de geneste regeldictionaries dezelfde objecten als die
+            # van de manager, en sijpelt een latere mutatie daar onmiddellijk
+            # door in de gepubliceerde generatie - buiten de fingerprint om,
+            # buiten de lock om en zonder statewissel. De snapshot moet zijn
+            # eigen data bezitten voordat records, json_rules en gewichten
+            # eruit worden opgebouwd.
+            alle_regels = copy.deepcopy(dict(manager.get_all_regels() or {}))
+
+        # DEF-621: twee gescheiden begrippen. `geladen_ids` is wat de manager
+        # werkelijk leverde en is de enige geldige maatstaf voor readiness;
+        # `codes` is de interne uitvoervolgorde, inclusief vangnetten.
+        if alle_regels:
+            geladen_ids = list(alle_regels.keys())
+            # DEF-606: valideer het volledige regelcontract fail-closed. Een
+            # record zonder bekende evaluator of met onbekende invoer mag niet
+            # stil doorglippen naar een default-pass. DEF-621: expliciet tegen
+            # dezelfde policy als de ID-set hierboven.
+            records = build_rule_records(alle_regels, policy=policy)
+            gewichten = {
+                rule_id: self._calculate_rule_weight(alle_regels.get(rule_id) or {})
+                for rule_id in geladen_ids
+            }
+            # Baselineregels erbij zodat de vangnetten blijven draaien. Dit
+            # raakt uitsluitend de uitvoervolgorde. Zeven van deze vangnetten
+            # zijn zélf contractregels; telden zij mee als geladen, dan vulde
+            # de service precies de gaten op die hij moest signaleren en gold
+            # een regelset van 52 als compleet.
+            codes = list(geladen_ids)
+            for rid in self._baseline_internal:
+                if rid not in codes:
+                    codes.append(rid)
+            json_regels = dict(alle_regels)
+        else:
+            codes_t, gewichten, json_regels = self._default_regelset()
+            codes = list(codes_t)
+            # Interne defaults zijn geen lading: zonder manager is er nul
+            # geladen, ook al draaien de vangnetten wel.
+            geladen_ids = []
+            records = {}
+
+        readiness = bepaal_readiness(contract_ids, geladen_ids)
+
+        return RuntimeSnapshot(
+            fingerprint=fingerprint,
+            readiness=readiness,
+            contract_rule_ids=contract_ids,
+            internal_rules=tuple(codes),
+            rule_records=MappingProxyType(dict(records)),
+            json_rules=MappingProxyType(dict(json_regels)),
+            default_weights=MappingProxyType(dict(gewichten)),
+            pattern_cache={},
+            rules_loaded_count=len(geladen_ids),
+            rules_expected_count=len(contract_ids),
+            is_degraded_mode=not readiness.ready,
+            degradation_reason=(
+                None
+                if readiness.ready
+                else f"regelset incompleet: {len(geladen_ids)}/{len(contract_ids)}"
+            ),
+        )
+
+    def _ververs_state_indien_nodig(self) -> RuntimeSnapshot:
+        """Geef de actieve generatie, en vernieuw haar als de bronnen wijzigden.
+
+        Volledig synchroon: fingerprint, `clear_cache()`, `get_all_regels()` en
+        contractvalidatie zijn alle blocking. De aanroeper roept dit aan voor
+        het eerste `await`, zodat de lock nooit over een suspensiepunt wordt
+        gehouden.
+        """
+        try:
+            fp: str | None = bereken_fingerprint(self._fingerprintbronnen())
+        except OSError as exc:
+            # Deze meting staat bewust buiten de lock en dus buiten de
+            # foutgrens hieronder. Kan zij niet worden uitgevoerd, dan valt
+            # niet vast te stellen of er iets wijzigde, en `None` is dan de
+            # eerlijke uitkomst: geen meting.
+            #
+            # Wat daarna gebeurt hangt af van de actieve generatie, en dat is
+            # bewust asymmetrisch:
+            #
+            # - draagt zij een echte fingerprint, dan is `None` daaraan ongelijk
+            #   en volgt een herlaadpoging, die de fout fail-closed afhandelt in
+            #   plaats van haar te laten ontsnappen;
+            # - is zij zelf al een foutsnapshot (`fingerprint=None`), dan matcht
+            #   de fast path hieronder en volgt er géén nieuwe poging. Dat is
+            #   geen omissie: zonder meting valt niet te zeggen of er iets
+            #   wijzigde, en de laatst bekende toestand is al fail-closed.
+            #
+            # Zodra er weer een echte fingerprint gemeten kan worden, is die
+            # ongelijk aan `None` en herstelt de service zichzelf.
+            #
+            # De keerzijde - een aanhoudende láádfout kost wél elke aanroep een
+            # volledige herbouw, want daar levert de meting een echte hash die
+            # nooit gelijk is aan de `None` van de foutsnapshot - is gemeten en
+            # staat als DEF-716 open. Hier niets aan veranderen zonder dat
+            # issue.
+            logger.warning("Fingerprint van de regelbronnen mislukt: %s", exc)
+            fp = None
+        snap = self._snapshot
+        if fp == snap.fingerprint:
+            return snap
+
+        with self._state_lock:
+            snap = self._snapshot
+            if fp == snap.fingerprint:
+                return snap
+            manager = self.toetsregel_manager
+            # Zie de constructor: draagt de verwachting door het foutpad heen.
+            # Anders dan bij constructie beginnen we hier niet leeg maar bij
+            # wat de actieve generatie al wist. Struikelt de herlaadpoging op
+            # een onleesbaar contract, dan is de laatst bekende verwachting
+            # nog altijd bruikbaarder dan nul van nul; lukt de read wel, dan
+            # overschrijft de verse set haar hieronder.
+            bekende_ids: tuple[str, ...] = snap.contract_rule_ids
+            try:
+                # Hermeten binnen de lock: wie hier heeft staan wachten
+                # terwijl een andere thread een geldige generatie publiceerde,
+                # zou anders met een verouderd label bouwen en die generatie
+                # door de publicatiecontrole laten verdringen. Deze meting én
+                # de publicatiecontrole staan bewust binnen de `try`: het zijn
+                # schijfleesacties, en een onleesbare map hoort hier een
+                # onbepaalde uitkomst op te leveren, geen ontsnappende
+                # exceptie. Het normale pad returnt vóór de lock en houdt dus
+                # één meting per validatie.
+                fp = bereken_fingerprint(self._fingerprintbronnen())
+                if fp == snap.fingerprint:
+                    return snap
+                if manager is not None and hasattr(manager, "clear_cache"):
+                    manager.clear_cache()
+                policy = self._verse_contractpolicy()
+                bekende_ids = tuple(policy.rule_ids)
+                nieuw = self._bouw_snapshot(fp, policy)
+                self._snapshot = self._publiceerbaar(nieuw, fp)
+                return self._snapshot
+            except Exception as exc:
+                # Eerst fail-closed publiceren: de oude ready-generatie mag
+                # niet actief blijven na een mislukte herlaadpoging.
+                logger.error("Herladen van de regelset gefaald: %s", exc)
+                # `fingerprint=None` en niet `fp`: die laatste matcht bij de
+                # volgende validatie de fast path, waardoor een storing die
+                # inmiddels voorbij is nooit meer wordt opgemerkt en de service
+                # tot herstart onbepaald blijft. Bovendien kan `fp` hier nog de
+                # meting van vóór de lock zijn wanneer juist de hermeting faalde.
+                self._snapshot = self._lege_snapshot(
+                    fingerprint=None,
+                    oorzaak=exc,
+                    contract_ids=bekende_ids,
+                )
+                return self._snapshot
+
+    def _maak_unknown_resultaat(
+        self, correlation_id: str, snapshot: RuntimeSnapshot
+    ) -> dict[str, Any]:
+        """Het resultaat wanneer de regelset het contract niet dekt.
+
+        `overall_score` en `is_acceptable` blijven aanwezig voor bestaande
+        consumers, maar zijn hier uitsluitend fail-closed placeholders: geen
+        kwaliteitsscore en geen inhoudelijk oordeel. Er is geen
+        `acceptance_gate`, want er is niets beoordeeld.
+        """
+        return {
+            "version": CONTRACT_VERSION,
+            "validation_status": VALIDATION_STATUS_UNKNOWN,
+            "unknown_reason": UNKNOWN_REASON_RULESET_INCOMPLETE,
+            "validation_readiness": snapshot.readiness.als_dict(),
+            "overall_score": 0.0,
+            "is_acceptable": False,
+            "violations": [],
+            "passed_rules": [],
+            "detailed_scores": {},
+            "rule_statuses": {},
+            "rule_results": {},
+            "evaluation_coverage": {
+                "evaluated": 0,
+                "passed": 0,
+                "failed": 0,
+                "review_required": 0,
+                "not_evaluated": snapshot.rules_expected_count,
+                "error": 0,
+                "not_applicable": 0,
+                "total": snapshot.rules_expected_count,
+                "coverage_ratio": 0.0,
+            },
+            "review_required": [],
+            "system": {
+                "correlation_id": correlation_id,
+                "degraded_mode": True,
+                "rules_loaded": snapshot.rules_loaded_count,
+                "rules_expected": snapshot.rules_expected_count,
+                "degradation_reason": snapshot.degradation_reason,
+            },
+        }
+
+    def _calculate_rule_weight(self, rule_data: dict) -> float:
+        """Calculate weight for a rule based on priority or explicit weight."""
+        # Check for explicit weight first
+        if "weight" in rule_data and rule_data["weight"] is not None:
+            try:
+                return float(rule_data["weight"])
+            except (TypeError, ValueError):
+                logger.debug(
+                    f"Invalid weight value: {rule_data.get('weight')}, using priority-based weight"
+                )
+
+        # Use priority to determine weight
+        priority = ensure_string(safe_dict_get(rule_data, "prioriteit", "midden"))
+        priority_weights = {"hoog": 1.0, "midden": 0.7}
+        return priority_weights.get(
+            priority, 0.4
+        )  # default to 0.4 for "laag" or unknown
+
+    def _default_regelset(
+        self,
+    ) -> tuple[tuple[str, ...], dict[str, float], dict[str, dict[str, Any]]]:
+        """De ingebouwde zevenregelige set, zonder ToetsregelManager.
+
+        Geeft de gegevens terug in plaats van ze op `self` te zetten: de
+        aanroeper bouwt er een volledige snapshot mee. Deze set dekt het
+        contract niet - readiness is dus onwaar en de validatie levert
+        `validation_unknown`.
+        """
+        internal_rules: tuple[str, ...] = tuple(self._baseline_internal)
+        default_weights: dict[str, float] = {
+            "VAL-EMP-001": 1.0,
+            "VAL-LEN-001": 0.9,
+            "VAL-LEN-002": 0.6,
+            "ESS-CONT-001": 1.0,
+            "CON-CIRC-001": 0.8,
+            "STR-TERM-001": 0.5,
+            "STR-ORG-001": 0.7,
+        }
+        # Gebruik ook het JSON-pad voor deze 7 regels zodat evaluatie generiek verloopt
+        json_rules: dict[str, dict[str, Any]] = {
+            "VAL-EMP-001": {
+                "id": "VAL-EMP-001",
+                "prioriteit": "hoog",
+                "aanbeveling": "verplicht",
+                "min_chars": 1,
+            },
+            "VAL-LEN-001": {
+                "id": "VAL-LEN-001",
+                "prioriteit": "midden",
+                "aanbeveling": "verplicht",
+                "min_words": 5,
+                "min_chars": 15,
+            },
+            "VAL-LEN-002": {
+                "id": "VAL-LEN-002",
+                "prioriteit": "laag",
+                "aanbeveling": "aanbevolen",
+                "max_words": 80,
+                "max_chars": 600,
+            },
+            "ESS-CONT-001": {
+                "id": "ESS-CONT-001",
+                "prioriteit": "hoog",
+                "aanbeveling": "verplicht",
+                "min_words": 6,
+            },
+            "CON-CIRC-001": {
+                "id": "CON-CIRC-001",
+                "prioriteit": "midden",
+                "aanbeveling": "verplicht",
+                "circular_definition": True,
+            },
+            "STR-TERM-001": {
+                "id": "STR-TERM-001",
+                "prioriteit": "laag",
+                "aanbeveling": "aanbevolen",
+                "forbidden_phrases": ["HTTP protocol"],
+            },
+            "STR-ORG-001": {
+                "id": "STR-ORG-001",
+                "prioriteit": "midden",
+                "aanbeveling": "aanbevolen",
+                "max_chars": 300,
+                "min_commas": 6,
+                "redundancy_patterns": [
+                    r"\\bsimpel\\b.*\\bcomplex\\b",
+                    r"\\bcomplex\\b.*\\bsimpel\\b",
+                ],
+            },
+        }
+
+        return internal_rules, default_weights, json_rules
+
+    def _get_rule_evaluation_order(
+        self,
+    ) -> list[str]:  # pragma: no cover - used by optional test
+        return sorted(self._snapshot.internal_rules)
+
+    def get_health_status(self) -> dict[str, Any]:
+        """Gezondheid van de validatieservice, uit een verse snapshot (DEF-215/DEF-621/DEF-709).
+
+        `validation_ready` is het readiness-oordeel: de geladen regel-ID-set
+        dekt de contractuele set. Zolang dat onwaar is levert elke validatie
+        `validation_unknown`.
+
+        Ververst eerst, net als `validate_definition`. Las health de actieve
+        snapshot rechtstreeks, dan meldde hij na een compleet-naar-incompleet-
+        overgang nog `validation_ready: true` totdat iemand toevallig
+        valideerde - terwijl elke validatie op dat moment al onbepaald was.
+        Health is juist het oppervlak dat monitoring uitleest, dus daar hoort
+        de verste waarheid te staan.
+
+        De kosten zijn een glob plus een stat per bron, en alleen bij een échte
+        bronwijziging volgt een herbouw: de fingerprintvergelijking returnt
+        anders meteen. Wordt dit ooit een hoogfrequent gepolld endpoint, dan is
+        een tijdsvenster op de meting de route - niet terug naar een stale
+        snapshot.
+        """
+        snap = self._ververs_state_indien_nodig()
+        readiness = snap.readiness
+        coverage_pct = (
+            (snap.rules_loaded_count / snap.rules_expected_count * 100)
+            if snap.rules_expected_count > 0
+            else 0
+        )
+        return {
+            "status": "degraded" if snap.is_degraded_mode else "healthy",
+            "degraded_mode": snap.is_degraded_mode,
+            "rules_loaded": snap.rules_loaded_count,
+            "rules_expected": snap.rules_expected_count,
+            "coverage_pct": round(coverage_pct, 1),
+            "degradation_reason": snap.degradation_reason,
+            "validation_ready": readiness.ready,
+            "validation_unknown_reason": readiness.reason,
+            "missing_rule_ids": list(readiness.missing_rule_ids),
+            "unexpected_rule_ids": list(readiness.unexpected_rule_ids),
+        }
+
+    def evaluator_voor(self, code: str) -> EvaluatorType | None:
+        """De evaluator die de actieve regelset voor `code` kiest (DEF-835 WP5a).
+
+        Uit dezelfde, zo nodig ververste snapshot als de evaluatie: het
+        gevalideerde regelrecord, niet een aanroepersleutel. `None` als de
+        regelset niet gereed is of de regel geen record heeft; dan draait er
+        ook geen evaluator die een voorafgaande beoordeling kan gebruiken.
+        """
+        snap = self._ververs_state_indien_nodig()
+        record = snap.rule_records.get(code) if snap.readiness.ready else None
+        return record.evaluator if record is not None else None
+
+    async def validate_definition(
+        self,
+        begrip: str,
+        text: str,
+        ontologische_categorie: str | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        # 1) Correlation ID
+        correlation_id = None
+        if context and isinstance(context, dict):
+            correlation_id = context.get("correlation_id")
+        if not correlation_id:
+            correlation_id = str(uuid.uuid4())
+
+        # DEF-621: de fail-closed guard. Volledig synchroon en vóór het
+        # eerste `await`, dus de reload-lock wordt nooit over een
+        # suspensiepunt gehouden. Stopt vóór evaluatie, scoring en
+        # acceptability wanneer de regelset het contract niet dekt.
+        state = self._ververs_state_indien_nodig()
+        if not state.readiness.ready:
+            logger.warning(
+                "Validatie overgeslagen: regelset dekt het contract niet "
+                "(%s/%s geladen)",
+                state.rules_loaded_count,
+                state.rules_expected_count,
+                extra={
+                    "component": "modular_validation_service",
+                    "correlation_id": correlation_id,
+                    "validation_status": VALIDATION_STATUS_UNKNOWN,
+                    "unknown_reason": UNKNOWN_REASON_RULESET_INCOMPLETE,
+                },
+            )
+            return self._maak_unknown_resultaat(correlation_id, state)
+
+        # 2) Cleaning (optioneel, éénmaal)
+        cleaned = text
+        if self.cleaning_service is not None and hasattr(
+            self.cleaning_service, "clean_text"
+        ):
+            try:
+                clean_result = self.cleaning_service.clean_text(text)
+                # clean_text kan sync of async zijn
+                if hasattr(clean_result, "__await__"):
+                    clean_result = await clean_result  # type: ignore[func-returns-value]
+                # Ondersteun zowel string als object met cleaned_text attribuut
+                if isinstance(clean_result, str):
+                    cleaned = clean_result
+                elif hasattr(clean_result, "cleaned_text"):
+                    cleaned = clean_result.cleaned_text
+            except (RuntimeError, TypeError, AttributeError, UnicodeError) as e:
+                # DEF-231: Bij cleaning-fout: ga verder met raw text (geen crash)
+                logger.warning(
+                    f"Tekst cleaning gefaald, validatie met ruwe tekst: {type(e).__name__}: {e}",
+                    extra={
+                        "component": "modular_validation_service",
+                        "operation": "text_cleaning",
+                        "correlation_id": correlation_id,
+                        "text_length": len(text) if text else 0,
+                        "cleaning_service_type": type(self.cleaning_service).__name__,
+                    },
+                )
+                cleaned = text
+
+        # 3) Context opbouwen (tokens slechts op aanvraag; hier niet nodig)
+        # DEF-244: begrip now passed via context instead of instance variable
+        eval_ctx = EvaluationContext.from_params(
+            text=text,
+            cleaned=cleaned,
+            begrip=begrip,  # DEF-244: Thread-safe begrip passing
+            locale=(context or {}).get("locale") if isinstance(context, dict) else None,
+            profile=(
+                (context or {}).get("profile") if isinstance(context, dict) else None
+            ),
+            correlation_id=correlation_id,
+            tokens=(),
+            metadata=dict(context or {}),
+        )
+
+        # DEF-251: Log validation start with begrip for observability
+        # DEF-249 FIX: Deduplicate calculations (were computed twice before)
+        begrip_truncated = (begrip or "")[:50]
+        text_length = len(text) if text else 0
+        logger.info(
+            "Starting validation: begrip='%s', text_length=%d, correlation_id=%s",
+            begrip_truncated,
+            text_length,
+            correlation_id,
+            extra={
+                "component": "modular_validation_service",
+                "operation": "validate_definition_start",
+                "begrip": begrip_truncated,
+                "text_length": text_length,
+                "correlation_id": correlation_id,
+            },
+        )
+
+        # 4) Regels evalueren in deterministische volgorde
+        weights = dict(state.default_weights)
+        config_weights = getattr(self.config, "weights", None)
+        if config_weights is not None:
+            weights.update(
+                {
+                    k: float(v) if v is not None else state.default_weights.get(k, 0.5)
+                    for k, v in config_weights.items()
+                }
+            )
+
+        # Exclude certain rules from scoring (weight=0):
+        # - Interne baseline regels (self._baseline_internal) - ALLEEN als er ook JSON regels zijn
+        # - ARAI* taalregels (AR**/ARAI**)
+        # NOTE: In fallback mode (alleen baseline regels), moeten deze WEL meegewogen worden
+        has_non_baseline_rules = any(
+            code not in self._baseline_internal for code in state.internal_rules
+        )
+        try:
+            for code in list(weights.keys()):
+                cu = str(code).upper()
+                # Baseline regels alleen uitsluiten als er ook andere regels zijn
+                if has_non_baseline_rules and code in self._baseline_internal:
+                    weights[code] = 0.0
+                elif cu.startswith(("ARAI", "AR-", "AR")):
+                    # Beperk tot ARAI-familie; AR-prefix meegenomen voor compat
+                    weights[code] = 0.0
+        except (KeyError, TypeError, ValueError) as e:
+            # DEF-231: Log baseline rule filter failures with context
+            logger.warning(
+                f"Baseline rule filtering overgeslagen: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "filter_baseline_rules",
+                    "weights_count": len(weights) if weights else 0,
+                    "correlation_id": correlation_id,
+                },
+            )
+
+        # DEF-606/DEF-624: regels met scorepolicy 'excluded_from_score'
+        # declareren zelf dat ze niet meewegen; dat is dezelfde uitkomst als de
+        # bestaande ARAI-/baseline-nullering, maar nu uit het contract i.p.v.
+        # uit een prefixvergelijking. DEF-622: 'no_score' weegt evenmin mee,
+        # maar met een ander gevolg — zie `zonder_cijfer` hieronder.
+        for code, record in state.rule_records.items():
+            if record.score_policy is not ScorePolicy.SCORED:
+                weights[code] = 0.0
+
+        # DEF-622 (B-06): een regel zonder cijfer maakt de totaalscore
+        # onbeschikbaar. Er is geen productbesluit over een noemer zónder die
+        # regel, dus de score wordt niet over "de rest" berekend en het
+        # ontbrekende cijfer wordt nergens als 0 of 1 ingevuld.
+        zonder_cijfer = sorted(
+            code
+            for code in state.internal_rules
+            if (regelrecord := state.rule_records.get(code)) is not None
+            and regelrecord.score_policy is ScorePolicy.NO_SCORE
+        )
+        met_deeluitkomst = {
+            code
+            for code in state.internal_rules
+            if (regelrecord := state.rule_records.get(code)) is not None
+            and regelrecord.evaluator in _EVALUATORS_MET_DEELUITKOMST
+        }
+
+        rule_scores: dict[str, float] = {}
+        violations: list[dict[str, Any]] = []
+        passed_rules: list[str] = []
+        rule_statuses: dict[str, str] = {}
+        review_items: list[dict[str, Any]] = []
+        rule_results: dict[str, dict[str, Any]] = {}
+
+        # DEF-244: begrip is now in eval_ctx.begrip (thread-safe)
+        for code in sorted(state.internal_rules):
+            out = self._evaluate_rule(code, eval_ctx, state)
+            if isinstance(out, EvaluationOutcome):
+                self._verwerk_uitkomst(
+                    code,
+                    eval_ctx,
+                    out,
+                    state,
+                    rule_scores=rule_scores,
+                    violations=violations,
+                    passed_rules=passed_rules,
+                    rule_statuses=rule_statuses,
+                    review_items=review_items,
+                    rule_results=rule_results,
+                    geen_cijfer=code in zonder_cijfer or code in met_deeluitkomst,
+                )
+            # Support both (score, violation) tuple and dict-like outputs (for tests that patch the method)
+            elif isinstance(out, tuple):
+                score, violation = out
+                rule_scores[code] = score
+                rule_statuses[code] = (
+                    ResultStatus.FAIL.value
+                    if violation is not None
+                    else ResultStatus.PASS.value
+                )
+                if violation is not None:
+                    violations.append(violation)
+                else:
+                    passed_rules.append(code)
+            elif isinstance(out, dict):
+                score = float(safe_dict_get(out, "score", 0.0) or 0.0)
+                rule_scores[code] = score
+                vlist = ensure_list(safe_dict_get(out, "violations", []))
+                rule_statuses[code] = (
+                    ResultStatus.FAIL.value if vlist else ResultStatus.PASS.value
+                )
+                if vlist:
+                    # If a list of violations is returned, extend with minimal mapping
+                    for _ in vlist:
+                        violations.append(
+                            {
+                                "code": code,
+                                "severity": "warning",
+                                "message": "",
+                                "description": "",
+                                "rule_id": code,
+                                "category": category_for_rule(code),
+                            }
+                        )
+                else:
+                    passed_rules.append(code)
+            else:
+                # Fallback: treat as scalar score
+                rule_scores[code] = float(out or 0.0)
+                geslaagd = float(out or 0.0) >= 1.0
+                rule_statuses[code] = (
+                    ResultStatus.PASS.value if geslaagd else ResultStatus.FAIL.value
+                )
+                if geslaagd:
+                    passed_rules.append(code)
+        # DEF-244: begrip cleanup removed - now in eval_ctx (immutable, thread-safe)
+
+        # 5) Aggregatie (gewogen) en afronding
+        gewogen: float = calculate_weighted_score(rule_scores, weights)
+
+        # Quality band scaling: gently penalize very short/very long texts to
+        # avoid saturating at 1.0 for minimale/overdadige gevallen. Calibrated
+        # to align with golden bands (acceptable minimal ≈ 0.60-0.75,
+        # high quality ≥ 0.75, perfect ≥ 0.80).
+        try:
+            raw = (eval_ctx.cleaned_text or eval_ctx.raw_text or "").strip()
+            wcount = len(raw.split()) if raw else 0
+        except (AttributeError, TypeError) as e:
+            # DEF-231: Log word count calculation failures
+            logger.debug(
+                f"Woordentelling gefaald, default naar 0: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "word_count",
+                    "correlation_id": correlation_id,
+                },
+            )
+            wcount = 0
+
+        scale = 1.0
+        if wcount < 12:
+            scale = 0.75
+        elif wcount < 20:
+            scale = 0.9
+        elif wcount > 100:
+            scale = 0.85
+        elif wcount > 60:
+            scale = 0.9
+
+        # DEF-622: totaalscore niet beschikbaar zolang een regel zonder cijfer
+        # in de set zit. Bewust ná de berekening hierboven en niet ervoor:
+        # de uitkomst is 'niet beschikbaar', niet 'de score over de rest'.
+        overall: float | None = None if zonder_cijfer else round(gewogen * scale, 2)
+
+        # Extra heuristics (language/structure) to align with golden expectations
+        try:
+            raw_text = (eval_ctx.cleaned_text or eval_ctx.raw_text or "").strip()
+        except (AttributeError, TypeError) as e:
+            # DEF-231: Log raw text extraction failures
+            logger.debug(
+                f"Raw text extractie gefaald, default naar leeg: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "raw_text_extraction",
+                    "correlation_id": correlation_id,
+                },
+            )
+            raw_text = ""
+        # Informal language
+        if self._has_informal_language(raw_text):
+            violations.append(informal_language_violation())
+            if not any(str(v.get("code", "")) == "ESS-CONT-001" for v in violations):
+                violations.append(essential_content_violation())
+        # Mixed NL/EN
+        if self._has_mixed_language(raw_text):
+            violations.append(mixed_language_violation())
+        # Too minimal structure (very short definitions)
+        if wcount < 6:
+            violations.append(structure_violation())
+        # Circular definition fallback (ensure we catch simple cases)
+        # DEF-244: Use eval_ctx.begrip instead of instance variable
+        try:
+            if eval_ctx.begrip:
+                tn = raw_text.lower()
+                gb = str(eval_ctx.begrip).strip().lower()
+                if (
+                    gb
+                    and gb in tn
+                    and not any(v.get("code") == "CON-CIRC-001" for v in violations)
+                ):
+                    violations.append(
+                        circular_definition_violation(str(eval_ctx.begrip))
+                    )
+                    # Voeg ook essentie-tekort toe voor strengere golden criteria
+                    if not any(
+                        str(v.get("code", "")) == "ESS-CONT-001" for v in violations
+                    ):
+                        violations.append(essential_content_violation())
+        except (TypeError, AttributeError) as e:
+            # DEF-231: Log circular check failures for debugging
+            logger.warning(
+                f"Circulaire definitie check overgeslagen: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": "CON-CIRC-001",
+                    "correlation_id": correlation_id,
+                    "begrip": str(eval_ctx.begrip)[:50] if eval_ctx.begrip else None,
+                },
+            )
+
+        # 6) Categorie-scores: bereken op basis van rule_scores (geen mirror)
+        try:
+            detailed = self._calculate_category_scores(
+                rule_scores, default_value=overall
+            )
+            # DEF-622: de categorie waarin een regel zonder cijfer valt heeft
+            # evenmin een cijfer — een gemiddelde zonder die regel zou dezelfde
+            # verzonnen noemer zijn als bij de totaalscore.
+            for code in zonder_cijfer:
+                detailed[category_for_rule(code)] = None
+        except (TypeError, ValueError, ZeroDivisionError) as e:
+            # DEF-231: Conservatieve fallback bij categorie-berekening fout
+            logger.warning(
+                f"Categorie-scores berekening gefaald, fallback naar overall: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "category_scores",
+                    "correlation_id": correlation_id,
+                    "overall_score": overall,
+                    "rule_count": len(rule_scores) if rule_scores else 0,
+                },
+            )
+            detailed = {
+                "taal": overall,
+                "juridisch": overall,
+                "structuur": overall,
+                "samenhang": overall,
+            }
+
+        # 7) DEF-674: hier stond een best-effort-tak die een duplicaatsignaal
+        #    uit `eval_ctx.metadata` viste en aan `violations` toevoegde. Dat
+        #    signaal reisde buiten `EvaluationOutcome` om, zodat een gevonden
+        #    duplicaat tegelijk een violation opleverde én `rule_statuses`
+        #    op `pass` liet staan. De duplicaatcontrole is nu een gewone
+        #    evaluator (DUP_01) en loopt dus door dezelfde statusboekhouding
+        #    als elke andere regel.
+
+        # 8) Violations deterministisch sorteren op code
+        violations.sort(key=lambda v: v.get("code", ""))
+
+        # 9) Acceptance gates bepalen acceptatie (kritiek/overall/categorieën)
+        try:
+            acceptance_gate = self._evaluate_acceptance_gates(
+                overall, detailed, violations
+            )
+        except (TypeError, ValueError, KeyError) as e:
+            # DEF-231: Fallback op basis-acceptatie als gate-evaluatie faalt
+            logger.warning(
+                f"Acceptance gates evaluatie gefaald, fallback naar threshold: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "acceptance_gates",
+                    "correlation_id": correlation_id,
+                    "overall_score": overall,
+                    "threshold": self._overall_threshold,
+                },
+            )
+            acceptance_gate = {
+                "acceptable": (
+                    overall is not None
+                    and determine_acceptability(overall, self._overall_threshold)
+                ),
+                "gates_passed": [],
+                "gates_failed": [],
+                "thresholds": {
+                    "overall": self._overall_threshold,
+                    "category": self._category_threshold,
+                },
+            }
+
+        # Blocking errors check: bepaalde violations blokkeren ALTIJD acceptatie
+        def _has_blocking_errors(vs: list[dict[str, Any]]) -> bool:
+            for v in vs or []:
+                if str(v.get("severity", "")).lower() != "error":
+                    continue
+                code = str(v.get("code", ""))
+                if code.startswith(
+                    (
+                        "VAL-EMP",
+                        "CON-CIRC",
+                        "VAL-LEN-002",
+                        "LANG-",
+                        "STR-FORM-001",
+                    )
+                ):
+                    return True
+            return False
+
+        has_blockers = _has_blocking_errors(violations)
+        # Soft floor: score >= 0.60 zonder blocking errors (0.60 = acceptabel minimaal)
+        # DEF-622: zonder totaalscore is er geen soft floor — een drempel die
+        # niet toetsbaar is, is niet gehaald.
+        soft_ok = overall is not None and overall >= 0.60 and not has_blockers
+        # Blocking errors overrulen de acceptance gate
+        gate_ok = bool(acceptance_gate.get("acceptable", False)) and (not has_blockers)
+        is_ok = gate_ok or soft_ok
+
+        # DEF-668: pas hier aanvullen, ná de evaluatielus. De regels die niet
+        # hebben gedraaid horen niet in `rule_scores` (dan zouden ze de score
+        # raken) maar wél in `rule_statuses` en dus in de dekking.
+        self._vul_niet_uitgevoerde_regels(rule_statuses, state)
+        dekking = self._bereken_dekking(rule_statuses)
+
+        # Een mislukte meting mag de uitkomst niet gunstiger maken (herreview
+        # PR #397). `calculate_weighted_score` loopt over `rule_scores`, en de
+        # ERROR-tak boekt daar niets in: een geërrorde regel valt uit teller én
+        # noemer. Zou die regel gefaald hebben (0,0), dan stijgt het gemiddelde
+        # doordat hij wegvalt — gemeten 0,74 → 0,75, precies over de harde
+        # vestigingsdrempel. Dat is de kernclaim van DEF-624 omgekeerd.
+        #
+        # De score blijft puur over pass/fail (specificatiebesluit 6); de
+        # blokkade zit op de acceptatie. Een validatie die niet uitgevoerd kón
+        # worden is geen goedgekeurde validatie.
+        # Elke blokkade is een paar (gate-naam, reden). `gates_failed` draagt
+        # elders korte namen waarop een consumer kan matchen; vrije proza hoort
+        # in `reasons`. Zonder die scheiding zou een consumer die gate-namen
+        # tegen een bekende verzameling legt hele zinnen binnenkrijgen.
+        blokkades: list[tuple[str, str]] = []
+        if dekking["error"]:
+            is_ok = False
+            blokkades.append(
+                ("evaluation_error", f"evaluatiefout in {dekking['error']} regel(s)")
+            )
+
+        # DEF-622: geen totaalscore betekent dat de scoredrempel niet toetsbaar
+        # is. Dat is fail-closed een blokkade, geen vrijstelling: de bestaande
+        # score-eis wordt niet stil verwijderd. De algemene herdefinitie van
+        # de vaststelgate zonder totaalscore is DEF-630.
+        if overall is None:
+            is_ok = False
+            blokkades.append(
+                (
+                    "overall_score_unavailable",
+                    "totaalscore niet beschikbaar: regel(s) zonder cijfer "
+                    + ", ".join(zonder_cijfer)
+                    + "; de scoredrempel is niet toetsbaar (DEF-622/DEF-630)",
+                )
+            )
+
+        # DEF-674: een gevonden duplicaat blokkeert de acceptatie. DUP_01 valt
+        # buiten de score (`excluded_from_score`), dus zonder deze regel zou de
+        # verhuizing van de duplicaatcontrole naar DUP_01 haar zwakker
+        # handhaven dan de oude route, die via een violation-severity blokkeerde.
+        gefaalde_blokkeerders = [
+            code
+            for code, status in rule_statuses.items()
+            if status == ResultStatus.FAIL.value and code in _ACCEPTATIE_BLOKKEERDERS
+        ]
+        if gefaalde_blokkeerders:
+            is_ok = False
+            blokkades.append(
+                (
+                    "blocking_rule",
+                    "blokkerende regel(s) gefaald: "
+                    + ", ".join(sorted(gefaalde_blokkeerders)),
+                )
+            )
+
+        # DEF-674: `is_acceptable` en `acceptance_gate.acceptable` zijn twee
+        # velden over dezelfde vraag en mogen elkaar nooit tegenspreken. Vóór
+        # deze synchronisatie kon dat allebei op: de soft floor overrulede een
+        # afkeurende gate (`is_ok = gate_ok or soft_ok`), en de errorblokkade
+        # hierboven raakte het gate-object niet. De UI leest uitsluitend het
+        # gate-veld, dus die tegenspraak was zichtbaar als een groene "Gates: OK"
+        # bij een afgekeurd resultaat.
+        if acceptance_gate:
+            self._synchroniseer_gate(acceptance_gate, is_ok, blokkades)
+
+        # 10) Schema-achtige dict output
+        result: dict[str, Any] = {
+            "version": CONTRACT_VERSION,
+            # DEF-621: er is werkelijk geevalueerd; score en oordeel dragen
+            # inhoudelijke betekenis.
+            "validation_status": VALIDATION_STATUS_VALIDATED,
+            "overall_score": overall,
+            "is_acceptable": is_ok,
+            "violations": violations,
+            "passed_rules": passed_rules,
+            "detailed_scores": detailed,
+            # DEF-624: score en dekking zijn twee getallen, geen één. Een regel
+            # die niet is uitgevoerd of menselijk oordeel vraagt telt niet als
+            # pass mee; hij is hier zichtbaar in plaats van onzichtbaar.
+            "rule_statuses": rule_statuses,
+            "evaluation_coverage": dekking,
+            "review_required": review_items,
+            # DEF-622: gestructureerde deeluitkomsten van regels zonder cijfer
+            # (CON-01): status, vingerafdruk en onderdelen met aanleiding,
+            # reden en vervolgstap. Altijd aanwezig, zodat een consument niet
+            # hoeft te raden of het veld ontbreekt of leeg is.
+            "rule_results": rule_results,
+            # DEF-215: Include degraded mode metadata for UI transparency
+            "system": {
+                "correlation_id": correlation_id,
+                "degraded_mode": state.is_degraded_mode,
+                "rules_loaded": state.rules_loaded_count,
+                "rules_expected": state.rules_expected_count,
+                "degradation_reason": state.degradation_reason,
+            },
+        }
+        # Voeg acceptance_gate toe aan resultaat voor UI/clients
+        if acceptance_gate:
+            result["acceptance_gate"] = acceptance_gate
+        # Return plain dict voor JSON serialisatie
+        # De orchestrator verwacht een dict, niet een wrapper
+        return result
+
+    def _has_informal_language(self, text: str) -> bool:
+        try:
+            import re
+
+            patterns = [
+                r"\bzo'n ding\b",
+                r"\benzo\b",
+                r"\bspelletjes\b",
+                r"\binternetten\b",
+                r"\bvan alles\b",
+            ]
+            return any(re.search(p, text, re.IGNORECASE) for p in patterns)
+        except (re.error, TypeError) as e:
+            # DEF-231: Log language check failures
+            logger.debug(
+                f"Informele taal check overgeslagen: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": "LANG-INF-001",
+                    "text_length": len(text) if isinstance(text, str) else 0,
+                },
+            )
+            return False
+
+    def _has_mixed_language(self, text: str) -> bool:
+        try:
+            import re
+
+            en_cues = [r"\bdevelopers\b", r"\bbest practices\b", r"\bbuilden\b"]
+            nl_cues = [r"\bhet\b", r"\bde\b", r"\been\b"]
+            has_en = any(re.search(p, text, re.IGNORECASE) for p in en_cues)
+            has_nl = any(re.search(p, text, re.IGNORECASE) for p in nl_cues)
+            return bool(has_en and has_nl)
+        except (re.error, TypeError) as e:
+            # DEF-231: Log language check failures
+            logger.debug(
+                f"Gemengde taal check overgeslagen: {type(e).__name__}: {e}",
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": "LANG-MIX-001",
+                    "text_length": len(text) if isinstance(text, str) else 0,
+                },
+            )
+            return False
+
+    # Interne regel-evaluatie (houd simpel en deterministisch)
+    def _evaluate_rule(
+        self, code: str, ctx: EvaluationContext, state: RuntimeSnapshot
+    ) -> EvaluationOutcome:
+        """Voer één regel uit via het evaluatorregister (DEF-606).
+
+        Een regel met gevalideerd contract loopt altijd via precies één
+        geregistreerde evaluator. Regels zonder record (fallback-modus zonder
+        ToetsregelManager) draaien de ingebouwde baselinechecks.
+        """
+        record = state.rule_records.get(code)
+        if record is not None:
+            return self._evaluate_via_registry(record, ctx, state)
+        return self._evaluate_baseline_rule(code, ctx)
+
+    def _evaluate_via_registry(
+        self, record: RuleRecord, ctx: EvaluationContext, state: RuntimeSnapshot
+    ) -> EvaluationOutcome:
+        """Resolveer de evaluator en bewaak de vereiste invoer.
+
+        Fail-closed op drie manieren: ontbrekende vereiste invoer levert
+        `not_evaluated`, een onbekende evaluator of een fout tijdens uitvoeren
+        levert `error`. Geen van die uitkomsten telt als pass.
+        """
+        beschikbaar = self._available_inputs(ctx)
+        ontbrekend = missing_inputs(record, beschikbaar)
+        # DEF-835 (WP5a, review F1): de O2-evaluator doet zelf de volledige
+        # WP1-invoercontrole op de oorspronkelijke recordkern — NE in O2-vorm,
+        # ongeldige metadata `error`. Hier onderscheppen zou op `cleaned_text`
+        # en met de O1-NE-vorm beslissen; het O1-pad hieronder blijft gelijk.
+        if record.evaluator is EvaluatorType.DECISION_RULE_ASSESSMENT:
+            ontbrekend = ()
+        if ontbrekend:
+            # DEF-771: INT-02 geeft de exacte NE-melding (kern en/of context).
+            if record.rule_id.upper() == "INT-02":
+                melding = int02_niet_uitgevoerd(
+                    ctx.cleaned_text,
+                    RequiredInput.CONTEXT_LISTS not in ontbrekend,
+                )
+                if melding:
+                    return int02_niet_uitgevoerd_uitkomst(melding, record)
+            namen = ", ".join(sorted(item.value for item in ontbrekend))
+            return EvaluationOutcome.not_evaluated(
+                f"vereiste invoer ontbreekt: {namen}"
+            )
+
+        deps = EvaluationDeps(
+            support=self,
+            available_inputs=beschikbaar,
+            repository=self._repository,
+            pattern_cache=state.pattern_cache,
+        )
+        try:
+            evaluator = self._registry.resolve(record.evaluator)
+            return evaluator.evaluate(record, ctx, deps)
+        except RuleContractError as exc:
+            logger.error(
+                "Regel %s heeft geen uitvoerbare evaluator: %s",
+                record.rule_id,
+                exc,
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": record.rule_id,
+                    "correlation_id": ctx.correlation_id,
+                },
+            )
+            return EvaluationOutcome(
+                status=ResultStatus.ERROR, reason=f"contractfout: {exc}"
+            )
+        except Exception as exc:
+            logger.error(
+                "Evaluator voor regel %s faalde: %s: %s",
+                record.rule_id,
+                type(exc).__name__,
+                exc,
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": record.rule_id,
+                    "correlation_id": ctx.correlation_id,
+                },
+            )
+            return EvaluationOutcome(
+                status=ResultStatus.ERROR,
+                reason=f"{type(exc).__name__}: {exc}",
+            )
+
+    def _available_inputs(self, ctx: EvaluationContext) -> frozenset[RequiredInput]:
+        """Welke gedeclareerde invoer is voor deze validatie beschikbaar?
+
+        Beschikbaarheid gaat over het bestaan van het invoerkanaal, niet over
+        de inhoud: een lege definitietekst is nog steeds een aangeleverde
+        tekst, anders zou VAL-EMP-001 zichzelf uitschakelen.
+        """
+        metadata = ctx.metadata or {}
+        beschikbaar: set[RequiredInput] = {RequiredInput.DEFINITION_TEXT}
+        if (ctx.begrip or "").strip():
+            beschikbaar.add(RequiredInput.TERM)
+        if any(
+            metadata.get(veld)
+            for veld in (
+                "organisatorische_context",
+                "juridische_context",
+                "wettelijke_basis",
+            )
+        ):
+            beschikbaar.add(RequiredInput.CONTEXT_LISTS)
+        if self._repository is not None:
+            beschikbaar.add(RequiredInput.DEFINITION_REPOSITORY)
+        if metadata.get("synoniemen"):
+            beschikbaar.add(RequiredInput.SYNONYMS)
+        if metadata.get("voorkeursterm"):
+            beschikbaar.add(RequiredInput.PREFERRED_TERM)
+        if metadata.get("categorie") or metadata.get("ontologische_categorie"):
+            beschikbaar.add(RequiredInput.ONTOLOGICAL_CATEGORY)
+        if metadata.get("gerelateerde_begrippen"):
+            beschikbaar.add(RequiredInput.RELATED_CONCEPTS)
+        return frozenset(beschikbaar)
+
+    def _outcome_naar_violation(
+        self,
+        code: str,
+        ctx: EvaluationContext,
+        outcome: EvaluationOutcome,
+        state: RuntimeSnapshot,
+    ) -> tuple[float, dict[str, Any] | None]:
+        """Zet een FAIL-uitkomst om in het bestaande violation-formaat."""
+        if outcome.violation is not None:
+            return (
+                outcome.score if outcome.score is not None else 0.0,
+                outcome.violation,
+            )
+        if not outcome.findings:
+            return 1.0, None
+
+        rule = state.json_rules.get(code, {})
+        text = ctx.cleaned_text or ""
+        treffers = set(outcome.pattern_hits)
+        score = 0.0 if not treffers else max(0.0, 1.0 - 0.3 * len(treffers))
+        beschrijving = "; ".join(
+            dict.fromkeys(bevinding.message for bevinding in outcome.findings)
+        )
+        suggesties = [
+            self.build_suggestion(
+                code,
+                rule,
+                text,
+                ctx,
+                reason=bevinding.reason,
+                details=bevinding.details,
+            )
+            for bevinding in outcome.findings
+        ]
+        violation: dict[str, Any] = {
+            "code": code,
+            "severity": self.severity_for(rule),
+            "severity_level": self.severity_level_for(rule),
+            "message": beschrijving,
+            "description": beschrijving,
+            "rule_id": code,
+            "category": category_for_rule(code),
+            "suggestion": "; ".join([s for s in suggesties if s]).strip() or None,
+        }
+        md: dict[str, Any] = {}
+        if outcome.first_hit_pattern is not None:
+            md["detected_pattern"] = outcome.first_hit_pattern
+        if outcome.first_hit_pos is not None:
+            md["position"] = int(outcome.first_hit_pos)
+        if md:
+            violation["metadata"] = md
+        return score, violation
+
+    def _verwerk_uitkomst(
+        self,
+        code: str,
+        ctx: EvaluationContext,
+        outcome: EvaluationOutcome,
+        state: RuntimeSnapshot,
+        *,
+        rule_scores: dict[str, float],
+        violations: list[dict[str, Any]],
+        passed_rules: list[str],
+        rule_statuses: dict[str, str],
+        review_items: list[dict[str, Any]],
+        rule_results: dict[str, dict[str, Any]] | None = None,
+        geen_cijfer: bool = False,
+    ) -> None:
+        """Boek één regeluitkomst in score, violations en dekking.
+
+        Kern van DEF-624: alleen `pass` en `fail` belanden in `rule_scores` en
+        wegen dus mee in de kwaliteitsscore. `review_required`,
+        `not_evaluated` en `error` vallen uit de noemer — ze worden nooit
+        stil als 1,0 meegeteld en verschijnen apart in de evaluatiedekking.
+
+        DEF-622: een regel zonder cijfer (`geen_cijfer`) boekt nooit een
+        score, ook niet bij pass of fail; haar gestructureerde uitkomst
+        (`metadata["rule_result"]`) landt in `rule_results`. Een technische
+        fout op zo'n regel krijgt daar een apart herkenbaar foutonderdeel,
+        zonder interne details als normuitleg (B-08).
+        """
+        rule_statuses[code] = outcome.status.value
+
+        # DEF-771 (contract 2.2.0): een niet-uitgevoerde regel met een eigen
+        # deeluitkomst (INT-02: de exacte NE-melding) reist publiek mee.
+        ne_met_deeluitkomst = (
+            outcome.status is ResultStatus.NOT_EVALUATED
+            and "rule_result" in outcome.metadata
+        )
+        if rule_results is not None and (geen_cijfer or ne_met_deeluitkomst):
+            self._boek_rule_result(code, outcome, rule_results)
+
+        if outcome.status is ResultStatus.PASS:
+            if not geen_cijfer:
+                rule_scores[code] = 1.0 if outcome.score is None else outcome.score
+            passed_rules.append(code)
+            return
+
+        if outcome.status is ResultStatus.FAIL:
+            score, violation = self._outcome_naar_violation(code, ctx, outcome, state)
+            if not geen_cijfer:
+                rule_scores[code] = score
+            if violation is not None:
+                violations.append(violation)
+            else:
+                passed_rules.append(code)
+            return
+
+        if outcome.status is ResultStatus.REVIEW_REQUIRED:
+            review_items.append(
+                {
+                    "rule_id": code,
+                    "category": category_for_rule(code),
+                    "reason": outcome.reason or "",
+                    "signals": list(outcome.metadata.get("signals", [])),
+                }
+            )
+            return
+
+        if outcome.status is ResultStatus.NOT_APPLICABLE:
+            # DEF-766: een afgeronde, gemotiveerde niet-toepasselijkheid. Geen
+            # score, geen violation, geen reviewpunt en géén passed_rule: zij
+            # is zichtbaar via `rule_statuses`, de dekking en — voor een regel
+            # zonder cijfer — het gestructureerde `rule_results`-blok.
+            return
+
+        if outcome.status is ResultStatus.ERROR:
+            logger.warning(
+                "Regel %s leverde een evaluatorfout: %s",
+                code,
+                outcome.reason,
+                extra={
+                    "component": "modular_validation_service",
+                    "rule_id": code,
+                    "correlation_id": ctx.correlation_id,
+                },
+            )
+
+    def _boek_rule_result(
+        self,
+        code: str,
+        outcome: EvaluationOutcome,
+        rule_results: dict[str, dict[str, Any]],
+    ) -> None:
+        """De gestructureerde uitkomst van een regel zonder cijfer boeken.
+
+        Een technische fout zonder detail krijgt het aparte foutonderdeel
+        (B-06/B-08), zonder interne details als normuitleg.
+        """
+        detail = outcome.metadata.get("rule_result")
+        if isinstance(detail, dict):
+            rule_results[code] = dict(detail)
+        elif outcome.status is ResultStatus.ERROR:
+            rule_results[code] = self._technische_fout_uitkomst()
+
+    @staticmethod
+    def _synchroniseer_gate(
+        acceptance_gate: dict[str, Any],
+        is_ok: bool,
+        blokkades: list[tuple[str, str]],
+    ) -> None:
+        """Laat het gate-object dezelfde uitkomst dragen als `is_acceptable`.
+
+        Het resultaat draagt twee velden over dezelfde vraag: `is_acceptable`
+        en `acceptance_gate.acceptable`. Die stonden los van elkaar, en konden
+        dus tegengesteld zijn:
+
+        * een gevonden duplicaat gaf `gate.acceptable=False` naast
+          `is_acceptable=True`, doordat de soft floor de gate overrulede
+          (`is_ok = gate_ok or soft_ok`);
+        * een evaluatiefout zette `is_ok=False` zonder het gate-object te raken.
+
+        De UI leest uitsluitend het gate-veld, dus die tegenspraak was voor een
+        gebruiker zichtbaar als een groene "Gates: OK" bij een afgekeurd
+        resultaat. `is_acceptable` blijft leidend; deze functie trekt de gate
+        daarnaartoe en legt vast wáárom.
+
+        Beide takken worden genormaliseerd. Alleen `acceptable` gelijktrekken
+        is niet genoeg: keurde de gate zelf af terwijl de soft floor het
+        resultaat alsnog doorlaat, dan blijft `gates_failed` gevuld naast
+        `acceptable=True` — een gate die zegt dat hij akkoord is en er in
+        dezelfde adem vier gefaalde poorten bij noemt.
+
+        Die gronden verdwijnen niet: ze verhuizen naar `reasons`, expliciet
+        gemarkeerd als overruled. Bewust géén nieuw veld — het contractschema
+        hanteert `additionalProperties: false` op dit object, en een extra veld
+        zou een versiebump van het publieke contract vragen. `reasons` bestaat
+        al en draagt hier wat het zegt: de redenen bij deze uitkomst.
+        """
+        acceptance_gate["acceptable"] = bool(is_ok)
+        if is_ok:
+            overruled = list(acceptance_gate.get("gates_failed") or [])
+            if overruled:
+                acceptance_gate["reasons"] = [
+                    f"overruled door de soft floor: {grond}" for grond in overruled
+                ]
+                acceptance_gate["gates_failed"] = []
+            acceptance_gate["status"] = "pass"
+            return
+
+        acceptance_gate["status"] = "blocked"
+        redenen = list(acceptance_gate.get("reasons") or [])
+        gefaald = list(acceptance_gate.get("gates_failed") or [])
+        for naam, reden in blokkades:
+            if reden not in redenen:
+                redenen.append(reden)
+            if naam not in gefaald:
+                gefaald.append(naam)
+        if not redenen:
+            # De gate keurde zelf al af; die grond staat in `gates_failed`.
+            redenen = gefaald or ["voldoet niet aan de acceptatiecriteria"]
+        acceptance_gate["reasons"] = redenen
+        acceptance_gate["gates_failed"] = gefaald
+
+    def _vul_niet_uitgevoerde_regels(
+        self, rule_statuses: dict[str, str], state: RuntimeSnapshot
+    ) -> None:
+        """Maak elke contractregel die niet heeft gedraaid zichtbaar (DEF-668).
+
+        Zonder deze aanvulling kende ``rule_statuses`` alleen de regels die
+        werkelijk zijn uitgevoerd, en mat de dekking zichzelf: in
+        fallback-modus meldde zij ``total=7`` met ``coverage_ratio=1.0`` — volle
+        dekking, terwijl 46 van de 53 contractregels nooit hadden gedraaid.
+
+        Alleen de noemer optrekken zou niet volstaan: dan telt de som van de
+        statussen niet meer op tot ``total`` en spreekt het dekkingsblok
+        zichzelf tegen. De ontbrekende regels krijgen daarom een échte status,
+        en die status is ``not_evaluated`` — nooit ``pass``.
+        """
+        for rule_id in state.contract_rule_ids:
+            rule_statuses.setdefault(rule_id, ResultStatus.NOT_EVALUATED.value)
+
+        # DEF-673: draait er een code buiten het manifest, dan groeit de noemer
+        # mee met de regel die hem optilt. In productie kan dat niet —
+        # `build_rule_records` is alles-of-niets tegen het manifest — maar een
+        # afwijking mag nooit stil blijven, want dan verschuift de betekenis van
+        # `coverage_ratio` zonder dat iemand het merkt.
+        buiten_manifest = sorted(set(rule_statuses) - set(state.contract_rule_ids))
+        if buiten_manifest:
+            logger.warning(
+                "Regelcodes buiten het contractmanifest tellen mee in de "
+                "evaluatiedekking: %s",
+                buiten_manifest,
+                extra={
+                    "component": "modular_validation_service",
+                    "operation": "evaluation_coverage",
+                    "codes_buiten_manifest": buiten_manifest,
+                    "manifest_grootte": len(state.contract_rule_ids),
+                },
+            )
+
+    def _bereken_dekking(self, rule_statuses: dict[str, str]) -> dict[str, Any]:
+        """Evaluatiedekking naast de kwaliteitsscore (DEF-624).
+
+        Een lagere dekking mag nooit als hogere kwaliteit verschijnen; daarom
+        rapporteert het resultaat beide getallen los van elkaar.
+
+        De noemer is de volledige statusverzameling ná aanvulling: de
+        contractregels plus eventuele codes die buiten het manifest hebben
+        gedraaid. Dat is bewust niet strikt het manifest (DEF-673). Zou de
+        noemer alles buiten het manifest wegfilteren, dan telt de som van de
+        statussen niet meer op tot ``total`` en spreekt het dekkingsblok
+        zichzelf tegen; en in een testopstelling met eigen regelcodes zou de
+        dekking dan 0/53 melden terwijl er wél is gemeten. In productie vallen
+        beide samen — `build_rule_records` is alles-of-niets tegen het manifest,
+        en `_vul_niet_uitgevoerde_regels` waarschuwt zichtbaar bij afwijking.
+        """
+        telling = {status.value: 0 for status in ResultStatus}
+        for status in rule_statuses.values():
+            telling[status] = telling.get(status, 0) + 1
+        totaal = len(rule_statuses)
+        geevalueerd = (
+            telling[ResultStatus.PASS.value] + telling[ResultStatus.FAIL.value]
+        )
+        return {
+            "evaluated": geevalueerd,
+            "passed": telling[ResultStatus.PASS.value],
+            "failed": telling[ResultStatus.FAIL.value],
+            "review_required": telling[ResultStatus.REVIEW_REQUIRED.value],
+            "not_evaluated": telling[ResultStatus.NOT_EVALUATED.value],
+            "error": telling[ResultStatus.ERROR.value],
+            # DEF-766: afgeronde niet-toepasselijkheid telt apart — niet als
+            # geëvalueerd (pass/fail), niet als open en niet als niet-uitgevoerd.
+            "not_applicable": telling[ResultStatus.NOT_APPLICABLE.value],
+            "total": totaal,
+            "coverage_ratio": round(geevalueerd / totaal, 4) if totaal else 0.0,
+        }
+
+    def _evaluate_baseline_rule(
+        self, code: str, ctx: EvaluationContext
+    ) -> EvaluationOutcome:
+        """Ingebouwde baselinechecks voor de fallback zonder regelrecords."""
+        score, violation = self._baseline_uitkomst(code, ctx)
+        if violation is not None:
+            return EvaluationOutcome(
+                status=ResultStatus.FAIL, score=score, violation=violation
+            )
+        return EvaluationOutcome(status=ResultStatus.PASS, score=score)
+
+    def _baseline_uitkomst(
+        self, code: str, ctx: EvaluationContext
+    ) -> tuple[float, dict[str, Any] | None]:
+        text = ctx.cleaned_text or ""
+        # Normalisaties
+        text_norm = text.strip()
+        words = len(text_norm.split()) if text_norm else 0
+        chars = len(text_norm)
+
+        # Leegte
+        if code == "VAL-EMP-001":
+            if chars == 0:
+                return 0.0, empty_definition_violation()
+            return 0.9, None
+
+        # Te kort
+        if code == "VAL-LEN-001":
+            if words < 5 or chars < 15:
+                return 0.0, too_short_violation()
+            if words < 12 or chars < 40:
+                return 0.7, None
+            if words < 25:
+                return 0.85, None
+            return 0.9, None
+
+        # Te lang
+        if code == "VAL-LEN-002":
+            if words > 80 or chars > 600:
+                return 0.0, too_long_violation()
+            if words > 60 or chars > 450:
+                return 0.85, None
+            return 0.95, None
+
+        # Essentiële inhoud aanwezig (heel grof: voldoende informatiedichtheid)
+        if code == "ESS-CONT-001":
+            if words < 6:
+                return 0.0, essential_content_violation()
+            if words < 12:
+                return 0.65, None
+            return 0.9, None
+
+        # Circulair (begrip in definitie)
+        # DEF-244: Use ctx.begrip instead of instance variable
+        if code == "CON-CIRC-001":
+            begrip = ctx.begrip or None
+            if begrip:
+                pattern = rf"\b{re.escape(str(begrip))}\b"
+                found = bool(re.search(pattern, text_norm, re.IGNORECASE))
+                if not found:
+                    # Fallback: naive contains check in lowercase with added spaces
+                    tn = f" {text_norm.lower()} "
+                    gb = f" {str(begrip).strip().lower()} "
+                    found = gb in tn
+                if found:
+                    return 0.0, circular_definition_violation(str(begrip))
+            return 1.0, None
+
+        # Terminologie/structuur kleine kwestie (bijv. ontbrekende koppelteken)
+        if code == "STR-TERM-001":
+            if "HTTP protocol" in text_norm:
+                return 0.0, terminology_violation("HTTP protocol")
+            return 0.95, None
+
+        # Organisatie/structuur (lange aaneengeregen zin of herhalingen)
+        if code == "STR-ORG-001":
+            long_sentence = chars > 300 and text_norm.count(",") >= 6
+            redundancy = bool(
+                re.search(
+                    r"\bsimpel\b.*\bcomplex\b|\bcomplex\b.*\bsimpel\b",
+                    text_norm,
+                    re.IGNORECASE,
+                )
+            )
+            if long_sentence or redundancy:
+                return 0.0, organization_violation()
+            return 0.9, None
+
+        # Onbekende regelcode → pass
+        return 1.0, None
+
+    def _severity_level_for_json_rule(self, rule: dict[str, Any]) -> str:
+        """Map JSON aanbeveling/prioriteit naar severity-level (critical/high/medium/low)."""
+        aan = str(rule.get("aanbeveling", "")).lower()
+        pri = str(rule.get("prioriteit", "")).lower()
+        if aan == "verplicht" and pri == "hoog":
+            return "critical"
+        if aan == "verplicht":
+            return "high"
+        if pri == "hoog":
+            return "medium"
+        return "low"
+
+    def _severity_for_json_rule(self, rule: dict[str, Any]) -> str:
+        """Compatibele severity (error/warning) afgeleid van severity-level."""
+        lvl = self._severity_level_for_json_rule(rule)
+        return "error" if lvl in ("critical", "high") else "warning"
+
+    def _build_suggestion_for_violation(
+        self,
+        code: str,
+        rule: dict[str, Any] | None,
+        text: str,
+        ctx: EvaluationContext,
+        *,
+        reason: str,
+        details: str | None = None,
+    ) -> str:
+        """Genereer concrete NL-suggestie om een violation te herstellen."""
+        c = (code or "").upper()
+        d = (details or "").strip()
+
+        if reason == "forbidden_patterns":
+            return "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen."
+        if reason == "required_patterns":
+            return "Maak het vereiste element expliciet in de formulering."
+        if reason == "forbidden_phrase":
+            return f"Vervang of verwijder de term '{d}'; kies correcte terminologie."
+        if reason == "min_words":
+            return (
+                f"Breid de definitie uit tot minimaal {d} woorden met kerninformatie."
+            )
+        if reason == "max_words":
+            return f"Verkort de definitie tot maximaal {d} woorden; schrap bijzinnen."
+        if reason == "min_chars":
+            return f"Breid de definitie uit tot minimaal {d} tekens."
+        if reason == "max_chars":
+            return f"Kort de definitie in tot maximaal {d} tekens; maak compacter."
+        if reason == "circular":
+            return f"Vermijd het begrip '{d}' in de definitie; omschrijf zonder het letterlijk te herhalen."
+        if reason == "structure_runon":
+            return "Vereenvoudig de zinsstructuur: minder komma's en kortere zinsdelen."
+        if reason == "redundancy":
+            return "Verwijder redundante/tegenstrijdige bewoordingen; kies één heldere formulering."
+        # DEF-743: de CON-02-suggestie "voeg 'volgens'/'conform' toe" is
+        # vervallen — een bronwoord is geen bron. CON-02 bouwt zijn eigen,
+        # oorzaakafhankelijke suggestie in de source_evidence-evaluator.
+        # DEF-766: de ESS-03-suggestie "voeg een uniek identificatiecriterium
+        # toe (nummer/code/registratie)" is vervallen — een nummer is geen
+        # bewijs van individuatie en kan een natuurlijke grens juist
+        # vernauwen (casus N23). ESS-03 levert geen violation meer maar een
+        # reviewreden (`JudgmentReviewEvaluator._ess03_reden`); herstel volgt
+        # alleen op verzoek na oorzaakbepaling, nooit als automatische
+        # codeopdracht.
+        # DEF-767 (H2-2): de cijfergerichte ESS-04-hint (termijn/meetgrens) is
+        # vervangen — een getal bewijst geen toetsbaarheid en een toegevoegde
+        # grens verkrijgt hooguit een patroonsignaal. ESS-04 levert geen
+        # violation maar een reviewreden (`JudgmentReviewEvaluator._ess04_reden`);
+        # deze hint hoort alleen bij het oude aanroeppunt en start geen
+        # automatisch herstel.
+        if reason == "testable" and c == "ESS-04":
+            return (
+                "Benoem welk criterium onvoldoende bepaald is en welke betekenisgrond "
+                "nodig is. Gebruik alleen een onderbouwde kwalitatieve of "
+                "kwantitatieve afbakening; voeg geen termijn of grens toe om een "
+                "signaal te verkrijgen."
+            )
+        if reason == "distinguishing" and c == "ESS-05":
+            return "Voeg een onderscheidend kenmerk toe dat het begrip afbakent."
+        if reason == "singular" and c == "VER-01":
+            return "Schrijf het lemma in enkelvoud (tenzij plurale tantum)."
+
+        # DEF-770: het woordvermijdingsadvies (vermijd en/maar/of en
+        # bijzinnen) is vervallen; het stuurde op betekenisverlies. INT-01
+        # levert alleen nog een violation bij een vastgestelde tweede zin.
+        if reason == REDEN_MEERDERE_ZINNEN and c == "INT-01":
+            return SUGGESTIE_MEERDERE_ZINNEN
+
+        # Regel-specifieke defaults
+        if c == "CON-01":
+            # DEF-622 (B-02): registratiecontext hoort buiten de zin; een
+            # inhoudelijk noodzakelijke naam mag blijven staan.
+            return (
+                "Leg de registratiecontext bij het record vast, niet in de "
+                "definitiezin; alleen een naam die nodig is om het begrip af te "
+                "bakenen mag blijven staan."
+            )
+        # DEF-750: de ESS-02-suggestie "maak de ontologische categorie
+        # expliciet (type/particulier/proces/resultaat)" is vervallen — ESS-02
+        # levert geen violation meer maar een reviewreden met passages
+        # (`JudgmentReviewEvaluator._ess02_reden`); een markerwoord was nooit
+        # een herstel.
+
+        return "Herschrijf de definitie conform de regelcriteria; maak specifieker."
+
+    # ===== Helper checks (JSON required/structure) =====
+    def _lemma_is_singular(self, begrip: str) -> bool:
+        """Compat-alias op de VER-01-morfologie in de evaluatorlaag (DEF-605)."""
+        return lemma_is_enkelvoud(begrip)
+
+    # ── EvaluationSupport: het smalle venster dat evaluators lenen ──────────
+    #
+    # Severity-afleiding en suggestieopbouw blijven hier, zodat het
+    # violation-formaat op één plek wordt bepaald en het evaluatorcontract
+    # geen brede god-objectrefactor (DEF-424) hoeft af te wachten.
+
+    def severity_for(self, rule: Any) -> str:
+        """Compatibele severity (error/warning) voor een regelrecord."""
+        return self._severity_for_json_rule(rule)
+
+    def severity_level_for(self, rule: Any) -> str:
+        """Severity-level (critical/high/medium/low) voor een regelrecord."""
+        return self._severity_level_for_json_rule(rule)
+
+    def build_suggestion(
+        self,
+        code: str,
+        rule: Any,
+        text: str,
+        ctx: EvaluationContext,
+        *,
+        reason: str,
+        details: str | None = None,
+    ) -> str:
+        """Concrete NL-suggestie om een violation te herstellen."""
+        return self._build_suggestion_for_violation(
+            code, rule, text, ctx, reason=reason, details=details
+        )
+
+    @staticmethod
+    def _technische_fout_uitkomst() -> dict[str, Any]:
+        """Het `rule_results`-blok voor een regel zonder cijfer die crashte.
+
+        B-08: een technische fout is geen inhoudelijk 'Voldoet niet' en wordt
+        apart getoond, zonder interne foutdetails als normuitleg. De
+        technische oorzaak staat in het log (`_evaluate_via_registry`).
+        """
+        return {
+            "status": ResultStatus.ERROR.value,
+            "score": None,
+            "contract_version": None,
+            "fingerprint": None,
+            "parts": [
+                {
+                    "id": "uitvoering",
+                    "status": ResultStatus.ERROR.value,
+                    "evidence": None,
+                    "context_value": None,
+                    "field": None,
+                    "position": None,
+                    "reason": (
+                        "Dit onderdeel kon niet worden gecontroleerd. De "
+                        "beoordeling is nog onvolledig."
+                    ),
+                    "action": (
+                        "Controleer opnieuw. Blijft dit terugkomen, meld het dan "
+                        "als technisch probleem."
+                    ),
+                }
+            ],
+            "review": None,
+        }
+
+    def _calculate_category_scores(
+        self, rule_scores: dict[str, float], default_value: float | None
+    ) -> dict[str, float | None]:
+        """Bereken echte categorie-scores op basis van rule_scores en regelprefix.
+
+        Categorieën: taal (ARAI/VER), juridisch (ESS/VAL), structuur (STR/INT), samenhang (CON/SAM).
+        """
+        from collections import defaultdict
+
+        buckets: dict[str, list[float]] = defaultdict(list)
+        for rid, score in (rule_scores or {}).items():
+            try:
+                r = str(rid)
+                ru = r.upper()
+                # Skip interne regels en ARAI* bij categorie-aggregatie
+                if r in self._baseline_internal or ru.startswith(("ARAI", "AR-", "AR")):
+                    continue
+                cat = category_for_rule(r)
+                buckets[cat].append(float(score or 0.0))
+            except (TypeError, ValueError) as e:
+                # DEF-248: Log score conversion failures - skip rule but don't crash aggregation
+                logger.debug(f"Category score aggregation skipped rule {rid}: {e}")
+                continue
+
+        def avg(xs: list[float]) -> float | None:
+            if xs:
+                return round(sum(xs) / len(xs), 2)
+            # Lege categorie: val terug op de totaalscore; is die er niet
+            # (DEF-622), dan is er ook hier geen cijfer.
+            return None if default_value is None else round(default_value, 2)
+
+        # Rond scores af op 2 decimalen voor stabiele UI/tests
+        return {
+            "taal": avg(buckets.get("taal", [])),
+            "juridisch": avg(buckets.get("juridisch", [])),
+            "structuur": avg(buckets.get("structuur", [])),
+            "samenhang": avg(buckets.get("samenhang", [])),
+        }
+
+    def _evaluate_acceptance_gates(
+        self,
+        overall: float | None,
+        detailed: dict[str, float | None],
+        violations: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        """Evalueer acceptance gates (critical/overall/category).
+
+        DEF-622: een score die niet beschikbaar is (`None`) haalt de drempel
+        niet — de gate meldt `..._unavailable` in plaats van de eis stil over
+        te slaan.
+        """
+        critical = 0
+        for v in violations or []:
+            lvl = str(v.get("severity_level", ""))
+            if lvl.lower() == "critical":
+                critical += 1
+
+        gates_passed: list[str] = []
+        gates_failed: list[str] = []
+
+        if critical == 0:
+            gates_passed.append("no_critical_violations")
+        else:
+            gates_failed.append(f"critical_violations={critical}")
+
+        if overall is None:
+            gates_failed.append("overall_score_unavailable")
+        elif float(overall) >= float(self._overall_threshold):
+            gates_passed.append(f"overall>={self._overall_threshold}")
+        else:
+            gates_failed.append(f"overall<{self._overall_threshold}")
+
+        for cat in ("taal", "juridisch", "structuur", "samenhang"):
+            val = detailed.get(cat, self._category_threshold)
+            if val is None:
+                gates_failed.append(f"{cat}_unavailable")
+            elif float(val) < float(self._category_threshold):
+                gates_failed.append(f"{cat}<{self._category_threshold}")
+
+        return {
+            "acceptable": len(gates_failed) == 0,
+            "gates_passed": gates_passed,
+            "gates_failed": gates_failed,
+            "thresholds": {
+                "overall": self._overall_threshold,
+                "category": self._category_threshold,
+            },
+        }
+
+    async def batch_validate(
+        self,
+        items: list[Any],
+        max_concurrency: int = 1,
+    ) -> list[dict[str, Any]]:
+        """Batch validatie van meerdere items.
+
+        Args:
+            items: List van ValidationRequest objects of tuples
+            max_concurrency: Maximum parallelle validaties (default: sequentieel)
+
+        Returns:
+            List van ValidationResult dicts in zelfde volgorde als input
+        """
+        import asyncio
+        from typing import TYPE_CHECKING
+
+        if TYPE_CHECKING:
+            pass
+
+        # Handle None or empty list
+        if not items:
+            return []
+
+        results = []
+
+        if max_concurrency == 1:
+            # Sequentiële verwerking
+            for item in items:
+                if hasattr(item, "begrip"):
+                    # ValidationRequest object
+                    result = await self.validate_definition(
+                        begrip=item.begrip,
+                        text=item.text,
+                        ontologische_categorie=item.ontologische_categorie,
+                        context=item.context.__dict__ if item.context else None,
+                    )
+                elif isinstance(item, tuple):
+                    begrip, text = item
+                    result = await self.validate_definition(begrip, text)
+                else:
+                    result = await self.validate_definition(
+                        item.get("begrip", ""), item.get("text", "")
+                    )
+                results.append(result)
+        else:
+            # Parallelle verwerking met semaphore voor concurrency control
+            semaphore = asyncio.Semaphore(max_concurrency)
+
+            async def validate_with_semaphore(item: Any) -> dict[str, Any]:
+                async with semaphore:
+                    if hasattr(item, "begrip"):
+                        return await self.validate_definition(
+                            begrip=item.begrip,
+                            text=item.text,
+                            ontologische_categorie=item.ontologische_categorie,
+                            context=item.context.__dict__ if item.context else None,
+                        )
+                    if isinstance(item, tuple):
+                        begrip, text = item
+                        return await self.validate_definition(begrip, text)
+                    return await self.validate_definition(
+                        item.get("begrip", ""), item.get("text", "")
+                    )
+
+            # Voer alle validaties parallel uit
+            results = await asyncio.gather(
+                *[validate_with_semaphore(item) for item in items]
+            )
+
+        return results

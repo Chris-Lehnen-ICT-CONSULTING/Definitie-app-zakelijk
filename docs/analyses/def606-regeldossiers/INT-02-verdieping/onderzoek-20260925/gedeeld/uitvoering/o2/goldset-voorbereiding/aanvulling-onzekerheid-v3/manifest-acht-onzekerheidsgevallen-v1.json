@@ -1,0 +1,31 @@
+{
+  "status": "beoordelingsmanifest_geen_goldbesluit",
+  "datum": "2026-09-30",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "gevalobjecten_v3": "5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+    "concept_v3": "2b155de94451a6f383665cc6d6ca97981d37db6595c5323dd552e7007076028d",
+    "pool_v4": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+    "concept_v1_gevalobjecten": "6309d72b5b83b5ffb30cc7571e9e9df0eb2a95707f3d470e8a5dfd5827ab160f",
+    "concept_v2_gevalobjecten": "10b90000143356ff0e2064e4230528d68c29d7ae40a3e074f81bb311c98e8d5b",
+    "normcontract": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten_chris": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734"
+  },
+  "beoordelingsscope": [
+    "G070",
+    "G071",
+    "G072",
+    "G073",
+    "G074",
+    "G075",
+    "G076",
+    "G077"
+  ],
+  "niet_aangeboden": [
+    "G078",
+    "G079"
+  ],
+  "geen_goldlabels": true,
+  "geen_split_of_freeze": true
+}

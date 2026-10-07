@@ -1,0 +1,18 @@
+{
+  "casuspool.json": {
+    "bron": "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/casuspool-ongelabeld-v1.json",
+    "sha256": "d70c645e12667c1a46bf8c192b6b13dfa794fa112425da371ddc5bfcb0cebb11"
+  },
+  "normcontract.md": {
+    "bron": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills/definitie-toetsregels/references/int02-beslisregel.md",
+    "sha256": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c"
+  },
+  "besluiten-chris.md": {
+    "bron": "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/besluiten-chris-v1.md",
+    "sha256": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2"
+  },
+  "ontwerpregister.md": {
+    "bron": "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/gezamenlijk-casusregister-v5.md",
+    "sha256": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734"
+  }
+}

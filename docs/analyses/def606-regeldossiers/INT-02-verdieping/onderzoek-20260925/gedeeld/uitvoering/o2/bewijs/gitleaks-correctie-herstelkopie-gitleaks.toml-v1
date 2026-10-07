@@ -1,0 +1,186 @@
+# Gitleaks Configuration for DefinitieAgent
+# Version: 8.29.1 (gepinde broncommit fb5d707e08fe0d2578b155458fdd53b6782dcab2)
+# See: https://github.com/gitleaks/gitleaks
+#
+# DEF-522: de vier brede globale allowlists en de brede rule-scoped allowlist
+# zijn vervallen. Er zijn nog precies drie uitzonderingen, hieronder, en alle drie
+# gelden alleen voor exact vastgelegde paden in combinatie met exacte inhoud.
+
+title = "DefinitieAgent Secret Detection Configuration"
+
+# Use default Gitleaks rules (100+ patterns)
+# This includes: OpenAI, AWS, GitHub, Google, Azure, JWT, private keys, etc.
+[extend]
+useDefault = true
+
+# Uitzondering 1 van 3: de synthetische AWS-fixture. `condition = "AND"` betekent
+# dat pad én waarde beide moeten matchen: een uitzondering die naar een ander pad
+# verhuist of waarvan de inhoud verandert, geldt niet meer. Geen prefix, geen
+# sleuteltype, geen map.
+#
+# `targetRules` is hier geen detail maar de voorwaarde waaronder die AND werkt.
+# Een globale allowlist met `paths` wordt in de gepinde bron toegepast als
+# pad-skip (`sources/common.go:37-52`, `shouldSkipPath` → `PathAllowed`): het
+# pad wordt overgeslagen vóórdat de inhoud wordt bekeken, en `condition` weegt
+# daar niet mee. Pas met `targetRules` hangt de uitzondering aan de regel zelf
+# (`config/config.go:233-240`), en daar eerbiedigt `detect.go` de AND-conditie
+# wel. Zonder die koppeling zou het pad alleen al een vrijbrief zijn en zou een
+# afwijkende waarde op dit pad stil passeren.
+#
+# Rationale: de waarde is in deze sessie offline zelf samengesteld, niet bij een
+# provider opgevraagd en niet voor authenticatie gebruikt; er is geen historische
+# waarde hergebruikt. De fixture bestaat om aantoonbaar te maken dat de gate
+# exact dit pad en exact deze waarde doorlaat.
+#
+# Eigenaar: Chris Lehnen (DEF-522). Herbeoordelen op 2026-12-07.
+#
+# De regex staat hier als `AK[I]A...`: dat matcht exact dezelfde waarde, maar
+# houdt dit configbestand zelf vrij van een aaneengesloten sleutelvorm. Zonder
+# die schrijfwijze zou de gate haar eigen configuratie blokkeren — de
+# uitzondering geldt immers alleen voor het fixture-pad.
+[[allowlists]]
+description = """DEF-522 synthetische AWS-fixture: uitsluitend het exacte pad \
+tests/fixtures/def522_synthetic_aws.txt in combinatie met de exacte waarde, in \
+deze sessie offline zelf samengesteld. Eigenaar Chris Lehnen (DEF-522); \
+herbeoordelen op 2026-12-07."""
+condition = "AND"
+targetRules = ["aws-access-token"]
+paths = ['''^tests/fixtures/def522_synthetic_aws\.txt$''']
+regexTarget = "secret"
+regexes = ['''^AK[I]A3QK7XZ2MJ5R6W4TB$''']
+
+# Uitzondering 2 van 3: vier historische metadataregels in `.gitleaksignore`.
+# Dezelfde constructie als hierboven — `condition = "AND"` plus `targetRules` —
+# zodat pad én inhoud beide moeten matchen en het pad alleen geen vrijbrief is.
+#
+# Rationale: dit zijn regels in de legacy-notatie `pad:regel-ID:commit-ID`. De
+# drie 40-hex staarten zijn geverifieerde Git-commitobjecten, geen sleutels; er
+# is voor deze uitzondering geen sleutelwaarde gelezen en er wordt niet beweerd
+# dat er iets is ingetrokken. Het is bovendien niet het fingerprintformaat dat de
+# gepinde Gitleaks nu schrijft; over die formaatgeldigheid doet deze uitzondering
+# geen uitspraak.
+#
+# `^\n?` staat er omdat de gepinde bron bij elke regel ná de eerste het
+# voorafgaande regeleinde meelevert in `currentLine`: `detect/location.go:45` en
+# `:54` zetten `startLineIndex` op de vorige newline zonder er 1 bij op te
+# tellen, en `detect/detect.go:496` en `:520-521` geven die snede door. Het
+# verdraagt exact dat ene scheidingsteken — geen voortekst, geen tweede regel.
+#
+# Het eerste hexteken staat als tekenklasse geschreven, om dezelfde reden als
+# `AK[I]A` hierboven: anders blokkeert de gate haar eigen configuratie.
+#
+# Eigenaar: Chris Lehnen (DEF-522). Herbeoordelen op 2026-12-08.
+[[allowlists]]
+description = """DEF-522 historische metadataregels: uitsluitend het exacte pad \
+.gitleaksignore in combinatie met vier exacte, volledige regels in de \
+legacy-notatie pad:regel-ID:commit-ID. De staarten zijn geverifieerde \
+commit-objecten, geen sleutels. Eigenaar Chris Lehnen (DEF-522); herbeoordelen \
+op 2026-12-08."""
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''^\.gitleaksignore$''']
+regexTarget = "line"
+regexes = [
+  '''^\n?config/config_development\.yaml:openai_api_key:[0]b706cc1e0a4be76782d0f0c505f99bb74072368$''',
+  '''^\n?docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_MASTERPLAN\.html:openai-api-key-new-format:[5]a61be55d691c1e35a6a95c89f56f82f10feb83a$''',
+  '''^\n?docs/portal/rendered/analyses/CONFIG_ENVIRONMENT_VERIFICATION_REPORT\.html:generic-api-key:[5]a61be55d691c1e35a6a95c89f56f82f10feb83a$''',
+  '''^\n?docs/portal/rendered/architectuur/structured-logging-architecture\.html:generic-api-key:[5]f02ab5a2c28c2df8ac9fd9c85a48e6eb78a517a$''',
+]
+
+# Uitzondering 3 van 3: één bronhashregel in twee DEF-835-modelproefmanifesten.
+# Dezelfde constructie als uitzondering 2 — `condition = "AND"`, `targetRules`,
+# `regexTarget = "line"` en `^\n?` — zodat een van beide paden én de volledige
+# regel moeten matchen.
+#
+# Rationale: de JSON-waarde bij sleutel `src/utils/async_api.py` is de SHA-256
+# van dat bronbestand, rechtstreeks gelijk bevonden; `generic-api-key` ziet er
+# een sleutel in omdat de bronnaam `api` bevat. Er is geen sleutelwaarde gelezen
+# en er is niets ingetrokken of vervangen. Geen map, geen prefix, geen glob.
+#
+# Het eerste hexteken staat als tekenklasse geschreven, om dezelfde reden als
+# bij de uitzonderingen hierboven.
+#
+# Eigenaar: Chris Lehnen (DEF-835). Herbeoordelen op 2026-12-28, of eerder als
+# de bronhash of de manifestroute wijzigt.
+[[allowlists]]
+description = """DEF-835 bronhashregel: uitsluitend de twee exacte paden \
+modelproef-manifest-v1.json en modelproef-manifest-v2.json onder het \
+o2-bewijsdossier in combinatie met één exacte, volledige JSON-regel: de SHA-256 \
+van src/utils/async_api.py, geen sleutel. Eigenaar Chris Lehnen (DEF-835); \
+herbeoordelen op 2026-12-28 of eerder bij wijziging van bronhash of \
+manifestroute."""
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = [
+  '''^docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v1\.json$''',
+  '''^docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v2\.json$''',
+]
+regexTarget = "line"
+regexes = [
+  '''^\n?      "src/utils/async_api\.py": "[f]014876b16b76f889cf92faff1d89c3753b4ef0734624e8c45bcb6092841ff93",$''',
+]
+
+# Custom rules for project-specific patterns
+[[rules]]
+id = "openai-api-key-new-format"
+description = "OpenAI API key (new sk-proj- format)"
+regex = '''sk-proj-[A-Za-z0-9_-]{48,}'''
+entropy = 3.5
+keywords = ["sk-proj"]
+tags = ["api-key", "openai", "high-risk"]
+
+[[rules]]
+id = "anthropic-claude-api-key"
+description = "Anthropic Claude API key"
+regex = '''sk-ant-api03-[A-Za-z0-9_-]{95,}'''
+entropy = 4.0
+keywords = ["sk-ant"]
+tags = ["api-key", "anthropic", "high-risk"]
+
+[[rules]]
+id = "generic-high-entropy-string"
+description = "Generic high-entropy string (potential secret)"
+regex = '''(?i)(api[_-]?key|secret|token|password)[\"'\s]*[:=][\"'\s]*([A-Za-z0-9_-]{32,})'''
+entropy = 4.5
+keywords = ["api", "key", "secret", "token", "password"]
+tags = ["generic-secret", "medium-risk"]
+
+# Environment variable exposure
+[[rules]]
+id = "env-file-exposure"
+description = "Prevent committing .env files"
+path = '''^\.env.*$'''
+tags = ["env-file", "high-risk"]
+
+# Database connection strings
+[[rules]]
+id = "database-connection-string"
+description = "Database connection string with credentials"
+regex = '''(postgres|mysql|mongodb|redis)://[^:\r\n]+:[^@\r\n]+@[^/\s'"]+'''
+keywords = ["postgres", "mysql", "mongodb", "redis"]
+tags = ["database", "high-risk"]
+
+# Private keys
+[[rules]]
+id = "private-key-pem"
+description = "PEM-encoded private key"
+regex = '''-----BEGIN ((EC|PGP|DSA|RSA|OPENSSH) )?PRIVATE KEY( BLOCK)?-----'''
+keywords = ["BEGIN", "PRIVATE", "KEY"]
+tags = ["private-key", "critical-risk"]
+
+# JWT tokens
+[[rules]]
+id = "jwt-token"
+description = "JSON Web Token (JWT)"
+regex = '''eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}'''
+entropy = 3.0
+keywords = ["eyJ"]
+tags = ["jwt", "medium-risk"]
+
+# GitHub tokens
+[[rules]]
+id = "github-pat"
+description = "GitHub Personal Access Token"
+regex = '''gh[pousr]_[A-Za-z0-9_]{36,}'''
+keywords = ["ghp_", "gho_", "ghu_", "ghs_", "ghr_"]
+tags = ["github", "high-risk"]

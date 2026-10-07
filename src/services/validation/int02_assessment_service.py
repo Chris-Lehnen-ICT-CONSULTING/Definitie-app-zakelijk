@@ -121,9 +121,10 @@ __all__ = [
     "laad_int02_norm",
 ]
 
-#: /1: eerste promptversie (DEF-835 WP2). Wordt bij elke aanroep uit de module
-#: gelezen en bindt zo elk document.
-PROMPT_VERSION = "def835-int02-prompt/1"
+#: /1: eerste promptversie (DEF-835 WP2). /2: aanwijzingen over zelfstandig
+#: dragende grond voor "fail" en over citaatposities (promptcorrectie na C107).
+#: Wordt bij elke aanroep uit de module gelezen en bindt zo elk document.
+PROMPT_VERSION = "def835-int02-prompt/2"
 #: Bestaande routertaak; er komt geen nieuwe (onbekende) taaknaam bij.
 TASK_TYPE = "validation"
 
@@ -364,6 +365,27 @@ def _systeemprompt(norm: Int02Norm) -> str:
                 "op en verzin geen bron, context, bedoeling of grond."
             ),
             "- Geef geen score, geen cijfer en geen percentage.",
+            "",
+            "Oordeel en citaten:",
+            (
+                '- Voor "fail" moet de aangeleverde grond uit kern, bevestigde '
+                "bedoeling, context of bronpassage de functie als "
+                'handelingsvoorschrift ("actor_prescription") of discretionaire '
+                'beslisregel ("discretionary_decision_rule") zelfstandig dragen. '
+                'Is de bedoeling onbekend ("bedoeling": null) en kan de passage '
+                "zowel een begripscriterium als een voorschrift zijn, kies dan bij "
+                'ontbrekende beslissende grond "insufficient_information" met '
+                'precies één gerichte vraag. Leid "fail" niet enkel af uit een '
+                "kwalitatief of modaal woord of uit het feit dat een actor een "
+                "oordeel vormt."
+            ),
+            (
+                "- Kopieer elk passage- en grondcitaat letterlijk uit het opgegeven "
+                'veld. Bepaal "start" nulgebaseerd, bereken "end" = "start" + '
+                'len("quote") in Python-Unicode-codepoints en controleer vóór '
+                "verzending dat tekst[start:end] == quote voor de exacte tekst van "
+                "dat veld. Lukt dat niet, verzin dan geen citaat of positie."
+            ),
             "",
             "Posities:",
             (

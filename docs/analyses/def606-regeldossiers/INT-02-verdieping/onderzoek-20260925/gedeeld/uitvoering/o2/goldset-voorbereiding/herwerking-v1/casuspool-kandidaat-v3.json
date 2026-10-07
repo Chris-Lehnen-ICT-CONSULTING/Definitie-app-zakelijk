@@ -1,0 +1,1016 @@
+{
+  "status": "concept_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "gevallen": [
+    {
+      "id": "G001",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "uitzonderingsroute",
+      "kern": "Bij overbelasting kiest de planner een alternatieve route als hij de extra reistijd aanvaardbaar acht.",
+      "bedoeling": "De gebruiker wil de term 'uitzonderingsroute' opnemen in het begrippenoverzicht van de routeringproef en biedt daarvoor deze zin aan. De zin komt uit het werkhandboek voor planners.",
+      "context": {
+        "organisatorische_context": [
+          "Routeringproef Cipres (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Werkhandboek routering Cipres (fictief; geen geldend recht), hoofdstuk 4 'Werkwijze van de planner bij overbelasting', art. 4.2: 'Meldt de verkeerscentrale overbelasting op een hoofdtraject, dan bekijkt de dienstdoende planner de beschikbare omleidingen en de extra reistijd die elk daarvan kost. Acht de planner die extra reistijd aanvaardbaar, dan leidt de planner het verkeer via een van die omleidingen; anders blijft het verkeer op het hoofdtraject.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G002",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "overnemende route",
+      "kern": "Route die dezelfde eindpunten als de hoofdroute verbindt indien de hoofdroute door een storing onbruikbaar is.",
+      "bedoeling": "De gebruiker wil de term gebruiken als naam van een routesoort in het netwerkmodel Riet, naast de hoofdroute.",
+      "context": {
+        "organisatorische_context": [
+          "Netwerk Riet (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Netwerkmodel Riet (fictief; geen geldend recht), §2.3 'Routesoorten': 'Het model kent hoofdroutes en overnemende routes. Een overnemende route heeft dezelfde eindpunten als de hoofdroute waaraan zij in het model is gekoppeld. Zij is in het model beschikbaar voor de toestand waarin die hoofdroute door een storing onbruikbaar is.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Netwerkmodel Riet (fictief; geen geldend recht), bijlage C 'Routekeuze bij storing', stap 1 en 2: 'De verkeersleider bevestigt de storing op de hoofdroute. De verkeersleider activeert in het verkeerssysteem de gekoppelde overnemende route.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G003",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "aangewezen referentie",
+      "kern": "Meetobject dat na aanwijzing door de commissie als referentie wordt gebruikt.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de referentieproef en heeft daarvoor versie A en versie B van het referentiereglement meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Referentieproef Abeel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Referentiereglement Abeel, versie A (fictief; geen geldend recht), art. 3: 'De aanwijzing van een meetobject als referentie door de commissie is de registratie van dat object onder het type referentie in het objectregister.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Referentiereglement Abeel, versie B (fictief; geen geldend recht), art. 3: 'Een meetobject wordt na aanwijzing door de commissie door het laboratorium voortaan als referentie gebruikt.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G004",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "opschortingsbeding",
+      "kern": "Onderdeel van een afspraak dat uitvoering van een prestatie onderbreekt zolang de omschreven verstoring voortduurt.",
+      "bedoeling": "De term benoemt het beding zelf en de werking die het afsprakenmodel eraan toekent.",
+      "context": {
+        "organisatorische_context": [
+          "Contractproef Els (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Een opschortingsbeding koppelt de onderbreking van uitvoering aan een omschreven verstoring. Dit is een fictief model, geen uitspraak over geldend contractenrecht.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G005",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "vrije bufferruimte",
+      "kern": "Verschil tussen de capaciteit van de ontvangstbuffer en het aantal posities dat op het meetmoment bezet is.",
+      "bedoeling": "De term wordt gebruikt in de capaciteitsrapportage van de dataproef om per meetmoment de ruimte in de ontvangstbuffer weer te geven.",
+      "context": {
+        "organisatorische_context": [
+          "Dataproef Linde (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De buffer heeft een vaste capaciteit. Vrije ruimte is capaciteit min bezette posities; beide worden in posities uitgedrukt.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G006",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "aanvaardbaar arrangement",
+      "kern": "Arrangement dat de commissie bij een evenwichtige belangenverdeling aanvaardt.",
+      "bedoeling": "De term komt voor in het arrangementenregister en in het commissiereglement van de proef. De gebruiker heeft uit beide stukken een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Arrangementproef Vijg (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Arrangementenregister Vijg (fictief; geen geldend recht), toelichting bij de rubriek 'aanvaardbare arrangementen': 'Deze rubriek bevat de arrangementen die de commissie heeft aanvaard. Het oordeel van de commissie dat de belangen van de deelnemers evenwichtig zijn verdeeld, maakt een arrangement aanvaardbaar.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Commissiereglement Vijg (fictief; geen geldend recht), art. 7 lid 2: 'De commissie weegt bij ieder voorgelegd arrangement de belangen van de deelnemers af en aanvaardt het arrangement bij een evenwichtige belangenverdeling.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G007",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "meldingsverbod",
+      "kern": "Norm die het bekendmaken van een nog niet vrijgegeven proefresultaat uitsluit.",
+      "bedoeling": "Het begrip is een type norm binnen een fictief onderzoeksreglement.",
+      "context": {
+        "organisatorische_context": [
+          "Proefreglement Acacia (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het begrippenmodel onderscheidt verboden, geboden en bevoegdheden. Het meldingsverbod heeft betrekking op bekendmaking vóór vrijgave.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G008",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "geblokkeerd transport",
+      "kern": "Zet een transport apart, registreer de reden en vraag de ploegchef om verdere aanwijzingen.",
+      "bedoeling": "Deze tekst staat in een definitieveld voor een transportstatus; zij komt letterlijk uit het fictieve handboek.",
+      "context": {
+        "organisatorische_context": [
+          "Transporthandboek Palm (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De geciteerde handboekregel richt zich tot de medewerker die een blokkering constateert. Het handboek is voor deze organisatie vastgesteld.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G041",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "meldplichtige wijziging",
+      "kern": "Wijziging in de samenstelling van een product die de producent vóór de eerste levering van het gewijzigde product aan het productregister moet melden.",
+      "bedoeling": "De term wordt opgenomen in de begrippenlijst bij het productregister, naast de termen 'productwijziging' en 'melding'.",
+      "context": {
+        "organisatorische_context": [
+          "Productregister Wegedoorn (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Registerreglement Wegedoorn (fictief; geen geldend recht), art. 8: 'Een producent meldt een wijziging in de samenstelling van een product aan het productregister vóór de eerste levering van het gewijzigde product. Dit reglement noemt zo'n wijziging een meldplichtige wijziging. Wijzigingen in verpakking of etiket zijn geen meldplichtige wijzigingen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Registerreglement Wegedoorn (fictief; geen geldend recht), art. 9: 'Het productregister vermeldt bij iedere ontvangen melding de datum van ontvangst en de datum van eerste levering die de producent opgeeft.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G042",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "afgeschermd proefvlak",
+      "kern": "Proefvlak dat met een hekwerk van ten minste 1,20 meter hoog wordt afgeschermd.",
+      "bedoeling": "De term komt voor in het veldreglement en op de veldkaart van de proeftuin. De gebruiker wil één omschrijving die in beide stukken bruikbaar is.",
+      "context": {
+        "organisatorische_context": [
+          "Proeftuin Gagel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Veldreglement Gagel (fictief; geen geldend recht), art. 6: 'Een proefvlak waarop gewassen onder ontheffing worden geteeld, wordt met een hekwerk van ten minste 1,20 meter hoog afgeschermd.' Art. 2 van hetzelfde reglement: 'Een proefvlak wordt na de oogst binnen twee weken geploegd.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Veldkaart Gagel seizoen 2026 (fictief), legenda: 'Grijs vlak: proefvlak. Grijs vlak met rode rand: afgeschermd proefvlak.' Op de kaart hebben 9 van de 14 proefvlakken een rode rand.",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G011",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "overdrachtsvenster",
+      "kern": "Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.",
+      "bedoeling": "De term benoemt een afgebakend interval in een waarnemingsmodel.",
+      "context": {
+        "organisatorische_context": [
+          "Transportproef Wilg (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Ontvangst en bevestiging zijn gelogde gebeurtenissen. Het venster wordt met die twee tijdstippen beschreven.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G012",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "storingsmelding",
+      "kern": "De meldkamer opent een incidentkaart en belt vervolgens de dienstdoende technicus.",
+      "bedoeling": "Deze tekst wordt aangeboden als definitie van storingsmelding in een begrippenlijst bij het operationele draaiboek.",
+      "context": {
+        "organisatorische_context": [
+          "Draaiboek Plataan (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Onder de kop Storingsmelding staan achtereenvolgens de taken openen van een incidentkaart en bellen van de technicus; deze taken gelden bij iedere gemelde storing.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G043",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "vervaltermijn",
+      "kern": "Termijn na afloop waarvan een aanspraak die niet schriftelijk is ingeroepen vervalt, zonder dat de termijn kan worden verlengd.",
+      "bedoeling": "De term wordt opgenomen in de begrippenlijst bij het deelnemersreglement. In die lijst komt ook de term 'klachttermijn' voor.",
+      "context": {
+        "organisatorische_context": [
+          "Spaarkring Hop (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Deelnemersreglement Spaarkring Hop (fictief; geen geldend recht), art. 11: 'Een aanspraak op teruggave van een inleg vervalt als de deelnemer haar niet binnen zes maanden na de inleg schriftelijk heeft ingeroepen. Deze termijn van zes maanden is de vervaltermijn; zij kan niet worden verlengd.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Deelnemersreglement Spaarkring Hop (fictief; geen geldend recht), art. 12: 'Een klacht wordt binnen vier weken na de gebeurtenis ingediend (klachttermijn). Het bestuur kan de klachttermijn in bijzondere gevallen verlengen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G014",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "voldoende herstel",
+      "kern": "Herstel dat de inspecteur na beoordeling als afdoende registreert.",
+      "bedoeling": "De gebruiker heeft de herstelregeling en de werkinstructie voor inspecteurs meegestuurd. De gebruiker wil niet dat de omschrijving een keuze tussen die stukken vastlegt.",
+      "context": {
+        "organisatorische_context": [
+          "Herstelproef Mirte (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Herstelregeling Mirte (fictief; geen geldend recht), art. 5: 'Een herstel heeft de status voldoende herstel vanaf het moment dat de inspecteur het na beoordeling ter plaatse in het herstelregister als afdoende registreert. Zolang die registratie ontbreekt, staat het herstel open, ook als de gebreken feitelijk zijn verholpen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Werkinstructie inspecteurs Mirte (fictief; geen geldend recht), stap 9: 'Beoordeel bij de herinspectie of alle gebreken uit het rapport zijn verholpen. Is dat zo, registreer het herstel dan binnen twee werkdagen na de herinspectie als afdoende.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G015",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "ondertekende herstelkopie",
+      "kern": "Herstelkopie waarvan de inhoud overeenkomt met het origineel en waarvan de controlesom is ondertekend door de archiefdienst.",
+      "bedoeling": "Het begrip duidt een digitaal object aan; ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister.",
+      "context": {
+        "organisatorische_context": [
+          "Atlasarchief (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "In de inventaris wordt een herstelkopie ondertekend genoemd als haar inhoud gelijk is aan het origineel en de archiefdienst haar controlesom heeft ondertekend.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G016",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "toelaatbare afwijking",
+      "kern": "De projectleider kan besluiten een afwijking te aanvaarden wanneer hij het herstel onevenredig belastend vindt.",
+      "bedoeling": "De gebruiker wil met de term de afwijkingen van het ontwerp aanduiden die in het project mogen blijven bestaan. Daarvoor biedt de gebruiker deze zin uit het projectreglement aan.",
+      "context": {
+        "organisatorische_context": [
+          "Projectproef Olm (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Projectreglement Olm (fictief; geen geldend recht), art. 9 lid 3: 'Stelt de kwaliteitscontrole een afwijking van het ontwerp vast, dan kan de projectleider besluiten de afwijking te aanvaarden wanneer de projectleider het herstel onevenredig belastend vindt in verhouding tot het belang van de afwijking. De projectleider legt een aanvaarding met redenen vast in het afwijkingenlogboek.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G017",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "inzagerecht",
+      "kern": "Aanspraak van een deelnemer op het raadplegen van de eigen meetregistraties.",
+      "bedoeling": "De term benoemt een aanspraak binnen een fictief deelnemersreglement.",
+      "context": {
+        "organisatorische_context": [
+          "Meetcollectief Spar (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het proefreglement kent deelnemers een aanspraak toe op inzage in hun eigen registraties. De procedure voor uitoefening staat in een ander hoofdstuk.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G018",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "herroepbare uitzondering",
+      "kern": "Uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt.",
+      "bedoeling": "De term komt voor in het classificatiemodel voor uitzonderingen en in het toezichtprotocol van de proef. De gebruiker heeft beide stukken als mogelijke betekenisgrond opgegeven.",
+      "context": {
+        "organisatorische_context": [
+          "Uitzonderingsproef Treurwilg (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Classificatiemodel uitzonderingen Treurwilg (fictief; geen geldend recht), §3: 'Het model onderscheidt vaste en herroepbare uitzonderingen. Herroepbare uitzondering: uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt. Een vaste uitzondering heeft dat kenmerk niet. Het register vermeldt bij iedere verleende uitzondering een van beide typen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Toezichtprotocol Treurwilg (fictief; geen geldend recht), art. 12: 'De toezichthouder weegt of voortzetting van een herroepbare uitzondering wenselijk is en laat de uitzondering vervallen zodra hij voortzetting onwenselijk vindt.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G019",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "gepaarde registratie",
+      "kern": "Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.",
+      "bedoeling": "De term duidt een structuur in een logboek aan.",
+      "context": {
+        "organisatorische_context": [
+          "Logboek Duin (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G044",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "proefmonster",
+      "kern": "Monster dat de laborant niet mag openen voordat twee medewerkers de verzegeling hebben gecontroleerd.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de monsterregistratie en heeft daarvoor een zin uit het werkvoorschrift van het laboratorium aangeleverd.",
+      "context": {
+        "organisatorische_context": [
+          "Laboratorium Kers (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Werkvoorschrift laboratorium Kers (fictief; geen geldend recht), art. 2.4: 'Verzegelde monsters voor de externe vergelijkingsproef mag de laborant niet openen voordat twee medewerkers de verzegeling hebben gecontroleerd en dat met hun paraaf op het begeleidingsformulier hebben bevestigd.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Handleiding monsterregistratie Kers (fictief; geen geldend recht), veld 'monstersoort': 'Waarden: regulier, proefmonster. Kies proefmonster voor een monster dat voor de externe vergelijkingsproef is verzegeld.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G021",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "drempelbeslissing",
+      "kern": "Beslissing waarin een commissie vastlegt of een project volgens haar gemotiveerde beoordeling voor een nadere verkenning in aanmerking komt.",
+      "bedoeling": "De term wordt in het projectmodel gebruikt voor het stuk dat na de eerste beoordeling van een projectvoorstel in het projectdossier komt.",
+      "context": {
+        "organisatorische_context": [
+          "Projectmodel Hazelaar (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Projectmodel Hazelaar (fictief; geen geldend recht), §4.1: 'De eerste beoordeling van een projectvoorstel eindigt met een drempelbeslissing. De drempelbeslissing staat in het verslag van de commissievergadering en vermeldt met de motivering van de commissie of het project voor een nadere verkenning in aanmerking komt.' §4.2: 'De beoordelingscriteria en de werkwijze van de commissie staan in het beoordelingskader (bijlage 2).'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G045",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "aanvullend stuk",
+      "kern": "Stuk ter aanvulling van een subsidieaanvraag dat na een hersteloproep binnen tien werkdagen is in te dienen.",
+      "bedoeling": "De term wordt gebruikt in de beschikkingssjablonen en in de aanvraaghandleiding van het subsidieloket.",
+      "context": {
+        "organisatorische_context": [
+          "Subsidieloket Mispel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Subsidieregeling Mispel (fictief; geen geldend recht), art. 9: 'Na een hersteloproep is een stuk ter aanvulling van de aanvraag binnen tien werkdagen in te dienen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Subsidieregeling Mispel (fictief; geen geldend recht), art. 4: 'Het aanvraagformulier is door de aanvrager te ondertekenen.' Art. 15: 'Tegen een besluit is binnen zes weken na bekendmaking bezwaar in te stellen bij de commissie.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G023",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "getrapt meetinterval",
+      "kern": "Meetinterval waarvan beide grenzen tot dezelfde kalibratietrap behoren, tenzij het interval een overgangsmeting omvat.",
+      "bedoeling": "De term wordt gebruikt in de meetinventaris van het meetlab. Die inventaris onderscheidt gewone metingen en overgangsmetingen.",
+      "context": {
+        "organisatorische_context": [
+          "Meetlab Iep (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Een overgangsmeting mag twee kalibratietrappen overspannen en wordt toch als getrapt meetinterval geregistreerd. Andere getrapte intervallen liggen binnen één trap.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G024",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "controlebewijs",
+      "kern": "Document waarvan de controleur eerst de datum verifieert en daarna de handtekening vergelijkt met het register.",
+      "bedoeling": "De term benoemt een bewijsdocument; de kandidaat komt uit een instructie voor de verwerking van zulke documenten.",
+      "context": {
+        "organisatorische_context": [
+          "Controleproef Eik (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De controleur voert bij ontvangst eerst de datumcontrole uit en vergelijkt daarna de handtekening. Deze volgorde is voorgeschreven voor de afhandeling.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G046",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "werkmandaat",
+      "kern": "Bevoegdheid die het bestuur schriftelijk aan een medewerker verleent en op ieder moment kan intrekken, om binnen een omschreven taak namens het bestuur besluiten te nemen.",
+      "bedoeling": "De term wordt opgenomen in het bevoegdhedenregister van de stichting.",
+      "context": {
+        "organisatorische_context": [
+          "Stichting Vuilboom (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Stichtingsreglement Vuilboom (fictief; geen geldend recht), art. 20: 'Het bestuur kan een medewerker schriftelijk werkmandaat verlenen om binnen een omschreven taak namens het bestuur besluiten te nemen. Het bestuur kan een werkmandaat op ieder moment intrekken. Een besluit binnen het werkmandaat geldt als besluit van het bestuur.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Bevoegdhedenregister Vuilboom (fictief), regel 14: 'Werkmandaat; medewerker inkoop; taak: bestellingen tot 5.000 euro; verleend 3 februari 2026; niet ingetrokken.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G047",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "afmelding",
+      "kern": "Melding aan het deelnemersregister dat een deelnemer de proef heeft verlaten, die de coördinator binnen vijf werkdagen na het laatste contact met die deelnemer doet.",
+      "bedoeling": "De term wordt gebruikt in de maandcijfers van het deelnemersregister van de proef.",
+      "context": {
+        "organisatorische_context": [
+          "Leefstijlproef Meidoorn (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Proefprotocol Meidoorn (fictief; geen geldend recht), §8.2: 'Verlaat een deelnemer de proef, dan meldt de coördinator dat binnen vijf werkdagen na het laatste contact met die deelnemer aan het deelnemersregister.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Maandcijfers deelnemersregister Meidoorn (fictief), juni 2026: 'Nieuwe deelnemers: 12. Afmeldingen: 7. Actieve deelnemers per 30 juni: 148.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G027",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "gewogen verblijfsduur",
+      "kern": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.",
+      "bedoeling": "Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.",
+      "context": {
+        "organisatorische_context": [
+          "Procesmodel Berk (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Voor iedere deelpartij zijn hoeveelheid en verblijfsduur bekend. De gewogen verblijfsduur gebruikt de hoeveelheid als gewicht; de totale hoeveelheid is positief.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G048",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "tussentijdse meting",
+      "kern": "Meting van de grondwaterstand tussen twee reguliere meetmomenten, met dien verstande dat de meetploeg haar alleen na een alarmmelding uitvoert.",
+      "bedoeling": "De term wordt gebruikt in de kwartaalrapportage van het peilnet. Die rapportage telt reguliere en tussentijdse metingen afzonderlijk.",
+      "context": {
+        "organisatorische_context": [
+          "Peilnet Wintergroen (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Meetplan peilnet Wintergroen (fictief; geen geldend recht), §5 'Meetfrequentie': 'De meetploeg meet de grondwaterstand op de reguliere meetmomenten, iedere eerste maandag van de maand. Tussen twee reguliere meetmomenten meet de meetploeg alleen na een alarmmelding van het peilsysteem.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Veldbeschrijving meetdatabase Wintergroen (fictief): 'Veld soort: regulier voor een meting op een regulier meetmoment, tussentijds voor iedere andere meting. Veld aanleiding, alleen bij tussentijdse metingen: alarm, klacht omwonende of kalibratiecontrole.' Kwartaaloverzicht eerste kwartaal 2026: 17 tussentijdse metingen, waarvan 6 met aanleiding alarm.",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G029",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "revisiebevoegdheid",
+      "kern": "Bevoegdheid van de catalogusbeheerder om een eerdere classificatie na heronderzoek te vervangen.",
+      "bedoeling": "Het model bevat rollen en bevoegdheden; het begrip benoemt een bevoegdheid.",
+      "context": {
+        "organisatorische_context": [
+          "Catalogus Den (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Revisiebevoegdheid is een bevoegdheid tot vervanging na heronderzoek. Het reglement bepaalt hier niet in welk individueel geval die bevoegdheid moet worden gebruikt.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G030",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "actieve aanbieding",
+      "kern": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+      "bedoeling": "De gebruiker wil de term opnemen in het begrippenregister van de proef. De zin staat letterlijk in de tabel met aanbiedingstypen en op de instructiekaart voor behandelaars; de gebruiker heeft beide stukken meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Aanbiedingsproef Robinia (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Tabel aanbiedingstypen Robinia (fictief; geen geldend recht), rij 'actieve aanbieding', kolom omschrijving: 'Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Kolom registerstatus: 'open'. Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten).",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Instructiekaart behandelaars Robinia (fictief; geen geldend recht), kaart 3 'Voortzetting'. Kopregel van de kaart: 'Actieve aanbieding — Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Werkwijze op de kaart: 'Controleer per actieve aanbieding of er nog een belanghebbende beschikbaar is. Zet de aanbieding voort zolang dat het geval is.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G031",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "onvolledig raster",
+      "kern": "Raster waarin ten minste één vereiste meetpositie geen waarde bevat.",
+      "bedoeling": "Het begrip is een klasse van meetbestanden; oorzaken en vervolghandelingen staan buiten de begripsafbakening.",
+      "context": {
+        "organisatorische_context": [
+          "Rasterlab Hulst (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het schema vermeldt de vereiste posities. Een ontbrekende waarde maakt het raster onvolledig, ongeacht de reden van ontbreken.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G049",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "jaarverslag",
+      "kern": "Verslag over het afgelopen verenigingsjaar dat het bestuur vóór 1 april aan de ledenvergadering voorlegt.",
+      "bedoeling": "De term wordt in het ledenportaal gebruikt voor de verslagen over een verenigingsjaar. Volgens de gebruiker valt ook het verslag over 2025 eronder, dat in mei 2026 aan de ledenvergadering is voorgelegd.",
+      "context": {
+        "organisatorische_context": [
+          "Vereniging Brem (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Statuten Vereniging Brem (fictief; geen geldend recht), art. 14 lid 1: 'Het bestuur legt jaarlijks vóór 1 april een verslag over het afgelopen verenigingsjaar aan de ledenvergadering voor.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Ledenportaal Vereniging Brem (fictief), overzicht Jaarverslagen: 'Jaarverslag 2023: voorgelegd 21 maart 2024. Jaarverslag 2024: voorgelegd 27 maart 2025. Jaarverslag 2025: voorgelegd 14 mei 2026, na uitstel van de voorjaarsvergadering.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G033",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "beoordelingsmarge",
+      "kern": "Ruimte die een regeling aan een beoordelaar laat om relevante omstandigheden naar eigen inzicht te wegen.",
+      "bedoeling": "De term wordt opgenomen in het woordenboek van het regelmodel. Daarin staan ook de termen 'beoordelaar' en 'weging'.",
+      "context": {
+        "organisatorische_context": [
+          "Regelmodel Populier (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Woordenboek regelmodel Populier (fictief; geen geldend recht), inleiding bij de lemmata over beoordeling: 'Regelingen in het model verschillen in de mate waarin zij de uitkomst vastleggen. Sommige regelingen noemen de omstandigheden die een beoordelaar betrekt en laten het gewicht daarvan aan de beoordelaar over; andere verbinden aan vastgestelde omstandigheden een vaste uitkomst. Het lemma beoordelingsmarge heeft betrekking op de eerste groep.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G050",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "servicetoeslag",
+      "kern": "Bedrag van vijf procent van de kale maandhuur, tenzij de huurcommissie een lager percentage passend vindt.",
+      "bedoeling": "De term wordt gebruikt op de jaarafrekening die leden van de wooncoöperatie ontvangen.",
+      "context": {
+        "organisatorische_context": [
+          "Wooncoöperatie Egelantier (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Huisvestingsreglement Egelantier (fictief; geen geldend recht), art. 17: 'De servicetoeslag bedraagt vijf procent van de kale maandhuur. De huurcommissie kan voor een lid een lager percentage vaststellen als zij dat gelet op de inkomenssituatie van het lid passend vindt. Een lager percentage geldt tot het einde van het kalenderjaar waarin het is vastgesteld.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Jaarafrekening Egelantier 2025 (fictief), regel servicetoeslag: 'Servicetoeslag: 12 × 5% van € 640 = € 384.' Voorbeeldregel voor een lid met een door de huurcommissie vastgesteld percentage van 3%: 'Servicetoeslag: 12 × 3% van € 640 = € 230,40.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G035",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "herbruikbare capsule",
+      "kern": "Capsule die na de vastgelegde reinigingscyclus opnieuw een monster kan omsluiten zonder waarneembare lekkage.",
+      "bedoeling": "De term wordt gebruikt in de materiaalregistratie van de monsterbank om capsules na de reinigingscyclus in te delen.",
+      "context": {
+        "organisatorische_context": [
+          "Monsterbank Es (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Materiaalspecificatie Monsterbank Es (fictief; geen geldend recht), §6: 'Reinigingscyclus R2 bestaat uit twintig minuten spoelen op 60 °C en drogen aan de lucht. Na R2 wordt de capsule met een testmonster gevuld en 24 uur rechtop bewaard; daarna kijkt een inspecteur of er vocht langs de afsluiting is getreden. Is er geen vocht getreden, dan heeft de capsule haar afsluitfunctie na R2 behouden.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G036",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "herstelronde",
+      "kern": "Proces waarbij de medewerker alle afgekeurde exemplaren moet verzamelen en ze vóór sluiting opnieuw moet aanbieden.",
+      "bedoeling": "De term wordt in de procesoverzichten van de revisieproef gebruikt voor het proces waarin afgekeurde exemplaren opnieuw worden aangeboden.",
+      "context": {
+        "organisatorische_context": [
+          "Revisieproef Ginkgo (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Voor iedere herstelronde gelden voor medewerkers de opdrachten verzamelen van afgekeurde exemplaren en opnieuw aanbieden vóór sluiting.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G037",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "leveringsgarantie",
+      "kern": "Toezegging van een leverancier dat vervanging zonder aanvullende vergoeding beschikbaar is wanneer het geleverde exemplaar binnen de overeengekomen periode uitvalt.",
+      "bedoeling": "De term benoemt de toezegging en haar bereik in een fictief afsprakenmodel.",
+      "context": {
+        "organisatorische_context": [
+          "Werkplaats Ceder (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het afsprakenmodel onderscheidt een leveringsgarantie van het feitelijk leveren van vervanging. De garantie omvat de genoemde uitvalsperiode en het ontbreken van een aanvullende vergoeding.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G051",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "noodopvangplaats",
+      "kern": "Bed in de nachtopvang dat de dienstdoende begeleider iedere avond tot 23.00 uur vrijhoudt voor aanmeldingen via de crisisdienst.",
+      "bedoeling": "De gebruiker bedoelt met de term de bedden die in de capaciteitsplanning van de nachtopvang als noodopvangplaats zijn aangewezen.",
+      "context": {
+        "organisatorische_context": [
+          "Nachtopvang Sleedoorn (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Huisregels medewerkers Sleedoorn (fictief; geen geldend recht), art. 3: 'De dienstdoende begeleider houdt iedere avond tot 23.00 uur twee bedden vrij voor aanmeldingen via de crisisdienst. Welke twee bedden dat zijn, kiest de begeleider per avond.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Capaciteitsplanning Sleedoorn 2026 (fictief): 'Totaal 24 bedden. Bed 23 en bed 24 zijn aangewezen als noodopvangplaats.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G039",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "adviesprocedure",
+      "kern": "Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.",
+      "bedoeling": "De term wordt opgenomen in de procescatalogus van de organisatie. Die catalogus rubriceert processen naar hun eindresultaat.",
+      "context": {
+        "organisatorische_context": [
+          "Procescatalogus Jeneverbes (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Procescatalogus Jeneverbes (fictief; geen geldend recht), rubriek Advisering: 'Het proces met als eindresultaat een gemotiveerd advies omvat drie fasen: ontvangst van de adviesvraag, onderzoek en beantwoording. Per afdeling staat in de werkinstructies W-12 tot en met W-15 wie een fase uitvoert en binnen welke termijn.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G052",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "voorrangsaanvraag",
+      "kern": "Weeg de urgentie van de aanvraag af tegen de beschikbare behandelcapaciteit en geef de aanvraag voorrang wanneer u de urgentie zwaarder vindt wegen.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van het intakepunt en heeft stap 4 van de intakewijzer als omschrijving aangeleverd.",
+      "context": {
+        "organisatorische_context": [
+          "Intakepunt Hondsroos (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Intakewijzer Hondsroos (fictief; geen geldend recht), stap 4 en 5, gericht aan de intakemedewerker: 'Stap 4: Weeg de urgentie van de aanvraag af tegen de beschikbare behandelcapaciteit en geef de aanvraag voorrang wanneer u de urgentie zwaarder vindt wegen. Stap 5: Noteer de uitkomst in het intakeoverzicht.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Intakeoverzicht Hondsroos (fictief), toelichting bij kolom V: 'Een V staat bij aanvragen die bij de intake voorrang hebben gekregen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    }
+  ]
+}

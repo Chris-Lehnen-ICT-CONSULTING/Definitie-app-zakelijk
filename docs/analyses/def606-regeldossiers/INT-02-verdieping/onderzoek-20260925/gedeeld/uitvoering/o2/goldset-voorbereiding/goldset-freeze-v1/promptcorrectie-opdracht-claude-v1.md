@@ -1,0 +1,14 @@
+# Opdracht aan Claude Code CLI — INT-02 O2 promptcorrectie /2
+
+Chris heeft op 30 september 2026 in de chat expliciet ingestemd met `promptcorrectie-voorstel-v1.md` en gevraagd direct door te gaan met O2. Werk uitsluitend in `/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2` op `feature/DEF-835-int02-o2`. Jij implementeert; de coördinator verifieert en een afzonderlijke verse Codex CLI-sessie reviewt. Je bent niet alleen in de werkboom: behoud bestaande wijzigingen van anderen en draai niets terug.
+
+Lees eerst `CLAUDE.md`, toepasselijke `.claude/rules/`, `promptcorrectie-voorstel-v1.md`, `kwalificatie-uitvoeringsverslag-v2.md` en de actuele code/tests. De goedgekeurde reikwijdte is exact:
+
+1. Nieuwe `PROMPT_VERSION = "def835-int02-prompt/2"` in `src/services/validation/int02_assessment_service.py`.
+2. Voeg in `_systeemprompt` na de bestaande invoerduiding twee algemeen toepasbare aanwijzingen toe: voor `fail` moet aangeleverde betekenisgrond de functie als handelingsvoorschrift/discretionaire beslisregel zelfstandig dragen; bij onbekende bedoeling en ontbrekende beslissende grond die zowel criterium als voorschrift kan toelaten, gebruik `insufficient_information` met precies één gerichte vraag; leid `fail` niet enkel uit kwalitatieve of modale woorden of het vormen van een oordeel af. En: kopieer passage- en grondcitaten letterlijk uit het opgegeven veld, bereken `start` nulgebaseerd en `end=start+len(quote)` in Python-codepunten, en controleer vóór verzending dat `tekst[start:end]==quote`; verzin geen citaat of positie.
+3. De letterlijke T-tekst, normtekst, schema, contractvalidatie, statusmapping en productieactivering blijven gelijk. Geen lokale correctie van ongeldige citaten, geen hardgecodeerde casusuitkomst.
+4. Voeg eerst offline **rode** tests toe in `tests/unit/services/prompts/test_def835_int02_prompt.py` voor promptversie en de twee ontbrekende instructies. Leg het exacte rode testcommando en resultaat vast in een nieuw dossierbestand; pas daarna productiecode en relevante bestaande tests aan, run groen en gerichte regressietests. Bewaar vóór bewerking van bestaande bestanden unieke herstelkopieën in het dossier. Verwijder geen bestanden of tests.
+
+Gebruik C105/C107/C112 uitsluitend als bekende regressievoorbeelden. Lees of deel geen inhoud van de 16 hold-outs (`holdout-v1.json`, `kwalificatie-gevallen-v1.json`, `kwalificatie-payloads-*.json` of volledige bundels die hold-outmateriaal bevatten). De v2-foutinformatie staat reeds in `kwalificatie-uitvoeringsverslag-v2.md`; meer is voor deze wijziging niet nodig. Geen live modelaanroepen, geen sleutelgebruik, geen push/merge, geen Actions- of O2-activering. Als een contract- of normwijziging noodzakelijk blijkt, stop en meld dat vóór bewerking.
+
+Rapporteer concrete bestanden, rode/groene tests, diff en eventuele open risico's aan de coördinator. Sla je eigen eindverslag als een nieuwe versie in dezelfde dossiermap op.

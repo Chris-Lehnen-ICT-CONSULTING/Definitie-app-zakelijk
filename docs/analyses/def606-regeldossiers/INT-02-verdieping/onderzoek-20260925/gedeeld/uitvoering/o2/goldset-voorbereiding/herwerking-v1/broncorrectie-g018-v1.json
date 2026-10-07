@@ -1,0 +1,37 @@
+{
+  "status": "correctievoorstel_niet_geaccepteerd",
+  "geval": {
+    "id": "G018",
+    "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+    "begrip": "herroepbare uitzondering",
+    "kern": "Uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt.",
+    "bedoeling": "De term komt voor in het classificatiemodel voor uitzonderingen en in het toezichtprotocol van de proef. De gebruiker heeft beide stukken als mogelijke betekenisgrond opgegeven.",
+    "context": {
+      "organisatorische_context": [
+        "Uitzonderingsproef Treurwilg (fictief)"
+      ],
+      "juridische_context": [
+        "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+      ],
+      "wettelijke_basis": []
+    },
+    "bronnen": [
+      {
+        "id": "B1",
+        "tekst": "Classificatiemodel uitzonderingen Treurwilg (fictief; geen geldend recht), §3: 'Het model onderscheidt vaste en herroepbare uitzonderingen. Herroepbare uitzondering: uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt. Een vaste uitzondering heeft dat kenmerk niet. Het register vermeldt bij iedere verleende uitzondering een van beide typen.'",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+      },
+      {
+        "id": "B2",
+        "tekst": "Toezichtprotocol Treurwilg (fictief; geen geldend recht), art. 12: 'De toezichthouder weegt of voortzetting van een herroepbare uitzondering wenselijk is en laat de uitzondering vervallen zodra hij voortzetting onwenselijk vindt.'",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+      }
+    ]
+  },
+  "dispositie": {
+    "bevinding": "De bevinding klopt. In kandidaat-v1 introduceerde B1 het herroepingsvoorbehoud expliciet ('is verleend onder het voorbehoud dat de toezichthouder haar laat vervallen …'). In kandidaat-v2 heb ik die zin vervangen door de letterlijke typebeschrijving 'Herroepbare uitzondering: uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt.' Daardoor verwijst 'Bij een vaste uitzondering ontbreekt dat voorbehoud' naar een voorbehoud dat nergens meer wordt genoemd.",
+    "afweging": "De kleinste samenhangende correctie is de verwijzing laten aansluiten op wat B1 nu wel noemt: het in de typebeschrijving omschreven kenmerk. Het woord 'voorbehoud' opnieuw invoeren zou een extra begrip toevoegen naast de goedgekeurde typebeschrijving. De vervangende zin zegt inhoudelijk hetzelfde als de oude: een vaste uitzondering mist het herroepingskenmerk. Er komt geen nieuwe termijn, actor, procedure, rechtsgevolg of nieuw feit bij. 'Zodra' en de beoordelende actor staan ongewijzigd in de typebeschrijving.",
+    "actie": "Alleen in B1.tekst is de zin 'Bij een vaste uitzondering ontbreekt dat voorbehoud.' vervangen door 'Een vaste uitzondering heeft dat kenmerk niet.' De overige zinnen van B1 en de herkomst van B1 zijn ongewijzigd. Kern, bedoeling, context, id, herkomst, begrip en B2 zijn exact overgenomen uit kandidaat-v2 (gelezen met Grep).",
+    "resterend_open": "Geen bronprobleem meer bekend in G018. Of de kern een typebeschrijving of een discretionaire herroepingsregel is, blijft een beoordeling voor de beoordelaars en Chris. Ik stel geen label voor. De coördinator moet de beperkte diff machinaal vergelijken; dat heb ik niet gedaan."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "status": "technische_controle_geen_labelacceptatie",
+  "uitvoer": [
+    {
+      "beoordelaar": "A",
+      "citaten": 80,
+      "fouten": [],
+      "positieafwijkingen": [
+        {
+          "id": "G023",
+          "type": "grond",
+          "i": 0,
+          "start": 0,
+          "end": 110,
+          "citaat": "Een overgangsmeting mag twee kalibratietrappen overspannen en wordt toch als getrapt meetinterval geregistreerd",
+          "exact_bestaand": true,
+          "uniek": true,
+          "juiste_start": 0,
+          "juiste_end": 111
+        }
+      ]
+    },
+    {
+      "beoordelaar": "B",
+      "citaten": 74,
+      "fouten": [],
+      "positieafwijkingen": []
+    }
+  ],
+  "correctie": {
+    "bestand": "beoordelaar-a/labelvoorstellen-v2.json",
+    "id": "G023",
+    "veld": "gronden[0].end",
+    "van": 110,
+    "naar": 111,
+    "reden": "Het exacte citaat komt uniek voor op Unicode-posities [0,111). Alleen eindpositie aangepast; citaat, label en motivering ongewijzigd.",
+    "uitvoerder": "Codex-coördinator; mechanische documentcorrectie"
+  },
+  "aantal_citaten": 154,
+  "labelverschillen": [
+    "G006",
+    "G014",
+    "G018",
+    "G042",
+    "G045",
+    "G047",
+    "G050"
+  ]
+}

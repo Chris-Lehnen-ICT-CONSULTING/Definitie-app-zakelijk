@@ -1,0 +1,15 @@
+{
+  "soort": "def835-int02-kwalificatie-akkoord/1",
+  "manifest_sha256": "99c127bd8a7547d31b8814b0c1abdf587f11e9a8d3e8fdbf6646c528f9233d8e",
+  "gevallenmanifest_sha256": "af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953",
+  "protocol_sha256": "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f",
+  "profiel_id": "def835-kwalificatieproef-opus5-v1",
+  "geen_def815_kwalificatie": true,
+  "live_verzending_toegestaan": true,
+  "max_inferenties": 43,
+  "max_tokenmetingen": 43,
+  "budget_usd": 12.0,
+  "akkoord_door": "Chris",
+  "akkoord_op": "2026-09-30",
+  "akkoord_bron": "Chris antwoordde in deze chat \"probeer het\" op het openstaande exacte v2-voorstel in kwalificatie-herstartvoorstel-v1.md (manifest- en gevallenhashes expliciet voorgelegd); autorisatie betreft eerst de regressiefase via de bestaande Q1-runner met verhoogde toegang en de vastgelegde stopregels."
+}

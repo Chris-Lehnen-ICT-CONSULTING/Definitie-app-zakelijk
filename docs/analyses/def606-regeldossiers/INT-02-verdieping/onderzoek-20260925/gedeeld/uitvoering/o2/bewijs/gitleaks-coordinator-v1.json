@@ -1,0 +1,15 @@
+{
+  "files": {
+    ".gitleaks.toml": "8bb3a2799b485b7798f88bd6c96848f7e1075a99723e3832a7be3c53e821d812",
+    "Makefile": "1083b45bcf7ba358862e887771418cbe3619d966f9132f140c151d4dd35fae49",
+    "docs/technisch/def522-secret-scan-runbook.md": "cd485f28bebcbe705623fa856a77a5c8e2af20be9e672cf61e11608376e1067b",
+    "scripts/ci/test_secret_scan_def835_metadata.py": "77d803cca30840e51cef895374c5c07230e0781453e46e97c9105d2eabb29aaa"
+  },
+  "stable": true,
+  "exits": [
+    0,
+    0,
+    0
+  ],
+  "fixture_root": "/private/tmp/def835-gitleaks-coordinator-pq1l9vos"
+}

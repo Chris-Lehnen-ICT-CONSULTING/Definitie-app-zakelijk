@@ -1,0 +1,296 @@
+{
+  "status": "concept_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "gevallen": [
+    {
+      "id": "G057",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "transitcontainer",
+      "kern": "Container die op de terminal naar een ander schip wordt overgeslagen en bij aankomst op de terminal wordt gewogen.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de terminal en heeft de Nederlandse en de Engelse tekst van het terminalreglement meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Terminal Zeekraal (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Terminalreglement Zeekraal (fictief; geen geldend recht), Nederlandse tekst, art. 4 lid 1: 'Transitcontainers zijn containers die op de terminal naar een ander schip worden overgeslagen en bij aankomst op de terminal worden gewogen.' Art. 31: 'De Nederlandse en de Engelse tekst van dit reglement zijn gelijkelijk authentiek.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Terminalreglement Zeekraal (fictief; geen geldend recht), Engelse tekst, art. 4(1): 'Containers transhipped at the terminal to another vessel shall be weighed on arrival at the terminal.' Art. 31: 'The Dutch and English texts of these regulations are equally authentic.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G058",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "depotexemplaar",
+      "kern": "Exemplaar van een nieuwe uitgave dat de uitgever kosteloos bij het depot inlevert.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van het depot en heeft de gewijzigde tekst van het depotreglement met de wijzigingstoelichting meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Depot Zilverschoon (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Depotreglement Zilverschoon, versie 1 januari 2026 (fictief; geen geldend recht), art. 1 'Begripsbepalingen', onder d: 'depotexemplaar: exemplaar van een nieuwe uitgave dat de uitgever kosteloos bij het depot inlevert.' Art. 9: '[vervallen]'.",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Wijzigingstoelichting bij het Depotreglement Zilverschoon, versie 1 januari 2026 (fictief; geen geldend recht), onderdeel C: 'Art. 9 van de versie 2025 luidde: “De uitgever levert van iedere nieuwe uitgave kosteloos een exemplaar bij het depot in.” Dat artikel vervalt; de inhoud ervan is ondergebracht in de omschrijving van depotexemplaar in art. 1, onder d. Een inhoudelijke wijziging is niet beoogd.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G059",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "vluchtdeur",
+      "kern": "Deur in een vluchtroute die tijdens openingstijden van binnenuit zonder sleutel moet kunnen worden geopend.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van het buurthuis en heeft het bestek van de verbouwing en het gebruiksreglement meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Buurthuis Veldkers (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Bestek verbouwing Buurthuis Veldkers (fictief; geen geldend recht), §4.3 'Deuren': 'Deuren in een vluchtroute worden uitgevoerd met een panieksluiting, zodat zij van binnenuit zonder sleutel kunnen worden geopend. Buiten openingstijden kan de beheerder zo'n deur daarnaast met een nachtschoot vergrendelen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Gebruiksreglement Buurthuis Veldkers (fictief; geen geldend recht), art. 5: 'Tijdens openingstijden moet iedere deur in een vluchtroute van binnenuit zonder sleutel kunnen worden geopend. De beheerder ontgrendelt bij opening van het buurthuis alle nachtschoten.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G060",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "zelfopnemer",
+      "kern": "Aangeslotene die de stand van de eigen watermeter vóór de vijfde dag van iedere maand via het klantportaal doorgeeft.",
+      "bedoeling": "De term wordt gebruikt in de aansluitvoorwaarden en in de maandrapportage meteropname van de coöperatie; de gebruiker heeft uit beide stukken een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Watercoöperatie Kalmoes (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Aansluitvoorwaarden Watercoöperatie Kalmoes (fictief; geen geldend recht), art. 6: 'Een zelfopnemer geeft de stand van de eigen watermeter vóór de vijfde dag van iedere maand via het klantportaal door. Geeft een zelfopnemer de stand niet tijdig door, dan schat de coöperatie het verbruik over die maand.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Maandrapportage meteropname Kalmoes, augustus 2026 (fictief): 'Zelfopnemers (stand vóór 5 augustus via het klantportaal doorgegeven): 812. Verbruik geschat: 97. Opname aan huis door de meteropnemer: 1.204.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G061",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "stilteruimte",
+      "kern": "Ruimte in de bibliotheek waarin bezoekers niet bellen en niet hardop praten.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de bibliotheek en heeft de huisregels en het ruimteoverzicht meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Bibliotheek Waterlelie (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Huisregels Bibliotheek Waterlelie (fictief; geen geldend recht), regel 7: 'In een stilteruimte bellen bezoekers niet en praten zij niet hardop. Een medewerker spreekt een bezoeker aan die dat wel doet.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Ruimteoverzicht Bibliotheek Waterlelie 2026 (fictief): 'Leeszaal 2 en de kaartenkamer: stilteruimte. Studiezaal: studieplekken. Zaal 4: groepsruimte, reserveren via de balie.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G062",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "gedoogde standplaats",
+      "kern": "Standplaats op de weekmarkt zonder vergunning waarvoor de marktmeester geen boete oplegt zolang de kraam uiterlijk om 18.00 uur is opgeruimd en niet breder is dan drie meter.",
+      "bedoeling": "De term wordt gebruikt in het maandelijkse marktoverzicht, naast standplaatsen met vergunning; de gebruiker heeft ook het handhavingsbeleid voor de weekmarkt meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Weekmarkt Dotterbloem (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Handhavingsbeleid weekmarkt Dotterbloem 2026 (fictief; geen geldend recht), §2: 'De marktmeester legt geen boete op voor een standplaats zonder vergunning, zolang de kraam uiterlijk om 18.00 uur is opgeruimd en niet breder is dan drie meter. Dit beleid geldt tot en met 31 december 2026.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Marktoverzicht weekmarkt Dotterbloem, september 2026 (fictief): 'Standplaatsen met vergunning: 40. Gedoogde standplaatsen: 6.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G063",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "ontsmetting",
+      "kern": "Schoonmaakhandeling waarbij de kok een werkbank na ieder gebruik met alcohol 70% afneemt.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de proefkeuken en heeft het begrippenkader en het hygiëneprotocol meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Proefkeuken Pastinaak (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Begrippenkader Proefkeuken Pastinaak (fictief; geen geldend recht), relaties en onderscheidingen: 'ontsmetting — is een — schoonmaakhandeling. periodieke reiniging — is een — schoonmaakhandeling. Een ontsmetting vindt plaats direct na gebruik van een werkbank, met alcohol 70%; een periodieke reiniging vindt eenmaal per week plaats, met zeep.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Hygiëneprotocol Proefkeuken Pastinaak (fictief; geen geldend recht), gericht aan de koks, regel 3: 'Neem de werkbank na ieder gebruik af met alcohol 70%.' Regel 4: 'Maak de werkbanken iedere vrijdag schoon met zeep.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    }
+  ],
+  "selectiepunten": [
+    {
+      "id": "G057",
+      "inhoudelijke_nieuwheid": "De strijdige grond ontstaat uit twee gelijkelijk authentieke taalversies van hetzelfde artikel. Die hebben dezelfde inhoud, maar een andere functie: de Nederlandse tekst stelt als classificerende zin vast welke containers transitcontainers zijn; de Engelse tekst legt een weegplicht op voor alle overgeslagen containers. Een overgeslagen, niet-gewogen container valt onder de ene lezing buiten het begrip en is onder de andere een verzuim.",
+      "nabije_ids": [
+        "G003 — twee versies van het referentiereglement, art. 3, met verschillende inhoud (registratie tegenover gebruik); hier is de inhoud gelijk en verschilt alleen de functie van de zin tussen twee taalversies",
+        "C60/C108 — strijdige bronpassages over een datumcriterium (1 januari/1 februari): conflict over een waarde, niet over de functie",
+        "G048 — regel in het meetplan tegenover een ruimere database-indeling; daar is het een ander documenttype, hier dezelfde bepaling"
+      ],
+      "open_bronvraag": "Bepaalt 'bij aankomst op de terminal wordt gewogen' welke overgeslagen containers tot het begrip behoren, of is het de weegplicht voor iedere overgeslagen container, nu de Nederlandse en de Engelse tekst gelijkelijk authentiek zijn en elkaar op dit punt tegenspreken?",
+      "risico_op_triviale_variant": "Middelgroot. Door de term 'transitcontainer' en de voorwaardelijke passieve vorm kan het geval op G003 of G048 lijken. Het onderscheidende mechanisme is de taalversie met gelijk gezag. Valt de beoordelaar alleen op 'shall' als woordtreffer, dan wordt het ook een signaalgeval; het woord beslist echter niets."
+    },
+    {
+      "id": "G058",
+      "inhoudelijke_nieuwheid": "Wetstechnische verplaatsing: een eerder zelfstandige inleverplicht (oud art. 9) is ondergebracht in een begripsbepaling, met de toelichting dat geen inhoudelijke wijziging is beoogd. De plaats in de begripsbepalingen wijst op een lidmaatschapscriterium ('kosteloos ingeleverd'). De 'geen wijziging'-verklaring wijst op een ongewijzigde handelingsplicht van de uitgever. Zo blijft de functie van de relatieve bijzin onbeslist.",
+      "nabije_ids": [
+        "G041 — meldplichtige wijziging: de plicht staat als inhoud van een normatief begrip in één artikel, zonder historisch conflict",
+        "G047 — afmelding: een actorhandeling met termijn uit het protocol, als kern van een registerbegrip",
+        "G003 — versieverschil in inhoud; hier gaat het om een verschil in plaats en bedoelde functie bij gelijke inhoud",
+        "C114 — gezaghebbende bron bevat letterlijk een voorschrift; hier is de bron zelf dubbelzinnig over wat de verplaatste tekst nu is"
+      ],
+      "open_bronvraag": "Omschrijft 'dat de uitgever kosteloos bij het depot inlevert' welke exemplaren depotexemplaar zijn, of is het de naar art. 1 verplaatste inleverplicht uit het vervallen art. 9, die volgens de toelichting inhoudelijk niet is gewijzigd?",
+      "risico_op_triviale_variant": "Laag tot middelgroot. De kern lijkt oppervlakkig op elk 'X dat actor Y doet'-geval. Het geval draagt alleen als de beoordelaar B2 meeweegt; zonder B2 kan het als gewone criteriumzin worden gelezen."
+    },
+    {
+      "id": "G059",
+      "inhoudelijke_nieuwheid": "Het modale 'moet kunnen' hangt aan het object, niet aan een actor. Het kan een bouwtechnisch vermogen van de deur uitdrukken: uitgevoerd met een panieksluiting, volgens het bestek. Het kan ook een gebruiksplicht uitdrukken: de nachtschoten tijdens openingstijden ontgrendelen, volgens het gebruiksreglement. De tijdsbepaling 'tijdens openingstijden' verbindt de kern met de gebruiksregel; 'kunnen worden geopend' met de uitvoeringseigenschap.",
+      "nabije_ids": [
+        "C02/C14/C52 — 'moet' als plicht van een actor (organisatie, getuige, behandelaar); hier geen actor in de kern en de modaliteit slaat mogelijk op een eigenschap",
+        "G042 — afschermplicht uit het veldreglement tegenover de legenda van de veldkaart; daar is de plicht eenduidig een handeling, hier is het vermogen van het object zelf een verdedigbare lezing",
+        "G044 — verbod voor de laborant als kern; hier geen verbod en geen genoemde actor"
+      ],
+      "open_bronvraag": "Beschrijft 'die tijdens openingstijden van binnenuit zonder sleutel moet kunnen worden geopend' de uitvoering van de deur (panieksluiting) als kenmerk, of neemt de kern de gebruiksplicht uit art. 5 over om de nachtschoten tijdens openingstijden te ontgrendelen?",
+      "risico_op_triviale_variant": "Middelgroot. Het signaalwoord 'moet' kan leiden tot een snel oordeel op het woord, en het geval kan lijken op de moet-gevallen C02/C52. Het onderscheid met die gevallen hangt ervan af of beoordelaars de objectlezing van 'moet kunnen' als verdedigbaar zien."
+    },
+    {
+      "id": "G060",
+      "inhoudelijke_nieuwheid": "De mogelijke handelingsregel is gericht tot het referent zelf: de zelfopnemer is tegelijk lid van de klasse en adressaat van de doorgeefregel. B1 behandelt een te late doorgever via een gevolgbepaling nog als zelfopnemer; dat past bij een gedragsregel voor leden. B2 deelt per maand in op het feitelijke tijdig doorgeven; dat past bij een lidmaatschapscriterium.",
+      "nabije_ids": [
+        "G049 — jaarverslag: termijnregel uit de statuten tegenover een portaaloverzicht met een te laat voorgelegd verslag; daar is de actor (het bestuur) een ander dan het referent (het verslag)",
+        "G047 — afmelding met termijn voor de coördinator; ook daar is de actor niet het referent",
+        "G048 — meetregel tegenover een ruimere database-indeling",
+        "C115 — noodzakelijke voorwaarde voor toelating ('alleen als de bijdrage betaald is'), zonder bronconflict"
+      ],
+      "open_bronvraag": "Bepaalt 'die de stand ... vóór de vijfde dag van iedere maand via het klantportaal doorgeeft' wie zelfopnemer is, of legt de kern de doorgeefregel uit art. 6 op aan aangeslotenen die al zelfopnemer zijn, nu art. 6 een te late doorgever nog zelfopnemer noemt en de maandrapportage hem niet meetelt?",
+      "risico_op_triviale_variant": "Middelgroot. Qua bouw (regel met termijn plus een afwijkend overzicht) lijkt het geval op G049 en G048. Nieuw is alleen de adressaat die met het referent samenvalt; beoordelaars moeten die nieuwheid als wezenlijk aanvaarden."
+    },
+    {
+      "id": "G061",
+      "inhoudelijke_nieuwheid": "Een ruimte wordt afgebakend via de gedragsregel voor derden (bezoekers). In de kern staat die regel in de indicatief, zonder verbodswoord. Letterlijk als feit gelezen is de zin onjuist. Hij kan een parafrase zijn van het geldende stilteregime als normatief kenmerk van de ruimte, of de overgenomen huisregel voor bezoekers. Het ruimteoverzicht geeft alleen een aanwijzing, geen omschrijving.",
+      "nabije_ids": [
+        "G007 — meldingsverbod: definitie van een normtype zelf; hier wordt een fysieke ruimte gedefinieerd via de norm die er geldt",
+        "C112 — definitie van een verplichting als normatieve zaak; hier geen normatief genus",
+        "G051 — noodopvangbed dat de begeleider vrijhoudt tegenover aangewezen bedden; daar is de actor een medewerker met een keuzetaak, hier zijn het bezoekers als adressaat van een gedragsregel",
+        "G042 — plicht in het reglement tegenover aanduiding op een kaart"
+      ],
+      "open_bronvraag": "Beschrijft 'waarin bezoekers niet bellen en niet hardop praten' het stilteregime dat de aangewezen ruimte kenmerkt, of neemt de kern regel 7 van de huisregels als gedragsvoorschrift voor bezoekers over?",
+      "risico_op_triviale_variant": "Middelgroot. Het geval kan lijken op G051/G042 (regel plus aanwijzingsoverzicht). Het kan ook zonder bronnen al als normatieve beschrijving worden gelezen. Dan draagt het geen open keuze en hoort het elders."
+    },
+    {
+      "id": "G062",
+      "inhoudelijke_nieuwheid": "Een status ('gedoogd') wordt ontleend aan een tijdelijk niet-handhavingsbeleid dat zich richt tot een functionaris (de marktmeester). Er is geen discretie en geen constitutieve handeling zoals besluiten, registreren of verklaren. De kern kan de gedoogstatus beschrijven: het uitblijven van een boete bij bepaalde voorwaarden als kenmerk. Of de kern neemt de handhavingsinstructie aan de marktmeester over. De voorwaarden ('zolang ... opgeruimd ... niet breder') kunnen criteria zijn of onderdelen van de instructie.",
+      "nabije_ids": [
+        "G050 — servicetoeslag met discretionaire uitzondering van de huurcommissie ('passend vindt'); hier geen afweging",
+        "G055 — openbare vergadering: status hangt af van een verklaring van de voorzitter; hier geen constitutieve handeling",
+        "C16 — boete die wordt opgelegd wanneer een aangifte te laat is: de rechtsgevolggrond van een sanctie; hier het omgekeerde, een status door het uitblijven van een sanctie",
+        "G018 — herroepbare uitzondering met discretie van de toezichthouder"
+      ],
+      "open_bronvraag": "Beschrijft 'waarvoor de marktmeester geen boete oplegt zolang ...' de gedoogstatus van de standplaats als kenmerk, of neemt de kern de handhavingsinstructie uit §2 aan de marktmeester over?",
+      "risico_op_triviale_variant": "Laag tot middelgroot. De structuur 'status uit een regel van een functionaris' deelt dit geval met G014/G055. Het onderscheidende element (een instructie om niet te handhaven, zonder handeling of afweging) moet in de beoordeling zichtbaar blijven."
+    },
+    {
+      "id": "G063",
+      "inhoudelijke_nieuwheid": "De betekenisgrond voor de functie ligt vooral in een ontologierelatie. Het begrippenkader onderscheidt ontsmetting van periodieke reiniging door moment en middel. Het hygiëneprotocol geeft een frequentieregel aan koks. Door de kwantor 'na ieder gebruik' in een procesbegrip kan de passage het onderscheidende moment beschrijven (procesbeschrijving) of de frequentieregel uit het protocol overnemen.",
+      "nabije_ids": [
+        "G036 — herstelronde: een proces met expliciet 'moet' voor de medewerker; hier geen modaal werkwoord",
+        "G039 — adviesprocedure: een proces beschreven naar fasen en eindresultaat, zonder frequentieregel",
+        "G024 — controlebewijs: de voorgeschreven volgorde voor de controleur als kern van een documentbegrip",
+        "C15 — verzoek dat de behandelaar binnen zes weken beoordeelt: een procedure zonder patroonwoord",
+        "G012 — een zuivere taakreeks als kern"
+      ],
+      "open_bronvraag": "Beschrijft 'waarbij de kok een werkbank na ieder gebruik met alcohol 70% afneemt' het moment en het middel waardoor ontsmetting zich volgens het begrippenkader onderscheidt van periodieke reiniging, of neemt de kern regel 3 van het hygiëneprotocol als frequentievoorschrift voor koks over?",
+      "risico_op_triviale_variant": "Middelgroot. Procesbegrippen met een actor in de kern komen al voor (G036, G039, C15). Nieuw is alleen dat de ontologierelatie als betekenisgrond tegenover het protocol staat; zonder B1 is het een gewone procesvariant."
+    }
+  ],
+  "bewijsgrenzen": [
+    "Alle zeven gevallen zijn synthetische concepten van één tekstredacteur (Claude Code CLI, 30 september 2026). Ze zijn geen goldset, geen praktijk- of expertbewijs en geen gevalideerde juridische casus.",
+    "Er is geen label, status, familie of split toegekend of bedoeld. Of een geval in de beoogde familie valt, beslissen de onafhankelijke beoordelaars en Chris.",
+    "Gelezen zijn alleen de vijf genoemde bronnen: normcontract, besluiten, ontwerpregister, kandidaatpool v4 en kwalificatieprotocol. Er zijn geen labelbesluiten, beoordelaarsvoorstellen, appuitkomsten of kwalificatieproeven ingezien.",
+    "De overlapcontrole met de 76 C-ontwerpen en de 40 G-kandidaten is door lezing gedaan, niet mechanisch. Voor enkele gevallen is het risico op een triviale variant als middelgroot benoemd.",
+    "Alle organisaties, reglementen en cijfers zijn fictief. Er wordt geen uitspraak gedaan over geldend recht, en er zijn geen persoonsgegevens gebruikt.",
+    "Er zijn geen Git-, app-, web-, API- of productiedatahandelingen uitgevoerd. De kandidaatpool v4 is niet gewijzigd.",
+    "Ik heb mogelijke eindtestgevallen gezien en kom daarom niet in aanmerking als latere O2-promptontwikkelaar of appimplementator."
+  ]
+}

@@ -1,0 +1,677 @@
+{
+  "beoordelaar": "A",
+  "status": "voorstel_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "gevalobjecten_v3": "5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+    "concept_v3": "2b155de94451a6f383665cc6d6ca97981d37db6595c5323dd552e7007076028d",
+    "pool_v4": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+    "concept_v1_gevalobjecten": "6309d72b5b83b5ffb30cc7571e9e9df0eb2a95707f3d470e8a5dfd5827ab160f",
+    "concept_v2_gevalobjecten": "10b90000143356ff0e2064e4230528d68c29d7ae40a3e074f81bb311c98e8d5b",
+    "normcontract": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten_chris": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734"
+  },
+  "gevallen": [
+    {
+      "id": "G070",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Dossier over een burenconflict",
+          "functie": "genus en domeinafbakening",
+          "start": 0,
+          "end": 30
+        },
+        {
+          "citaat": "waarin de coördinator een intakegesprek met beide partijen vastlegt",
+          "functie": "onbeslist: lidmaatschapscriterium (B1) of weergave van de voorgeschreven werkstap 2 (B2)",
+          "start": 31,
+          "end": 98
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een bemiddelingsdossier is een dossier over een burenconflict waarin de coördinator een intakegesprek met beide partijen vastlegt.",
+          "start": 223,
+          "end": 353
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "weigert een van de partijen het intakegesprek, dan blijft het dossier een adviesdossier",
+          "start": 419,
+          "end": 506
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Open bij iedere aanmelding van een burenconflict een bemiddelingsdossier.",
+          "start": 200,
+          "end": 273
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "leg in het bemiddelingsdossier een intakegesprek met beide partijen vast",
+          "start": 310,
+          "end": 382
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "noteer de weigering dan in het bemiddelingsdossier",
+          "start": 430,
+          "end": 480
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken",
+          "start": 97,
+          "end": 171
+        }
+      ],
+      "motivering": "De kern is letterlijk de omschrijving uit B1. Daar onderscheidt het vastgelegde intakegesprek het bemiddelingsdossier van het adviesdossier; de passage is dus een begripscriterium. Volgens B2 is elk dossier vanaf de aanmelding een bemiddelingsdossier, ook als de intake is geweigerd. De passage bakent daar niets af en geeft alleen de voorgeschreven stap 2 weer. De gebruiker wil één omschrijving voor beide stukken. Welke bron de passage draagt, bepaalt dus haar INT-02-functie: criterium of procedurestap als definiens. Geen van beide lezingen is zelfstandig bewezen, en een stil compromis is niet toegestaan.",
+      "vraag": "Is het vastgelegde intakegesprek met beide partijen het kenmerk dat een bemiddelingsdossier van een adviesdossier onderscheidt (B1), of is een bemiddelingsdossier elk dossier dat bij aanmelding wordt geopend, zodat de passage alleen de werkstap beschrijft die de coördinator daarin uitvoert (B2)?",
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C15",
+          "C60",
+          "C108",
+          "G030",
+          "G063",
+          "G051",
+          "G014"
+        ],
+        "motivering": "In C60 en C108 gaat het bronconflict over de waarde van een criterium, niet over de keuze tussen criterium en procedurestap. G030 en G063 combineren een definiërende bron met een instructiebron die daarmee overeenstemt. G051 heeft een extensieconflict, maar met een instructie als kern. Hier komt de kern uit de definiërende bron en maakt de strijdige instructiebron de functie onbeslist."
+      },
+      "redundantie_met": [
+        "G076",
+        "G071",
+        "G073",
+        "G075"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Heeft dezelfde functionele structuur als G071, G073, G075 en G076: de kern is de B1-definitie, B2 is een actorinstructie die de kernpassage spiegelt, de referent wijkt af en er wordt één omschrijving gevraagd. Binnen de acht is de overlap met G076 het sterkst.",
+        "Het extensieverschil bij een geweigerde intake is daarnaast een punt voor CON-02/ESS-05; dat is hier niet beoordeeld."
+      ]
+    },
+    {
+      "id": "G071",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Rondvaart",
+          "functie": "genus",
+          "start": 0,
+          "end": 9
+        },
+        {
+          "citaat": "die de schipper wegens windkracht 6 of meer niet laat vertrekken",
+          "functie": "onbeslist: constitutieve beslissing als kenmerk (B1) of weergave van de plicht van de schipper nadat een meting de rondvaart heeft geannuleerd (B2)",
+          "start": 10,
+          "end": 74
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een geannuleerde rondvaart is een rondvaart die de schipper wegens windkracht 6 of meer niet laat vertrekken.",
+          "start": 134,
+          "end": 243
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De beslissing van de schipper om niet te vertrekken maakt de rondvaart geannuleerd",
+          "start": 244,
+          "end": 326
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Wijst de windmeter op de steiger een kwartier voor het geplande vertrek windkracht 6 of meer aan, dan is de rondvaart geannuleerd.",
+          "start": 151,
+          "end": 281
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "De schipper laat een geannuleerde rondvaart niet vertrekken en meldt de annulering aan de kassa.",
+          "start": 282,
+          "end": 378
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken",
+          "start": 96,
+          "end": 170
+        }
+      ],
+      "motivering": "Volgens B1 is de beslissing van de schipper constitutief. De kern beschrijft dan als kenmerk een beslissing met een gebonden grond, en dat staat INT-02 toe (vergelijk C69). Volgens B2 ontstaat de annulering door de windmeting, en is het niet laten vertrekken de handeling die de schipper daarna voorgeschreven krijgt. De kernpassage spiegelt die instructie en zou dan een actorplicht als definiens dragen. B3 toont een rondvaart die volgens B2 geannuleerd was maar toch vertrok. Omdat één omschrijving voor beide stukken is gevraagd, blijft door het bronconflict onbeslist welke functie de passage heeft.",
+      "vraag": "Is een rondvaart geannuleerd door de beslissing van de schipper om wegens windkracht 6 of meer niet te vertrekken (B1), of door de windmeting een kwartier voor vertrek, zodat het niet laten vertrekken de plicht van de schipper weergeeft (B2)?",
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C69",
+          "C107",
+          "C16",
+          "G014",
+          "G055",
+          "G065"
+        ],
+        "motivering": "G014 en G065 hebben een constitutieve handeling van een actor, met een instructiebron die daarmee overeenstemt. G055 beschrijft een verklaring van de voorzitter. Hier botsen twee constitutieve gronden, beslissing tegenover meting, en die keuze bepaalt of de passage over de actor een kenmerk of een plicht is."
+      },
+      "redundantie_met": [
+        "G070",
+        "G073",
+        "G075",
+        "G076"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "B3 (vaarlogboek van 14 juni 2026) staat niet bij de gronden, omdat het uitvoerformaat als bron_id alleen B1 of B2 toelaat. B3 toont het extensieverschil: om 19.45 uur windkracht 6, om 20.00 uur vertrokken, geen annulering gemeld.",
+        "Onderscheidt zich binnen de acht door de constitutieve beslissing van een actor, en overlapt daardoor minder triviaal dan G073 en G075."
+      ]
+    },
+    {
+      "id": "G072",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Deel van de borg",
+          "functie": "genus",
+          "start": 0,
+          "end": 16
+        },
+        {
+          "citaat": "na verrekening met de vastgestelde schoonmaak- en schadekosten",
+          "functie": "deterministische afleiding van het bedrag",
+          "start": 34,
+          "end": 96
+        },
+        {
+          "citaat": "aan de huurder terugbetaalt",
+          "functie": "beschreven bestemming van het afgeleide deel; geen voorschrift",
+          "start": 97,
+          "end": 124
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Restborg: deel van de borg dat de beheerder na verrekening met de vastgestelde schoonmaak- en schadekosten aan de huurder terugbetaalt.",
+          "start": 167,
+          "end": 302
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Berekening: restborg = borg min de vastgestelde schoonmaak- en schadekosten, met een minimum van nul.",
+          "start": 303,
+          "end": 404
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Verreken na de eindcontrole de vastgestelde schoonmaak- en schadekosten met de borg en betaal het deel van de borg dat overblijft aan de huurder terug.",
+          "start": 147,
+          "end": 298
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Heeft de huurder de vastgestelde kosten bij de eindcontrole al contant voldaan, verreken dan niet en betaal de volledige borg terug.",
+          "start": 299,
+          "end": 431
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken",
+          "start": 98,
+          "end": 172
+        }
+      ],
+      "motivering": "De kern bakent een afgeleide grootheid af: het deel van de borg dat na verrekening met de vastgestelde kosten overblijft. B1 geeft daarvoor de formule (vergelijk C116). Het terugbetalen is een beschreven kenmerk van dat deel, geen opdracht. B2 schrijft de beheerder de verrekening voor, maar bedoelt dezelfde referent: het deel dat overblijft. Het geval waarin de kosten al contant zijn voldaan en het minimum van nul raken extensie en volledigheid (ESS-05/CON-02), niet de functie van de passage. INT-02 is daarom op eigen grond beslist.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C116",
+          "C10",
+          "G027",
+          "G053",
+          "G064"
+        ],
+        "motivering": "C116 en G027 zijn afgeleide grootheden zonder instructiebron. G053 biedt de instructie zelf als kern aan. G064 heeft een actorprocedure als kern, met bronnen die met elkaar overeenstemmen. Hier is de kern een afleiding naast een instructiebron, met een randafwijking die geen INT-02-onzekerheid oplevert."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Afzonderlijk kwaliteitspunt (ESS-05/CON-02): als de kosten contant zijn voldaan, betaalt B2 de volledige borg terug, terwijl de formule van B1 borg min kosten oplevert. Het minimum van nul staat niet in de kern.",
+        "Een beoordelaar die dit randconflict als functieconflict leest, zou review_required kiezen. Ik vind dat niet gedragen, omdat beide bronnen hetzelfde afgeleide deel bedoelen."
+      ]
+    },
+    {
+      "id": "G073",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Periode",
+          "functie": "genus",
+          "start": 0,
+          "end": 7
+        },
+        {
+          "citaat": "waarin de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uitvoert",
+          "functie": "onbeslist: feitelijk afleidingscriterium (B1) of weergave van het verbod voor de terreinbeheerder binnen een kalenderperiode (B2)",
+          "start": 8,
+          "end": 91
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De rustperioden van een seizoen worden na afloop uit het werklogboek afgeleid",
+          "start": 259,
+          "end": 336
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "iedere aaneengesloten periode van ten minste dertig dagen zonder geregistreerd maai- of snoeiwerk in het weidevogelgebied is een rustperiode",
+          "start": 338,
+          "end": 478
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Van 15 maart tot en met 15 juni is het rustperiode.",
+          "start": 159,
+          "end": 210
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "In de rustperiode voert de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uit.",
+          "start": 211,
+          "end": 307
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken",
+          "start": 89,
+          "end": 163
+        }
+      ],
+      "motivering": "Volgens B1 is de passage een feitelijk criterium waaruit rustperioden achteraf deterministisch worden afgeleid. Volgens B2 is de rustperiode een vaste kalenderperiode, en is het niet uitvoeren van maai- of snoeiwerk het verbod dat de terreinbeheerder in die periode heeft. De kern noemt die data niet en zou dan alleen het verbod als definiens dragen. B3 toont snoeiwerk op 2 mei, binnen de periode van B2. Omdat één omschrijving voor beide stukken is gevraagd, blijft door het bronconflict open of de passage afbakent of voorschrijft.",
+      "vraag": "Is een rustperiode de aaneengesloten periode zonder maai- of snoeiwerk die achteraf uit het werklogboek wordt afgeleid (B1), of de vaste periode van 15 maart tot en met 15 juni waarin de terreinbeheerder geen maai- of snoeiwerk mag uitvoeren (B2)?",
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C14",
+          "C60",
+          "G061",
+          "G048",
+          "G011"
+        ],
+        "motivering": "G061 heeft een gedragsregel als kern, zonder definiërende tegenbron. G048 heeft een voorschrift met een registratiebron die daarmee overeenstemt. G011 is een interval zonder instructie. Een negatief kenmerk dat tegelijk een verbod kan zijn, levert tegenover de pool een eigen testpunt op."
+      },
+      "redundantie_met": [
+        "G075",
+        "G070",
+        "G071",
+        "G076"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Overlapt sterk met G075. In beide volgt de periode in B1 uit gebeurtenissen en is zij in B2 een kalenderperiode met een instructie die de kernpassage spiegelt. Alleen verbod tegenover zorgopdracht verschilt. Selecteer er één van beide.",
+        "B3 (werklogboek) staat niet bij de gronden, omdat het uitvoerformaat als bron_id alleen B1 of B2 toelaat.",
+        "Afzonderlijk ESS-05-punt: de minimumduur van dertig dagen uit B1 ontbreekt in de kern."
+      ]
+    },
+    {
+      "id": "G074",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Tweedehands boek",
+          "functie": "genus",
+          "start": 0,
+          "end": 16
+        },
+        {
+          "citaat": "dat de sorteerder bij de inspectie verkoopbaar vindt",
+          "functie": "onbeslist: constitutief kwalitatief oordeel over de staat van het boek (B1) of uitvoering van een discretionaire afweging tegen de kastruimte (B2)",
+          "start": 17,
+          "end": 69
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De sorteerder beoordeelt daarbij uitsluitend de staat van het boek: rug en band heel, geen losse of ontbrekende bladzijden, geen vocht- of schimmelplekken.",
+          "start": 234,
+          "end": 389
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Twee sorteerders die hetzelfde boek inspecteren, horen tot hetzelfde oordeel te komen.",
+          "start": 390,
+          "end": 476
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Weeg daarbij de staat van het boek af tegen de vrije ruimte in de boekenkasten",
+          "start": 216,
+          "end": 294
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "zijn er lege planken, dan kunt u ook boeken met lichte gebruikssporen verkoopbaar vinden",
+          "start": 373,
+          "end": 461
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken",
+          "start": 111,
+          "end": 185
+        }
+      ],
+      "motivering": "Volgens B1 is het oordeel van de sorteerder een constitutief kwalitatief kenmerk. Het is gebonden aan de staat van het boek en bedoeld om bij verschillende sorteerders tot hetzelfde oordeel te leiden. Dat is geen beslisregel (C55, C107). Volgens B2 omvat hetzelfde oordeel een afweging tegen de vrije kastruimte, met keuzeruimte; de kern voert dan een discretionaire beslisregel uit. De bronnen spreken elkaar precies op dit punt tegen, en de gebruiker wil één omschrijving voor beide stukken. Daardoor is de INT-02-functie zelf onbeslist.",
+      "vraag": "Berust het oordeel van de sorteerder dat een boek verkoopbaar is uitsluitend op de staat van het boek (B1), of omvat het ook de afweging tegen de vrije ruimte in de boekenkasten uit de werkinstructie (B2)?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C107",
+          "C55",
+          "C13",
+          "G006",
+          "G018",
+          "G014"
+        ],
+        "motivering": "G006 en G018 koppelen al een constitutief oordeel aan een afwegingsinstructie. Nieuw is dat B1 afweging uitdrukkelijk uitsluit (alleen de staat telt, met gelijke uitkomst) en dat B2 een vreemde factor, de kastruimte, toevoegt. Of dat genoeg verschilt van G006 en G018 is een selectiekeuze."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Het enige geval van de acht waarin het bronconflict gaat over gebonden oordeel tegenover discretie. Daardoor is dit inhoudelijk het duidelijkst een INT-02-onzekerheid.",
+        "De toepasbaarheid van het staatscriterium is een ESS-04-punt en is niet beoordeeld."
+      ]
+    },
+    {
+      "id": "G075",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Periode",
+          "functie": "genus",
+          "start": 0,
+          "end": 7
+        },
+        {
+          "citaat": "waarin een ervaren vrijwilliger een nieuwe vrijwilliger bij diens eerste drie diensten begeleidt",
+          "functie": "onbeslist: begrenzing van de periode door gebeurtenissen (B1) of weergave van wat de coördinator in een kalendermaand moet regelen (B2)",
+          "start": 8,
+          "end": 104
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Zij begint bij de eerste begeleide dienst en eindigt na de derde begeleide dienst, hoe lang dat ook duurt.",
+          "start": 265,
+          "end": 371
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "De inwerkperiode van een nieuwe vrijwilliger is de eerste kalendermaand na diens aanmelding.",
+          "start": 141,
+          "end": 233
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Zorg dat in de inwerkperiode een ervaren vrijwilliger een nieuwe vrijwilliger bij diens eerste drie diensten begeleidt.",
+          "start": 234,
+          "end": 353
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "de inwerkperiode wordt daardoor niet verlengd",
+          "start": 399,
+          "end": 444
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken",
+          "start": 107,
+          "end": 181
+        }
+      ],
+      "motivering": "Volgens B1 bakent de begeleiding bij de eerste drie diensten de periode af: begin en einde volgen uit die diensten. Volgens B2 is de inwerkperiode de eerste kalendermaand na aanmelding en is de begeleiding een zorgopdracht aan de coördinator. Die opdracht kan mislukken zonder dat de periode verandert. De kernpassage spiegelt die opdracht. Omdat één omschrijving voor beide stukken is gevraagd, blijft door het bronconflict open of de passage een criterium of een voorgeschreven handeling is.",
+      "vraag": "Wordt de inwerkperiode begrensd door de eerste en de derde begeleide dienst (B1), of is zij de eerste kalendermaand na aanmelding en geeft de begeleiding weer wat de coördinator in die maand moet regelen (B2)?",
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C60",
+          "C108",
+          "G049",
+          "G011",
+          "G047"
+        ],
+        "motivering": "G049 heeft een voorschrift met termijn als kern en een extensieconflict in het gebruik. G011 is een interval tussen gebeurtenissen, zonder instructie. Tegenover de pool is dit geval zelfstandig; binnen de acht heeft het vrijwel dezelfde structuur als G073."
+      },
+      "redundantie_met": [
+        "G073",
+        "G070",
+        "G071",
+        "G076"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Binnen de acht bijna een triviale variant van G073: een periode die uit gebeurtenissen volgt tegenover een kalenderperiode met een gespiegelde instructie. Het verschil is dat het hier om een zorgopdracht aan een derde (de coördinator) gaat, en in G073 om een verbod aan de handelende actor."
+      ]
+    },
+    {
+      "id": "G076",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Lid",
+          "functie": "genus",
+          "start": 0,
+          "end": 3
+        },
+        {
+          "citaat": "dat bij binnenkomst van de ledenvergadering de presentielijst tekent",
+          "functie": "onbeslist: constitutief lidmaatschapscriterium (B1) of weergave van de plicht van een aanwezig lid om te tekenen (B2)",
+          "start": 4,
+          "end": 72
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een aanwezig lid is een lid dat bij binnenkomst van de ledenvergadering de presentielijst tekent.",
+          "start": 139,
+          "end": 236
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een lid dat de presentielijst niet heeft getekend, is geen aanwezig lid, ook niet als het in de zaal zit.",
+          "start": 306,
+          "end": 411
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Aanwezig is ieder lid dat de ledenvergadering in de zaal bijwoont.",
+          "start": 156,
+          "end": 222
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Een aanwezig lid tekent bij binnenkomst van de ledenvergadering de presentielijst; de secretaris wijst een lid dat dat vergeet daarop.",
+          "start": 223,
+          "end": 357
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide reglementen",
+          "start": 82,
+          "end": 160
+        }
+      ],
+      "motivering": "Volgens B1 is tekenen het constitutieve criterium; wie alleen in de zaal zit, valt er uitdrukkelijk buiten. Volgens B2 is aanwezig wie de vergadering bijwoont, en is tekenen een plicht in de aantonende wijs die de secretaris handhaaft. De kernpassage is daar letterlijk die plichtzin, zonder signaalwoord (vergelijk C105). B3 toont 31 handtekeningen tegenover 34 leden in de zaal. Omdat één omschrijving voor beide reglementen is gevraagd, blijft door het bronconflict de functie onbeslist.",
+      "vraag": "Is het tekenen van de presentielijst het kenmerk dat een lid tot aanwezig lid maakt (B1), of is aanwezig ieder lid dat de vergadering in de zaal bijwoont en is tekenen een plicht van dat lid (B2)?",
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C18",
+          "C105",
+          "C14",
+          "G042",
+          "G047",
+          "G061"
+        ],
+        "motivering": "G042 en G047 hebben een voorschrift als kern, met een registratiebron. C105 is een opdracht zonder signaalwoord en zonder tegenbron. Hier spiegelt een plichtzin in de aantonende wijs de definitiezin uit de andere bron. Tegenover de pool is dat een eigen testpunt."
+      },
+      "redundantie_met": [
+        "G070",
+        "G071",
+        "G073",
+        "G075"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Overlapt binnen de acht met G070: in beide is een vastgelegde handeling het criterium, tegenover een ruimere referent met een instructie. Onderscheidend is dat de plichtzin in B2 in de aantonende wijs staat, zonder gebiedende wijs.",
+        "B3 (notulen) staat niet bij de gronden, omdat het uitvoerformaat als bron_id alleen B1 of B2 toelaat."
+      ]
+    },
+    {
+      "id": "G077",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Reservering van een kampeerplaats",
+          "functie": "genus",
+          "start": 0,
+          "end": 33
+        },
+        {
+          "citaat": "die twee dagen na het maken zonder ontvangen betaling wordt vrijgegeven",
+          "functie": "deterministisch statuscriterium; geen actor, geen voorschrift",
+          "start": 34,
+          "end": 105
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een reservering heeft een van de statussen geboekt, betaald of vrijgegeven.",
+          "start": 158,
+          "end": 233
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De module kent de status vrijgegeven iedere nacht om 00.00 uur toe aan iedere reservering waarvoor twee dagen na het maken geen betaling is geregistreerd; een medewerker hoeft daarvoor niets te doen.",
+          "start": 376,
+          "end": 575
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Een reservering van een kampeerplaats die twee dagen na het maken zonder ontvangen betaling is, geeft u vrij",
+          "start": 225,
+          "end": 333
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken",
+          "start": 135,
+          "end": 209
+        }
+      ],
+      "motivering": "De kern noemt geen actor en beschrijft een status die deterministisch volgt uit twee dagen zonder ontvangen betaling. B1 ondersteunt dat met de lijst van statussen en de automatische toekenning. B2 draagt de vrijgave op aan de receptie, maar beide bronnen bedoelen dezelfde reserveringen. Het verschil zit in wie de status zet en wanneer; dat is een punt van uitvoering en toepassing, geen betekenisgrond. De lijdende vorm is geen opdracht: de term is een voltooid deelwoord, en B1 behandelt vrijgegeven als status. INT-02 is daarom op eigen grond beslist.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C69",
+          "C17",
+          "C18",
+          "G014",
+          "G055",
+          "G064"
+        ],
+        "motivering": "G014 en G055 hebben een constitutieve handeling van een actor als kern; G064 heeft een actorprocedure als kern. Hier staat een statusafleiding zonder actor naast een instructiebron met een andere uitvoerder. Het geval toetst dat een instructiebron zonder verschil in referent geen INT-02-onzekerheid oplevert."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Afzonderlijk punt (CON-02/uitvoering): volgens B1 zet de module de status om 00.00 uur zonder medewerker, volgens B2 doet de receptie dat in de ochtend. Dat is geen vraag over de INT-02-functie.",
+        "Volgens de norm is een gebonden handelingsopdracht niet alleen door haar determinisme een afleiding. In deze kern is echter geen handelingsopdracht aangetoond."
+      ]
+    }
+  ],
+  "selectiepunten": [
+    "Principevraag voor G070, G071, G073, G075 en G076. Een tweede, instruerende bron gebruikt dezelfde term met een andere referent en spiegelt de kernpassage als actorinstructie. Telt dat als strijdige grond voor de INT-02-functie (mijn voorstel: review_required), of alleen als extensieconflict voor CON-02/ESS-05, met INT-02 pass op grond van B1? Die keuze beslist deze vijf gevallen samen.",
+    "G070, G071, G073, G075 en G076 hebben één functionele structuur: de kern is de letterlijke B1-definitie, B2 is een actorinstructie die de kernpassage spiegelt, de referent wijkt af en er wordt één omschrijving voor beide stukken gevraagd. Overweeg er hoogstens twee of drie te selecteren. G073 en G075 overlappen het sterkst, daarna G070 en G076. G071 onderscheidt zich door een constitutieve beslissing.",
+    "G072 en G077 zijn de enige twee gevallen met een instructiebron maar zonder onzekerheid over de INT-02-functie. Ze zijn onderling niet redundant (afgeleide grootheid tegenover statusafleiding) en dienen als controle tegen een te snelle keuze voor review_required.",
+    "G074 ligt dicht bij G006 en G018: een constitutief oordeel met een afwegingsinstructie. Nieuw is dat B1 afweging uitdrukkelijk uitsluit en B2 de kastruimte als factor toevoegt. Of dat genoeg afstand geeft, is een selectiekeuze.",
+    "Het uitvoerformaat laat als bron_id alleen B1, B2 of null toe. De B3-uittreksels van G071, G073 en G076 staan daarom alleen in motivering en opmerkingen. Beslis of B3 als grond moet kunnen worden vastgelegd."
+  ],
+  "bewijsgrenzen": [
+    "Alle gevallen en bronnen zijn synthetisch. Dit is een onafhankelijk voorstel van beoordelaar A, geen goldlabel en geen besluit van Chris.",
+    "Gelezen: de acht genoemde bronnen. Niet gelezen: redacteursuitvoer, eerdere beoordelingen, resultaten van andere beoordelaars en het bestand achter concept_v3.",
+    "De bronhashes zijn overgenomen uit manifest-v1. Zeven ervan zijn in deze sessie met SHA-256 opnieuw berekend en gelijk bevonden; concept_v3 is niet gelezen en niet opnieuw berekend.",
+    "Posities zijn machinaal bepaald als nulgebaseerde Unicode-codepuntindexen met exclusieve eindpositie, ten opzichte van de kern, de brontekst of de bedoeling. Elk citaat komt precies één keer voor op zijn vindplaats.",
+    "Afstand en redundantie berusten op het lezen van kern, bedoeling en bronnen van de 76 ontwerpen, de 40 kandidaten en de 13 eerdere concepten, niet op een meting.",
+    "Er is niets met de app, een model, het web of productiedata gedaan. Er wordt geen uitspraak gedaan over de kwaliteit van de app of over een expertgoldset."
+  ]
+}

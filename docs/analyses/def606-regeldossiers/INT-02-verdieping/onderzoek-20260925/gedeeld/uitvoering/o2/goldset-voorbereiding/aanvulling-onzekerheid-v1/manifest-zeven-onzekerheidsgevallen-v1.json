@@ -1,0 +1,24 @@
+{
+  "status": "beoordelingsmanifest_geen_goldbesluit",
+  "datum": "2026-09-30",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "concept": "b09ce0ef68a39acdcac5cc182e67bae316eaab976b18783731f4645fa188fc5b",
+    "pool_v4": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+    "normcontract": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten_chris": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734"
+  },
+  "beoordelingsscope": [
+    "G057",
+    "G058",
+    "G059",
+    "G060",
+    "G061",
+    "G062",
+    "G063"
+  ],
+  "overige_gevallen_alleen_overlapcontext": 40,
+  "geen_goldlabels": true,
+  "geen_split_of_freeze": true
+}

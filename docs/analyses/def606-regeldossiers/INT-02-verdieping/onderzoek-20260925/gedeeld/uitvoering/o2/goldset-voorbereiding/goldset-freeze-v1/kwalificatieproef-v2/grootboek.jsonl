@@ -1,0 +1,9 @@
+{"akkoord_sha256": "87a210e787606bb69a1c1b11e1ae365d4576fe364ee28f9519faf9542a448149", "gebeurtenis": "mandaat", "manifest_sha256": "99c127bd8a7547d31b8814b0c1abdf587f11e9a8d3e8fdbf6646c528f9233d8e", "soort": "def835-int02-kwalificatie-grootboek/1", "tijd": "2026-09-30T14:10:49.818824+00:00"}
+{"akkoord_sha256": "87a210e787606bb69a1c1b11e1ae365d4576fe364ee28f9519faf9542a448149", "fase": "regressie", "gebeurtenis": "fase_start", "tijd": "2026-09-30T14:10:49.819341+00:00"}
+{"gebeurtenis": "tel_reservering", "geval": "C105", "tel": 1, "tijd": "2026-09-30T14:10:49.820793+00:00"}
+{"call": 1, "gebeurtenis": "inferentie_reservering", "geval": "C105", "reservering_usd": 0.22999999999999998, "tijd": "2026-09-30T14:10:50.254487+00:00"}
+{"call": 1, "gebeurtenis": "inferentie_boeking", "geval": "C105", "kosten_usd": 0.023780000000000003, "tijd": "2026-09-30T14:10:54.424130+00:00", "usage": {"input_tokens": 3256, "output_tokens": 300}}
+{"gebeurtenis": "tel_reservering", "geval": "C107", "tel": 2, "tijd": "2026-09-30T14:10:54.451237+00:00"}
+{"call": 2, "gebeurtenis": "inferentie_reservering", "geval": "C107", "reservering_usd": 0.22999999999999998, "tijd": "2026-09-30T14:10:54.678178+00:00"}
+{"call": 2, "gebeurtenis": "inferentie_boeking", "geval": "C107", "kosten_usd": 0.02731, "tijd": "2026-09-30T14:11:02.783993+00:00", "usage": {"input_tokens": 3287, "output_tokens": 435}}
+{"bewijs_opgeslagen": true, "fase": "regressie", "gebeurtenis": "fase_einde", "looptijd_seconden": 13.852, "mechanisch_geslaagd": false, "stopreden": "invalid_citation", "tijd": "2026-09-30T14:11:02.787204+00:00"}

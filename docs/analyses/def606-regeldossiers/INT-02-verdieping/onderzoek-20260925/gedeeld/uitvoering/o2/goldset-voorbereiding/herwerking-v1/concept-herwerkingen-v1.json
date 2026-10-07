@@ -1,0 +1,1247 @@
+{
+  "status": "concept_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "herwerkingen": [
+    {
+      "id": "G001",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "uitzonderingsroute",
+      "kern": "Bij overbelasting kiest de planner een alternatieve route als hij de extra reistijd aanvaardbaar acht.",
+      "bedoeling": "De gebruiker wil de term 'uitzonderingsroute' opnemen in het begrippenoverzicht van de routeringproef en biedt daarvoor deze zin aan. De zin komt uit het werkhandboek voor planners.",
+      "context": {
+        "organisatorische_context": [
+          "Routeringproef Cipres (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Werkhandboek routering Cipres (fictief; geen geldend recht), hoofdstuk 4 'Werkwijze van de planner bij overbelasting', art. 4.2: 'Meldt de verkeerscentrale overbelasting op een hoofdtraject, dan bekijkt de dienstdoende planner de beschikbare omleidingen en de extra reistijd die elk daarvan kost. Acht de planner die extra reistijd aanvaardbaar, dan leidt de planner het verkeer via een van die omleidingen; anders blijft het verkeer op het hoofdtraject.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G002",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "overnemende route",
+      "kern": "Route die dezelfde eindpunten als de hoofdroute verbindt indien de hoofdroute door een storing onbruikbaar is.",
+      "bedoeling": "De gebruiker wil de term gebruiken als naam van een routesoort in het netwerkmodel Riet, naast de hoofdroute.",
+      "context": {
+        "organisatorische_context": [
+          "Netwerk Riet (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Netwerkmodel Riet (fictief; geen geldend recht), §2.3 'Routesoorten': 'Het model kent hoofdroutes en overnemende routes. Een overnemende route heeft dezelfde eindpunten als de hoofdroute waaraan zij in het model is gekoppeld. Zij is in het model beschikbaar voor de toestand waarin die hoofdroute door een storing onbruikbaar is.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Netwerkmodel Riet (fictief; geen geldend recht), bijlage C 'Routekeuze bij storing', stap 1 en 2: 'De verkeersleider bevestigt de storing op de hoofdroute. De verkeersleider activeert in het verkeerssysteem de gekoppelde overnemende route.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G003",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "aangewezen referentie",
+      "kern": "Meetobject dat na aanwijzing door de commissie als referentie wordt gebruikt.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de referentieproef en heeft daarvoor de twee conceptversies van het referentiereglement meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Referentieproef Abeel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Referentiereglement Abeel, conceptversie A (fictief; geen geldend recht), art. 3: 'Een meetobject is aangewezen referentie vanaf de registratie van het aanwijzingsbesluit van de commissie in het objectregister. Het objectregister vermeldt bij zo'n object het type referentie. Na registratie van een intrekkingsbesluit vervalt dat type.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Referentiereglement Abeel, conceptversie B (fictief; geen geldend recht), art. 3: 'Na aanwijzing door de commissie wordt het aangewezen meetobject door het laboratorium als referentie gebruikt. Bij iedere kalibratiereeks meet de laborant het aangewezen object als eerste.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G005",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "vrije bufferruimte",
+      "kern": "Verschil tussen de capaciteit van de ontvangstbuffer en het aantal posities dat op het meetmoment bezet is.",
+      "bedoeling": "De term wordt gebruikt in de capaciteitsrapportage van de dataproef om per meetmoment de ruimte in de ontvangstbuffer weer te geven.",
+      "context": {
+        "organisatorische_context": [
+          "Dataproef Linde (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De buffer heeft een vaste capaciteit. Vrije ruimte is capaciteit min bezette posities; beide worden in posities uitgedrukt.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G006",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "aanvaardbaar arrangement",
+      "kern": "Arrangement dat de commissie bij een evenwichtige belangenverdeling aanvaardt.",
+      "bedoeling": "De term komt voor in het arrangementenregister en in het commissiereglement van de proef. De gebruiker heeft uit beide stukken een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Arrangementproef Vijg (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Arrangementenregister Vijg (fictief; geen geldend recht), toelichting bij de kolom 'status': 'Een arrangement heeft de status aanvaardbaar vanaf de datum waarop de commissie in haar vergadering heeft vastgesteld dat de lasten en baten evenwichtig over de deelnemers zijn verdeeld. Die datum staat in de kolom vaststelling. Een arrangement zonder vaststelling heeft de status in behandeling.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Commissiereglement Vijg (fictief; geen geldend recht), art. 7 lid 2: 'De commissie weegt bij ieder voorgelegd arrangement de belangen van de deelnemers af. Vindt de commissie de verdeling van lasten en baten evenwichtig, dan aanvaardt zij het arrangement; anders wijst zij het af.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G014",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "voldoende herstel",
+      "kern": "Herstel dat de inspecteur na beoordeling als afdoende registreert.",
+      "bedoeling": "De gebruiker heeft de herstelregeling en de werkinstructie voor inspecteurs meegestuurd. De gebruiker wil niet dat de omschrijving een keuze tussen die stukken vastlegt.",
+      "context": {
+        "organisatorische_context": [
+          "Herstelproef Mirte (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Herstelregeling Mirte (fictief; geen geldend recht), art. 5: 'Een herstel heeft de status voldoende herstel vanaf het moment dat de inspecteur het na beoordeling ter plaatse in het herstelregister als afdoende registreert. Zolang die registratie ontbreekt, staat het herstel open, ook als de gebreken feitelijk zijn verholpen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Werkinstructie inspecteurs Mirte (fictief; geen geldend recht), stap 9: 'Beoordeel bij de herinspectie of alle gebreken uit het rapport zijn verholpen. Is dat zo, registreer het herstel dan binnen twee werkdagen na de herinspectie als afdoende.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G016",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "toelaatbare afwijking",
+      "kern": "De projectleider kan besluiten een afwijking te aanvaarden wanneer hij het herstel onevenredig belastend vindt.",
+      "bedoeling": "De gebruiker wil met de term de afwijkingen van het ontwerp aanduiden die in het project mogen blijven bestaan. Daarvoor biedt de gebruiker deze zin uit het projectreglement aan.",
+      "context": {
+        "organisatorische_context": [
+          "Projectproef Olm (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Projectreglement Olm (fictief; geen geldend recht), art. 9 lid 3: 'Stelt de kwaliteitscontrole een afwijking van het ontwerp vast, dan kan de projectleider besluiten de afwijking te aanvaarden wanneer de projectleider het herstel onevenredig belastend vindt in verhouding tot het belang van de afwijking. De projectleider legt een aanvaarding met redenen vast in het afwijkingenlogboek.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G018",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "herroepbare uitzondering",
+      "kern": "Uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt.",
+      "bedoeling": "De term komt voor in het classificatiemodel voor uitzonderingen en in het toezichtprotocol van de proef. De gebruiker heeft beide stukken als mogelijke betekenisgrond opgegeven.",
+      "context": {
+        "organisatorische_context": [
+          "Uitzonderingsproef Treurwilg (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Classificatiemodel uitzonderingen Treurwilg (fictief; geen geldend recht), §3: 'Het model onderscheidt vaste en herroepbare uitzonderingen. Een herroepbare uitzondering is verleend onder het voorbehoud dat de toezichthouder haar laat vervallen zodra voortzetting onwenselijk wordt gevonden; bij een vaste uitzondering ontbreekt dat voorbehoud. Het register vermeldt bij iedere verleende uitzondering een van beide typen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Toezichtprotocol Treurwilg (fictief; geen geldend recht), art. 12: 'De toezichthouder beoordeelt bij ieder periodiek bezoek of voortzetting van een herroepbare uitzondering nog wenselijk is. Vindt de toezichthouder voortzetting onwenselijk, dan laat de toezichthouder de uitzondering met ingang van de volgende dag vervallen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G021",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "drempelbeslissing",
+      "kern": "Beslissing waarin een commissie vastlegt of een project volgens haar gemotiveerde beoordeling voor een nadere verkenning in aanmerking komt.",
+      "bedoeling": "De term wordt in het projectmodel gebruikt voor het stuk dat na de eerste beoordeling van een projectvoorstel in het projectdossier komt.",
+      "context": {
+        "organisatorische_context": [
+          "Projectmodel Hazelaar (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Projectmodel Hazelaar (fictief; geen geldend recht), §4.1: 'De eerste beoordeling van een projectvoorstel eindigt met een drempelbeslissing. De drempelbeslissing staat in het verslag van de commissievergadering en vermeldt met de motivering van de commissie of het project voor een nadere verkenning in aanmerking komt.' §4.2: 'De beoordelingscriteria en de werkwijze van de commissie staan in het beoordelingskader (bijlage 2).'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G023",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "getrapt meetinterval",
+      "kern": "Meetinterval waarvan beide grenzen tot dezelfde kalibratietrap behoren, tenzij het interval een overgangsmeting omvat.",
+      "bedoeling": "De term wordt gebruikt in de meetinventaris van het meetlab. Die inventaris onderscheidt gewone metingen en overgangsmetingen.",
+      "context": {
+        "organisatorische_context": [
+          "Meetlab Iep (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Een overgangsmeting mag twee kalibratietrappen overspannen en wordt toch als getrapt meetinterval geregistreerd. Andere getrapte intervallen liggen binnen één trap.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G030",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "actieve aanbieding",
+      "kern": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+      "bedoeling": "De gebruiker wil de term opnemen in het begrippenregister van de proef. De zin staat letterlijk in de tabel met aanbiedingstypen en op de instructiekaart voor behandelaars; de gebruiker heeft beide stukken meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Aanbiedingsproef Robinia (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Tabel aanbiedingstypen Robinia (fictief; geen geldend recht), rij 'actieve aanbieding', kolom omschrijving: 'Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Kolom registerstatus: 'open'. Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten).",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Instructiekaart behandelaars Robinia (fictief; geen geldend recht), kaart 3 'Voortzetting': 'Controleer iedere maandag per aanbieding of er nog een belanghebbende beschikbaar is. Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft. Is er geen belanghebbende meer beschikbaar, zet de aanbieding dan op vervallen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G033",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "beoordelingsmarge",
+      "kern": "Ruimte die een regeling aan een beoordelaar laat om relevante omstandigheden naar eigen inzicht te wegen.",
+      "bedoeling": "De term wordt opgenomen in het woordenboek van het regelmodel. Daarin staan ook de termen 'beoordelaar' en 'weging'.",
+      "context": {
+        "organisatorische_context": [
+          "Regelmodel Populier (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Woordenboek regelmodel Populier (fictief; geen geldend recht), inleiding bij de lemmata over beoordeling: 'Regelingen in het model verschillen in de mate waarin zij de uitkomst vastleggen. Sommige regelingen noemen de omstandigheden die een beoordelaar betrekt en laten het gewicht daarvan aan de beoordelaar over; andere verbinden aan vastgestelde omstandigheden een vaste uitkomst. Het lemma beoordelingsmarge heeft betrekking op de eerste groep.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G035",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "herbruikbare capsule",
+      "kern": "Capsule die na de vastgelegde reinigingscyclus opnieuw een monster kan omsluiten zonder waarneembare lekkage.",
+      "bedoeling": "De term wordt gebruikt in de materiaalregistratie van de monsterbank om capsules na de reinigingscyclus in te delen.",
+      "context": {
+        "organisatorische_context": [
+          "Monsterbank Es (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Materiaalspecificatie Monsterbank Es (fictief; geen geldend recht), §6: 'Reinigingscyclus R2 bestaat uit twintig minuten spoelen op 60 °C en drogen aan de lucht. Na R2 wordt de capsule met een testmonster gevuld en 24 uur rechtop bewaard; daarna kijkt een inspecteur of er vocht langs de afsluiting is getreden. Is er geen vocht getreden, dan heeft de capsule haar afsluitfunctie na R2 behouden.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G036",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "herstelronde",
+      "kern": "Proces waarbij de medewerker alle afgekeurde exemplaren moet verzamelen en ze vóór sluiting opnieuw moet aanbieden.",
+      "bedoeling": "De term wordt in de procesoverzichten van de revisieproef gebruikt voor het proces waarin afgekeurde exemplaren opnieuw worden aangeboden.",
+      "context": {
+        "organisatorische_context": [
+          "Revisieproef Ginkgo (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Voor iedere herstelronde gelden voor medewerkers de opdrachten verzamelen van afgekeurde exemplaren en opnieuw aanbieden vóór sluiting.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G039",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "adviesprocedure",
+      "kern": "Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.",
+      "bedoeling": "De term wordt opgenomen in de procescatalogus van de organisatie. Die catalogus rubriceert processen naar hun eindresultaat.",
+      "context": {
+        "organisatorische_context": [
+          "Procescatalogus Jeneverbes (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Procescatalogus Jeneverbes (fictief; geen geldend recht), rubriek Advisering: 'Het proces met als eindresultaat een gemotiveerd advies omvat drie fasen: ontvangst van de adviesvraag, onderzoek en beantwoording. Per afdeling staat in de werkinstructies W-12 tot en met W-15 wie een fase uitvoert en binnen welke termijn.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    }
+  ],
+  "vervangers": [
+    {
+      "id": "G041",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "meldplichtige wijziging",
+      "kern": "Wijziging in de samenstelling van een product die de producent vóór de eerste levering van het gewijzigde product aan het productregister moet melden.",
+      "bedoeling": "De term wordt opgenomen in de begrippenlijst bij het productregister, naast de termen 'productwijziging' en 'melding'.",
+      "context": {
+        "organisatorische_context": [
+          "Productregister Wegedoorn (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Registerreglement Wegedoorn (fictief; geen geldend recht), art. 8: 'Een producent meldt een wijziging in de samenstelling van een product aan het productregister vóór de eerste levering van het gewijzigde product. Dit reglement noemt zo'n wijziging een meldplichtige wijziging. Wijzigingen in verpakking of etiket zijn geen meldplichtige wijzigingen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Registerreglement Wegedoorn (fictief; geen geldend recht), art. 9: 'Het productregister vermeldt bij iedere ontvangen melding de datum van ontvangst en de datum van eerste levering die de producent opgeeft.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G042",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "afgeschermd proefvlak",
+      "kern": "Proefvlak dat met een hekwerk van ten minste 1,20 meter hoog wordt afgeschermd.",
+      "bedoeling": "De term komt voor in het veldreglement en op de veldkaart van de proeftuin. De gebruiker wil één omschrijving die in beide stukken bruikbaar is.",
+      "context": {
+        "organisatorische_context": [
+          "Proeftuin Gagel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Veldreglement Gagel (fictief; geen geldend recht), art. 6: 'Een proefvlak waarop gewassen onder ontheffing worden geteeld, wordt met een hekwerk van ten minste 1,20 meter hoog afgeschermd.' Art. 2 van hetzelfde reglement: 'Een proefvlak wordt na de oogst binnen twee weken geploegd.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Veldkaart Gagel seizoen 2026 (fictief), legenda: 'Grijs vlak: proefvlak. Grijs vlak met rode rand: afgeschermd proefvlak.' Op de kaart hebben 9 van de 14 proefvlakken een rode rand.",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G043",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "vervaltermijn",
+      "kern": "Termijn na afloop waarvan een aanspraak die niet schriftelijk is ingeroepen vervalt, zonder dat de termijn kan worden verlengd.",
+      "bedoeling": "De term wordt opgenomen in de begrippenlijst bij het deelnemersreglement. In die lijst komt ook de term 'klachttermijn' voor.",
+      "context": {
+        "organisatorische_context": [
+          "Spaarkring Hop (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Deelnemersreglement Spaarkring Hop (fictief; geen geldend recht), art. 11: 'Een aanspraak op teruggave van een inleg vervalt als de deelnemer haar niet binnen zes maanden na de inleg schriftelijk heeft ingeroepen. Deze termijn van zes maanden is de vervaltermijn; zij kan niet worden verlengd.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Deelnemersreglement Spaarkring Hop (fictief; geen geldend recht), art. 12: 'Een klacht wordt binnen vier weken na de gebeurtenis ingediend (klachttermijn). Het bestuur kan de klachttermijn in bijzondere gevallen verlengen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G044",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "proefmonster",
+      "kern": "Monster dat de laborant niet mag openen voordat twee medewerkers de verzegeling hebben gecontroleerd.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de monsterregistratie en heeft daarvoor een zin uit het werkvoorschrift van het laboratorium aangeleverd.",
+      "context": {
+        "organisatorische_context": [
+          "Laboratorium Kers (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Werkvoorschrift laboratorium Kers (fictief; geen geldend recht), art. 2.4: 'Verzegelde monsters voor de externe vergelijkingsproef mag de laborant niet openen voordat twee medewerkers de verzegeling hebben gecontroleerd en dat met hun paraaf op het begeleidingsformulier hebben bevestigd.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Handleiding monsterregistratie Kers (fictief; geen geldend recht), veld 'monstersoort': 'Waarden: regulier, proefmonster. Kies proefmonster voor een monster dat voor de externe vergelijkingsproef is verzegeld.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G045",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "aanvullend stuk",
+      "kern": "Stuk ter aanvulling van een subsidieaanvraag dat na een hersteloproep binnen tien werkdagen is in te dienen.",
+      "bedoeling": "De term wordt gebruikt in de beschikkingssjablonen en in de aanvraaghandleiding van het subsidieloket.",
+      "context": {
+        "organisatorische_context": [
+          "Subsidieloket Mispel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Subsidieregeling Mispel (fictief; geen geldend recht), art. 9: 'Na een hersteloproep is een stuk ter aanvulling van de aanvraag binnen tien werkdagen in te dienen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Subsidieregeling Mispel (fictief; geen geldend recht), art. 4: 'Het aanvraagformulier is door de aanvrager te ondertekenen.' Art. 15: 'Tegen een besluit is binnen zes weken na bekendmaking bezwaar in te stellen bij de commissie.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G046",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "werkmandaat",
+      "kern": "Bevoegdheid die het bestuur schriftelijk aan een medewerker verleent en op ieder moment kan intrekken, om binnen een omschreven taak namens het bestuur besluiten te nemen.",
+      "bedoeling": "De term wordt opgenomen in het bevoegdhedenregister van de stichting.",
+      "context": {
+        "organisatorische_context": [
+          "Stichting Vuilboom (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Stichtingsreglement Vuilboom (fictief; geen geldend recht), art. 20: 'Het bestuur kan een medewerker schriftelijk werkmandaat verlenen om binnen een omschreven taak namens het bestuur besluiten te nemen. Het bestuur kan een werkmandaat op ieder moment intrekken. Een besluit binnen het werkmandaat geldt als besluit van het bestuur.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Bevoegdhedenregister Vuilboom (fictief), regel 14: 'Werkmandaat; medewerker inkoop; taak: bestellingen tot 5.000 euro; verleend 3 februari 2026; niet ingetrokken.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G047",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "afmelding",
+      "kern": "Melding aan het deelnemersregister dat een deelnemer de proef heeft verlaten, die de coördinator binnen vijf werkdagen na het laatste contact met die deelnemer doet.",
+      "bedoeling": "De term wordt gebruikt in de maandcijfers van het deelnemersregister van de proef.",
+      "context": {
+        "organisatorische_context": [
+          "Leefstijlproef Meidoorn (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Proefprotocol Meidoorn (fictief; geen geldend recht), §8.2: 'Verlaat een deelnemer de proef, dan meldt de coördinator dat binnen vijf werkdagen na het laatste contact met die deelnemer aan het deelnemersregister.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Maandcijfers deelnemersregister Meidoorn (fictief), juni 2026: 'Nieuwe deelnemers: 12. Afmeldingen: 7. Actieve deelnemers per 30 juni: 148.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G048",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "tussentijdse meting",
+      "kern": "Meting van de grondwaterstand tussen twee reguliere meetmomenten, met dien verstande dat de meetploeg haar alleen na een alarmmelding uitvoert.",
+      "bedoeling": "De term wordt gebruikt in de kwartaalrapportage van het peilnet. Die rapportage telt reguliere en tussentijdse metingen afzonderlijk.",
+      "context": {
+        "organisatorische_context": [
+          "Peilnet Wintergroen (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Meetplan peilnet Wintergroen (fictief; geen geldend recht), §5 'Meetfrequentie': 'De meetploeg meet de grondwaterstand op de reguliere meetmomenten, iedere eerste maandag van de maand. Tussen twee reguliere meetmomenten meet de meetploeg alleen na een alarmmelding van het peilsysteem.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Veldbeschrijving meetdatabase Wintergroen (fictief): 'Veld soort: regulier voor een meting op een regulier meetmoment, tussentijds voor iedere andere meting. Veld aanleiding, alleen bij tussentijdse metingen: alarm, klacht omwonende of kalibratiecontrole.' Kwartaaloverzicht eerste kwartaal 2026: 17 tussentijdse metingen, waarvan 6 met aanleiding alarm.",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G049",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "jaarverslag",
+      "kern": "Verslag over het afgelopen verenigingsjaar dat het bestuur vóór 1 april aan de ledenvergadering voorlegt.",
+      "bedoeling": "De term wordt in het ledenportaal gebruikt voor de verslagen over een verenigingsjaar. Volgens de gebruiker valt ook het verslag over 2025 eronder, dat in mei 2026 aan de ledenvergadering is voorgelegd.",
+      "context": {
+        "organisatorische_context": [
+          "Vereniging Brem (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Statuten Vereniging Brem (fictief; geen geldend recht), art. 14 lid 1: 'Het bestuur legt jaarlijks vóór 1 april een verslag over het afgelopen verenigingsjaar aan de ledenvergadering voor.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Ledenportaal Vereniging Brem (fictief), overzicht Jaarverslagen: 'Jaarverslag 2023: voorgelegd 21 maart 2024. Jaarverslag 2024: voorgelegd 27 maart 2025. Jaarverslag 2025: voorgelegd 14 mei 2026, na uitstel van de voorjaarsvergadering.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G050",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "servicetoeslag",
+      "kern": "Bedrag van vijf procent van de kale maandhuur, tenzij de huurcommissie een lager percentage passend vindt.",
+      "bedoeling": "De term wordt gebruikt op de jaarafrekening die leden van de wooncoöperatie ontvangen.",
+      "context": {
+        "organisatorische_context": [
+          "Wooncoöperatie Egelantier (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Huisvestingsreglement Egelantier (fictief; geen geldend recht), art. 17: 'De servicetoeslag bedraagt vijf procent van de kale maandhuur. De huurcommissie kan voor een lid een lager percentage vaststellen als zij dat gelet op de inkomenssituatie van het lid passend vindt. Een lager percentage geldt tot het einde van het kalenderjaar waarin het is vastgesteld.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Jaarafrekening Egelantier 2025 (fictief), regel servicetoeslag: 'Servicetoeslag: 12 × 5% van € 640 = € 384.' Voorbeeldregel voor een lid met een door de huurcommissie vastgesteld percentage van 3%: 'Servicetoeslag: 12 × 3% van € 640 = € 230,40.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G051",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "noodopvangplaats",
+      "kern": "Bed in de nachtopvang dat de dienstdoende begeleider iedere avond tot 23.00 uur vrijhoudt voor aanmeldingen via de crisisdienst.",
+      "bedoeling": "De gebruiker bedoelt met de term de bedden die in de capaciteitsplanning van de nachtopvang als noodopvangplaats zijn aangewezen.",
+      "context": {
+        "organisatorische_context": [
+          "Nachtopvang Sleedoorn (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Huisregels medewerkers Sleedoorn (fictief; geen geldend recht), art. 3: 'De dienstdoende begeleider houdt iedere avond tot 23.00 uur twee bedden vrij voor aanmeldingen via de crisisdienst. Welke twee bedden dat zijn, kiest de begeleider per avond.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Capaciteitsplanning Sleedoorn 2026 (fictief): 'Totaal 24 bedden. Bed 23 en bed 24 zijn aangewezen als noodopvangplaats.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G052",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "voorrangsaanvraag",
+      "kern": "Weeg de urgentie van de aanvraag af tegen de beschikbare behandelcapaciteit en geef de aanvraag voorrang wanneer u de urgentie zwaarder vindt wegen.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van het intakepunt en heeft stap 4 van de intakewijzer als omschrijving aangeleverd.",
+      "context": {
+        "organisatorische_context": [
+          "Intakepunt Hondsroos (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Intakewijzer Hondsroos (fictief; geen geldend recht), stap 4 en 5, gericht aan de intakemedewerker: 'Stap 4: Weeg de urgentie van de aanvraag af tegen de beschikbare behandelcapaciteit en geef de aanvraag voorrang wanneer u de urgentie zwaarder vindt wegen. Stap 5: Noteer de uitkomst in het intakeoverzicht.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Intakeoverzicht Hondsroos (fictief), toelichting bij kolom V: 'Een V staat bij aanvragen die bij de intake voorrang hebben gekregen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    }
+  ],
+  "wijzigingslog": [
+    {
+      "id": "G001",
+      "oorspronkelijke_id": "G001",
+      "besluitbestand": "besluit-chris-g001-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "De bedoeling zegt niet langer dat de bron 'een operationele keuze regelt'. Ze vermeldt nu het gebruiksdoel en de herkomst uit het werkhandboek voor planners. De samenvattende bron met de metazin 'Dit hoofdstuk bevat de instructies aan de planner' is vervangen door een concrete fictieve handboekpassage. Betekenis behouden: de planner beslist per overbelasting en weegt de extra reistijd; het hoofdstuk betreft de werkwijze van de planner. Kern, begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Het door Chris geaccepteerde label fail geldt voor de oude versie; de nieuwe versie vraagt herbeoordeling."
+    },
+    {
+      "id": "G002",
+      "oorspronkelijke_id": "G002",
+      "besluitbestand": "besluit-chris-g002-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "Uit de bedoeling is de ontkenning 'niet een instructie om verkeer om te leiden' geschrapt. De bron is uitgewerkt tot een concrete passage over routesoorten (B1). Voor de oorspronkelijke mededeling dat een routekeuzeprocedure afzonderlijk is beschreven, is een concrete procedurepassage (B2) in de plaats gekomen. Kern, begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Herbeoordeling nodig."
+    },
+    {
+      "id": "G003",
+      "oorspronkelijke_id": "G003",
+      "besluitbestand": "besluit-chris-g003-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "De samenvatting 'versie A … versie B … de toepasselijke versie is niet gekozen' is vervangen door twee concrete fictieve conceptversies van het reglement. Versie A maakt het type afhankelijk van registratie van het aanwijzingsbesluit, versie B geeft het laboratorium een gebruiksopdracht in dezelfde woorden als de kern. De bedoeling vermeldt alleen dat beide conceptversies zijn meegestuurd; welke versie van toepassing is, ontbreekt zoals in het origineel. Kern, begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Herbeoordeling nodig; zie selectiepunt G003/G014."
+    },
+    {
+      "id": "G005",
+      "oorspronkelijke_id": "G005",
+      "besluitbestand": "besluit-chris-g005-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling"
+      ],
+      "toelichting": "Alleen de bedoeling is gewijzigd: 'niet een handeling van een beheerder' is geschrapt en het gebruik in de capaciteitsrapportage is vermeld. Bron (tekst en herkomst), kern, begrip, context en oorspronkelijke herkomst zijn exact gelijk. Herbeoordeling nodig; zie selectiepunt G005 tegenover C116/C27."
+    },
+    {
+      "id": "G006",
+      "oorspronkelijke_id": "G006",
+      "besluitbestand": "besluit-chris-g006-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "De samenvatting 'De ene bron … De andere bron … Voorrang is onbeslist' is vervangen door twee concrete passages. B1 is de registertoelichting waarin de vaststelling van de commissie de status bepaalt. B2 is het commissiereglement met de afweging voor aanvaarding. De bedoeling noemt beide stukken zonder functieduiding. Een voorrangsregeling ontbreekt, zoals in het origineel, maar wordt niet meer uitdrukkelijk als onbeslist aangekondigd. Kern, begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Herbeoordeling nodig."
+    },
+    {
+      "id": "G014",
+      "oorspronkelijke_id": "G014",
+      "besluitbestand": "besluit-chris-g014-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "De samenvatting van bron A/B is vervangen door de concrete herstelregeling (B1: registratie bepaalt de status) en de werkinstructie (B2: afmeldopdracht met termijn). De bedoeling behoudt dat de gebruiker de keuze tussen de stukken niet in de omschrijving wil vastleggen, maar zonder formule over bronlezingen. Kern, begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Herbeoordeling nodig; zie selectiepunt G003/G014 over de vraag of de onzekerheid overtuigt."
+    },
+    {
+      "id": "G016",
+      "oorspronkelijke_id": "G016",
+      "besluitbestand": "besluit-chris-g016-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "De duiding 'de bron regelt een afweging over aanvaarding' is uit de bedoeling geschrapt; de bedoeling beschrijft nu het beoogde gebruik van de term. De samenvattende bron is vervangen door een concreet fictief reglementsartikel met dezelfde afweging en bevoegdheid. De bewust foutieve kern is ongewijzigd, net als begrip, context en oorspronkelijke herkomst. Herbeoordeling nodig; zie selectiepunt G016/G001."
+    },
+    {
+      "id": "G018",
+      "oorspronkelijke_id": "G018",
+      "besluitbestand": "besluit-chris-g018-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "De samenvatting 'Het classificatiemodel … Het toezichtprotocol … Beide lezingen zijn mogelijk' is vervangen door twee concrete passages: typologie met herroepingsvoorbehoud (B1) en de herroepingsafweging van de toezichthouder (B2). De bedoeling noemt beide stukken als opgegeven grond. Kern, begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Herbeoordeling nodig; zie selectiepunt G018."
+    },
+    {
+      "id": "G021",
+      "oorspronkelijke_id": "G021",
+      "besluitbestand": "besluit-chris-g021-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "'Niet een opdracht aan de commissie' is uit de bedoeling geschrapt. De bron is uitgewerkt tot concrete projectmodelpassages over het verslag waarin de drempelbeslissing staat. De verwijzing naar de afzonderlijk geregelde afweging is een concrete verwijzing naar bijlage 2 geworden. Kern, begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Herbeoordeling nodig."
+    },
+    {
+      "id": "G023",
+      "oorspronkelijke_id": "G023",
+      "besluitbestand": "besluit-chris-g023-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling"
+      ],
+      "toelichting": "Alleen de bedoeling is gewijzigd: 'de uitzondering begrenst welke intervallen in de categorie vallen' is geschrapt. Het feit dat de inventaris gewone en overgangsmetingen onderscheidt, is behouden. Bron (tekst en herkomst), kern, begrip, context en oorspronkelijke herkomst zijn exact gelijk. Het eerder geaccepteerde INT-02-label geldt niet automatisch voor deze versie (besluit G023). Zie selectiepunt G023 tegenover C58."
+    },
+    {
+      "id": "G030",
+      "oorspronkelijke_id": "G030",
+      "besluitbestand": "besluit-chris-g030-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "Afgesproken brononderbouwing: de samenvatting 'tabel … instructiekaart … geen bronkeuze' is vervangen door een concrete tabelrij met contrasterende aanbiedingstypen (B1) en een concrete instructiekaart waarop de zin tussen opdrachten staat (B2). Er is geen label voorgekozen. Kern, begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Herbeoordeling moet vaststellen of de onzekerheid inhoudelijk gedragen is; zie selectiepunt G030."
+    },
+    {
+      "id": "G033",
+      "oorspronkelijke_id": "G033",
+      "besluitbestand": "besluit-chris-g033-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "De duiding 'beslisruimte als object van beschrijving' en de sturende bronzin 'Een concrete keuze … is geen onderdeel van deze woordenboekinschrijving' zijn vervangen door de feitelijke plaats in het woordenboek en een inhoudelijke woordenboekinleiding over regelingen met en zonder gewichtsruimte. Kern met 'naar eigen inzicht', begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Herbeoordeling nodig."
+    },
+    {
+      "id": "G035",
+      "oorspronkelijke_id": "G035",
+      "besluitbestand": "besluit-chris-g035-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "De sturende ontkenningen 'er wordt geen besluit over inzet gevraagd' en 'kent geen herbruikbaarheidsstatus toe' zijn geschrapt. De bron is een concrete materiaalspecificatie met reinigingscyclus, lektest en waarneming door de inspecteur. Betekenis behouden: herbruikbaarheid is behoud van de afsluitfunctie na de cyclus en de inspecteur neemt lekkage waar. Kern, begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Herbeoordeling nodig."
+    },
+    {
+      "id": "G036",
+      "oorspronkelijke_id": "G036",
+      "besluitbestand": "besluit-chris-g036-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling"
+      ],
+      "toelichting": "Alleen de bedoeling is gewijzigd: 'deze tekst legt de medewerker taken en een deadline op' is geschrapt; het gebruik in de procesoverzichten is vermeld. De bewust foutieve kern met taken en deadline is behouden. Bron (tekst en herkomst), begrip, context en oorspronkelijke herkomst zijn exact gelijk. Herbeoordeling nodig."
+    },
+    {
+      "id": "G039",
+      "oorspronkelijke_id": "G039",
+      "besluitbestand": "besluit-chris-g039-v1.md",
+      "gewijzigde_velden": [
+        "bedoeling",
+        "bronnen"
+      ],
+      "toelichting": "'Deze inschrijving wijst geen uitvoerder aan of stappen toe' is uit de bedoeling geschrapt. De bron is een concrete catalogusrubriek met drie fasen en een verwijzing naar de werkinstructies W-12 tot en met W-15 voor uitvoerders en termijnen; het onderscheid tussen proces en werkinstructies blijft zo behouden. Kern, begrip, context en oorspronkelijke herkomst zijn ongewijzigd. Herbeoordeling nodig; de familie-indeling staat bij de selectiepunten."
+    },
+    {
+      "id": "G041",
+      "oorspronkelijke_id": "G009",
+      "besluitbestand": "besluit-chris-g009-v1.md; besluit-chris-g009-v2.md; besluit-chris-g019-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G009. G009 blijft onveranderd aanvullend ontwikkelmateriaal buiten de 40. De inhoud is volledig nieuw: een normatieve categorie waarvan de naam de plicht draagt, met het S1-signaalwoord 'moet' in een bijzin. De vervanger toetst de grens tussen een verplichting als begripskenmerk en een gedragsopdracht in een bijzin; vergelijk C112 tegenover C14/C52. Bewust gekozen in plaats van een tweede relatie-eigenschap; zie selectiepunt over de families."
+    },
+    {
+      "id": "G042",
+      "oorspronkelijke_id": "G010",
+      "besluitbestand": "besluit-chris-g010-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G010. G010 blijft ontwikkelmateriaal. De inhoud is volledig nieuw: in reglementstaal kan de onvoltooid tegenwoordige tijd met 'wordt' zowel een feit als een plicht uitdrukken. De veldkaart toont een categorie (9 van 14 vlakken omheind); het reglement legt voor een deel van de vlakken omheining op. Getoetst wordt de grens tussen 'afgeschermd' als onderscheidend kenmerk en als opgelegde plicht, zonder signaalwoord en zonder dat een bron een functie aanwijst."
+    },
+    {
+      "id": "G043",
+      "oorspronkelijke_id": "G013",
+      "besluitbestand": "besluit-chris-g013-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G013. G013 blijft ontwikkelmateriaal. De inhoud is volledig nieuw: een normatief termijnbegrip dat wordt afgebakend door het rechtsgevolg (verval) en door de beschreven afwezigheid van verlengingsruimte; het contrast is de verlengbare klachttermijn in dezelfde bron. Getoetst wordt dat een beschreven rechtsgevolg en een beschreven gebrek aan bevoegdheid geen voorschrift vormen. Afstand tot C53: zie selectiepunt over vervangers."
+    },
+    {
+      "id": "G044",
+      "oorspronkelijke_id": "G020",
+      "besluitbestand": "besluit-chris-g020-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G020. G020 blijft aanvullend ontwikkelmateriaal. De inhoud is volledig nieuw: een verbod aan een actor ('mag … niet openen voordat') is als kenmerk in een objectdefinitie ingebed. De registratiehandleiding geeft een andere lidmaatschapsgrond (verzegeld voor de vergelijkingsproef). Getoetst wordt de grens tussen een ingebed actorverbod en de definitie van een verbodsnorm (G007), zonder signaalwoord uit de S1-lijst."
+    },
+    {
+      "id": "G045",
+      "oorspronkelijke_id": "G022",
+      "besluitbestand": "besluit-chris-g022-v1.md (achtergrond: bespreking-chris-g022-v1.md)",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G022. G022 blijft betwist ontwikkelmateriaal zonder goldlabel. De inhoud is volledig nieuw en vermijdt het patroon 'X die actor start zodra actor Y acht'. De constructie 'is in te dienen' kan in het Nederlands mogelijkheid of verplichting betekenen. Dezelfde fictieve regeling gebruikt haar in art. 4 als verplichting en in art. 15 als mogelijkheid; de concrete gronden staan dus in de bron zelf. Getoetst wordt de grens tussen een termijncriterium en een ingebedde indieningsplicht."
+    },
+    {
+      "id": "G046",
+      "oorspronkelijke_id": "G025",
+      "besluitbestand": "besluit-chris-g025-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G025. G025 blijft aanvullend ontwikkelmateriaal; G004 blijft behouden. De inhoud is volledig nieuw: een definitie van een verleende, intrekbare gedelegeerde bevoegdheid waarin het S1-patroon 'kan … besluiten' voorkomt ('kan intrekken, om … besluiten'). Dit is de door het normcontract genoemde, nog niet uitgevoerde toets op vals alarm bij een beschrijvende bevoegdheidspassage met dezelfde marker. Afstand tot G029: zie selectiepunt G029."
+    },
+    {
+      "id": "G047",
+      "oorspronkelijke_id": "G026",
+      "besluitbestand": "besluit-chris-g026-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G026. G026 blijft betwist ontwikkelmateriaal zonder goldlabel. De inhoud is volledig nieuw: een termijn van vijf werkdagen met actor staat in de kern. Het protocol legt de termijn als taak op; de maandcijfers tellen afmeldingen zonder te vermelden of te late meldingen meetellen. Of de termijn lidmaatschap bepaalt of een taak is, hangt af van dat concrete ontbrekende feit. Er is geen tweede bron die een functie benoemt."
+    },
+    {
+      "id": "G048",
+      "oorspronkelijke_id": "G028",
+      "besluitbestand": "besluit-chris-g028-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G028. G028 blijft aanvullend ontwikkelmateriaal. De inhoud is volledig nieuw: een beperkende clausule ('met dien verstande dat … alleen na') oogt als lidmaatschapscriterium. Het meetplan formuleert haar als gedragsbeperking van de meetploeg; de database telt ook tussentijdse metingen zonder alarm (11 van 17). Getoetst wordt de grens tussen een criterium en een aan de kern gehechte actorbeperking, met concrete gegevens als grond."
+    },
+    {
+      "id": "G049",
+      "oorspronkelijke_id": "G032",
+      "besluitbestand": "besluit-chris-g032-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G032. G032 blijft aanvullend ontwikkelmateriaal; het eerdere vervangingsbesluit voor G020 blijft gelden. De inhoud is volledig nieuw: een statutaire termijnplicht staat als kenmerk in een objectdefinitie. De bedoeling van de gebruiker en het portaaloverzicht laten concreet zien dat ook een te laat voorgelegd verslag onder de term valt. Getoetst wordt de grens tussen een termijn als begripscriterium (vergelijk C22) en een termijnplicht, zonder signaalwoord. Gepaard met G047: zie selectiepunt over vervangers."
+    },
+    {
+      "id": "G050",
+      "oorspronkelijke_id": "G034",
+      "besluitbestand": "besluit-chris-g034-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G034. G034 blijft betwist ontwikkelmateriaal zonder goldlabel. De inhoud is volledig nieuw: een deterministische bedragsafleiding met een discretionaire uitzondering ('tenzij … passend vindt'). Het reglement geeft de commissie de afweging; de jaarafrekening toont het resulterende bedrag in beide varianten. Getoetst wordt of de uitzondering de samenstelling van het bedrag beschrijft of de beslisregel van de commissie uitvoert. Afstand tot C12/C82: zie selectiepunt over vervangers."
+    },
+    {
+      "id": "G051",
+      "oorspronkelijke_id": "G038",
+      "besluitbestand": "besluit-chris-g038-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G038. G038 blijft betwist ontwikkelmateriaal zonder goldlabel. De inhoud is volledig nieuw: de bevestigde bedoeling van de gebruiker (vast aangewezen bedden in de capaciteitsplanning, B2) staat tegenover de enige huisregel (bedden die de begeleider per avond kiest en vrijhoudt, B1). De kern volgt de huisregel. Mechanisme: strijd tussen bevestigde bedoeling en bron over de referent, niet dezelfde zin in twee stukken."
+    },
+    {
+      "id": "G052",
+      "oorspronkelijke_id": "G040",
+      "besluitbestand": "besluit-chris-g040-v1.md",
+      "gewijzigde_velden": [
+        "id",
+        "herkomst",
+        "begrip",
+        "kern",
+        "bedoeling",
+        "context",
+        "bronnen"
+      ],
+      "toelichting": "Nieuwe vervanger voor de plek van G040. G040 blijft ontwikkelmateriaal met behoud van de fout. De inhoud is volledig nieuw: een discretionaire afweging in gebiedende wijs met aanspreekvorm ('u … vindt'), zonder S1-marker. Het intakeoverzicht geeft de afgeleide registratie als mogelijke begripsgrond. Afstand tot C83 ('naar eigen inzicht', rechter) is groter dan bij G040; verwantschap met G008 (gebonden bevelen): zie selectiepunt over vervangers."
+    }
+  ],
+  "selectiepunten": [
+    {
+      "ids": [
+        "G005"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g005-v1.md",
+        "besluit-chris-g027-v1.md",
+        "invoer/ontwerpregister.md (C27, C116)",
+        "invoer/casuspool.json (G005, G027)"
+      ],
+      "bevinding": "G005 is een eenvoudige aftrekking van twee grootheden op een meetmoment. C116 (dagtotaal als som) en C27 (verschil tussen twee datums in jaren) testen hetzelfde type afleiding; G027 (gewogen gemiddelde) dekt in de nieuwe set al een complexere afleiding. Na het neutraliseren van de bedoeling ('niet een handeling van een beheerder') bevat G005 geen actor, geen signaalwoord en geen grensmoment meer. Het enige eigen element is de tijdsindexering 'op het meetmoment'. De zelfstandige meerwaarde tegenover C116/C27 is daardoor gering.",
+      "concreet_voorstel": "G005 in de 40 houden als eenvoudig ankergeval voor de familie begripscriterium/afleiding, en dan in ontwikkeling plaatsen, niet in de hold-out, vanwege de nabijheid tot C116/C27 uit het bekende ontwerpregister. Geen nieuwe vervanger: daarvoor ontbreekt een besluit.",
+      "vereist_besluit": "Chris: G005 behouden in ontwikkeling, of alsnog als ontwikkelmateriaal buiten de 40 plaatsen met een afzonderlijk vervangingsbesluit."
+    },
+    {
+      "ids": [
+        "G012",
+        "G008",
+        "G024"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g008-v1.md",
+        "besluit-chris-g012-v1.md",
+        "besluit-chris-g024-v1.md",
+        "invoer/ontwerpregister.md (C15, C105)"
+      ],
+      "bevinding": "G012 is een hoofdzin in de aantonende wijs met een organisatorische actor (meldkamer) en een reeks van twee handelingen ('vervolgens'); het gedefinieerde begrip komt als genus niet voor. C105 heeft dezelfde vorm (actor plus handeling, geen signaal), maar met één handeling en een persoonlijke actor. C15 is een procedure in een bijzin. De meerwaarde van G012 zit in de handelingsreeks en het ontbrekende genus; die is beperkt maar aanwijsbaar. G008 (gebiedende wijs), G012 (aantonende hoofdzin) en G024 (procedure in bijzin) dekken samen drie zinsvormen van hetzelfde voorschriftpatroon. De vraag of een bewust ongeschikte definitie als negatief testgeval bruikbaar is (Chris bij G012), is daarmee bevestigend te beantwoorden.",
+      "concreet_voorstel": "G012 behouden. G012 en G024 in ontwikkeling plaatsen vanwege de nabijheid tot C105 en C15; G008 kan naar de hold-out, omdat het ontwerpregister geen gebiedende-wijsvariant zonder genus bevat.",
+      "vereist_besluit": "Chris: splitsingsvoorkeur voor G008, G012 en G024 (bij de latere splitsing)."
+    },
+    {
+      "ids": [
+        "G003",
+        "G014"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g003-v1.md",
+        "besluit-chris-g014-v1.md",
+        "invoer/normcontract.md (N; T 'Onvoldoende informatie')"
+      ],
+      "bevinding": "Na de uitwerking verschillen de twee gevallen inhoudelijk. In G003 staan registratie (versie A) en gebruik door een derde (versie B, laboratorium) tegenover elkaar als lidmaatschapsgrond, en herhaalt B2 de 'wordt … gebruikt'-formulering van de kern als opdracht. In G014 staat de registratiehandeling van dezelfde actor in de kern in de aantonende wijs. B2 geeft die actor een opdracht met een termijn die de kern niet bevat. Onder N is het beschrijven van een registratiehandeling als kenmerk toegestaan. Zonder de kern te wijzigen is dus niet overtuigend te maken dat de kern in G014 zelf het handelen voorschrijft; de onzekerheid in G014 kan bij herbeoordeling vervallen. In G003 is de onzekerheid beter gedragen, al betreft zij deels de referent (ESS-terrein) naast de INT-02-functie. Er is geen kunstmatig conflict toegevoegd.",
+      "concreet_voorstel": "Beide gevallen onafhankelijk herbeoordelen. Blijkt G014 niet overtuigend onzeker, dan G014 niet naar review_required sturen: het label volgt de herbeoordeling. Chris beslist dan over de plaats (familie- of ontwikkelmateriaal). G003 en G014 niet over ontwikkeling en hold-out verdelen als ze beide blijven, wegens de gedeelde as registratie tegenover opdracht.",
+      "vereist_besluit": "Chris: na de herbeoordeling behoud van G014 in de 40, en eventueel een afzonderlijk vervangingsbesluit."
+    },
+    {
+      "ids": [
+        "G016",
+        "G001",
+        "G033"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g001-v1.md",
+        "besluit-chris-g016-v1.md",
+        "besluit-chris-g033-v1.md",
+        "invoer/normcontract.md (goedgekeurde markerlijst)"
+      ],
+      "bevinding": "Beide kernen zijn een discretionaire handelingsregel als definitie. G001 bevat geen S1-marker ('aanvaardbaar acht' valt niet onder `\\bredelijk\\s+acht\\b`) en opent met een situatievoorwaarde. G016 treft het patroon 'kan … besluiten' en opent met de actor. Het paar test of een beoordeling afhangt van de marker: dezelfde functie met en zonder treffer. G033 (marker 'naar eigen inzicht' in een beschrijvend begrip) vormt het tegencontrast. De markertreffers zijn handmatig tegen de regex uit het normcontract gecontroleerd, niet uitgevoerd.",
+      "concreet_voorstel": "Beide behouden. G001 (zonder marker) in de hold-out en G016 (met marker) in ontwikkeling. Zo toetst de hold-out of het profiel voorschriften ook zonder signaalwoord herkent.",
+      "vereist_besluit": "Chris: bevestiging van behoud en de voorgestelde splitsingsrichting."
+    },
+    {
+      "ids": [
+        "G018",
+        "G006",
+        "G022",
+        "G026",
+        "G045",
+        "G047"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g018-v1.md",
+        "besluit-chris-g022-v1.md",
+        "bespreking-chris-g022-v1.md",
+        "besluit-chris-g026-v1.md",
+        "invoer/ontwerpregister.md (C12, C13, C82, C83)"
+      ],
+      "bevinding": "Nu G022 en G026 zijn vervangen door G045 (modaliteit 'is te') en G047 (termijn als kenmerk of taak), is G018 het enige resterende geval met het patroon 'object dat de actor laat vervallen zodra de actor Y vindt' en twee concrete bronpassages. De zelfstandige testwaarde van G018 is daardoor gestegen. Het dichtstbijzijnde resterende geval is G006: een evaluatief oordeel van een orgaan in de kern met twee bronnen. G006 gaat over een constitutieve status tegenover een aanvaardingsregel, G018 over een typeclassificatie tegenover een herroepingsregel. De verwante ontwerpgevallen C12/C82/C13 blijven de dichtste externe buren.",
+      "concreet_voorstel": "G018 behouden in de familie ontbrekende of strijdige betekenisgrond. G006 en G018 aan dezelfde kant van de splitsing plaatsen om hold-out-lekkage via het gedeelde patroon te beperken.",
+      "vereist_besluit": "Chris: behoud van G018 na herbeoordeling en de splitsingsvoorkeur voor G006/G018."
+    },
+    {
+      "ids": [
+        "G023"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g023-v1.md",
+        "invoer/ontwerpregister.md (C58, C113)"
+      ],
+      "bevinding": "G023 en C58 hebben dezelfde logische vorm: een criterium met een tenzij-uitzondering, S0-signaal 'tenzij'. Het eigen element van G023 is het technische domein en het modale 'mag' in de bron, die een meting beschrijft en geen actor aanspreekt. Dat is een leesvalkuil, geen nieuwe functiegrens. De mogelijke spanning tussen 'omvat een overgangsmeting' (kern) en 'overspannen twee trappen' (bron) hoort bij andere regels en valt buiten het INT-02-oordeel (besluit G023).",
+      "concreet_voorstel": "G023 behouden als kandidaat in ontwikkeling, niet in de hold-out, wegens de nabijheid tot C58.",
+      "vereist_besluit": "Chris: behoud van G023 in ontwikkeling."
+    },
+    {
+      "ids": [
+        "G024"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g024-v1.md",
+        "invoer/ontwerpregister.md (C15, C52)"
+      ],
+      "bevinding": "G024 en C15 hebben allebei een objectnaamwoord met een bijzin die een actorprocedure bevat. G024 voegt een volgorde toe ('eerst … daarna') en betreft verificatie, geen afwijzingsbeslissing. De structurele nabijheid tot C15 is groot; het inhoudelijke verschil zit in de volgorde en de handelingssoort.",
+      "concreet_voorstel": "G024 behouden als kandidaat in ontwikkeling, niet in de hold-out; zie ook het selectiepunt G012/G008/G024.",
+      "vereist_besluit": "Chris: behoud van G024 in ontwikkeling."
+    },
+    {
+      "ids": [
+        "G029",
+        "G046",
+        "G017"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g029-v1.md",
+        "besluit-chris-g017-v1.md",
+        "invoer/ontwerpregister.md (C112)",
+        "invoer/normcontract.md (markerlijst; opmerking over de nog niet uitgevoerde vals-alarmproef bij C59)"
+      ],
+      "bevinding": "G029 heeft dezelfde zinsbouw als C112 ('Bevoegdheid/Verplichting van X om Y te doen'); het verschil is bevoegdheid tegenover plicht, met een voorwaarde (na heronderzoek). Met vervanger G046 komt er een tweede bevoegdheidsdefinitie bij, maar met eigen kenmerken: verleend, schriftelijk, intrekbaar, namens een ander orgaan, en een treffer op het S1-patroon 'kan … besluiten'. G046 vult de in het normcontract genoemde lacune (beschrijvende bevoegdheidspassage met dezelfde marker); G029 doet dat niet.",
+      "concreet_voorstel": "Beide behouden. G029 in ontwikkeling wegens de nabijheid tot C112; G046 is geschikt voor de hold-out omdat het ontwerpregister geen beschrijvende bevoegdheid met markertreffer bevat.",
+      "vereist_besluit": "Chris: behoud van G029 naast G046 en de splitsingsvoorkeur."
+    },
+    {
+      "ids": [
+        "G039",
+        "G036",
+        "G041"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g039-v1.md",
+        "besluit-chris-g036-v1.md",
+        "../../kwalificatieprotocol-v1.md (tabel families)",
+        "invoer/normcontract.md (grenzen: 'een proces beschrijven blijft toegestaan')"
+      ],
+      "bevinding": "G039 is een beschrijvend procesbegrip dat wordt afgebakend door drie fasen en het eindresultaat. Het bevat geen recht, plicht, bevoegdheid of beslissing; indelen als normatief begrip vereist een verzonnen norm en is daarom niet gedaan. De kenmerken (fasen plus resultaat) werken als lidmaatschapscriteria. Dat past bij de familie 'Begripscriterium en deterministische afleiding' (verwachte hoofdgrens pass), met G036 (proceslabel met taken) als contrast in de voorschriftfamilie.",
+      "concreet_voorstel": "G039 indelen bij familie 1 (begripscriterium/afleiding). De afgesproken verdeling 10/10/10/10 met 6/4 per familie blijft gelijk: de vervanger op de plek van de relatie-eigenschap G009 (G041) is bewust als normatief begrip ontworpen. De indeling hieronder is een ontwerpindeling van de coördinerende CLI, geen label; de beoordelaarsfamilies zijn niet gelezen. Familie 1: G002, G005, G011, G015, G019, G023, G027, G031, G035, G039. Familie 2: G004, G007, G017, G021, G029, G033, G037, G041, G043, G046. Familie 3: G001, G008, G012, G016, G024, G036, G044, G048, G049, G052. Familie 4: G003, G006, G014, G018, G030, G042, G045, G047, G050, G051. Wijken de herbeoordeelde labels af, dan geen quotum afdwingen; Chris beslist.",
+      "vereist_besluit": "Chris: G039 bij familie 1 indelen en de ontwerpindeling als uitgangspunt nemen voor de splitsing. De definitieve familie volgt uit de geaccepteerde labels."
+    },
+    {
+      "ids": [
+        "G030"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g030-v1.md",
+        "besluit-chris-g032-v1.md",
+        "besluit-chris-g034-v1.md"
+      ],
+      "bevinding": "Na concrete uitwerking geeft B1 een samenhangende typologie (actief, vervallen, gegund) met registerstatus; de zin werkt daar als lidmaatschapsomschrijving. B2 zet dezelfde zin in de aantonende wijs tussen twee opdrachten op de instructiekaart. Dat de zin op een instructiekaart staat, maakt hem niet vanzelf tot voorschrift; een fail-lezing vereist dat de kaart de betekenisgevende bron is. De onzekerheid is aannemelijk maar niet sterk. Zonder de kern te wijzigen is een scherper conflict niet te maken zonder het kunstmatig te construeren. De voortzetting is bovendien gebonden ('zolang … beschikbaar blijft') en niet discretionair.",
+      "concreet_voorstel": "Onafhankelijk herbeoordelen zonder voorgekozen label (conform besluit G030). Levert de herbeoordeling pass of fail op, dan dat label volgen; G030 blijft dan in de familie die bij dat label hoort, en Chris beslist over de verdeling.",
+      "vereist_besluit": "Chris: acceptatie van het label na herbeoordeling en de eventuele familieverschuiving."
+    },
+    {
+      "ids": [
+        "G041",
+        "G043",
+        "G044",
+        "G046",
+        "G047",
+        "G049",
+        "G050",
+        "G052",
+        "G042",
+        "G051"
+      ],
+      "bronverwijzingen": [
+        "invoer/ontwerpregister.md (C12, C14, C22, C52, C53, C82, C112)",
+        "invoer/casuspool.json (G007, G008, G029)"
+      ],
+      "bevinding": "Inhoudelijke afstand van de vervangers, met de nabijheid eerlijk benoemd. G041 ligt tussen C112 en C14/C52 (bijzin met 'moet'); nieuw is dat de term zelf de plicht benoemt. G043 ligt bij C53 (rechtsgevolg), nieuw zijn termijn, verval en beschreven geen-verlenging. G044 is een verbodsvariant naast C52/C105 en contrasteert bewust met G007. G046 ligt bij G029, nieuw is de markertreffer. G047 en G049 toetsen dezelfde as (termijn als kenmerk of als plicht, vergelijk C22) met verschillende gronden: een concreet ontbrekend feit tegenover concreet tegenbewijs. G042 en G051 toetsen allebei 'categorie of opgelegde handeling', via verschillende mechanismen ('wordt'-modaliteit tegenover strijd tussen bedoeling en bron). G050 ligt dicht bij C12/C82 (tenzij met oordeel), nieuw is de deterministische bedragsafleiding. G052 is verwant aan G008 (gebiedende wijs), maar discretionair. Geen vervanger vervangt alleen actor, object of woorden van een bekend geval; de zoekcontrole op kernbegrippen in casuspool en ontwerpregister gaf geen treffers.",
+      "concreet_voorstel": "Het paar G047/G049 en het paar G042/G051 elk aan dezelfde kant van de splitsing plaatsen. G050 in ontwikkeling plaatsen wegens de nabijheid tot C12/C82. De overige vervangers zijn geschikt voor elke kant.",
+      "vereist_besluit": "Chris: acceptatie van de vervangers als kandidaten na onafhankelijke herbeoordeling, en de splitsingsvoorkeuren."
+    },
+    {
+      "ids": [
+        "G002",
+        "G035",
+        "G021"
+      ],
+      "bronverwijzingen": [
+        "besluit-chris-g002-v1.md",
+        "besluit-chris-g021-v1.md",
+        "besluit-chris-g035-v1.md"
+      ],
+      "bevinding": "Bij het neutraler maken is inhoud toegevoegd die de betekenis moet behouden en extra controle verdient. G002 heeft een concrete procedurepassage gekregen (B2) in plaats van de mededeling dat een routekeuzeprocedure apart staat; die passage bevat een actoropdracht buiten de kern. In G035 is de zin 'kent geen herbruikbaarheidsstatus toe' vervangen door een concrete lektest waarin de inspecteur waarneemt. In G021 staat nu een verwijzing naar het beoordelingskader in plaats van 'de afweging is afzonderlijk geregeld'.",
+      "concreet_voorstel": "Bij de herbeoordeling nagaan of beoordelaars deze toevoegingen als betekenisbehoudend lezen. Anders de oorspronkelijke bronzin terugzetten in een volgende versie.",
+      "vereist_besluit": "Geen apart besluit nodig, tenzij de herbeoordeling een betekenisverschuiving vaststelt."
+    }
+  ],
+  "bewijsgrenzen": [
+    "Alle gevallen en bronpassages zijn synthetisch; alle documentnamen zijn fictief en doen geen uitspraak over juridische geldigheid of bestaand recht.",
+    "Dit bestand bevat geen goldlabels en geen geaccepteerde labels. De eerder door Chris geaccepteerde labels gelden voor de oorspronkelijke versies; iedere herwerking en vervanger vraagt een onafhankelijke herbeoordeling.",
+    "Families, getoetste grenzen en splitsingsvoorstellen in het wijzigingslog en de selectiepunten zijn ontwerpintenties van deze CLI-sessie, geen labels en geen beoordelaarsoordelen.",
+    "De oorspronkelijke beoordelaarsbestanden zijn bewust niet gelezen; de familie-indeling van bestaande gevallen is hier afgeleid, niet overgenomen.",
+    "De afstand tot C-gevallen is beoordeeld op de verkorte kernen in ontwerpregister v5. De volledige G/H-kolommen van de bronregisters zijn niet gelezen.",
+    "Markertreffers zijn handmatig beoordeeld tegen de regexpatronen in het normcontract; er is geen code uitgevoerd.",
+    "Er zijn geen modelcalls, appcode, prompts of modelproefuitkomsten gebruikt. Over modelkwaliteit wordt niets beweerd.",
+    "De SHA-256 van casuspool.json is in deze sessie niet opnieuw berekend. Kernen, begrippen, context en oorspronkelijke herkomst van de herwerkingen zijn visueel overgenomen; de coördinator moet ze machinaal vergelijken.",
+    "Er is geen splitsing, freeze of hold-out vastgelegd. Deze CLI-sessie heeft alle kandidaten gezien en mag niet optreden als O2-promptontwikkelaar of implementator.",
+    "Er zijn geen bestanden gewijzigd of verwijderd; de uitvoer bestaat alleen uit dit antwoord."
+  ]
+}

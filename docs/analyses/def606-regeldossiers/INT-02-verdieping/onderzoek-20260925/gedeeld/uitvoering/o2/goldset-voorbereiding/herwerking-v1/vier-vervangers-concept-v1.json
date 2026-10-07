@@ -1,0 +1,191 @@
+{
+  "status": "concept_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "vervangers": [
+    {
+      "id": "G053",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "reiskostenvergoeding",
+      "kern": "De administratie berekent voor iedere gereden dienstkilometer 0,23 euro, beperkt het bedrag per dag tot 40 euro en maakt het maandtotaal over aan de vrijwilliger.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de vrijwilligersadministratie en biedt daarvoor stap 3 uit de werkinstructie van de administratie aan.",
+      "context": {
+        "organisatorische_context": [
+          "Vrijwilligersorganisatie Lijsterbes (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Vrijwilligersreglement Lijsterbes (fictief; geen geldend recht), art. 12: 'Voor iedere kilometer die een vrijwilliger in opdracht van de organisatie rijdt (dienstkilometer), bedraagt de reiskostenvergoeding 0,23 euro, met een maximum van 40 euro per dag. De reiskostenvergoeding wordt maandelijks uitbetaald.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Werkinstructie administratie Lijsterbes (fictief; geen geldend recht), stap 3 'Reiskosten': 'De administratie berekent voor iedere gereden dienstkilometer 0,23 euro, beperkt het bedrag per dag tot 40 euro en maakt het maandtotaal over aan de vrijwilliger.' Stap 4: 'Archiveer de rittenstaat bij de maandafrekening.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G054",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "eerstgerechtigde inschrijving",
+      "kern": "Inschrijving op de wachtlijst die op de dag waarop een tuin vrijkomt meer wachtpunten heeft dan iedere andere inschrijving of, bij een gelijk hoogste aantal wachtpunten, van de inschrijvingen met dat aantal het laagste inschrijfnummer heeft.",
+      "bedoeling": "De term wordt gebruikt in het wachtlijstoverzicht van de tuinvereniging en in de brief waarmee het bestuur een vrijgekomen tuin aanbiedt.",
+      "context": {
+        "organisatorische_context": [
+          "Tuinvereniging Kornoelje (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Tuinreglement Kornoelje (fictief; geen geldend recht), art. 5: 'Iedere inschrijving op de wachtlijst krijgt een inschrijfnummer; inschrijfnummers worden oplopend uitgegeven en niet hergebruikt. Een inschrijving krijgt één wachtpunt voor ieder volledig jaar dat zij op de wachtlijst staat.' Art. 6: 'Komt een tuin vrij, dan biedt het bestuur die tuin binnen twee weken aan de eerstgerechtigde inschrijving aan. Eerstgerechtigd is de inschrijving die op de dag waarop de tuin vrijkomt de meeste wachtpunten heeft; hebben meer inschrijvingen dat hoogste aantal, dan is van die inschrijvingen de inschrijving met het laagste inschrijfnummer eerstgerechtigd.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G055",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "openbare vergadering",
+      "kern": "Vergadering van de ledenraad die de voorzitter niet vóór de aanvang besloten heeft verklaard.",
+      "bedoeling": "De term wordt gebruikt in de vergaderkalender van de coöperatie, die bij iedere vergadering van de ledenraad vermeldt of zij openbaar of besloten is.",
+      "context": {
+        "organisatorische_context": [
+          "Coöperatie Vlier (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Reglement ledenraad Vlier (fictief; geen geldend recht), art. 8: 'De vergaderingen van de ledenraad zijn openbaar. De voorzitter kan een vergadering vóór de aanvang besloten verklaren wanneer de voorzitter dat ter bescherming van de persoonlijke levenssfeer van een lid nodig acht. Een besloten verklaring wordt in de vergaderkalender vermeld.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Vergaderkalender ledenraad Vlier 2026 (fictief): '12 februari: openbaar. 9 april: besloten (besloten verklaard op 2 april). 11 juni: openbaar.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G056",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+      "begrip": "zaalwacht",
+      "kern": "Medewerker die tijdens een voorstelling de nooduitgangen van de zaal vrijhoudt en bij alarm de ontruiming van de zaal leidt.",
+      "bedoeling": "De term wordt in het dienstrooster van het theater gebruikt als functienaam, naast de functies kassa en garderobe.",
+      "context": {
+        "organisatorische_context": [
+          "Theater Taxus (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Veiligheidsplan Theater Taxus (fictief; geen geldend recht), §3 'Bezetting': 'Bij iedere voorstelling zijn twee zaalwachten aanwezig. Een zaalwacht houdt tijdens de voorstelling de nooduitgangen van de zaal vrij en leidt bij alarm de ontruiming van de zaal.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Dienstrooster Theater Taxus (fictief), veld 'functie': 'Waarden: kassa, garderobe, zaalwacht.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+        }
+      ]
+    }
+  ],
+  "mapping": [
+    {
+      "oud": "G001",
+      "nieuw": "G053",
+      "besluitbestand": "besluit-chris-g001-v2.md"
+    },
+    {
+      "oud": "G005",
+      "nieuw": "G054",
+      "besluitbestand": "besluit-chris-g005-v2.md"
+    },
+    {
+      "oud": "G016",
+      "nieuw": "G055",
+      "besluitbestand": "besluit-chris-g016-v2.md"
+    },
+    {
+      "oud": "G023",
+      "nieuw": "G056",
+      "besluitbestand": "besluit-chris-g023-v2.md"
+    }
+  ],
+  "selectiepunten": [
+    {
+      "nieuw_id": "G053",
+      "inhoudelijk_verschil": "G001 bood een routekeuze van een planner aan als definitie, afhankelijk van diens waardering ('als hij de extra reistijd aanvaardbaar acht'). G053 bevat geen waardering of afweging. De kern is een volledig deterministische reken- en betaalstap van de administratie, voor een begrip dat met een afleiding te definiëren is (een bedrag). Het geval toetst de normzin dat een gebonden handelingsopdracht niet enkel door haar determinisme een afleidingsregel is, samen met de eis dat een afleidbaar begrip met de afleiding zelf wordt gedefinieerd. Tegenover C102 (gebonden afwijzingsopdracht, geen afleidbaar definiendum) staat in de kern hier de volledige afleidingsinhoud: tarief, dagmaximum en totaal. Tegenover C116 (afgeleide grootheid in kenmerkvorm) staat vergelijkbare rekeninhoud hier in handelingsvorm, met een uitbetalingsstap erbij. Tegenover G052 (stap uit een intakewijzer als definitie) ontbreekt iedere afweging.",
+      "nabije_ids": [
+        "C102",
+        "C116",
+        "G052"
+      ],
+      "bronsteun": "B2 bevat de kern letterlijk als stap 3 van de werkinstructie. B1 legt tarief, begrip dienstkilometer, dagmaximum en maandelijkse uitbetaling in reglementsvorm vast. B1 en B2 zijn inhoudelijk verenigbaar; er is geen kunstmatig bronconflict.",
+      "zelfstandig_of_herzien": "Zelfstandig; geen herschrijving van G001, want er zit geen discretie in en het gaat om een ander soort definiendum. Risico: een beoordelaar kan het geval tot de familie van instructies zonder afleiding rekenen (C102, G008, G012). Het onderscheid zit in het afleidbare definiendum, waarvan de volledige rekeninhoud in de kern staat."
+    },
+    {
+      "nieuw_id": "G054",
+      "inhoudelijk_verschil": "G005 was een eenvoudig rekenkundig verschil tussen twee grootheden van één object. G054 definieert een status die afhangt van de vergelijking van één inschrijving met alle andere inschrijvingen op een peildag (het hoogste aantal wachtpunten), met een deterministische beslissing bij gelijke stand (het laagste inschrijfnummer). In de bron is die rangorde direct gekoppeld aan een toewijzingshandeling van het bestuur (het aanbieden van de tuin); de kern laat die handeling weg. Het geval toetst of een relationele rangorde- en gelijkstandregel, die de vorm van een selectieregel heeft, als afleiding of als toewijzings- of beslisregel functioneert. Nieuw tegenover C10 en C27 (afleiding uit feiten van één object), C26 (terugvalcriterium binnen één persoon) en G027/C116 (rekenkundige grootheid).",
+      "nabije_ids": [
+        "C10",
+        "C26",
+        "G027"
+      ],
+      "bronsteun": "B1 art. 5 legt de inschrijfnummers (oplopend, uniek) en de opbouw van wachtpunten vast. Art. 6 omschrijft 'eerstgerechtigd' in dezelfde deterministische termen en koppelt daar het aanbod door het bestuur aan. Alle elementen van de kern zijn daarmee uit de bron te herleiden; er is geen tweede bron nodig.",
+      "zelfstandig_of_herzien": "Zelfstandig. Niet geregeld is het gelijktijdig vrijkomen van meer tuinen op één dag. Dat raakt de volledigheid of andere regels, niet de hier bedoelde INT-02-functiegrens, en het is bewust niet aangevuld om geen nieuwe premisse in te voeren."
+    },
+    {
+      "nieuw_id": "G055",
+      "inhoudelijk_verschil": "In G016 stond de discretionaire aanvaardingsbeslissing van de projectleider zelf in de kern, inclusief de waardering ('onevenredig belastend vindt'). In G055 staat de discretionaire bevoegdheid alleen in de bron: in B1 kan de voorzitter besloten verklaren wanneer de voorzitter dat nodig acht. De kern noemt alleen of die bevoegdheid al dan niet is gebruikt, als negatief kenmerk van een standaardcategorie, zonder maatstaf of afwegingsformulering. Het geval toetst of het beschrijven van de (niet-)uitoefening van een discretionaire bevoegdheid als kenmerk een beslisregel oplevert, en of discretie in de bron mag doorwerken in het oordeel over de kern. Tegenover C69 (positieve besluituitkomst als kenmerk) gaat het hier om een standaardcategorie met een negatief kenmerk. Tegenover G050 en G018 staat de waardering ('passend vindt', 'onwenselijk vindt') daar wel in de kern en hier niet.",
+      "nabije_ids": [
+        "C69",
+        "G050",
+        "G018"
+      ],
+      "bronsteun": "B1 art. 8 draagt het uitgangspunt (openbaar), de bevoegdheid tot besloten verklaren vóór de aanvang en de vermelding in de kalender. B2 laat zien hoe de kalender openbare en besloten vergaderingen onderscheidt. De bronnen zijn verenigbaar.",
+      "zelfstandig_of_herzien": "Zelfstandig, met de kanttekening dat het geval inhoudelijk het dichtst bij de gevalfamilie C69 ligt (uitkomst van een bevoegdheidsuitoefening als kenmerk). Het nieuwe element is de combinatie van een standaardcategorie, een negatief kenmerk en discretie die uitsluitend in de bron staat. Het is geen oppervlakkige variant van G016, omdat de kern geen handelende actor met een afweging bevat."
+    },
+    {
+      "nieuw_id": "G056",
+      "inhoudelijk_verschil": "G023 toetste een uitzondering ('tenzij') op een meetkenmerk. G056 bevat geen uitzondering. Het definiendum is zelf de handelende rol en wordt afgebakend door twee taken. Het geval toetst het verschil tussen een taakomschrijving die een rol afbakent en een handelingsvoorschrift aan een actor. Nieuw tegenover C105 ('De medewerker laat de aanvrager toe': hoofdzin met een actor als onderwerp die niet het definiendum is), C112 (definitie van een verplichting zelf) en G041 (plicht van een derde als kenmerk van een object). In B1 staan de taken in de normatieve tegenwoordige tijd van een reglement ('houdt ... vrij', 'leidt'); de kern gebruikt dezelfde werkwoorden in een betrekkelijke bijzin bij het definiendum.",
+      "nabije_ids": [
+        "C105",
+        "C112",
+        "G041"
+      ],
+      "bronsteun": "B1 §3 noemt beide taken van de zaalwacht letterlijk. B2 bevestigt dat 'zaalwacht' een functienaam is naast kassa en garderobe, overeenkomstig de bedoeling. De bronnen zijn verenigbaar.",
+      "zelfstandig_of_herzien": "Zelfstandig; inhoudelijk niet verwant aan G023, omdat het om een andere functiegrens gaat (actor als definiendum in plaats van een uitzondering als criterium). Of een beoordelaar het extensieprobleem ('iedere medewerker die deze taken feitelijk uitvoert') meeweegt, hoort bij andere regels en is bewust niet in de casus opgelost."
+    }
+  ],
+  "bewijsgrenzen": [
+    "Concepttekst; niet onafhankelijk beoordeeld en niet door Chris geaccepteerd.",
+    "In gevalobjecten en selectiepunten staat geen label, verwachte status, familie of splitsing; die bepalen de onafhankelijke beoordelaars en Chris.",
+    "Alle organisaties, regelingen en bronteksten zijn fictief; geen juridische geldigheidsclaim en geen persoonsgegevens.",
+    "De vergelijking met de 76 ontwerpgevallen berust op de verkorte kernen in ontwerpregister v5; de volledige bronregisters (a-, b- en c-registers) zijn niet gelezen.",
+    "De vergelijking met de 36 overige poolgevallen berust op casuspool-kandidaat-v3.json; de genoemde nabije ID's zijn een eigen leesoordeel, niet onafhankelijk gecontroleerd.",
+    "De vervangingsredenen zijn alleen ontleend aan de besluitbestanden v2; de v1-besluiten, herbeoordelingen en samengevoegde voorstellen zijn niet gelezen.",
+    "Niet gebruikt: appcode, modeluitkomsten, andere dossiers, web, API, productiedata en Gitacties. Er zijn geen bestanden geschreven, gewijzigd of verwijderd; de kandidaatpool is ongewijzigd.",
+    "Deze sessie heeft mogelijke latere eindtestkandidaten gezien en komt daarom niet in aanmerking als O2-promptontwikkelaar of appimplementator."
+  ]
+}

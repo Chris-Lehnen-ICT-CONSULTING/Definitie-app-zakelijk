@@ -1,0 +1,59 @@
+{
+  "datum": "2026-09-29",
+  "status": "voorstellen_niet_geaccepteerd",
+  "A": {
+    "beoordelaar": "A",
+    "aantal": 40,
+    "voorstellen": {
+      "fail": 10,
+      "pass": 20,
+      "review_required": 10
+    },
+    "passagecitaten": 46,
+    "grondcitaten": 106,
+    "fouten": []
+  },
+  "B": {
+    "beoordelaar": "B",
+    "aantal": 40,
+    "voorstellen": {
+      "fail": 10,
+      "pass": 20,
+      "review_required": 10
+    },
+    "passagecitaten": 41,
+    "grondcitaten": 80,
+    "fouten": []
+  },
+  "labelverschillen": [],
+  "beide_bruikbaar": [
+    "G004",
+    "G007",
+    "G008",
+    "G011",
+    "G012",
+    "G015",
+    "G017",
+    "G019",
+    "G024",
+    "G027",
+    "G029",
+    "G031",
+    "G037"
+  ],
+  "labels_sha256": {
+    "A": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a",
+    "B": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+  },
+  "sessies": {
+    "A": "e9963285-7fc3-41e6-bb85-6b31f43df4f0",
+    "B": "01a0ec8a-8346-77e2-94cf-ce9905085aac"
+  },
+  "exitcodes": {
+    "A": 0,
+    "B": 0
+  },
+  "contextvraag": "Codelezing src/domain/int02/contract.py:277: not any(invoer.context().values()); geen appproef.",
+  "nieuwe_appcalls": 0
+}
+

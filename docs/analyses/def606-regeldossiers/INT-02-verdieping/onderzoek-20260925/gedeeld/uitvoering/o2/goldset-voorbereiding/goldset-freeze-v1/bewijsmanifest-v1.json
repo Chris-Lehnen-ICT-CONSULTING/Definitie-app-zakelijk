@@ -1,0 +1,991 @@
+{
+  "soort": "def835-int02-goldset-bewijsmanifest/1",
+  "datum": "2026-09-30",
+  "normversie": "def771-int02/2",
+  "protocol_sha256": "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f",
+  "normcontract_sha256": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+  "selectievoorstel_sha256": "96d19b72f3a5adef7e7ccfd6cf7765b0e2b13576892ec635e7b6cee3d40c71a8",
+  "selectiebesluit_sha256": "6c80ae8b1ed354ea5d2a6039310c84f53eba0e41184c9b596c39609e903f7465",
+  "runner_fixture_sha256": "e18adb97279fa0fe75889df3541186c9341051c33348d1dd848526867239867d",
+  "bronbestanden_sha256": {
+    "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/acht-onzekerheidsgevallen-gevalobjecten-v1.json": "5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+    "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+    "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v1/zeven-onzekerheidsgevallen-gevalobjecten-v1.json": "6309d72b5b83b5ffb30cc7571e9e9df0eb2a95707f3d470e8a5dfd5827ab160f",
+    "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v2/zes-onzekerheidsgevallen-gevalobjecten-v1.json": "10b90000143356ff0e2064e4230528d68c29d7ae40a3e074f81bb311c98e8d5b"
+  },
+  "aantallen": {
+    "ontwikkeling": 24,
+    "holdout": 16,
+    "pass": 20,
+    "fail": 10,
+    "review_required": 10
+  },
+  "bestanden_sha256": {
+    "ontwikkeling-v1.json": "51905799fb18731cbbb959acaef13accf17c3a338260e524ab5d8250f50d4b83",
+    "holdout-v1.json": "0378ccf3a7ddf88e11ccebdba3b3118c26cce536801c06abf954a21772fc1fd3",
+    "kwalificatie-gevallen-v1.json": "af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953"
+  },
+  "gevallen": [
+    {
+      "id": "G011",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "status": "pass",
+      "geval_sha256": "7f003510c74c439322df407e9ae5bf747edd642934071a0a52961855eca4e75b",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g011-v1.md",
+      "besluitbestand_sha256": "5fb199395253986cda34f19f1b7cfb71e598bd7eb051298f86508d9494de13d4"
+    },
+    {
+      "id": "G015",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "status": "pass",
+      "geval_sha256": "f76754e0ec0a22894c25d731ee130ee0700e9d5b4a4ddb7830db22b596cb8df8",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g015-v1.md",
+      "besluitbestand_sha256": "b2e723f2a50e4071ad8a4b682a912ad3ce1061e7a81c5199b7acf030fcd2c814"
+    },
+    {
+      "id": "G019",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "status": "pass",
+      "geval_sha256": "d48a9ba29bfc613bc75f82c722feba50b83172331a43b3f62e2f5c4de6491d69",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g019-v1.md",
+      "besluitbestand_sha256": "cc01ae0e37187423c69f462f1ec3d1fd35c9934ea5c81f00719c3425a41069e9"
+    },
+    {
+      "id": "G027",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "status": "pass",
+      "geval_sha256": "9215a10c6acd52d0d9bd2010dbe5e1245753b9a75cea90186d30a08cfb6fd2d7",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g027-v1.md",
+      "besluitbestand_sha256": "bbeed034ff5fb6fb73cc2eaf0f466a7443156bdd750d34953dceb95e8dece97e"
+    },
+    {
+      "id": "G030",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "status": "pass",
+      "geval_sha256": "5cbeec159250199020cee4ac7c53484a542cd300012cc8c5a7a38fa49792bd75",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/hercontrole-voorstellen-met-posities-v1.json",
+          "bestand_sha256": "0a9998890c0a7fb670808f9f1c9afb67fa2f4d8352a294cc75b3957140e2dcff"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/hercontrole-voorstellen-met-posities-v1.json",
+          "bestand_sha256": "444965fdd132320b8b948a36b0234bcb9ce6594d21f4de812190851439270972"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g030-v2.md",
+      "besluitbestand_sha256": "d0cfb0bdde4ba34b94eb0021cb967a56bad34960e5c09800406b8aa7fe2a6f9a"
+    },
+    {
+      "id": "G039",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "status": "pass",
+      "geval_sha256": "c3c00b7255c23d3d8a65a2bc9ff05d89797f1d5e354ce2a78e81816c06d4d221",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g039-v2.md",
+      "besluitbestand_sha256": "3872c931b001f21d30e9ebdffb2c509f20b700051505c50c3ae1280235fe889f"
+    },
+    {
+      "id": "G002",
+      "fase": "holdout",
+      "familie": "begripscriterium_afleiding",
+      "status": "pass",
+      "geval_sha256": "877b162655c4d9e2d8e397b29622722cc443e280ffd66d7c745f6c40f4fa18c8",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g002-v2.md",
+      "besluitbestand_sha256": "33dc8932c3c419218084f66dc180bd89b8bc9eb37fb684c71938d870d3180d8c"
+    },
+    {
+      "id": "G031",
+      "fase": "holdout",
+      "familie": "begripscriterium_afleiding",
+      "status": "pass",
+      "geval_sha256": "ab9a5a3fc66725903a68452091d196bf57aebf081dd5b2bf4c7b9e1b0686373a",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g031-v1.md",
+      "besluitbestand_sha256": "b400c82caadc4be965f197d705895a5430d24f9a1dc9b63494b1bb27cc19abfb"
+    },
+    {
+      "id": "G035",
+      "fase": "holdout",
+      "familie": "begripscriterium_afleiding",
+      "status": "pass",
+      "geval_sha256": "f34c86191d5fdce189d21059876b9f6498e3ce6b4e26afae29ce81007b6cb592",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g035-v2.md",
+      "besluitbestand_sha256": "bfa6e377496aae82f1f3ecb54227d3c116684712b8a6a4daa07f49f49b669d3b"
+    },
+    {
+      "id": "G054",
+      "fase": "holdout",
+      "familie": "begripscriterium_afleiding",
+      "status": "pass",
+      "geval_sha256": "d5528f430c9ac61e6dd82e4274b3a1d90fa3b5a530d50dc1ba092c3a3fc1e199",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordeling-vier-a-met-posities-v1.json",
+          "bestand_sha256": "3f0b5d941523503d0069d0350bac49937de04376cd6abf17e9423e196388df43"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordeling-vier-b-met-posities-v1.json",
+          "bestand_sha256": "c270a4e9319b61f3270cee5ad01655f1c96b09e527c94c111ec71ec23870df2d"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-bundel-v1.md",
+      "besluitbestand_sha256": "46269e2b5b68a4985b853d299588f4ea18e0eb9c6a54e20bf021fbba0fd18203"
+    },
+    {
+      "id": "G007",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "status": "pass",
+      "geval_sha256": "7d11c5fe579f5d12b34bc02fa1e06f3fe8e759b06cb7a1ed5628c88b5a35b2f1",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g007-v1.md",
+      "besluitbestand_sha256": "b4ac552c3d3d94854d9414c4f08c1c13eab5dd5b1b2069ed23c15c9a1c648a1e"
+    },
+    {
+      "id": "G021",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "status": "pass",
+      "geval_sha256": "ae3892b99f52459c327a04138be4e8c9dc740ec253f44a76d15ec417e416cc1f",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g021-v2.md",
+      "besluitbestand_sha256": "56bb087d1dbf377b05b3461787fa73b6da5b1b7fbd6436be06935cb5c308dcca"
+    },
+    {
+      "id": "G037",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "status": "pass",
+      "geval_sha256": "11bffc764509e24966c0cf272b877b8ee0ca5f0d27c2a991d8fd24abcc546080",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g037-v1.md",
+      "besluitbestand_sha256": "afdda3fad7a4315728ab805f50f9710cc8793def7948850164257bf74de124f7"
+    },
+    {
+      "id": "G041",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "status": "pass",
+      "geval_sha256": "1f9361c1991fba0ee57ea1839d1c7d1c60e9e212d2f291ca451cfe02337ec529",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g041-v1.md",
+      "besluitbestand_sha256": "9884c22e9f668931a4012c12eb6b923264e9f8f23b00b1e1797b30df4f2fc7f5"
+    },
+    {
+      "id": "G046",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "status": "pass",
+      "geval_sha256": "061f092ed92be0d1f84a3aaeb13bfafd31b94bf5f157036fcf5a0e81f2a3376e",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g046-v1.md",
+      "besluitbestand_sha256": "e0f0ad4eeea11c883fdca759dee2f6c86aa2346f66ae063b57e4cc7e20cb69f6"
+    },
+    {
+      "id": "G055",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "status": "pass",
+      "geval_sha256": "089793e2c01876a47514b43d5705325065c405b5ed1529643e14bdd62cfbaf80",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordeling-vier-a-met-posities-v1.json",
+          "bestand_sha256": "3f0b5d941523503d0069d0350bac49937de04376cd6abf17e9423e196388df43"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordeling-vier-b-met-posities-v1.json",
+          "bestand_sha256": "c270a4e9319b61f3270cee5ad01655f1c96b09e527c94c111ec71ec23870df2d"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-bundel-v1.md",
+      "besluitbestand_sha256": "46269e2b5b68a4985b853d299588f4ea18e0eb9c6a54e20bf021fbba0fd18203"
+    },
+    {
+      "id": "G017",
+      "fase": "holdout",
+      "familie": "normatief_begrip",
+      "status": "pass",
+      "geval_sha256": "a18c94fc376371e8a0e234fc9bdd73b11b30691300b1daeb19562d94d0fa10a2",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g017-v1.md",
+      "besluitbestand_sha256": "096121ea75e033db8d0dbadc21b769484ca7cd7dbce9b2f7a3c5a5164f9568c3"
+    },
+    {
+      "id": "G033",
+      "fase": "holdout",
+      "familie": "normatief_begrip",
+      "status": "pass",
+      "geval_sha256": "08d202daa00cf9fd33b7dfc36c46a723612d064b8cc7f3c58e14bbdb6c8aac25",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g033-v2.md",
+      "besluitbestand_sha256": "b4a6ae278f7f1b6dffe0d3237c88ad1e6c4e4afdfb1a2b6e05780d61bf98fedd"
+    },
+    {
+      "id": "G043",
+      "fase": "holdout",
+      "familie": "normatief_begrip",
+      "status": "pass",
+      "geval_sha256": "0b9c2c0908575a4b300e2d0810901ee7dce82b9fe9e2592572017f44a37773a6",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g043-v1.md",
+      "besluitbestand_sha256": "24e90fcb0e40dae77c19004b3b75a8e28f2a0e0a1df9758d27708f7dbb3e1c91"
+    },
+    {
+      "id": "G056",
+      "fase": "holdout",
+      "familie": "normatief_begrip",
+      "status": "pass",
+      "geval_sha256": "4aa06373728bb00603ee78026be4597f3211c08e92e24afebe84c8252b16b607",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordeling-vier-a-met-posities-v1.json",
+          "bestand_sha256": "3f0b5d941523503d0069d0350bac49937de04376cd6abf17e9423e196388df43"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordeling-vier-b-met-posities-v1.json",
+          "bestand_sha256": "c270a4e9319b61f3270cee5ad01655f1c96b09e527c94c111ec71ec23870df2d"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-bundel-v1.md",
+      "besluitbestand_sha256": "46269e2b5b68a4985b853d299588f4ea18e0eb9c6a54e20bf021fbba0fd18203"
+    },
+    {
+      "id": "G008",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "status": "fail",
+      "geval_sha256": "2ab19e50ce89d1852dd5cfb8951157c8d07091dea6d69671d8524a6f59752ee5",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g008-v1.md",
+      "besluitbestand_sha256": "3d8c3a20e3be882141ffd85c803aab4e2170d7ac7f52a95e6ce7f33f99eef3f9"
+    },
+    {
+      "id": "G012",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "status": "fail",
+      "geval_sha256": "c246e7a8d9d59ae73ef8166d805f753a5ebf4f806ef4f2d1dea29443e901979b",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g012-v2.md",
+      "besluitbestand_sha256": "21c34ecb7bb83bc697ae427a21cdfa71197e5df5e6a78208de662d1529803ed5"
+    },
+    {
+      "id": "G036",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "status": "fail",
+      "geval_sha256": "757cbf65e4a2764b9f97ae1bd56a6c4408bb85ca3667bee945021440e45106e2",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g036-v2.md",
+      "besluitbestand_sha256": "4778273744ebc5a13b58067fcb4771699d9df35261f3b85a3bcbfd3e5009f413"
+    },
+    {
+      "id": "G048",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "status": "fail",
+      "geval_sha256": "dee44520499395a457cc937b2fc93b589b2c3bc053127f4fc0c5481db5790219",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g048-v1.md",
+      "besluitbestand_sha256": "d24ed27db52291b9ab3493ab2b619a1a4252a64ffdea6c16f1daa962eaa4c7d8"
+    },
+    {
+      "id": "G050",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "status": "fail",
+      "geval_sha256": "630e78914153d326e4c99be8aedc1482953b80e12167888f81ebca189ea8e936",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g050-v1.md",
+      "besluitbestand_sha256": "d3b82cd301f77a5f5936dcaa283d65d5c88ecc7ce1f7d15ffd2127ae4bb9d535"
+    },
+    {
+      "id": "G052",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "status": "fail",
+      "geval_sha256": "3b3b37629722517e4c2bc4c8c3d7ed1e1218053f45d7625acd55209f6dcf0486",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-bundel-v1.md",
+      "besluitbestand_sha256": "46269e2b5b68a4985b853d299588f4ea18e0eb9c6a54e20bf021fbba0fd18203"
+    },
+    {
+      "id": "G024",
+      "fase": "holdout",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "status": "fail",
+      "geval_sha256": "768a884d39bc8f8ef236d7fa317ffbae4b1861ecf60b0ebbabbb027e3c845284",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-a/labelvoorstellen-v1.json",
+          "bestand_sha256": "20cd03dc09ee2bf667a337133591b2a798f9420c50bce9cd31af67078acc801a"
+        },
+        "B": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "98fd39d62d919e914b41d51f22929242d959814ea55b54ab9bba2f5a03365fdb"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g024-v2.md",
+      "besluitbestand_sha256": "935a6816c9b800926dfce5b31a6f6a575ad44683604935e9cbce770d6ba09cfa"
+    },
+    {
+      "id": "G044",
+      "fase": "holdout",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "status": "fail",
+      "geval_sha256": "5169108580628e77d560855045fe38854a3de8b18e37f7758846c8b7f0fcd739",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g044-v1.md",
+      "besluitbestand_sha256": "cf3121146890a247afcba3e52ad353ab25fe372933ac20d10d4cd4195de3b614"
+    },
+    {
+      "id": "G049",
+      "fase": "holdout",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "status": "fail",
+      "geval_sha256": "f34a4af6930418aa2f8e5fb525de98b43f391cdfc0b5ca912ad653cfe1762d53",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-bundel-v1.md",
+      "besluitbestand_sha256": "46269e2b5b68a4985b853d299588f4ea18e0eb9c6a54e20bf021fbba0fd18203"
+    },
+    {
+      "id": "G053",
+      "fase": "holdout",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "status": "fail",
+      "geval_sha256": "f13d5b7482a9a7b57cae6f4bf550e05c7097c890b1ae28bb157cd4cde18f6a73",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordeling-vier-a-met-posities-v1.json",
+          "bestand_sha256": "3f0b5d941523503d0069d0350bac49937de04376cd6abf17e9423e196388df43"
+        },
+        "B": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordeling-vier-b-met-posities-v1.json",
+          "bestand_sha256": "c270a4e9319b61f3270cee5ad01655f1c96b09e527c94c111ec71ec23870df2d"
+        }
+      },
+      "gebruikte_motivering": "A",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-bundel-v1.md",
+      "besluitbestand_sha256": "46269e2b5b68a4985b853d299588f4ea18e0eb9c6a54e20bf021fbba0fd18203"
+    },
+    {
+      "id": "G042",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "status": "review_required",
+      "geval_sha256": "0f37c6bedaa657e1887cdadfc8d6b8013ecef025450c3a352115fa8946225c98",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "pass",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g042-v1.md",
+      "besluitbestand_sha256": "c00ff04bfdd837a9a4c29dc37c54f55b5356d991b913368305325144e0b44b4a"
+    },
+    {
+      "id": "G045",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "status": "review_required",
+      "geval_sha256": "f8354e3eb4bdf8bbebf34884e39569a900d8a5d8ac5c684ccdbab06aa8d7ffef",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g045-v1.md",
+      "besluitbestand_sha256": "d9c9c3fae5febf6e52657f9c62e5f4e484a552dfb8cd310393fdd7dcbff434d1"
+    },
+    {
+      "id": "G047",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "status": "review_required",
+      "geval_sha256": "9254f6d208eaa81320ea827f27bdabdbdb658c582ca75348d28c1d7a8538362a",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/casuspool-kandidaat-v4.json",
+      "bronbestand_sha256": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "fail",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-a/labelvoorstellen-v2.json",
+          "bestand_sha256": "6f8c97311978cbcbfa470df70a2a3fddaa2d054e3d5b176dd6a29fa2cfd20574"
+        },
+        "B": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/herwerking-v1/beoordelaar-b/labelvoorstellen-v1.json",
+          "bestand_sha256": "f050883e1ddbde22216b84edc592f32570e38c85a4193e19ce7d37fc50de45f7"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-g047-v1.md",
+      "besluitbestand_sha256": "c7b8d291b2f9629ca110d2e1e1fbeaaa1c6cfd146c8bb7a60fc02a663ec3f5d6"
+    },
+    {
+      "id": "G060",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "status": "review_required",
+      "geval_sha256": "60be4be669e329a9bd6c12bb4a07630daaf2c26519f78034e8548e71da321cae",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v1/zeven-onzekerheidsgevallen-gevalobjecten-v1.json",
+      "bronbestand_sha256": "6309d72b5b83b5ffb30cc7571e9e9df0eb2a95707f3d470e8a5dfd5827ab160f",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v1/beoordeling-zeven-a-met-posities-v1.json",
+          "bestand_sha256": "77bf2b3644c89d904559c4f79622c698e85c08b7c10c95783a08c7e6230198c9"
+        },
+        "B": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v1/beoordeling-zeven-b-voorstellen-v1.json",
+          "bestand_sha256": "e9604ca259ddba7c1447cc2834eed8331677d468cf53f4a545ceb9b85bf90b22"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-selectie-split-v1.md",
+      "besluitbestand_sha256": "6c80ae8b1ed354ea5d2a6039310c84f53eba0e41184c9b596c39609e903f7465"
+    },
+    {
+      "id": "G070",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "status": "review_required",
+      "geval_sha256": "eeb582609b4ba9312be42b8c8b3cc3950beceeebc389ed2fd4f06677af03fc6b",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/acht-onzekerheidsgevallen-gevalobjecten-v1.json",
+      "bronbestand_sha256": "5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/beoordeling-acht-a-voorstellen-v1.json",
+          "bestand_sha256": "d3c15ea87f116fbb24d8820054e428d61066b2820c30e46829455684a273c4f8"
+        },
+        "B": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/beoordeling-acht-b-voorstellen-v1.json",
+          "bestand_sha256": "e5a5a8b0b2bfb7e1f4b3d4b1b7fa121f193bbb31dd54cbc46b21939c7a226c60"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-selectie-split-v1.md",
+      "besluitbestand_sha256": "6c80ae8b1ed354ea5d2a6039310c84f53eba0e41184c9b596c39609e903f7465"
+    },
+    {
+      "id": "G076",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "status": "review_required",
+      "geval_sha256": "1a366fac036441f99a00dfd0cfc7b893a4826430e0a66e14f9f3fd5ba8440a02",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/acht-onzekerheidsgevallen-gevalobjecten-v1.json",
+      "bronbestand_sha256": "5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/beoordeling-acht-a-voorstellen-v1.json",
+          "bestand_sha256": "d3c15ea87f116fbb24d8820054e428d61066b2820c30e46829455684a273c4f8"
+        },
+        "B": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/beoordeling-acht-b-voorstellen-v1.json",
+          "bestand_sha256": "e5a5a8b0b2bfb7e1f4b3d4b1b7fa121f193bbb31dd54cbc46b21939c7a226c60"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-selectie-split-v1.md",
+      "besluitbestand_sha256": "6c80ae8b1ed354ea5d2a6039310c84f53eba0e41184c9b596c39609e903f7465"
+    },
+    {
+      "id": "G057",
+      "fase": "holdout",
+      "familie": "ontbrekende_strijdige_grond",
+      "status": "review_required",
+      "geval_sha256": "35f098efc39fd618dafc0f2755b544d758c07d55eb050e6650cdafb1207553f4",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v1/zeven-onzekerheidsgevallen-gevalobjecten-v1.json",
+      "bronbestand_sha256": "6309d72b5b83b5ffb30cc7571e9e9df0eb2a95707f3d470e8a5dfd5827ab160f",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v1/beoordeling-zeven-a-met-posities-v1.json",
+          "bestand_sha256": "77bf2b3644c89d904559c4f79622c698e85c08b7c10c95783a08c7e6230198c9"
+        },
+        "B": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v1/beoordeling-zeven-b-voorstellen-v1.json",
+          "bestand_sha256": "e9604ca259ddba7c1447cc2834eed8331677d468cf53f4a545ceb9b85bf90b22"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-selectie-split-v1.md",
+      "besluitbestand_sha256": "6c80ae8b1ed354ea5d2a6039310c84f53eba0e41184c9b596c39609e903f7465"
+    },
+    {
+      "id": "G068",
+      "fase": "holdout",
+      "familie": "ontbrekende_strijdige_grond",
+      "status": "review_required",
+      "geval_sha256": "6d45f2807444eb655f2247e97e2d03c05ff4b951b77c1ba19d2fdd1131dca481",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v2/zes-onzekerheidsgevallen-gevalobjecten-v1.json",
+      "bronbestand_sha256": "10b90000143356ff0e2064e4230528d68c29d7ae40a3e074f81bb311c98e8d5b",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v2/beoordeling-zes-a-met-posities-v1.json",
+          "bestand_sha256": "8ca4235842b2920fb1e39826e8c51e5c43316c867c5f906d8b1d1914682894db"
+        },
+        "B": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v2/beoordeling-zes-b-voorstellen-v1.json",
+          "bestand_sha256": "ec4b775e1ffdb8d369d5184f7a640aa9304279baf4b7a96c642f6d10b55cd1fa"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-selectie-split-v1.md",
+      "besluitbestand_sha256": "6c80ae8b1ed354ea5d2a6039310c84f53eba0e41184c9b596c39609e903f7465"
+    },
+    {
+      "id": "G071",
+      "fase": "holdout",
+      "familie": "ontbrekende_strijdige_grond",
+      "status": "review_required",
+      "geval_sha256": "94c5087b724b4b1b60f2460da1398f00e09bfceb54f1f044158a6c7db93650b1",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/acht-onzekerheidsgevallen-gevalobjecten-v1.json",
+      "bronbestand_sha256": "5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/beoordeling-acht-a-voorstellen-v1.json",
+          "bestand_sha256": "d3c15ea87f116fbb24d8820054e428d61066b2820c30e46829455684a273c4f8"
+        },
+        "B": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/beoordeling-acht-b-voorstellen-v1.json",
+          "bestand_sha256": "e5a5a8b0b2bfb7e1f4b3d4b1b7fa121f193bbb31dd54cbc46b21939c7a226c60"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-selectie-split-v1.md",
+      "besluitbestand_sha256": "6c80ae8b1ed354ea5d2a6039310c84f53eba0e41184c9b596c39609e903f7465"
+    },
+    {
+      "id": "G073",
+      "fase": "holdout",
+      "familie": "ontbrekende_strijdige_grond",
+      "status": "review_required",
+      "geval_sha256": "9aebb8e2b499a77ad4c1a57ccaffd2b0ad5d5c1294078c79117dc5b0193e6a71",
+      "bronbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/acht-onzekerheidsgevallen-gevalobjecten-v1.json",
+      "bronbestand_sha256": "5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+      "beoordelaars": {
+        "A": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/beoordeling-acht-a-voorstellen-v1.json",
+          "bestand_sha256": "d3c15ea87f116fbb24d8820054e428d61066b2820c30e46829455684a273c4f8"
+        },
+        "B": {
+          "voorstel": "review_required",
+          "bestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/aanvulling-onzekerheid-v3/beoordeling-acht-b-voorstellen-v1.json",
+          "bestand_sha256": "e5a5a8b0b2bfb7e1f4b3d4b1b7fa121f193bbb31dd54cbc46b21939c7a226c60"
+        }
+      },
+      "gebruikte_motivering": "B",
+      "besluitbestand": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-selectie-split-v1.md",
+      "besluitbestand_sha256": "6c80ae8b1ed354ea5d2a6039310c84f53eba0e41184c9b596c39609e903f7465"
+    }
+  ],
+  "bewijsgrens": "Chris accepteerde inhoud en hoofdlabels; normgrond en citaten zijn overgenomen uit de aangeduide onafhankelijke beoordelaarsvoorstellen. Mechanische citaatcontrole is geslaagd, inhoudelijke juistheid van alle redeneringszinnen is hiermee niet gemeten. De 16 hold-outs blijven buiten uitvoerdersbriefings; dit is procedurele scheiding op dezelfde Mac."
+}

@@ -1,0 +1,129 @@
+{
+  "status": "velden_gecontroleerd_geen_inhoudelijk_akkoord",
+  "fouten": [],
+  "wijzigingen": [
+    {
+      "id": "G001",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G002",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G003",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G005",
+      "gewijzigd": [
+        "bedoeling"
+      ]
+    },
+    {
+      "id": "G006",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G014",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G016",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G018",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G021",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G023",
+      "gewijzigd": [
+        "bedoeling"
+      ]
+    },
+    {
+      "id": "G030",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G033",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G035",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G036",
+      "gewijzigd": [
+        "bedoeling"
+      ]
+    },
+    {
+      "id": "G039",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    }
+  ],
+  "ongewijzigde_ids": [
+    "G004",
+    "G007",
+    "G008",
+    "G011",
+    "G012",
+    "G015",
+    "G017",
+    "G019",
+    "G024",
+    "G027",
+    "G029",
+    "G031",
+    "G037"
+  ],
+  "ongewijzigde_objecten_gelijk": true,
+  "aantallen": {
+    "herwerkt": 15,
+    "vervangers": 12,
+    "totaal": 40
+  }
+}

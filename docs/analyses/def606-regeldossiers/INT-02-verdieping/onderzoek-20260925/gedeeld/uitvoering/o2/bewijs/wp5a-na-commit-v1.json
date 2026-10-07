@@ -1,0 +1,12 @@
+{
+  "head": "f9bb9e6973926a3cf768995f5d879f6edfd6322d",
+  "source_files_match_manifest_v5": 10,
+  "index_empty": true,
+  "tracked_src_tests_clean": true,
+  "int02_evaluator": "judgment_review",
+  "actions_read_result": {
+    "enabled": false,
+    "command": "gh api repos/Chris-Lehnen-ICT-CONSULTING/Definitie-app-zakelijk/actions/permissions --jq {enabled:.enabled}",
+    "exit": 0
+  }
+}

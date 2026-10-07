@@ -1,0 +1,195 @@
+{
+  "status": "controlekader_geen_labelbesluit",
+  "datum": "2026-09-29",
+  "bronhash": "d70c645e12667c1a46bf8c192b6b13dfa794fa112425da371ddc5bfcb0cebb11",
+  "ongewijzigd": [
+    "G004",
+    "G007",
+    "G008",
+    "G011",
+    "G012",
+    "G015",
+    "G017",
+    "G019",
+    "G024",
+    "G027",
+    "G029",
+    "G031",
+    "G037"
+  ],
+  "herwerken": [
+    {
+      "id": "G001",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G002",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G003",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G005",
+      "toegestane_velden": [
+        "bedoeling"
+      ]
+    },
+    {
+      "id": "G006",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G014",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G016",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G018",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G021",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G023",
+      "toegestane_velden": [
+        "bedoeling"
+      ]
+    },
+    {
+      "id": "G030",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G033",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G035",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G036",
+      "toegestane_velden": [
+        "bedoeling"
+      ]
+    },
+    {
+      "id": "G039",
+      "toegestane_velden": [
+        "bedoeling",
+        "bronnen"
+      ]
+    }
+  ],
+  "vervangen": [
+    {
+      "oud": "G009",
+      "nieuw": "G041"
+    },
+    {
+      "oud": "G010",
+      "nieuw": "G042"
+    },
+    {
+      "oud": "G013",
+      "nieuw": "G043"
+    },
+    {
+      "oud": "G020",
+      "nieuw": "G044"
+    },
+    {
+      "oud": "G022",
+      "nieuw": "G045"
+    },
+    {
+      "oud": "G025",
+      "nieuw": "G046"
+    },
+    {
+      "oud": "G026",
+      "nieuw": "G047"
+    },
+    {
+      "oud": "G028",
+      "nieuw": "G048"
+    },
+    {
+      "oud": "G032",
+      "nieuw": "G049"
+    },
+    {
+      "oud": "G034",
+      "nieuw": "G050"
+    },
+    {
+      "oud": "G038",
+      "nieuw": "G051"
+    },
+    {
+      "oud": "G040",
+      "nieuw": "G052"
+    }
+  ],
+  "verwachte_aantallen": {
+    "ongewijzigd": 13,
+    "herwerkt": 15,
+    "vervangers": 12,
+    "totaal": 40
+  },
+  "verboden_in_geval": [
+    "label",
+    "goldlabel",
+    "voorstel",
+    "familie",
+    "split",
+    "status"
+  ],
+  "voorwaarden": [
+    "Alle oorspronkelijke bestanden blijven intact.",
+    "Kern, begrip, id, herkomst en context van herwerkingen exact behouden.",
+    "G005, G023 en G036: bronnen exact behouden.",
+    "Nieuwe labels onafhankelijk beoordelen en door Chris laten accepteren.",
+    "Geen toewijzing aan hold-out of freeze vóór inhoudelijke acceptatie."
+  ]
+}

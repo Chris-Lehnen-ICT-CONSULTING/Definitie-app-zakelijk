@@ -1,0 +1,245 @@
+{
+  "status": "concept_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "gevallen": [
+    {
+      "id": "G070",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "bemiddelingsdossier",
+      "kern": "Dossier over een burenconflict waarin de coördinator een intakegesprek met beide partijen vastlegt.",
+      "bedoeling": "De term komt voor in de registratiehandleiding en in de werkprocesbeschrijving van de stichting. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Buurtbemiddeling Hertshooi (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Registratiehandleiding Buurtbemiddeling Hertshooi (fictief; geen geldend recht), vastgesteld door het bestuur op 10 februari 2026, §2 'Dossiersoorten': 'Het registratiesysteem kent twee dossiersoorten voor burenconflicten. Een bemiddelingsdossier is een dossier over een burenconflict waarin de coördinator een intakegesprek met beide partijen vastlegt. Ieder ander dossier over een burenconflict is een adviesdossier; weigert een van de partijen het intakegesprek, dan blijft het dossier een adviesdossier. Het jaarverslag telt alleen bemiddelingsdossiers als bemiddelingen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Werkprocesbeschrijving 'Van aanmelding tot afsluiting' Buurtbemiddeling Hertshooi (fictief; geen geldend recht), vastgesteld door het bestuur op 10 februari 2026, gericht aan de coördinator: 'Stap 1: Open bij iedere aanmelding van een burenconflict een bemiddelingsdossier. Stap 2: Nodig beide partijen uit en leg in het bemiddelingsdossier een intakegesprek met beide partijen vast. Stap 3: Weigert een partij het intakegesprek, noteer de weigering dan in het bemiddelingsdossier en sluit het dossier na vier weken af.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G071",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "geannuleerde rondvaart",
+      "kern": "Rondvaart die de schipper wegens windkracht 6 of meer niet laat vertrekken.",
+      "bedoeling": "De term komt voor in de vervoersvoorwaarden en in het veiligheidsplan van het rondvaartbedrijf. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd, met een uittreksel uit het vaarlogboek.",
+      "context": {
+        "organisatorische_context": [
+          "Rondvaartbedrijf Waternavel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Vervoersvoorwaarden Rondvaartbedrijf Waternavel (fictief; geen geldend recht), vastgesteld door de directie op 1 april 2026, art. 7: 'Een geannuleerde rondvaart is een rondvaart die de schipper wegens windkracht 6 of meer niet laat vertrekken. De beslissing van de schipper om niet te vertrekken maakt de rondvaart geannuleerd; de passagier krijgt bij een geannuleerde rondvaart de volledige ritprijs terug. Een rondvaart die is vertrokken, is niet geannuleerd, ook niet als tijdens de vaart windkracht 6 of meer wordt gemeten.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Veiligheidsplan Rondvaartbedrijf Waternavel (fictief; geen geldend recht), vastgesteld door de directie op 1 april 2026, §4, gericht aan de schipper: 'Wijst de windmeter op de steiger een kwartier voor het geplande vertrek windkracht 6 of meer aan, dan is de rondvaart geannuleerd. De schipper laat een geannuleerde rondvaart niet vertrekken en meldt de annulering aan de kassa.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B3",
+          "tekst": "Vaarlogboek Rondvaartbedrijf Waternavel (fictief), 14 juni 2026: '19.45 uur: windmeter steiger windkracht 6. 20.00 uur: rondvaart vertrokken nadat de wind was afgenomen; geen annulering aan de kassa gemeld.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G072",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "restborg",
+      "kern": "Deel van de borg dat de beheerder na verrekening met de vastgestelde schoonmaak- en schadekosten aan de huurder terugbetaalt.",
+      "bedoeling": "De term komt voor in het tarievenblad en in de werkinstructie van de beheerder van het dorpshuis. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Dorpshuis Kamperfoelie (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Tarievenblad zaalverhuur Dorpshuis Kamperfoelie (fictief; geen geldend recht), vastgesteld door het bestuur op 6 januari 2026, onderdeel 'Begrippen en berekeningen': 'Restborg: deel van de borg dat de beheerder na verrekening met de vastgestelde schoonmaak- en schadekosten aan de huurder terugbetaalt. Berekening: restborg = borg min de vastgestelde schoonmaak- en schadekosten, met een minimum van nul. Voorbeeld: borg 250 euro, vastgestelde schoonmaakkosten 40 euro, restborg 210 euro.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Werkinstructie beheerder Dorpshuis Kamperfoelie (fictief; geen geldend recht), vastgesteld door het bestuur op 6 januari 2026, stap 5 'Restborg': 'Verreken na de eindcontrole de vastgestelde schoonmaak- en schadekosten met de borg en betaal het deel van de borg dat overblijft aan de huurder terug. Heeft de huurder de vastgestelde kosten bij de eindcontrole al contant voldaan, verreken dan niet en betaal de volledige borg terug.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G073",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "rustperiode",
+      "kern": "Periode waarin de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uitvoert.",
+      "bedoeling": "De term komt voor in de monitoringsmethodiek en in het beheerplan van het natuurterrein. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd, met een uittreksel uit het werklogboek.",
+      "context": {
+        "organisatorische_context": [
+          "Natuurterrein Zwanebloem (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Monitoringsmethodiek weidevogels Natuurterrein Zwanebloem (fictief; geen geldend recht), vastgesteld door het bestuur op 20 januari 2026, §3: 'Een rustperiode is een periode waarin de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uitvoert. De rustperioden van een seizoen worden na afloop uit het werklogboek afgeleid: iedere aaneengesloten periode van ten minste dertig dagen zonder geregistreerd maai- of snoeiwerk in het weidevogelgebied is een rustperiode. Het broedsucces wordt per rustperiode berekend.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Beheerplan Natuurterrein Zwanebloem 2026 (fictief; geen geldend recht), vastgesteld door het bestuur op 20 januari 2026, §5, gericht aan de terreinbeheerder: 'Van 15 maart tot en met 15 juni is het rustperiode. In de rustperiode voert de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uit.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B3",
+          "tekst": "Werklogboek Natuurterrein Zwanebloem 2026 (fictief), uittreksel weidevogelgebied: 'Maai- of snoeiwerk op 3 maart, 2 mei (omgewaaide wilg bij de toegangsweg gesnoeid), 20 juni en 4 juli.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G074",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "verkoopbaar boek",
+      "kern": "Tweedehands boek dat de sorteerder bij de inspectie verkoopbaar vindt.",
+      "bedoeling": "De term komt voor in de sorteerhandleiding en in de werkinstructie voor de winkelvloer van de kringloopwinkel. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Kringloopwinkel Boterbloem (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Sorteerhandleiding boeken Kringloopwinkel Boterbloem (fictief; geen geldend recht), vastgesteld door het bestuur op 3 maart 2026, §1: 'Een verkoopbaar boek is een tweedehands boek dat de sorteerder bij de inspectie verkoopbaar vindt. De sorteerder beoordeelt daarbij uitsluitend de staat van het boek: rug en band heel, geen losse of ontbrekende bladzijden, geen vocht- of schimmelplekken. Twee sorteerders die hetzelfde boek inspecteren, horen tot hetzelfde oordeel te komen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Werkinstructie winkelvloer Kringloopwinkel Boterbloem (fictief; geen geldend recht), vastgesteld door het bestuur op 3 maart 2026, gericht aan de sorteerder: 'Bepaal bij de inspectie of u een boek verkoopbaar vindt. Weeg daarbij de staat van het boek af tegen de vrije ruimte in de boekenkasten: zijn de kasten vol, vind dan alleen boeken in uitstekende staat verkoopbaar; zijn er lege planken, dan kunt u ook boeken met lichte gebruikssporen verkoopbaar vinden. Boeken die u niet verkoopbaar vindt, gaan naar de papierbak.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G075",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "inwerkperiode",
+      "kern": "Periode waarin een ervaren vrijwilliger een nieuwe vrijwilliger bij diens eerste drie diensten begeleidt.",
+      "bedoeling": "De term komt voor in het vrijwilligersbeleid en in de werkafspraken voor coördinatoren van de voedselbank. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Voedselbank Akelei (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Vrijwilligersbeleid Voedselbank Akelei (fictief; geen geldend recht), vastgesteld door het bestuur op 12 februari 2026, §3 'Inwerken': 'De inwerkperiode is de periode waarin een ervaren vrijwilliger een nieuwe vrijwilliger bij diens eerste drie diensten begeleidt. Zij begint bij de eerste begeleide dienst en eindigt na de derde begeleide dienst, hoe lang dat ook duurt. Een vrijwilliger in de inwerkperiode doet de uitgifte niet alleen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Werkafspraken coördinatoren Voedselbank Akelei (fictief; geen geldend recht), vastgesteld door het bestuur op 12 februari 2026, afspraak 6: 'De inwerkperiode van een nieuwe vrijwilliger is de eerste kalendermaand na diens aanmelding. Zorg dat in de inwerkperiode een ervaren vrijwilliger een nieuwe vrijwilliger bij diens eerste drie diensten begeleidt. Lukt dat niet, meld het dan aan het bestuur; de inwerkperiode wordt daardoor niet verlengd.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G076",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "aanwezig lid",
+      "kern": "Lid dat bij binnenkomst van de ledenvergadering de presentielijst tekent.",
+      "bedoeling": "De term komt voor in het stemreglement en in het ordereglement van de vereniging. De gebruiker wil één omschrijving voor de begrippenlijst bij beide reglementen en heeft uit beide een passage meegestuurd, met een uittreksel uit de notulen.",
+      "context": {
+        "organisatorische_context": [
+          "Huurdersvereniging Zevenblad (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Stemreglement Huurdersvereniging Zevenblad (fictief; geen geldend recht), vastgesteld door de ledenvergadering op 9 januari 2026, art. 2: 'Een aanwezig lid is een lid dat bij binnenkomst van de ledenvergadering de presentielijst tekent. Alleen aanwezige leden tellen mee voor het quorum en bij stemmingen. Een lid dat de presentielijst niet heeft getekend, is geen aanwezig lid, ook niet als het in de zaal zit.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Ordereglement ledenvergadering Huurdersvereniging Zevenblad (fictief; geen geldend recht), vastgesteld door de ledenvergadering op 9 januari 2026, art. 4: 'Aanwezig is ieder lid dat de ledenvergadering in de zaal bijwoont. Een aanwezig lid tekent bij binnenkomst van de ledenvergadering de presentielijst; de secretaris wijst een lid dat dat vergeet daarop. De voorzitter telt bij iedere stemming de aanwezige leden in de zaal.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B3",
+          "tekst": "Notulen ledenvergadering Huurdersvereniging Zevenblad, 12 maart 2026 (fictief): 'Presentielijst: 31 handtekeningen. Bij de stemming over agendapunt 5 telde de voorzitter 34 aanwezige leden in de zaal.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G077",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "vrijgegeven reservering",
+      "kern": "Reservering van een kampeerplaats die twee dagen na het maken zonder ontvangen betaling wordt vrijgegeven.",
+      "bedoeling": "De term komt voor in de systeembeschrijving van de reserveringsmodule en in de werkinstructie voor de receptie van het kampeerterrein. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Kampeerterrein Stalkaars (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Systeembeschrijving reserveringsmodule Kampeerterrein Stalkaars (fictief; geen geldend recht), vastgesteld door de directie op 1 maart 2026, §2 'Statussen': 'Een reservering heeft een van de statussen geboekt, betaald of vrijgegeven. Een vrijgegeven reservering is een reservering van een kampeerplaats die twee dagen na het maken zonder ontvangen betaling wordt vrijgegeven. De module kent de status vrijgegeven iedere nacht om 00.00 uur toe aan iedere reservering waarvoor twee dagen na het maken geen betaling is geregistreerd; een medewerker hoeft daarvoor niets te doen. De kampeerplaats is daarna weer boekbaar.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Werkinstructie receptie Kampeerterrein Stalkaars (fictief; geen geldend recht), vastgesteld door de directie op 1 maart 2026, gericht aan de receptiemedewerker: 'Loop iedere ochtend de lijst met openstaande reserveringen na. Een reservering van een kampeerplaats die twee dagen na het maken zonder ontvangen betaling is, geeft u vrij: zet haar status op vrijgegeven en stuur de gast het standaardbericht over het vervallen van de plaats.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    }
+  ]
+}

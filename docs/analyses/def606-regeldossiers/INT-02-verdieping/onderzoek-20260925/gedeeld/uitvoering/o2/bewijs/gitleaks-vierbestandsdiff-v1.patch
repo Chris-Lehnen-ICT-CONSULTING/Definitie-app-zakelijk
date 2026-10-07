@@ -1,0 +1,469 @@
+diff --git a/.gitleaks.toml b/.gitleaks.toml
+index 60e51020f..98b1342de 100644
+--- a/.gitleaks.toml
++++ b/.gitleaks.toml
+@@ -3,8 +3,8 @@
+ # See: https://github.com/gitleaks/gitleaks
+ #
+ # DEF-522: de vier brede globale allowlists en de brede rule-scoped allowlist
+-# zijn vervallen. Er zijn nog precies twee uitzonderingen, hieronder, en beide
+-# gelden alleen voor één exact pad in combinatie met exacte inhoud.
++# zijn vervallen. Er zijn nog precies drie uitzonderingen, hieronder, en alle drie
++# gelden alleen voor exact vastgelegde paden in combinatie met exacte inhoud.
+ 
+ title = "DefinitieAgent Secret Detection Configuration"
+ 
+@@ -13,7 +13,7 @@ title = "DefinitieAgent Secret Detection Configuration"
+ [extend]
+ useDefault = true
+ 
+-# Uitzondering 1 van 2: de synthetische AWS-fixture. `condition = "AND"` betekent
++# Uitzondering 1 van 3: de synthetische AWS-fixture. `condition = "AND"` betekent
+ # dat pad én waarde beide moeten matchen: een uitzondering die naar een ander pad
+ # verhuist of waarvan de inhoud verandert, geldt niet meer. Geen prefix, geen
+ # sleuteltype, geen map.
+@@ -49,7 +49,7 @@ paths = ['''^tests/fixtures/def522_synthetic_aws\.txt$''']
+ regexTarget = "secret"
+ regexes = ['''^AK[I]A3QK7XZ2MJ5R6W4TB$''']
+ 
+-# Uitzondering 2 van 2: vier historische metadataregels in `.gitleaksignore`.
++# Uitzondering 2 van 3: vier historische metadataregels in `.gitleaksignore`.
+ # Dezelfde constructie als hierboven — `condition = "AND"` plus `targetRules` —
+ # zodat pad én inhoud beide moeten matchen en het pad alleen geen vrijbrief is.
+ #
+@@ -87,6 +87,39 @@ regexes = [
+   '''^\n?docs/portal/rendered/architectuur/structured-logging-architecture\.html:generic-api-key:[5]f02ab5a2c28c2df8ac9fd9c85a48e6eb78a517a$''',
+ ]
+ 
++# Uitzondering 3 van 3: één bronhashregel in twee DEF-835-modelproefmanifesten.
++# Dezelfde constructie als uitzondering 2 — `condition = "AND"`, `targetRules`,
++# `regexTarget = "line"` en `^\n?` — zodat een van beide paden én de volledige
++# regel moeten matchen.
++#
++# Rationale: de JSON-waarde bij sleutel `src/utils/async_api.py` is de SHA-256
++# van dat bronbestand, rechtstreeks gelijk bevonden; `generic-api-key` ziet er
++# een sleutel in omdat de bronnaam `api` bevat. Er is geen sleutelwaarde gelezen
++# en er is niets ingetrokken of vervangen. Geen map, geen prefix, geen glob.
++#
++# Het eerste hexteken staat als tekenklasse geschreven, om dezelfde reden als
++# bij de uitzonderingen hierboven.
++#
++# Eigenaar: Chris Lehnen (DEF-835). Herbeoordelen op 2026-12-28, of eerder als
++# de bronhash of de manifestroute wijzigt.
++[[allowlists]]
++description = """DEF-835 bronhashregel: uitsluitend de twee exacte paden \
++modelproef-manifest-v1.json en modelproef-manifest-v2.json onder het \
++o2-bewijsdossier in combinatie met één exacte, volledige JSON-regel: de SHA-256 \
++van src/utils/async_api.py, geen sleutel. Eigenaar Chris Lehnen (DEF-835); \
++herbeoordelen op 2026-12-28 of eerder bij wijziging van bronhash of \
++manifestroute."""
++condition = "AND"
++targetRules = ["generic-api-key"]
++paths = [
++  '''^docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v1\.json$''',
++  '''^docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/modelproef-manifest-v2\.json$''',
++]
++regexTarget = "line"
++regexes = [
++  '''^\n?      "src/utils/async_api\.py": "[f]014876b16b76f889cf92faff1d89c3753b4ef0734624e8c45bcb6092841ff93",$''',
++]
++
+ # Custom rules for project-specific patterns
+ [[rules]]
+ id = "openai-api-key-new-format"
+diff --git a/Makefile b/Makefile
+index c8d9f3e84..105c3c0a0 100644
+--- a/Makefile
++++ b/Makefile
+@@ -282,13 +282,14 @@ test-secret-scan: check-python
+ 		echo "Deze tests installeren niets en slaan zichzelf nooit over."; \
+ 		exit 1; \
+ 	fi
+-	@# De zeven suites staan hier vast: geen variabele, dus geen luik waarmee de
++	@# De acht suites staan hier vast: geen variabele, dus geen luik waarmee de
+ 	@# selectie via de omgeving of de commandoregel kan krimpen. Ze liggen buiten
+ 	@# `testpaths`, vandaar de expliciete opsomming. Alleen deze aanroep krijgt een
+ 	@# lege PYTEST_ADDOPTS/PYTEST_PLUGINS; geïnstalleerde plugins, pytest-config en
+ 	@# timeout blijven ongewijzigd.
+ 	@PYTEST_ADDOPTS= PYTEST_PLUGINS= $(PY) -m pytest -q \
+ 		scripts/ci/test_secret_scan_canary.py \
++		scripts/ci/test_secret_scan_def835_metadata.py \
+ 		scripts/ci/test_secret_scan_exceptions.py \
+ 		scripts/ci/test_secret_scan_gate.py \
+ 		scripts/ci/test_secret_scan_gate_errors.py \
+diff --git a/docs/technisch/def522-secret-scan-runbook.md b/docs/technisch/def522-secret-scan-runbook.md
+index 51dac63a7..9536726e0 100644
+--- a/docs/technisch/def522-secret-scan-runbook.md
++++ b/docs/technisch/def522-secret-scan-runbook.md
+@@ -98,9 +98,9 @@ Gebruik voor triage het bestaande incidentproces, met alleen geautoriseerd
+ materiaal en zonder ruwe secretinhoud te publiceren. Persoonlijke of operationele
+ gegevens (UI-sessies, `.env`, de database) horen daar niet bij.
+ 
+-## De twee uitzonderingen in `.gitleaks.toml`
++## De drie uitzonderingen in `.gitleaks.toml`
+ 
+-Beide gebruiken dezelfde constructie: `targetRules`, `condition = "AND"`, een
++Alle drie gebruiken dezelfde constructie: `targetRules`, `condition = "AND"`, een
+ exact pad **én** exacte inhoud, plus rationale, eigenaar (Chris Lehnen) en
+ reviewdatum.
+ 
+@@ -113,14 +113,24 @@ reviewdatum.
+    ingetrokken, en het is niet het fingerprintformaat dat de gepinde Gitleaks nu
+    schrijft. De regexes verdragen precies één optioneel voorafgaand regeleinde,
+    omdat de tool dat scheidingsteken meelevert bij elke regel na de eerste.
++3. **Eén bronhashregel in twee DEF-835-manifesten** — `generic-api-key`,
++   uitsluitend de twee exacte paden `modelproef-manifest-v1.json` en
++   `modelproef-manifest-v2.json` onder
++   `docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/`,
++   en één exacte, volledige JSON-regel: de SHA-256 van `src/utils/async_api.py`,
++   geen sleutel. Geen map, prefix of glob; dezelfde tolerantie voor één
++   voorafgaand regeleinde als bij 2. Eigenaar Chris Lehnen (DEF-835);
++   herbeoordelen op 2026-12-28, of eerder als de bronhash of de manifestroute
++   wijzigt.
+ 
+ Valkuil bij wijzigen: een globale allowlist met `paths` wordt toegepast als
+ pad-skip vóórdat de inhoud wordt bekeken, en `condition` weegt daar niet mee —
+ het pad alleen zou dan een vrijbrief zijn. Alleen via `targetRules` hangt de
+ uitzondering aan de regel zelf en geldt de AND-voorwaarde echt.
+ 
+-Beide worden bewaakt door `scripts/ci/test_secret_scan_exceptions.py` en
+-`scripts/ci/test_secret_scan_metadata.py`, die meelopen in
++Ze worden bewaakt door `scripts/ci/test_secret_scan_exceptions.py`,
++`scripts/ci/test_secret_scan_metadata.py` en
++`scripts/ci/test_secret_scan_def835_metadata.py`, die meelopen in
+ `make test-secret-scan`.
+ 
+ ## Tagconflict
+diff --git a/scripts/ci/test_secret_scan_def835_metadata.py b/scripts/ci/test_secret_scan_def835_metadata.py
+new file mode 100644
+index 000000000..1f4e46eb3
+--- /dev/null
++++ b/scripts/ci/test_secret_scan_def835_metadata.py
+@@ -0,0 +1,327 @@
++"""Canary: de uitzondering voor één bronhashregel in twee DEF-835-manifesten.
++
++De staged-gate hield de DEF-835-dossiercommit tegen op twee waarnemingen van
++`generic-api-key`. Beide zijn dezelfde JSON-regel in twee modelproefmanifesten:
++de SHA-256 van `src/utils/async_api.py`, aangezien voor een sleutel omdat de
++bronnaam `api` bevat. De waarde is gelijk aan de hash van dat bronbestand; er is
++geen sleutel gelezen en er is niets ingetrokken of vervangen.
++
++De uitzondering hangt aan één regel-ID, twee exacte paden en één volledige,
++verankerde regel. Alles daarbuiten moet blijven blokkeren: dezelfde regel op een
++ander pad, een gewijzigde hash, extra tekst op de regel, en een synthetische
++credential op hetzelfde pad — los of naast de toegestane regel.
++
++Net als bij de metadataregels in `.gitleaksignore` verdraagt de regex precies
++één voorafgaand regeleinde: `regexTarget = "line"` levert dat mee bij elke regel
++ná de eerste (zie `test_secret_scan_metadata.py`). Beide posities worden hier
++getoetst. Naast directoryscans draait één paar tests via de staged-modus van de
++gate: de route waarop de blokkade werkelijk optrad.
++
++Bronnaam, hash en de synthetische credential worden tijdens de run
++samengesteld; dit bestand bevat geen aaneengesloten vorm ervan. Faalmeldingen
++tonen uitsluitend status, code en tellingen.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import sys
++from pathlib import Path
++
++import pytest
++
++pytestmark = [pytest.mark.acceptance]
++
++sys.path.insert(0, str(Path(__file__).resolve().parent))
++
++import secret_scan
++import secret_scan_gate as gate
++from test_secret_scan_canary import (
++    _ENV_BINARY,
++    _ENV_FIXTURE_ROOT,
++    _commit,
++    _diagnose,
++    _git,
++    _nieuwe_fixture,
++    _Omgeving,
++    _verplicht_pad,
++)
++from test_secret_scan_exceptions import _scanmap
++from test_secret_scan_metadata import _eis_geblokkeerd, _eis_schoon
++
++#: De actuele projectconfiguratie — bewust niet een kopie of subset.
++_PROJECT_CONFIG = Path(__file__).resolve().parents[2] / ".gitleaks.toml"
++
++_SCAN_TIMEOUT = 20
++
++#: De twee exacte paden waarop de uitzondering geldt.
++_DOSSIER = (
++    "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/"
++    "gedeeld/uitvoering/o2/bewijs"
++)
++_PAD_V1 = f"{_DOSSIER}/modelproef-manifest-v1.json"
++_PAD_V2 = f"{_DOSSIER}/modelproef-manifest-v2.json"
++_MANIFESTPADEN = [("v1", _PAD_V1), ("v2", _PAD_V2)]
++
++#: Paden die erop lijken: een volgende versie, een andere map, een achtervoegsel.
++_ANDERE_PADEN = [
++    ("volgende-versie", f"{_DOSSIER}/modelproef-manifest-v3.json"),
++    ("andere-map", f"kopie/{_PAD_V1}"),
++    ("achtervoegsel", f"{_PAD_V2}.bak"),
++]
++
++#: Neutraal pad voor de configtekst. Op `.gitleaks.toml` zelf leest de gepinde
++#: Gitleaks het bestand niet: de default-allowlist, via `useDefault` actief,
++#: slaat elk pad over dat op `gitleaks\.toml` matcht (`config/gitleaks.toml:25`).
++_NEUTRAAL_CONFIGPAD = "def835/projectconfig-kopie.txt"
++
++#: Losse onderdelen; de toegestane regel wordt tijdens de run samengesteld.
++_BRONNAAM = "src/utils/async" + "_api.py"
++_BRONHASH = (
++    "f014876b16b76f88" + "9cf92faff1d89c37" + "53b4ef0734624e8c" + "45bcb6092841ff93"
++)
++_INSPRONG = " " * 6
++_REGEL = f'{_INSPRONG}"{_BRONNAAM}": "{_BRONHASH}",'
++
++#: Nieuw gegenereerde synthetische waarde; hoort bij geen enkele account en gaat
++#: nergens heen. Het veld draagt het sleutelwoord waarop `generic-api-key` let,
++#: zodat juist die regel hier moet blokkeren.
++_VELDNAAM = "client_" + "auth"
++_SYNTHETISCHE_WAARDE = "Rt9Vb4Nz" + "6Pw1Kd8Hs3" + "Jf5Gy0Cx"
++_CREDENTIAL = f'{_INSPRONG}"{_VELDNAAM}": "{_SYNTHETISCHE_WAARDE}",'
++
++
++def _mutatie(waarde: str) -> str:
++    """Eén ander teken aan het eind; blijft hexadecimaal en even lang."""
++    return waarde[:-1] + ("0" if waarde[-1] != "0" else "1")
++
++
++def _buur(naam: str) -> str:
++    """Een gewone hashregel zonder sleutelwoord, zoals er meer in een manifest staan."""
++    waarde = hashlib.sha256(naam.encode("utf-8")).hexdigest()
++    return f'{_INSPRONG}"src/{naam}.py": "{waarde}",'
++
++
++def _manifest(*regels: str) -> str:
++    """Synthetisch manifest in dezelfde vorm; de meegegeven regels staan na buren."""
++    kop = ["{", '  "bronnen": {', '    "hashes": {', _buur("alfa"), _buur("beta")]
++    staart = ['      "src/gamma.py": "-"', "    }", "  }", "}"]
++    return "\n".join([*kop, *regels, *staart]) + "\n"
++
++
++def _als_eerste_regel(regel: str) -> str:
++    return f"{regel}\n"
++
++
++#: (naam, opbouw) — de regel vooraan het bestand, en na een regeleinde.
++_POSITIES = [("eerste-regel", _als_eerste_regel), ("na-regeleinde", _manifest)]
++
++#: (naam, regel) — dezelfde regel met iets ervoor of erachter.
++_EXTRA_TEKST = [
++    ("extra-spatie-voor", f" {_REGEL}"),
++    ("tekst-voor", f"x{_REGEL}"),
++    ("tekst-na", f'{_REGEL} "extra": 1'),
++]
++
++
++def _scan(omgeving: _Omgeving, directory: Path):
++    return secret_scan.scan_directory(
++        omgeving.binary, directory, _PROJECT_CONFIG, _SCAN_TIMEOUT
++    )
++
++
++def _gestaged(omgeving: _Omgeving, naam: str, bestanden: dict[str, str]) -> Path:
++    """Verse repo met een basiscommit en de bestanden alleen in de index."""
++    repo, _ = _nieuwe_fixture(omgeving, naam)
++    _commit(repo, "README.md", "Gewone tekst zonder verwijzingen.\n", "chore: basis")
++    for relpad, inhoud in bestanden.items():
++        doel = repo / relpad
++        doel.parent.mkdir(parents=True, exist_ok=True)
++        doel.write_text(inhoud, encoding="utf-8")
++        _git(repo, "add", "--", relpad)
++    return repo
++
++
++def _staged_scan(omgeving: _Omgeving, repo: Path):
++    """De staged-modus van de gate, zoals de pre-commit-entry hem aanroept."""
++    return gate._gate(
++        [
++            "--mode",
++            "staged",
++            "--source",
++            str(repo.resolve()),
++            "--config",
++            str(_PROJECT_CONFIG),
++            "--binary",
++            str(omgeving.binary),
++            "--timeout",
++            str(_SCAN_TIMEOUT),
++        ]
++    )
++
++
++@pytest.fixture
++def omgeving() -> _Omgeving:
++    """De expliciet aangewezen binary en fixture-root; beide verplicht."""
++    return _Omgeving(
++        binary=_verplicht_pad(_ENV_BINARY, uitvoerbaar=True),
++        fixture_root=_verplicht_pad(_ENV_FIXTURE_ROOT),
++    )
++
++
++@pytest.mark.parametrize(
++    ("positie", "opbouw"), _POSITIES, ids=[p for p, _ in _POSITIES]
++)
++@pytest.mark.parametrize(
++    ("naam", "pad"), _MANIFESTPADEN, ids=[n for n, _ in _MANIFESTPADEN]
++)
++def test_bronhashregel_op_exact_pad_passeert(
++    omgeving: _Omgeving, naam: str, pad: str, positie: str, opbouw
++) -> None:
++    """Waar de uitzondering voor is: deze ene regel, op deze twee paden."""
++    directory = _scanmap(omgeving, f"def835-{naam}-{positie}", pad, opbouw(_REGEL))
++
++    _eis_schoon(
++        _scan(omgeving, directory),
++        "de bronhashregel wordt op haar eigen manifestpad niet doorgelaten.",
++    )
++
++
++@pytest.mark.parametrize(
++    ("naam", "pad"), _ANDERE_PADEN, ids=[n for n, _ in _ANDERE_PADEN]
++)
++def test_bronhashregel_op_ander_pad_blokkeert(
++    omgeving: _Omgeving, naam: str, pad: str
++) -> None:
++    """Een uitzondering die naar een ander pad verhuist, is geen uitzondering."""
++    directory = _scanmap(omgeving, f"def835-anderpad-{naam}", pad, _manifest(_REGEL))
++
++    _eis_geblokkeerd(
++        _scan(omgeving, directory),
++        "dezelfde regel buiten de twee manifestpaden wordt doorgelaten; de "
++        "uitzondering hangt dan niet aan die exacte paden.",
++    )
++
++
++@pytest.mark.parametrize(
++    ("naam", "pad"), _MANIFESTPADEN, ids=[n for n, _ in _MANIFESTPADEN]
++)
++def test_gewijzigde_hash_blokkeert(omgeving: _Omgeving, naam: str, pad: str) -> None:
++    """Eén teken verschil is een andere regel, ook op het juiste pad."""
++    regel = _REGEL.replace(_BRONHASH, _mutatie(_BRONHASH))
++    directory = _scanmap(omgeving, f"def835-mutatie-{naam}", pad, _manifest(regel))
++
++    _eis_geblokkeerd(
++        _scan(omgeving, directory),
++        "een gewijzigde hash wordt doorgelaten; de uitzondering toetst dan niet "
++        "de volledige regel.",
++    )
++
++
++@pytest.mark.parametrize(
++    ("variant", "regel"), _EXTRA_TEKST, ids=[v for v, _ in _EXTRA_TEKST]
++)
++@pytest.mark.parametrize(
++    ("naam", "pad"), _MANIFESTPADEN, ids=[n for n, _ in _MANIFESTPADEN]
++)
++def test_extra_tekst_op_de_regel_blokkeert(
++    omgeving: _Omgeving, naam: str, pad: str, variant: str, regel: str
++) -> None:
++    """De uitzondering geldt voor de hele regel, niet voor een deel ervan."""
++    directory = _scanmap(omgeving, f"def835-{variant}-{naam}", pad, _manifest(regel))
++
++    _eis_geblokkeerd(
++        _scan(omgeving, directory),
++        "een regel met extra tekst wordt doorgelaten; de uitzondering is dan "
++        "niet aan begin en eind verankerd.",
++    )
++
++
++@pytest.mark.parametrize(
++    ("naam", "pad"), _MANIFESTPADEN, ids=[n for n, _ in _MANIFESTPADEN]
++)
++def test_credential_op_manifestpad_blokkeert(
++    omgeving: _Omgeving, naam: str, pad: str
++) -> None:
++    """Het pad zelf mag geen vrijbrief zijn voor een sleutelvorm."""
++    directory = _scanmap(omgeving, f"def835-canary-{naam}", pad, _manifest(_CREDENTIAL))
++
++    _eis_geblokkeerd(
++        _scan(omgeving, directory),
++        "een synthetische credential op het manifestpad wordt doorgelaten; het "
++        "pad is dan een vrijbrief in plaats van één exacte regel.",
++    )
++
++
++@pytest.mark.parametrize(
++    ("naam", "pad"), _MANIFESTPADEN, ids=[n for n, _ in _MANIFESTPADEN]
++)
++def test_credential_naast_bronhashregel_blokkeert(
++    omgeving: _Omgeving, naam: str, pad: str
++) -> None:
++    """Naast de toegestane regel telt precies de credential als waarneming."""
++    inhoud = _manifest(_CREDENTIAL, _REGEL)
++    directory = _scanmap(omgeving, f"def835-naast-{naam}", pad, inhoud)
++
++    resultaat = _scan(omgeving, directory)
++
++    _eis_geblokkeerd(
++        resultaat,
++        "een synthetische credential elders in hetzelfde manifest wordt "
++        "doorgelaten; de uitzondering dekt dan meer dan die ene regel.",
++    )
++    assert resultaat.finding_count == 1, _diagnose(resultaat)
++
++
++def test_projectconfig_blokkeert_zichzelf_niet(omgeving: _Omgeving) -> None:
++    """De uitzondering bevat de regel die ze doorlaat.
++
++    Stond die aaneengesloten in de configuratie, dan zou de configtekst zelf een
++    waarneming opleveren. De regex schrijft de bronnaam daarom met `\\.` en het
++    eerste hexteken als tekenklasse, net als bij de bestaande uitzonderingen.
++
++    De tekst wordt op een neutraal pad gescand, waar alleen de inhoud telt en geen
++    van de padgebonden uitzonderingen geldt. Het aantal gelezen bytes bewijst dat
++    de configtekst werkelijk is gelezen en niet stil is overgeslagen.
++    """
++    tekst = _PROJECT_CONFIG.read_text(encoding="utf-8")
++    directory = _scanmap(omgeving, "def835-eigenconfig", _NEUTRAAL_CONFIGPAD, tekst)
++
++    resultaat = _scan(omgeving, directory)
++
++    _eis_schoon(resultaat, "de configuratie blokkeert haar eigen tekst.")
++    assert resultaat.scanned_bytes >= len(tekst.encode("utf-8")), _diagnose(resultaat)
++
++
++def test_gestagede_manifesten_passeren(omgeving: _Omgeving) -> None:
++    """De route van de oorspronkelijke blokkade: beide manifesten in de index."""
++    repo = _gestaged(
++        omgeving,
++        "def835-staged",
++        {_PAD_V1: _manifest(_REGEL), _PAD_V2: _manifest(_REGEL)},
++    )
++
++    _eis_schoon(
++        _staged_scan(omgeving, repo),
++        "de staged-gate laat de bronhashregel op de twee manifestpaden niet door.",
++    )
++
++
++def test_gestagede_credential_naast_bronhashregel_blokkeert(
++    omgeving: _Omgeving,
++) -> None:
++    """Dezelfde route blijft een sleutelvorm in hetzelfde manifest tegenhouden."""
++    repo = _gestaged(
++        omgeving,
++        "def835-staged-canary",
++        {_PAD_V1: _manifest(_CREDENTIAL, _REGEL), _PAD_V2: _manifest(_REGEL)},
++    )
++
++    resultaat = _staged_scan(omgeving, repo)
++
++    _eis_geblokkeerd(
++        resultaat,
++        "de staged-gate laat een synthetische credential naast de bronhashregel "
++        "door.",
++    )
++    assert resultaat.finding_count == 1, _diagnose(resultaat)

@@ -1,0 +1,26 @@
+{
+  "lint": {
+    "cmd": [
+      "make",
+      "lint",
+      "PY=/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python"
+    ],
+    "exit": 0
+  },
+  "source-diff-check": {
+    "cmd": [
+      "git",
+      "diff",
+      "--check",
+      "origin/main...HEAD",
+      "--",
+      "src",
+      "tests",
+      "config",
+      "scripts",
+      "Makefile",
+      ".gitleaks.toml"
+    ],
+    "exit": 0
+  }
+}

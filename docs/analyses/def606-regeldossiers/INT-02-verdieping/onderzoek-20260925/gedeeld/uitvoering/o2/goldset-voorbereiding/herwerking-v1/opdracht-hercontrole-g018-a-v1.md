@@ -1,0 +1,9 @@
+# DEF-835 — laatste gerichte broncontrole G018, beoordelaar A
+Vervolg op jouw eigen hercontrole. Alleen documentanalyse; werk zelf, geen herdelegatie, geen bestanden wijzigen. Er is uitsluitend één zin veranderd in G018-B1:
+oud: 'Bij een vaste uitzondering ontbreekt dat voorbehoud.'
+nieuw: 'Een vaste uitzondering heeft dat kenmerk niet.'
+Lees G018 in /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/../herwerking-v1/casuspool-kandidaat-v3.json en manifest-kandidaat-v3.json. De coördinator heeft exact deze één-zinsdiff gecontroleerd; de overige39gevallen, alle overige velden van G018 en B2 zijn ongewijzigd tegenover v2. Geen andere case opnieuw beoordelen, geen algemene analyse of nieuw rapport. Hergebruik jouw geldige normkennis en eigen vorige oordeel. Lees geen conclusies van de andere beoordelaar.
+
+Beantwoord: is de losse verwijzing opgelost, en blijft jouw INT-02-voorstel/geschiktheid voor G018 gelijk of verandert het inhoudelijk? Geef een korte concrete motivering; geen labelquota, geen labelacceptatie namens Chris. De wijziging bewijst op zichzelf geen inhoudelijke functie. Een resterend interpretatieverschil gaat naar Chris; geen nieuwe algemene correctieronde opstarten.
+
+Uitvoer één geldig JSON-object zonder fences: beoordelaar="A", status="voorstel_niet_geaccepteerd", normversie="def771-int02/2", bronhashes exact uit manifest-v3, gevallen=[één object voor G018 met dezelfde velden als jouw eerdere voorstel: id,voorstel,familie,passages,gronden,motivering,vraag,zekerheid,afstand_ontwerp,redundantie_met,geschiktheid,opmerkingen], dispositie_per_geval=[{id,bronpunt_opgelost,reden,resterend_open}]. Citaten exact en uniek in hun bron; start/end mag ontbreken omdat de coördinator die mechanisch afleidt. Geen handmatig tekens tellen. Alle oude uitvoer blijft behouden.

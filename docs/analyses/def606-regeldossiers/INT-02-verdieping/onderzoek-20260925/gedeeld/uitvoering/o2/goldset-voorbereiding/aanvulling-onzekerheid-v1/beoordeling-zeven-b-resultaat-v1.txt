@@ -1,0 +1,394 @@
+{
+  "beoordelaar": "B",
+  "status": "voorstel_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "concept": "b09ce0ef68a39acdcac5cc182e67bae316eaab976b18783731f4645fa188fc5b",
+    "pool_v4": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+    "normcontract": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten_chris": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734",
+    "gevalobjecten": "6309d72b5b83b5ffb30cc7571e9e9df0eb2a95707f3d470e8a5dfd5827ab160f"
+  },
+  "gevallen": [
+    {
+      "id": "G057",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Container die op de terminal naar een ander schip wordt overgeslagen en bij aankomst op de terminal wordt gewogen.",
+          "functie": "Overslag als objectkenmerk; wegen is onbeslist tussen lidmaatschapscriterium en opgelegde handeling.",
+          "start": 0,
+          "end": 114
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Transitcontainers zijn containers die op de terminal naar een ander schip worden overgeslagen en bij aankomst op de terminal worden gewogen.",
+          "start": 92,
+          "end": 232
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De Nederlandse en de Engelse tekst van dit reglement zijn gelijkelijk authentiek.",
+          "start": 244,
+          "end": 325
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Containers transhipped at the terminal to another vessel shall be weighed on arrival at the terminal.",
+          "start": 85,
+          "end": 186
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil de term opnemen in de begrippenlijst van de terminal en heeft de Nederlandse en de Engelse tekst van het terminalreglement meegestuurd.",
+          "start": 0,
+          "end": 152
+        }
+      ],
+      "motivering": "De Nederlandse bron verbindt overslag en wegen in een begripsomschrijving; de Engelse bron legt het wegen op aan de door overslag bepaalde categorie. De gelijkelijke authenticiteit biedt geen grond om één lezing voorrang te geven. Het verschil raakt of een ongewogen overslagcontainer buiten de categorie valt of binnen de categorie een weegvoorschrift schendt. De bedoeling kiest geen lezing. Het voorschrift in B2 bewijst daardoor nog niet zelfstandig dat de aangeboden Nederlandse kern dat voorschrift uitvoert. De INT-02-functie van het weegdeel blijft onbeslist.",
+      "vraag": "Is wegen bij aankomst een voorwaarde om een container transitcontainer te noemen, of een verplichte handeling voor iedere container die naar een ander schip wordt overgeslagen?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C03", "C60", "C108", "G003", "G042"],
+        "motivering": "C60/C108 bevatten bronconflict en G003 twee versies, maar hier verschuiven gelijkelijk authentieke taalteksten de functie van hetzelfde zinsdeel van categorie naar handelingsplicht. Dat vereist een andere bronafweging dan versievoorrang of een conflicterende drempel; G042 bevat geen expliciet gelijkwaardig taalpaar."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Geen taalversie krijgt stilzwijgend voorrang; dit is functieonzekerheid, geen vertaalcorrectie."
+      ]
+    },
+    {
+      "id": "G058",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "Exemplaar van een nieuwe uitgave dat de uitgever kosteloos bij het depot inlevert.",
+          "functie": "In een objectomschrijving ondergebrachte opdracht aan de uitgever tot kosteloze deponering.",
+          "start": 0,
+          "end": 82
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "depotexemplaar: exemplaar van een nieuwe uitgave dat de uitgever kosteloos bij het depot inlevert.",
+          "start": 120,
+          "end": 218
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Art. 9 van de versie 2025 luidde: “De uitgever levert van iedere nieuwe uitgave kosteloos een exemplaar bij het depot in.” Dat artikel vervalt; de inhoud ervan is ondergebracht in de omschrijving van depotexemplaar in art. 1, onder d. Een inhoudelijke wijziging is niet beoogd.",
+          "start": 126,
+          "end": 403
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil de term opnemen in de begrippenlijst van het depot en heeft de gewijzigde tekst van het depotreglement met de wijzigingstoelichting meegestuurd.",
+          "start": 0,
+          "end": 161
+        }
+      ],
+      "motivering": "B2 verklaart uitdrukkelijk dat de bestaande inleveropdracht inhoudelijk ongewijzigd in de omschrijving is ondergebracht. Daarmee is de relatieve bijzin niet uitsluitend een eigenschap van reeds ingeleverde exemplaren: zij draagt de voortgezette opdracht aan de uitgever. De plaats onder Begripsbepalingen en de gewenste opname in een begrippenlijst neutraliseren die functie niet. De kern definieert ook niet de inleverplicht als zelfstandig begrip. Het voorschrift is zelfstandig onderbouwd; eventuele vragen over de precieze reikwijdte veranderen de INT-02-uitkomst niet.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C14", "C15", "C114", "G024", "G044", "G049"],
+        "motivering": "Nabije gevallen verpakken een voorschrift als objectkenmerk of bieden een gezaghebbende instructie aan. Nieuw is het concrete wijzigingsspoor: een geschrapt voorschrift blijft volgens de toelichting inhoudelijk voortbestaan in de definitie. De toets moet functiecontinuïteit herkennen ondanks de gewijzigde plaats en zinsvorm."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Geen oordeel over juridische geldigheid van deze fictieve verplaatsing."
+      ]
+    },
+    {
+      "id": "G059",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Deur in een vluchtroute die tijdens openingstijden van binnenuit zonder sleutel moet kunnen worden geopend.",
+          "functie": "Beschrijving van de vereiste bruikbaarheid van een deur binnen een tijdsgebonden gebruiksregime.",
+          "start": 0,
+          "end": 107
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Deuren in een vluchtroute worden uitgevoerd met een panieksluiting, zodat zij van binnenuit zonder sleutel kunnen worden geopend. Buiten openingstijden kan de beheerder zo'n deur daarnaast met een nachtschoot vergrendelen.",
+          "start": 84,
+          "end": 306
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Tijdens openingstijden moet iedere deur in een vluchtroute van binnenuit zonder sleutel kunnen worden geopend. De beheerder ontgrendelt bij opening van het buurthuis alle nachtschoten.",
+          "start": 77,
+          "end": 261
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil de term opnemen in de begrippenlijst van het buurthuis en heeft het bestek van de verbouwing en het gebruiksreglement meegestuurd.",
+          "start": 0,
+          "end": 147
+        }
+      ],
+      "motivering": "De kern beschrijft een deur aan de hand van de vereiste mogelijkheid om haar tijdens gebruik zonder sleutel te openen. B1 draagt de technische eigenschap en verklaart de beperking tot openingstijden; B2 bevestigt de gebruikseis en noemt afzonderlijk de uitvoeringshandeling van de beheerder. Die ontgrendelopdracht staat niet in de kern. De bronnen dragen dus een normatief objectkenmerk zonder dat de kern voorschrijft wie wanneer moet ontgrendelen. Het woord moet is niet beslissend. Of een gebrekkige deur nog vluchtdeur heet, betreft de nauwkeurigheid van de afbakening en bewijst hier geen actorvoorschrift.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C02", "C55", "G035", "G042", "G051"],
+        "motivering": "G035 beschrijft technische capaciteit na een test; G042 koppelt een object aan afscherming; G051 bevat een operationele vrijhoudtaak. Hier moet de beoordelaar technische mogelijkheid tot openen, een tijdsgebonden normatieve eigenschap en een afzonderlijke ontgrendelhandeling uiteenhouden. Dat is meer dan een naamsvariant van het woord moet of een objectvoorschrift."
+      },
+      "redundantie_met": ["G061"],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Mogelijke overlap met G061: een objectcategorie met een gebruiksnorm. G059 voegt technische capaciteit en een expliciet afzonderlijke uitvoeringshandeling toe.",
+        "Geen beoordeling van technische veiligheid, volledigheid of feitelijke naleving."
+      ]
+    },
+    {
+      "id": "G060",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Aangeslotene die de stand van de eigen watermeter vóór de vijfde dag van iedere maand via het klantportaal doorgeeft.",
+          "functie": "Onbeslist tussen een blijvende rol met maandelijkse meldplicht en een rapportagecategorie van tijdige melders.",
+          "start": 0,
+          "end": 117
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een zelfopnemer geeft de stand van de eigen watermeter vóór de vijfde dag van iedere maand via het klantportaal door. Geeft een zelfopnemer de stand niet tijdig door, dan schat de coöperatie het verbruik over die maand.",
+          "start": 84,
+          "end": 303
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Zelfopnemers (stand vóór 5 augustus via het klantportaal doorgegeven): 812. Verbruik geschat: 97. Opname aan huis door de meteropnemer: 1.204.",
+          "start": 63,
+          "end": 205
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term wordt gebruikt in de aansluitvoorwaarden en in de maandrapportage meteropname van de coöperatie; de gebruiker heeft uit beide stukken een passage meegestuurd.",
+          "start": 0,
+          "end": 166
+        }
+      ],
+      "motivering": "B1 noemt ook de niet-tijdige melder zelfopnemer: daar bestaat de rol vóór en onafhankelijk van naleving van de maandelijkse opdracht. B2 operationaliseert zelfopnemers als personen die in augustus tijdig hebben doorgegeven. De kern kan daardoor een rol van een voorschrift voorzien of een categorie feitelijke melders afbakenen. De bedoeling noemt beide toepassingen zonder de bedoelde betekenis te kiezen. Dit gaat niet alleen over een onbekend individueel meetfeit: de status van tijdige doorgifte als begripscriterium of gedragsopdracht is onbeslist. Geen van beide functies is zelfstandig voor de hele aangeboden kern bewezen.",
+      "vraag": "Benoemt zelfopnemer hier een aangeslotene met een blijvende maandelijkse doorgifteplicht, ook bij te late doorgifte, of uitsluitend een aangeslotene die in de betreffende rapportagemaand tijdig heeft doorgegeven?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C22", "C60", "G030", "G047", "G049", "G056"],
+        "motivering": "G030 heeft register- en instructiegebruik, G049 een te laat exemplaar en G056 een functie met taken. G060 voegt het expliciete behoud van de rol bij niet-naleving toe tegenover een maandelijks wisselende, feitelijk getelde categorie. Die temporele referentkeuze is zelfstandig toetsbaar en niet alleen een andere naam voor dezelfde plicht."
+      },
+      "redundantie_met": ["G061"],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De formulering iedere maand heeft een ander bereik dan de augustusrapportage; dit bereikprobleem staat naast de beslissende functieonzekerheid.",
+        "Overlap met G061 betreft categoriebehoud bij overtreding; alleen G060 bevat daarnaast een uitdrukkelijke feitelijke rapportageafbakening."
+      ]
+    },
+    {
+      "id": "G061",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Ruimte in de bibliotheek waarin bezoekers niet bellen en niet hardop praten.",
+          "functie": "Beschrijving van een aangewezen ruimtecategorie via de daarvoor geldende gedragsbeperkingen.",
+          "start": 0,
+          "end": 76
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "In een stilteruimte bellen bezoekers niet en praten zij niet hardop. Een medewerker spreekt een bezoeker aan die dat wel doet.",
+          "start": 75,
+          "end": 201
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Leeszaal 2 en de kaartenkamer: stilteruimte. Studiezaal: studieplekken. Zaal 4: groepsruimte, reserveren via de balie.",
+          "start": 56,
+          "end": 174
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil de term opnemen in de begrippenlijst van de bibliotheek en heeft de huisregels en het ruimteoverzicht meegestuurd.",
+          "start": 0,
+          "end": 131
+        }
+      ],
+      "motivering": "Het ruimteoverzicht koppelt de term aan aangewezen ruimten; de huisregels dragen het bijbehorende gebruiksregime. Dat een bezoeker kan worden aangesproken laat zien dat feitelijke stilte geen ononderbroken bestaansvoorwaarde van de categorie is. In deze begrippenlijst beschrijft de kern de ruimte via de daar geldende beperkingen. Zij voert de afzonderlijke aanspreekhandeling niet uit en bepaalt geen concrete sanctie of afweging. De verboden zijn hier normatieve kenmerken van de ruimtecategorie. De feitelijk klinkende formulering kan het onderscheid tussen geldende norm en naleving onvoldoende expliciteren, maar dat levert op deze betekenisgrond geen zelfstandig INT-02-voorschrift op.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": ["C113", "C112", "G007", "G042", "G044", "G051", "G056"],
+        "motivering": "Negatie als criterium en een norm beschrijven komen al voor; G042/G051 koppelen objectcategorieën aan gebruiks- of behandelvoorschriften en G056 een categorie aan taken. De aanspreekzin geeft concreet bewijs voor categoriebehoud bij overtreding, maar een eigen functionele toets tegenover die kandidaten is beperkt. Niet als evident zelfstandige extra casus tellen."
+      },
+      "redundantie_met": ["G059", "G060"],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Aanpassen betreft de selectieonderbouwing: maak de afzonderlijke testwaarde tegenover G042/G051/G056 expliciet voordat dit geval aanvullend wordt geselecteerd; het gevalobject is niet herschreven.",
+        "Het onderscheid tussen normatieve ruimtecategorie en bezoekersinstructie verdient menselijke bespreking; pass is een voorstel op de concrete combinatie van bronnen, geen algemene vrijstelling voor huisregels."
+      ]
+    },
+    {
+      "id": "G062",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Standplaats op de weekmarkt zonder vergunning waarvoor de marktmeester geen boete oplegt zolang de kraam uiterlijk om 18.00 uur is opgeruimd en niet breder is dan drie meter.",
+          "functie": "Beschrijving van een voorwaardelijk gedoogde status door het bijbehorende uitblijven van beboeting.",
+          "start": 0,
+          "end": 174
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De marktmeester legt geen boete op voor een standplaats zonder vergunning, zolang de kraam uiterlijk om 18.00 uur is opgeruimd en niet breder is dan drie meter. Dit beleid geldt tot en met 31 december 2026.",
+          "start": 81,
+          "end": 287
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Standplaatsen met vergunning: 40. Gedoogde standplaatsen: 6.",
+          "start": 65,
+          "end": 125
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term wordt gebruikt in het maandelijkse marktoverzicht, naast standplaatsen met vergunning; de gebruiker heeft ook het handhavingsbeleid voor de weekmarkt meegestuurd.",
+          "start": 0,
+          "end": 170
+        }
+      ],
+      "motivering": "De bedoeling en het marktoverzicht dragen een statuscategorie naast vergunde standplaatsen. De kern beschrijft het normatieve gevolg van die status met de twee voorwaarden uit het beleid. Daarmee worden de gedoogde standplaatsen afgebakend; de kern instrueert de marktmeester niet afzonderlijk om een controle, belangenafweging of sanctiebeslissing uit te voeren. Het handelingskarakter van de beleidsbron maakt de beschrijving van haar gevolg niet automatisch een voorschrift. De niet-overgenomen einddatum kan het temporele bereik onvolledig maken, maar laat de hier beschreven INT-02-functie niet onbeslist.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C16", "C25", "C69", "C103", "G043", "G050", "G055"],
+        "motivering": "C16/C69 betreffen boetegrond of besluituitkomst, G055 een status bij afwezigheid van een eerdere beslissing. Hier bepaalt een tijdelijk beleid het voorwaardelijk uitblijven van sanctionering zonder afzonderlijk constitutief besluit in de invoer. Dit toetst beschrijving van een normatief gevolg tegenover het uitvoeren van de onderliggende niet-handhavingsregel."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De einddatum 31 december 2026 ontbreekt in de kern; volledigheid en tijdsbereik zijn afzonderlijke aandachtspunten.",
+        "De bron bewijst geen geldend recht of daadwerkelijk gedogen buiten het synthetische geval."
+      ]
+    },
+    {
+      "id": "G063",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Schoonmaakhandeling waarbij de kok een werkbank na ieder gebruik met alcohol 70% afneemt.",
+          "functie": "Beschrijving van een schoonmaakhandeling via uitvoerder, object, moment en middel.",
+          "start": 0,
+          "end": 89
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "ontsmetting — is een — schoonmaakhandeling. periodieke reiniging — is een — schoonmaakhandeling. Een ontsmetting vindt plaats direct na gebruik van een werkbank, met alcohol 70%; een periodieke reiniging vindt eenmaal per week plaats, met zeep.",
+          "start": 99,
+          "end": 343
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Neem de werkbank na ieder gebruik af met alcohol 70%.",
+          "start": 100,
+          "end": 153
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Maak de werkbanken iedere vrijdag schoon met zeep.",
+          "start": 165,
+          "end": 215
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil de term opnemen in de begrippenlijst van de proefkeuken en heeft het begrippenkader en het hygiëneprotocol meegestuurd.",
+          "start": 0,
+          "end": 136
+        }
+      ],
+      "motivering": "B1 geeft een genus en een inhoudelijk onderscheid tussen twee schoonmaakhandelingen op basis van moment en middel. Daardoor bestaat betekenisgrond voor de kern buiten de uitvoeringsopdrachten in B2. De kern beschrijft de soort handeling en neemt geen afzonderlijke uitvoeringsstap, controle of afweging over. Dat dezelfde handeling aan koks wordt opgedragen, maakt haar beschrijving niet tot opdracht. Wel is na ieder gebruik sterker dan direct na gebruik: een frequentieplicht en een tijdskenmerk zijn niet zonder meer equivalent. Dat raakt hier bereik en brongetrouwheid, zonder een zelfstandig voorschrift van de aangeboden handelingbeschrijving te bewijzen.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C15", "C33", "G024", "G036", "G039"],
+        "motivering": "G036 beschrijft een proces met expliciete medewerkersopdrachten en G039 een proces via fasen en resultaat. G063 bevat een concreet genus met nevengeschikt handelingstype én een protocol dat dezelfde handelingen opdraagt. Dat toetst of ontologische onderscheidingen werkelijk betekenisgrond bieden, zonder een proceslabel als vrijstelling te gebruiken."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De beperking tot de kok en het verschil tussen direct na gebruik en na ieder gebruik verdienen afzonderlijke toetsing op bereik en brongetrouwheid.",
+        "Het proceskarakter alleen is geen grond voor pass; het concrete onderscheid met periodieke reiniging draagt het voorstel."
+      ]
+    }
+  ],
+  "selectiepunten": [
+    "G057: verduidelijk of wegen een categorievoorwaarde of een plicht voor reeds bepaalde transitcontainers is; gelijkelijke authenticiteit lost dat functieverschil niet op.",
+    "G060: verduidelijk of zelfopnemer de blijvende rol of de maandelijks bepaalde groep tijdige melders benoemt.",
+    "G061: zelfstandige testwaarde tegenover G042/G051/G056 is onvoldoende duidelijk. Bespreek of categoriebehoud bij overtreding voldoende extra bewijs biedt, mede gezien overlap met G059 en G060.",
+    "G059, G061 en G063: bespreek bij menselijke labelvaststelling de onderbouwde lezing als normatief kenmerk of handelingbeschrijving tegenover de mogelijke voorschriftlezing. De voorstellen volgen geen beoogde verdeling van labels.",
+    "G062 en G063: houd ontbrekende tijdsbegrenzing respectievelijk verschil tussen moment en frequentie afzonderlijk van de INT-02-functie; deze punten zijn geen gebruikersbesluiten."
+  ],
+  "bewijsgrenzen": [
+    "Uitsluitend onafhankelijke voorstellen voor G057–G063; Chris beslist de labels. De 40 bestaande kandidaten en 76 ontwerpgevallen zijn uitsluitend op afstand en overlap gebruikt.",
+    "Alle gevalbronnen zijn synthetisch. Geen oordeel over geldend recht, andere toetsregels, appkwaliteit, expertgoldset, kwalificatie of productiegeschiktheid.",
+    "Er is geen hold-outsplit of freeze. Deze inzage sluit later optreden als O2-promptontwikkelaar of appimplementator uit.",
+    "De vijf hashes voor pool_v4, normcontract, besluiten_chris, ontwerpregister en gevalobjecten zijn tegen de gelezen bestanden gecontroleerd en komen overeen. De hash concept is uitsluitend letterlijk uit manifest-v2 overgenomen; het bijbehorende concept is niet gelezen of geverifieerd.",
+    "Citaten en nulgebaseerde, exclusieve eindposities zijn gecontroleerd tegen kern, bron.tekst of bedoeling van het betreffende geval; bron_id verwijst naar de gevalbron, niet naar een normbesluit.",
+    "De opdracht tot onafhankelijkheid is gevolgd: geen agents of herdelegatie en geen andere beoordelaaruitvoer geraadpleegd. Door de verplichte sessie-instructie zijn daarnaast de automatische WIP-snapshot en de handover-sectie gelezen; die bevatten sessiemetadata en bestandsverwijzingen en zijn niet als beoordelingsgrond gebruikt.",
+    "Geen bestanden gewijzigd, verplaatst of verwijderd. Geen Git-, app-, web-, externe API-, kwalificatie- of productiedatahandelingen uitgevoerd.",
+    "De zelfstandige testwaarde is een inhoudelijk voorstel op basis van de opgegeven registers, geen gemeten effect op model- of beoordelaarskwaliteit."
+  ]
+}

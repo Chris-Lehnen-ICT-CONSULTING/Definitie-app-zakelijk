@@ -1,0 +1,20 @@
+{
+  "pr": {
+    "headRefOid": "a9fb4a0b7444d073813182b662056e7c3265fc7c",
+    "mergeCommit": {
+      "oid": "edd148ab7df95a2782e2b8867e989a1242618fd8"
+    },
+    "mergedAt": "2026-09-29T09:15:11Z",
+    "state": "MERGED",
+    "url": "https://github.com/Chris-Lehnen-ICT-CONSULTING/Definitie-app-zakelijk/pull/488"
+  },
+  "actions": {
+    "enabled": false,
+    "sha_pinning_required": false
+  },
+  "merge_tree": "7a5ff5a5aaa216a35a26c84461ca85b528235494",
+  "head_tree": "7a5ff5a5aaa216a35a26c84461ca85b528235494",
+  "tree_identical": true,
+  "INT02_evaluator": "judgment_review",
+  "origin_main": "edd148ab7df95a2782e2b8867e989a1242618fd8"
+}

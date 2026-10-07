@@ -1,0 +1,10 @@
+{
+  "cmd": [
+    "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+    "-c",
+    "from tests.offline_bootstrap import install;install();import pytest;raise SystemExit(pytest.main(['tests/unit/validation/test_def771_int02_contract.py','-q','-ra','-p','no:cacheprovider','-p','no:randomly','-o','addopts=']))"
+  ],
+  "cwd": "/var/folders/0y/443zs7b950b82xfzg4s_97x00000gn/T/def835-mergecheck-wlvmzw2e",
+  "DEF771_SKILLS_ROOT": "/Users/chrislehnen/Projecten/_claude-global-setup/.worktrees/DEF-771-int02-skills/skills",
+  "exit": 0
+}

@@ -1,0 +1,1168 @@
+"""
+Dependency Injection Container voor de services.
+
+Deze container beheert de instanties van alle services en hun dependencies.
+Dit maakt het makkelijk om services te configureren, testen en swappen.
+"""
+
+import logging
+import os
+from typing import TYPE_CHECKING, Any, cast
+
+from config.config_manager import (
+    get_component_config,
+    get_config_manager,
+    get_default_model,
+    get_default_temperature,
+)
+from services.ai.model_router import ModelRouter
+from services.definition_generator_config import UnifiedGeneratorConfig
+from services.definition_repository import DefinitionRepository
+
+# Legacy DefinitionValidator removed - using V2 orchestrator for validation
+# DuplicateDetectionService removed - was dead code (DEF-176)
+from services.interfaces import (
+    CleaningServiceInterface,
+    DefinitionGeneratorInterface,
+    DefinitionOrchestratorInterface,
+    DefinitionRepositoryInterface,
+    WebLookupServiceInterface,
+)
+from services.modern_web_lookup_service import ModernWebLookupService
+
+# V2 Architecture imports
+from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+from services.security_service import SecurityService
+
+# UnifiedDefinitionGenerator vervangen door DefinitionOrchestrator
+# from services.unified_definition_generator import UnifiedDefinitionGenerator
+from services.workflow_service import WorkflowService
+
+if TYPE_CHECKING:
+    from database.definitie_repository import DefinitieRepository
+    from ontologie.improved_classifier import ImprovedOntologyClassifier
+    from repositories.synonym_registry import SynonymRegistry
+    from services.ai.base_client import AsyncAIClient
+    from services.ai_service_v2 import AIServiceV2
+    from services.classification.ontological_classifier import OntologicalClassifier
+    from services.data_aggregation_service import DataAggregationService
+    from services.definition_import_service import DefinitionImportService
+    from services.definition_workflow_service import DefinitionWorkflowService
+    from services.export_service import ExportService
+    from services.ontology.ontology_model_service import OntologyModelService
+    from services.policies.approval_gate_policy import GatePolicyService
+    from services.rag.document_chunker import DocumentChunker
+    from services.rag.embedding_service import EmbeddingService
+    from services.rag.embedding_store import EmbeddingStore
+    from services.rag.rag_management_service import RAGManagementService
+    from services.rag.rag_service import RAGService
+    from services.synonym_orchestrator import SynonymOrchestrator
+    from services.synonym_suggester import SynonymSuggester
+    from services.validation.ess03_assessment_service import Ess03AssessmentService
+    from services.validation.int02_assessment_service import (
+        Budget,
+        Int02AssessmentService,
+        Modelprofiel,
+    )
+    from services.validation.int03_assessment_service import Int03AssessmentService
+    from services.validation.interfaces import ValidationOrchestratorInterface
+    from services.validation.source_assessment_service import SourceAssessmentService
+    from services.web_lookup.synonym_service import JuridischeSynoniemService
+
+logger = logging.getLogger(__name__)
+
+
+class ServiceContainer:
+    """
+    Simpele Dependency Injection container voor service management.
+
+    Deze container:
+    - Beheert singleton instances van services
+    - Configureert dependencies
+    - Biedt een centrale plek voor service configuratie
+    """
+
+    def __init__(self, config: dict[str, Any] | None = None):
+        """
+        Initialiseer de container met optionele configuratie.
+
+        Args:
+            config: Dictionary met configuratie opties
+        """
+        self.config = config or {}
+        self._instances: dict[str, Any] = {}
+        self._lazy_instances: dict[str, Any] = {}  # Cache for lazy-loaded services
+        self._initialization_count = 0  # Track init count voor debugging
+        self._load_configuration()
+        self._initialization_count += 1
+
+        # US-202: Add unique container ID for tracking multiple instances
+        import uuid
+
+        self._container_id = str(uuid.uuid4())[:8]
+
+        # Use structured logging with extra fields (backward compatible)
+        logger.info(
+            "ServiceContainer instance initialized (lazy service loading will occur on first access)",
+            extra={
+                "component": "service_container",
+                "container_id": self._container_id,
+                "init_count": self._initialization_count,
+                "environment": self.config.get("environment", "unknown"),
+                "db_path": self.db_path,
+            },
+        )
+
+    def _load_configuration(self) -> None:
+        """Laad configuratie uit environment en config dict."""
+        # Basis configuratie
+        self.db_path = self.config.get("db_path", "data/definities.db")
+        self.openai_api_key = self.config.get(
+            "openai_api_key",
+            (os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")),
+        )
+
+        # AI provider selection
+        config_mgr = get_config_manager()
+        self.ai_provider = config_mgr.api.ai_provider
+        # DEF-439: expliciete annotatie zodat beide branches (str / Any|None) passen.
+        self.ai_api_key: str | None
+        if self.ai_provider == "anthropic":
+            self.ai_api_key = config_mgr.api.anthropic_api_key
+        else:
+            self.ai_api_key = self.openai_api_key
+
+        # Service specifieke configuratie - Use default and override via sub-configs
+        from services.definition_generator_config import (
+            GPTConfig,
+            MonitoringConfig,
+            QualityConfig,
+        )
+
+        # Gebruik centrale configuratie voor definition generator
+        definition_config = get_component_config("definition_generator")
+
+        gpt_config = GPTConfig(
+            model=self.config.get(
+                "generator_model", definition_config.get("model", get_default_model())
+            ),
+            temperature=self.config.get(
+                "generator_temperature",
+                definition_config.get("temperature", get_default_temperature()),
+            ),
+            api_key=self.openai_api_key,  # Pass the API key
+        )
+
+        quality_config = QualityConfig(
+            enable_cleaning=self.config.get("enable_cleaning", True),
+            enable_ontology=self.config.get("enable_ontology", True),
+        )
+
+        monitoring_config = MonitoringConfig(
+            enable_monitoring=self.config.get("enable_monitoring", False)
+        )
+
+        self.generator_config = UnifiedGeneratorConfig(
+            gpt=gpt_config, quality=quality_config, monitoring=monitoring_config
+        )
+
+        # Legacy validator config removed - V2 orchestrator handles validation
+        # Feature toggles
+        self.use_json_rules = bool(self.config.get("use_json_rules", True))
+
+        # Cleaning service configuratie
+        from services.cleaning_service import CleaningConfig
+
+        self.cleaning_config = CleaningConfig(
+            enable_cleaning=self.config.get("enable_cleaning", True),
+            track_changes=self.config.get("cleaning_track_changes", True),
+            preserve_original=self.config.get("cleaning_preserve_original", True),
+            log_operations=self.config.get("cleaning_log_operations", True),
+        )
+
+    # Service factory methods
+
+    def model_router(self) -> ModelRouter:
+        """Get or create ModelRouter singleton.
+
+        DEF-314: Centralized model routing — replaces hardcoded model names.
+        """
+        if "model_router" not in self._instances:
+            config_mgr = get_config_manager()
+            # Load model_routing section from config.yaml
+            routing_config = getattr(config_mgr, "_model_routing_config", None)
+            if routing_config is None:
+                # Fallback: load directly from YAML
+                from pathlib import Path
+
+                import yaml
+
+                config_path = Path("config/config.yaml")
+                if config_path.exists():
+                    with open(config_path) as f:
+                        full_config = yaml.safe_load(f)
+                    routing_config = full_config.get("model_routing", {})
+                else:
+                    routing_config = {}
+
+            self._instances["model_router"] = ModelRouter(routing_config)
+            logger.info("ModelRouter singleton created")
+        return cast("ModelRouter", self._instances["model_router"])
+
+    def generator(self) -> DefinitionGeneratorInterface:
+        """
+        Get of create DefinitionGenerator instance.
+
+        V2 orchestrator is nu de enige implementatie.
+
+        Returns:
+            Singleton instance van DefinitionGeneratorInterface (via V2 Orchestrator)
+        """
+        if "generator" not in self._instances:
+            # V2 orchestrator is de enige generator implementatie
+            orchestrator_instance = self.orchestrator()
+            self._instances["generator"] = orchestrator_instance
+            logger.debug("DefinitionOrchestratorV2 instance aangemaakt als generator")
+        return cast("DefinitionGeneratorInterface", self._instances["generator"])
+
+    # Legacy validator() method removed - validation now handled by V2 orchestrator
+    @property
+    def validator(
+        self,
+    ) -> Any:  # pragma: no cover - compatibility shim for tests' specs
+        """Legacy attribute intentionally unavailable.
+
+        Exposed as a property raising AttributeError so:
+        - hasattr(instance, 'validator') returns False (as expected by tests)
+        - Mock(spec=ServiceContainer) may still reference 'validator' in its spec
+        """
+        msg = "validator attribute removed; use V2 orchestrator"
+        raise AttributeError(msg)
+
+    def repository(self) -> DefinitionRepositoryInterface:
+        """
+        Get of create DefinitionRepository instance.
+
+        Returns:
+            Singleton instance van DefinitionRepository
+        """
+        if "repository" not in self._instances:
+            # Check if database should be used
+            use_database = self.config.get("use_database", True)
+
+            if use_database:
+                repository = DefinitionRepository(self.db_path)
+
+                # NOTE: Duplicate service is NOT injected here during init to keep repository eager-loaded
+                # It will be injected lazily when edit functionality is accessed via UI
+                # See duplicate_detector() for lazy loading implementation
+
+                self._instances["repository"] = repository
+                logger.debug(
+                    f"DefinitionRepository instance aangemaakt met db: {self.db_path}"
+                )
+            else:
+                from services.null_repository import NullDefinitionRepository
+
+                self._instances["repository"] = NullDefinitionRepository()
+                logger.debug(
+                    "NullDefinitionRepository instance aangemaakt (no database)"
+                )
+
+        return cast("DefinitionRepositoryInterface", self._instances["repository"])
+
+    def _get_ai_client(self) -> "AsyncAIClient":
+        """Get or create singleton AI client for the configured provider."""
+        if "_ai_client" not in self._instances:
+            from services.ai import create_ai_client
+
+            self._instances["_ai_client"] = create_ai_client(
+                provider=self.ai_provider,
+                # DEF-439: ai_api_key is str|None; create_ai_client valideert zelf.
+                api_key=cast(str, self.ai_api_key),
+            )
+        return cast("AsyncAIClient", self._instances["_ai_client"])
+
+    def ai_service(self) -> "AIServiceV2":
+        """Model-onafhankelijke AIServiceV2 (singleton) — DEF-459."""
+        if "ai_service" not in self._instances:
+            from services.ai_service_v2 import AIServiceV2
+
+            self._instances["ai_service"] = AIServiceV2(
+                use_cache=True,
+                ai_client=self._get_ai_client(),
+                model_router=self.model_router(),
+            )
+        return cast("AIServiceV2", self._instances["ai_service"])
+
+    def source_assessment_service(self) -> "SourceAssessmentService":
+        """De AI-bronbeoordeling voor CON-02 (DEF-743), singleton.
+
+        Op de gedeelde, model-onafhankelijke AIServiceV2 en de ModelRouter
+        (taak `validation`); dezelfde instantie gaat naar de orchestrator en
+        daarmee naar de ValidationOrchestratorV2, zodat editor en generatie
+        één beoordelingsdienst (en één interne cache) delen.
+        """
+        if "source_assessment_service" not in self._instances:
+            from services.validation.source_assessment_service import (
+                SourceAssessmentService,
+            )
+
+            self._instances["source_assessment_service"] = SourceAssessmentService(
+                self.ai_service(), model_router=self.model_router()
+            )
+        return cast(
+            "SourceAssessmentService", self._instances["source_assessment_service"]
+        )
+
+    def ess03_assessment_service(self) -> "Ess03AssessmentService":
+        """De AI-telbaarheidsbeoordeling voor ESS-03 (DEF-766), singleton.
+
+        Zelfde opzet als de bronbeoordeling: op de gedeelde AIServiceV2 en de
+        ModelRouter (taak `validation`); één instantie (en één interne cache)
+        voor editor en generatie.
+        """
+        if "ess03_assessment_service" not in self._instances:
+            from services.validation.ess03_assessment_service import (
+                Ess03AssessmentService,
+            )
+
+            self._instances["ess03_assessment_service"] = Ess03AssessmentService(
+                self.ai_service(), model_router=self.model_router()
+            )
+        return cast(
+            "Ess03AssessmentService", self._instances["ess03_assessment_service"]
+        )
+
+    def int03_assessment_service(self) -> "Int03AssessmentService":
+        """De AI-verwijzingsbeoordeling voor INT-03 (DEF-772), singleton.
+
+        Zelfde opzet als de telbaarheidsbeoordeling: op de gedeelde AIServiceV2
+        en de ModelRouter (taak `validation`); één instantie (en één interne
+        cache) voor editor en generatie.
+        """
+        if "int03_assessment_service" not in self._instances:
+            from services.validation.int03_assessment_service import (
+                Int03AssessmentService,
+            )
+
+            self._instances["int03_assessment_service"] = Int03AssessmentService(
+                self.ai_service(), model_router=self.model_router()
+            )
+        return cast(
+            "Int03AssessmentService", self._instances["int03_assessment_service"]
+        )
+
+    def int02_assessment_service(
+        self, *, profiel: "Modelprofiel", budget: "Budget"
+    ) -> "Int02AssessmentService":
+        """De INT-02-beoordeling (O2, DEF-835 WP5a) — alleen op expliciet verzoek.
+
+        Profiel en budget zijn verplicht en worden nooit afgeleid (geen
+        default, geen routerdefault, geen profiel van een andere regel). Geen
+        singleton en geen bedrading in `orchestrator()`: de actieve route
+        blijft O1. De aanroeper injecteert de dienst zelf, bijvoorbeeld in
+        `DefinitionOrchestratorV2(int02_assessment_service=...)`.
+        """
+        from services.validation.int02_assessment_service import (
+            Budget,
+            Int02AssessmentService,
+            Int02ServiceConfigError,
+            Modelprofiel,
+        )
+
+        if not isinstance(profiel, Modelprofiel) or not isinstance(budget, Budget):
+            msg = "INT-02: een expliciet Modelprofiel en Budget zijn vereist"
+            raise Int02ServiceConfigError(msg)
+        return Int02AssessmentService(
+            self.ai_service(), self.model_router(), profiel=profiel, budget=budget
+        )
+
+    def orchestrator(self) -> DefinitionOrchestratorInterface:
+        """
+        Get of create DefinitionOrchestrator instance.
+
+        Returns:
+            Singleton instance van DefinitionOrchestratorV2
+        """
+        if "orchestrator" not in self._instances:
+            # V2 is now the only orchestrator
+            # DEF-232: CleaningServiceAdapterV1toV2 removed - CleaningService is now native async
+            from services.interfaces import OrchestratorConfig as V2OrchestratorConfig
+
+            # DEF-66: PromptServiceV2 import removed - lazy loaded by orchestrator
+            # DEF-90: ValidationOrchestratorV2 creation removed - lazy loaded by orchestrator
+            # Create config with use_json_rules for lazy validation loading
+            v2_config = V2OrchestratorConfig(
+                use_json_rules=self.use_json_rules  # DEF-90: Pass for lazy validation
+            )
+
+            # DEF-66: PromptServiceV2 is now lazy-loaded by orchestrator (saves 435ms on init)
+            # prompt_service = PromptServiceV2()  # REMOVED - lazy loaded
+
+            # DEF-90: ValidationOrchestratorV2 is now lazy-loaded by orchestrator (saves 345ms on init)
+            # modular_validation_service = ...  # REMOVED - lazy loaded
+            # validation_orchestrator = ...  # REMOVED - lazy loaded
+
+            # DEF-314: Model-onafhankelijke AIServiceV2 (singleton, task-type routing)
+            # DEF-459: gedeeld via ai_service() zodat SynonymSuggester dezelfde krijgt
+            ai_service = self.ai_service()
+
+            # DEF-232: CleaningService is now native async - no adapter needed
+            cleaning_service = self.cleaning_service()
+
+            # Architecture v3.1: Get synonym orchestrator for enrichment
+            try:
+                synonym_orch = self.synonym_orchestrator()
+            except Exception:
+                # If synonym orchestrator fails, log warning and continue without
+                logger.warning(
+                    "Synonym orchestrator initialization failed - "
+                    "definition generation will proceed without synonym enrichment"
+                )
+                synonym_orch = None
+
+            self._instances["orchestrator"] = DefinitionOrchestratorV2(
+                # DEF-66: prompt_service=None triggers lazy loading (saves 435ms)
+                prompt_service=None,  # Will be lazy-loaded on first access
+                ai_service=ai_service,
+                # DEF-90: validation_service=None triggers lazy loading (saves 345ms, 56%!)
+                validation_service=None,  # Will be lazy-loaded on first access
+                cleaning_service=cleaning_service,
+                repository=self.repository(),
+                # Optional services
+                enhancement_service=None,  # Not implemented yet
+                security_service=SecurityService(),  # DEF-448: conservatieve sanitization
+                monitoring=None,  # Not implemented yet
+                feedback_engine=None,  # Not implemented yet
+                # Configuration
+                config=v2_config,
+                # Epic 3: inject ModernWebLookupService so enrichment and provenance work
+                web_lookup_service=self.web_lookup(),
+                # Architecture v3.1: inject SynonymOrchestrator for synonym enrichment
+                synonym_orchestrator=synonym_orch,
+                # DEF-271: RAG context retrieval service
+                rag_service=self.rag_service,
+                # DEF-743: gedeelde AI-bronbeoordeling (CON-02)
+                source_assessment_service=self.source_assessment_service(),
+                # DEF-766: gedeelde AI-telbaarheidsbeoordeling (ESS-03)
+                ess03_assessment_service=self.ess03_assessment_service(),
+                # DEF-772: gedeelde AI-verwijzingsbeoordeling (INT-03)
+                int03_assessment_service=self.int03_assessment_service(),
+            )
+            logger.debug("DefinitionOrchestratorV2 instance created")
+
+        return cast("DefinitionOrchestratorInterface", self._instances["orchestrator"])
+
+    def validation_orchestrator(self) -> "ValidationOrchestratorInterface":
+        """
+        Get ValidationOrchestratorV2 instance (DEF-90: lazy-loaded via orchestrator).
+
+        Returns:
+            ValidationOrchestratorV2 instance (lazy-loaded from orchestrator property)
+        """
+        # DEF-90: Validation is now lazy-loaded via orchestrator property
+        # Access orchestrator.validation_service to trigger lazy load if needed
+        orchestrator = self.orchestrator()
+        # DefinitionOrchestratorInterface exposeert nu de validation_service-property
+        # (getypeerd als ValidationOrchestratorInterface), dus geen cast meer nodig.
+        return orchestrator.validation_service
+
+    def ontological_classifier(self) -> "OntologicalClassifier":
+        """
+        Get of create OntologicalClassifier instance (U/F/O classifier).
+
+        Dit is de classifier die VOOR definitie generatie wordt gebruikt om
+        begrippen te classificeren als Universals, Functionals, of Objects.
+
+        Returns:
+            Singleton instance van OntologicalClassifier
+
+        Usage:
+            # In UI
+            classifier = container.ontological_classifier()
+            result = classifier.classify(begrip, org_ctx, jur_ctx)
+            request.ontologische_categorie = result.to_string_level()
+
+            # Batch processing
+            results = classifier.classify_batch(begrippen_list)
+        """
+        if "ontological_classifier" not in self._instances:
+            from services.classification.ontological_classifier import (
+                OntologicalClassifier,
+            )
+
+            # DEF-314: Reuse singleton AIServiceV2 from orchestrator
+            # instead of creating a second instance
+            orchestrator = self.orchestrator()
+            # DEF-439: ai_service is een attribuut van de concrete V2-orchestrator,
+            # niet van de interface (vgl. de validation_service-property).
+            ai_service = cast(Any, orchestrator).ai_service
+
+            self._instances["ontological_classifier"] = OntologicalClassifier(
+                ai_service
+            )
+            logger.info(
+                "OntologicalClassifier initialized (reusing orchestrator AI service)"
+            )
+
+        return cast("OntologicalClassifier", self._instances["ontological_classifier"])
+
+    def term_based_classifier(self) -> "ImprovedOntologyClassifier":
+        """
+        Get of create ImprovedOntologyClassifier instance (term-based classifier).
+
+        DEF-35: Term-based classifier met YAML configuratie voor pattern matching.
+        Dit is een snellere, config-driven alternatief voor AI-based classificatie.
+
+        Returns:
+            Singleton instance van ImprovedOntologyClassifier
+
+        Usage:
+            # In UI of service
+            classifier = container.term_based_classifier()
+            result = classifier.classify(begrip, org_ctx, jur_ctx, wet_ctx)
+
+            # Result bevat:
+            # - result.categorie: OntologischeCategorie enum
+            # - result.confidence: 0.0-1.0 score
+            # - result.confidence_label: "HIGH"/"MEDIUM"/"LOW"
+            # - result.all_scores: Dict met alle category scores
+            # - result.reasoning: Menselijke uitleg
+        """
+        if "term_based_classifier" not in self._instances:
+            from ontologie.improved_classifier import ImprovedOntologyClassifier
+
+            # Initialize met default config (loaded from YAML, cached)
+            self._instances["term_based_classifier"] = ImprovedOntologyClassifier()
+            logger.info(
+                "ImprovedOntologyClassifier (term-based) initialized with YAML config"
+            )
+
+        return cast(
+            "ImprovedOntologyClassifier", self._instances["term_based_classifier"]
+        )
+
+    def web_lookup(self) -> WebLookupServiceInterface:
+        """
+        Get of create ModernWebLookupService instance.
+
+        Returns:
+            Singleton instance van ModernWebLookupService
+        """
+        if "web_lookup" not in self._instances:
+            try:
+                self._instances["web_lookup"] = ModernWebLookupService()
+                logger.info(
+                    "✅ ModernWebLookupService initialized successfully - external context enrichment AVAILABLE"
+                )
+            except Exception as e:
+                logger.error(
+                    f"⚠️ ModernWebLookupService initialization FAILED: {type(e).__name__}: {e}\n"
+                    f"Definitions will be generated WITHOUT external context enrichment!"
+                )
+                self._instances["web_lookup"] = None
+        return cast("WebLookupServiceInterface", self._instances["web_lookup"])
+
+    def synonym_registry(self) -> "SynonymRegistry":
+        """
+        Get or create SynonymRegistry instance.
+
+        Returns:
+            Singleton instance van SynonymRegistry
+        """
+        if "synonym_registry" not in self._instances:
+            try:
+                from repositories.synonym_registry import SynonymRegistry
+            except ModuleNotFoundError:
+                from repositories.synonym_registry import SynonymRegistry
+
+            self._instances["synonym_registry"] = SynonymRegistry(self.db_path)
+            logger.info(f"SynonymRegistry initialized with db: {self.db_path}")
+
+        return cast("SynonymRegistry", self._instances["synonym_registry"])
+
+    def synonym_suggester(self) -> "SynonymSuggester":
+        """
+        Get or create SynonymSuggester instance.
+
+        DEF-459: model-onafhankelijk — roept het geconfigureerde model aan via
+        de gedeelde AIServiceV2 (ModelRouter, task_type="synonyms").
+
+        Returns:
+            Singleton instance van SynonymSuggester
+        """
+        if "synonym_suggester" not in self._instances:
+            from services.synonym_suggester import SynonymSuggester
+
+            try:
+                self._instances["synonym_suggester"] = SynonymSuggester(
+                    ai_service=self.ai_service()
+                )
+                logger.info(
+                    "SynonymSuggester initialized (model-onafhankelijk via ModelRouter)"
+                )
+            except Exception as e:
+                logger.warning(
+                    f"SynonymSuggester initialization warning: {e}. "
+                    "Synonym enrichment will not be available."
+                )
+                # Don't fail hard - allow app to start without enrichment
+                self._instances["synonym_suggester"] = None
+
+        return cast("SynonymSuggester", self._instances["synonym_suggester"])
+
+    def synonym_orchestrator(self) -> "SynonymOrchestrator":
+        """
+        Get or create SynonymOrchestrator instance.
+
+        Wires registry + suggester + cache invalidation callbacks.
+
+        Returns:
+            Singleton instance van SynonymOrchestrator
+        """
+        if "synonym_orchestrator" not in self._instances:
+            from services.synonym_orchestrator import SynonymOrchestrator
+
+            # Get dependencies
+            registry = self.synonym_registry()
+            suggester = self.synonym_suggester()
+
+            # Handle case where suggester failed to initialize
+            if suggester is None:
+                logger.warning(
+                    "SynonymSuggester not available - "
+                    "creating fallback suggester for orchestrator"
+                )
+                from services.synonym_suggester import SynonymSuggester
+
+                suggester = SynonymSuggester(ai_service=self.ai_service())
+
+            # Create orchestrator
+            orchestrator = SynonymOrchestrator(registry=registry, suggester=suggester)
+
+            # Wire cache invalidation callbacks
+            # When registry data changes, orchestrator cache must be invalidated
+            registry.register_invalidation_callback(orchestrator.invalidate_cache)
+
+            self._instances["synonym_orchestrator"] = orchestrator
+            logger.info(
+                "SynonymOrchestrator initialized with TTL cache and invalidation callbacks wired"
+            )
+
+        return cast("SynonymOrchestrator", self._instances["synonym_orchestrator"])
+
+    def synonym_service(self) -> "JuridischeSynoniemService":
+        """
+        Get or create JuridischeSynoniemService instance (façade).
+
+        Provides backward compatible API over SynonymOrchestrator.
+
+        Returns:
+            Singleton instance van JuridischeSynoniemService
+        """
+        if "synonym_service" not in self._instances:
+            from services.web_lookup.synonym_service import (
+                JuridischeSynoniemService,
+            )
+
+            # Get orchestrator dependency
+            orchestrator = self.synonym_orchestrator()
+
+            self._instances["synonym_service"] = JuridischeSynoniemService(orchestrator)
+            logger.info("JuridischeSynoniemService initialized as orchestrator façade")
+
+        return cast("JuridischeSynoniemService", self._instances["synonym_service"])
+
+    # DuplicateDetectionService removed - was dead code (DEF-176)
+    # duplicate_detector() method removed
+
+    # ===== Approval Gate Policy (US-160) =====
+    def gate_policy(self) -> "GatePolicyService":
+        """
+        Get or create GatePolicyService instance (LAZY-LOADED).
+
+        Only loaded when validation gates or workflow transitions are accessed.
+        Loads approval gate policy (YAML) with lazy TTL caching.
+
+        Returns:
+            Singleton instance van GatePolicyService
+        """
+        if "gate_policy" not in self._lazy_instances:
+            from services.policies.approval_gate_policy import GatePolicyService
+
+            base_path = self.config.get(
+                "approval_gate_config_path", "config/approval_gate.yaml"
+            )
+            self._lazy_instances["gate_policy"] = GatePolicyService(base_path)
+            logger.info("⚡ GatePolicyService lazy-loaded (config: %s)", base_path)
+        return cast("GatePolicyService", self._lazy_instances["gate_policy"])
+
+    def workflow(self) -> WorkflowService:
+        """
+        Get of create WorkflowService instance.
+
+        Returns:
+            Singleton instance van WorkflowService
+        """
+        if "workflow" not in self._instances:
+            self._instances["workflow"] = WorkflowService()
+            logger.debug("WorkflowService instance aangemaakt")
+        return cast("WorkflowService", self._instances["workflow"])
+
+    def definition_workflow_service(self) -> "DefinitionWorkflowService":
+        """
+        Get of create DefinitionWorkflowService instance (LAZY-LOADED).
+
+        US-072: Deze service combineert workflow en repository acties
+        zodat UI geen losse services hoeft te coördineren.
+
+        Only loaded when Expert Review tab or workflow actions are accessed.
+
+        Returns:
+            Singleton instance van DefinitionWorkflowService
+        """
+        if "definition_workflow_service" not in self._lazy_instances:
+            from services.definition_workflow_service import DefinitionWorkflowService
+
+            # Use existing services
+            workflow_service = self.workflow()
+            repository = self.repository()
+
+            # Optional services (None for now, can be added later)
+            event_bus = None  # Pending: integrate Event Bus when US-060 is delivered
+            audit_logger = (
+                None  # Pending: integrate Audit Trail when US-068 is delivered
+            )
+            gate_policy_service = self.gate_policy()  # Lazy - will trigger lazy load
+
+            self._lazy_instances["definition_workflow_service"] = (
+                DefinitionWorkflowService(
+                    workflow_service=workflow_service,
+                    # DEF-439: services annoteren de DB-laag DefinitieRepository,
+                    # maar krijgen runtime de service-laag (compat-methods aanwezig).
+                    repository=cast("DefinitieRepository", repository),
+                    event_bus=event_bus,
+                    audit_logger=audit_logger,
+                    gate_policy_service=gate_policy_service,
+                )
+            )
+            logger.info("⚡ DefinitionWorkflowService lazy-loaded (US-072)")
+        return cast(
+            "DefinitionWorkflowService",
+            self._lazy_instances["definition_workflow_service"],
+        )
+
+    def cleaning_service(self) -> CleaningServiceInterface:
+        """
+        Get of create CleaningService instance.
+
+        Returns:
+            Singleton instance van CleaningService
+        """
+        if "cleaning_service" not in self._instances:
+            from services.cleaning_service import CleaningService
+
+            self._instances["cleaning_service"] = CleaningService(self.cleaning_config)
+            logger.debug("CleaningService instance aangemaakt")
+        return cast("CleaningServiceInterface", self._instances["cleaning_service"])
+
+    def data_aggregation_service(self) -> "DataAggregationService":
+        """
+        Get of create DataAggregationService instance (LAZY-LOADED).
+
+        Only loaded when export actions are triggered.
+
+        Returns:
+            Singleton instance van DataAggregationService
+        """
+        if "data_aggregation_service" not in self._lazy_instances:
+            from services.data_aggregation_service import DataAggregationService
+
+            # Use existing repository instance
+            repo = self.repository()
+            self._lazy_instances["data_aggregation_service"] = DataAggregationService(
+                cast("DefinitieRepository", repo),  # DEF-439: zie workflow-service
+                # DEF-772: de export bindt de opgeslagen INT-03-beoordeling aan
+                # dezelfde actuele binding als editor en generatie (lazy: de
+                # dienst wordt pas bij de eerste export aangemaakt).
+                int03_binding=lambda: self.int03_assessment_service().binding(),
+            )
+            logger.info("⚡ DataAggregationService lazy-loaded")
+        return cast(
+            "DataAggregationService", self._lazy_instances["data_aggregation_service"]
+        )
+
+    def export_service(self) -> "ExportService":
+        """
+        Get of create ExportService instance (LAZY-LOADED).
+
+        Only loaded when export actions are triggered.
+        Lazy-loads data_aggregation_service as dependency.
+
+        Returns:
+            Singleton instance van ExportService
+        """
+        if "export_service" not in self._lazy_instances:
+            from services.export_service import ExportService
+
+            # Use existing services
+            repo = self.repository()
+            data_agg_service = (
+                self.data_aggregation_service()
+            )  # Lazy - will trigger lazy load
+
+            # Get export directory from config
+            export_dir = self.config.get("export_dir", "exports")
+
+            self._lazy_instances["export_service"] = ExportService(
+                repository=cast("DefinitieRepository", repo),  # DEF-439
+                data_aggregation_service=data_agg_service,
+                export_dir=export_dir,
+                validation_orchestrator=self.orchestrator(),
+                enable_validation_gate=self.config.get(
+                    "enable_export_validation_gate", False
+                ),
+            )
+            logger.info("⚡ ExportService lazy-loaded")
+        return cast("ExportService", self._lazy_instances["export_service"])
+
+    def import_service(self) -> "DefinitionImportService":
+        """
+        Get or create DefinitionImportService instance (CSV batch helper) (LAZY-LOADED).
+
+        Only loaded when import actions are triggered.
+
+        Returns:
+            Singleton instance van DefinitionImportService
+        """
+        if "import_service" not in self._lazy_instances:
+            from services.definition_import_service import DefinitionImportService
+
+            repo = self.repository()
+            validator = self.validation_orchestrator()
+            self._lazy_instances["import_service"] = DefinitionImportService(
+                repository=repo, validation_orchestrator=validator
+            )
+            logger.info("⚡ DefinitionImportService lazy-loaded (CSV helper)")
+        return cast("DefinitionImportService", self._lazy_instances["import_service"])
+
+    def document_chunker(self) -> "DocumentChunker":
+        """
+        Get or create DocumentChunker instance (LAZY-LOADED).
+
+        DEF-290: Juridisch-aware document chunking voor de RAG-pipeline.
+        Only loaded when RAG chunking is triggered.
+
+        Returns:
+            Singleton instance van DocumentChunker
+        """
+        if "document_chunker" not in self._lazy_instances:
+            from services.rag.document_chunker import DocumentChunker
+
+            self._lazy_instances["document_chunker"] = DocumentChunker()
+            logger.info("⚡ DocumentChunker lazy-loaded (DEF-290)")
+        return cast("DocumentChunker", self._lazy_instances["document_chunker"])
+
+    @property
+    def embedding_service(self) -> "EmbeddingService":
+        """
+        Get or create EmbeddingService instance (LAZY-LOADED).
+
+        DEF-269: Eigen OpenAI client voor embeddings, onafhankelijk van chat provider.
+        Only loaded when RAG embedding is triggered.
+
+        Returns:
+            Singleton instance van EmbeddingService
+        """
+        if "embedding_service" not in self._lazy_instances:
+            from services.rag.embedding_service import EmbeddingService
+
+            self._lazy_instances["embedding_service"] = EmbeddingService(
+                # DEF-439: openai_api_key is Any|None; runtime-gedrag onveranderd.
+                api_key=cast(str, self.openai_api_key),
+            )
+            logger.info("⚡ EmbeddingService lazy-loaded (DEF-269)")
+        return cast("EmbeddingService", self._lazy_instances["embedding_service"])
+
+    @property
+    def rag_service(self) -> "RAGService":
+        """
+        Get or create RAGService instance (LAZY-LOADED).
+
+        DEF-291: Hoofdservice die DocumentChunker, EmbeddingService en
+        EmbeddingStore combineert voor document ingest en context retrieval.
+
+        Returns:
+            Singleton instance van RAGService
+        """
+        if "rag_service" not in self._lazy_instances:
+            from services.rag.rag_service import RAGService
+
+            self._lazy_instances["rag_service"] = RAGService(
+                document_chunker=self.document_chunker(),
+                embedding_service=self.embedding_service,
+                embedding_store=self.embedding_store,
+                db_path=str(self.db_path),
+            )
+            logger.info("⚡ RAGService lazy-loaded (DEF-291)")
+        return cast("RAGService", self._lazy_instances["rag_service"])
+
+    @property
+    def embedding_store(self) -> "EmbeddingStore":
+        """
+        Get or create EmbeddingStore instance (LAZY-LOADED).
+
+        DEF-304: SQLite BLOB + numpy cosine similarity voor RAG pipeline.
+        Only loaded when RAG storage/search is triggered.
+
+        Returns:
+            Singleton instance van EmbeddingStore
+        """
+        if "embedding_store" not in self._lazy_instances:
+            from services.rag.embedding_store import EmbeddingStore
+
+            self._lazy_instances["embedding_store"] = EmbeddingStore(
+                db_path=str(self.db_path)
+            )
+            logger.info("⚡ EmbeddingStore lazy-loaded (DEF-304)")
+        return cast("EmbeddingStore", self._lazy_instances["embedding_store"])
+
+    @property
+    def rag_management_service(self) -> "RAGManagementService":
+        """
+        Get or create RAGManagementService instance (LAZY-LOADED).
+
+        DEF-365: CRUD beheer voor RAG collections en documenten.
+        Only loaded when RAG management page is accessed.
+
+        Returns:
+            Singleton instance van RAGManagementService
+        """
+        if "rag_management_service" not in self._lazy_instances:
+            from services.rag.rag_management_service import RAGManagementService
+
+            self._lazy_instances["rag_management_service"] = RAGManagementService(
+                db_path=str(self.db_path),
+                embedding_store=self.embedding_store,
+            )
+            logger.info("⚡ RAGManagementService lazy-loaded (DEF-365)")
+        return cast(
+            "RAGManagementService", self._lazy_instances["rag_management_service"]
+        )
+
+    @property
+    def ontology_model_service(self) -> "OntologyModelService":
+        """
+        Get or create OntologyModelService instance (LAZY-LOADED).
+
+        DEF-403: Lees en beheer ontologische modellen.
+        Only loaded when ontology features are accessed.
+
+        Returns:
+            Singleton instance van OntologyModelService
+        """
+        if "ontology_model_service" not in self._lazy_instances:
+            from services.ontology.ontology_model_service import OntologyModelService
+
+            self._lazy_instances["ontology_model_service"] = OntologyModelService(
+                db_path=str(self.db_path),
+            )
+            logger.info("⚡ OntologyModelService lazy-loaded (DEF-403)")
+        return cast(
+            "OntologyModelService", self._lazy_instances["ontology_model_service"]
+        )
+
+    # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
+
+    # Utility methods
+
+    def reset(self) -> None:
+        """Reset alle service instances (eager and lazy)."""
+        self._instances.clear()
+        self._lazy_instances.clear()
+        logger.debug("Alle service instances gereset (eager + lazy)")
+
+    def get_service(self, name: str) -> Any:
+        """
+        Get een service op naam.
+
+        Args:
+            name: Naam van de service (generator, validator, repository, orchestrator, web_lookup)
+
+        Returns:
+            Service instance of None
+        """
+        service_map = {
+            "model_router": self.model_router,
+            "generator": self.generator,
+            # Legacy validator verwijderd; geen mapping meer beschikbaar
+            "repository": self.repository,
+            "orchestrator": self.orchestrator,
+            "web_lookup": self.web_lookup,
+            # duplicate_detector removed - was dead code (DEF-176)
+            "workflow": self.workflow,
+            "cleaning_service": self.cleaning_service,
+            "gate_policy": self.gate_policy,
+            "definition_workflow_service": self.definition_workflow_service,
+            "import_service": self.import_service,
+            "synonym_registry": self.synonym_registry,
+            "synonym_suggester": self.synonym_suggester,
+            "synonym_orchestrator": self.synonym_orchestrator,
+            "synonym_service": self.synonym_service,
+            "ontological_classifier": self.ontological_classifier,
+            "term_based_classifier": self.term_based_classifier,
+            "document_chunker": self.document_chunker,
+            "embedding_service": lambda: self.embedding_service,
+            "embedding_store": lambda: self.embedding_store,
+            "rag_service": lambda: self.rag_service,
+            "rag_management_service": lambda: self.rag_management_service,
+            "ontology_model_service": lambda: self.ontology_model_service,
+        }
+
+        if name in service_map:
+            return service_map[name]()
+        return None
+
+    def get_initialization_count(self) -> int:
+        """
+        Get het aantal keer dat deze container is geïnitialiseerd.
+
+        Returns:
+            Aantal initialisaties (voor debugging van caching issues)
+        """
+        return getattr(self, "_initialization_count", 1)
+
+    def get_container_id(self) -> str:
+        """
+        Get het unieke ID van deze container instance.
+
+        Returns:
+            Container ID (8-char UUID voor debugging van duplicate containers)
+        """
+        return getattr(self, "_container_id", "UNKNOWN")
+
+    def update_config(self, config: dict[str, Any]) -> None:
+        """
+        Update configuratie en reset services.
+
+        Args:
+            config: Nieuwe configuratie
+        """
+        self.config.update(config)
+        self._load_configuration()
+        self.reset()
+        logger.debug("Container configuratie geüpdatet")
+
+
+# DEF-249: Global variable removed - now delegates to container_manager.get_cached_container()
+# This ensures only ONE container exists process-wide (unified singleton pattern)
+
+
+def get_container() -> ServiceContainer:
+    """
+    Get de singleton container instance.
+
+    DEF-249: Delegates to container_manager.get_cached_container() to ensure
+    only ONE container exists process-wide. Previously this function used a
+    separate global variable, causing duplicate containers during requests.
+
+    Returns:
+        ServiceContainer instance (singleton, same as get_cached_container())
+    """
+    # DEF-249: Unified singleton pattern - delegate to @lru_cache version
+    from utils.container_manager import get_cached_container
+
+    return cast("ServiceContainer", get_cached_container())
+
+
+def reset_container() -> None:
+    """Reset de globale container.
+
+    DEF-249: Unified reset logic - resets existing container BEFORE clearing cache.
+    This ensures the old container's services are properly cleaned up.
+    """
+    from utils.container_manager import clear_container_cache, get_cached_container
+
+    # DEF-249 FIX: Reset existing container BEFORE clearing cache
+    # Previously the logic was wrong: it cleared cache first, then created a NEW
+    # container and reset that (pointless). Now we reset the existing one first.
+    try:
+        # Check if container exists in cache before trying to reset
+        cache_info = get_cached_container.cache_info()
+        if cache_info.currsize > 0:
+            # Container exists - get it and reset it
+            existing_container = get_cached_container()
+            container_id = existing_container.get_container_id()
+            existing_container.reset()
+            logger.debug(
+                "Existing container reset (id=%s)",
+                container_id,
+                extra={"component": "container", "container_id": container_id},
+            )
+    except ImportError:
+        # Container module not yet loaded - expected during initial startup
+        logger.debug("Container reset skipped: container_manager not yet initialized")
+    except AttributeError as e:
+        # Container exists but doesn't have expected method - likely version mismatch
+        logger.warning(
+            "Container reset failed: container missing expected method: %s",
+            e,
+            extra={"component": "container", "error_type": "AttributeError"},
+        )
+    except Exception as e:
+        # Unexpected error - log for debugging but don't crash
+        logger.error(
+            "Unexpected error during container reset: %s: %s",
+            type(e).__name__,
+            e,
+            exc_info=True,
+            extra={"component": "container", "error_type": type(e).__name__},
+        )
+
+    # Now clear the cache so next access creates fresh container
+    clear_container_cache()
+    logger.debug(
+        "Container cache cleared - next access will create fresh container",
+        extra={"component": "container", "operation": "cache_clear"},
+    )
+
+
+# Test configuraties voor verschillende environments
+class ContainerConfigs:
+    """Voorgedefinieerde configuraties voor verschillende environments."""
+
+    @staticmethod
+    def development() -> dict[str, Any]:
+        """Development configuratie."""
+        # Laat generator_model en generator_temperature weg zodat centrale config gebruikt wordt
+        return {
+            "db_path": "data/definities.db",
+            # Model en temperature worden uit centrale config gehaald
+            "enable_monitoring": True,
+            "enable_ontology": True,  # Test ontologie in dev
+            # Dead code verwijderd: enable_auto_save, min_quality_score (never used)
+        }
+
+    @staticmethod
+    def testing() -> dict[str, Any]:
+        """Test configuratie."""
+        return {
+            "db_path": ":memory:",  # In-memory database
+            # Model wordt uit centrale config gehaald
+            "enable_monitoring": False,
+            "enable_ontology": False,  # Skip ontologie in tests voor snelheid
+            "use_json_rules": False,  # Gebruik interne regels voor voorspelbare golden-acceptatie
+            # Dead code verwijderd: enable_auto_save, enable_validation, enable_enrichment (never used)
+        }
+
+    @staticmethod
+    def production() -> dict[str, Any]:
+        """Production configuratie."""
+        return {
+            "db_path": "data/definities.db",
+            # Model en temperature worden uit centrale config gehaald
+            "enable_monitoring": True,
+            "enable_ontology": True,  # Volledige ontologie in productie
+            # Dead code verwijderd: enable_auto_save, enable_all_rules, min_quality_score (never used)
+        }

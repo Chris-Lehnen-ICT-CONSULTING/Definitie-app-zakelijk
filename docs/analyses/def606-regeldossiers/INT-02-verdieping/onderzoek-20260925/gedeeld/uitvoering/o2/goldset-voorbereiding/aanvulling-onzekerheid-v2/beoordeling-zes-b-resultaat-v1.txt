@@ -1,0 +1,378 @@
+{
+  "beoordelaar": "B",
+  "status": "voorstel_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "gevalobjecten_v2": "10b90000143356ff0e2064e4230528d68c29d7ae40a3e074f81bb311c98e8d5b",
+    "concept_v2": "58c7317b689ecb152f0aa202aa33460856795d08ee1ae4cfcf11969e58544149",
+    "pool_v4": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+    "concept_v1_gevalobjecten": "6309d72b5b83b5ffb30cc7571e9e9df0eb2a95707f3d470e8a5dfd5827ab160f",
+    "normcontract": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten_chris": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734"
+  },
+  "gevallen": [
+    {
+      "id": "G064",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Selectie van declaraties uit de maandlijst waarin de controleur eerst alle declaraties boven 1.000 euro opneemt en die hij daarna door loting uit de resterende declaraties aanvult tot twintig.",
+          "functie": "Beschrijving van een selectiesoort via haar samenstelling en ontstaanswijze; de volgorde onderscheidt de risicoselectie van een volledig aselecte selectie.",
+          "start": 0,
+          "end": 192
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Bij een risicoselectie wordt eerst iedere declaratie boven 1.000 euro opgenomen en worden de overige plaatsen tot twintig door loting uit de resterende declaraties gevuld; zijn er twintig of meer declaraties boven 1.000 euro, dan bestaat de risicoselectie alleen uit die declaraties.",
+          "start": 361,
+          "end": 644
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Omdat de kansen bij een risicoselectie ongelijk zijn, wordt het foutpercentage van een risicoselectie niet doorgetrokken naar de hele maandlijst; dat van een aselecte selectie wel.",
+          "start": 645,
+          "end": 825
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Stap 2: Neem alle declaraties boven 1.000 euro van de maandlijst op in de risicoselectie. Stap 3: Vul de risicoselectie, als zij minder dan twintig declaraties telt, aan tot twintig door loting uit de resterende declaraties met de lotingsfunctie van het declaratiesysteem.",
+          "start": 182,
+          "end": 454
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term komt voor in het controleplan en in de werkinstructie voor de maandcontrole van de sportbond. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd.",
+          "start": 0,
+          "end": 220
+        }
+      ],
+      "motivering": "B1 verbindt de twee selectiehandelingen aan een onderscheiden selectiesoort met ongelijke trekkingskansen. Daardoor beschrijft de kern hoe deze selectie wordt gevormd; zij draagt niet zelfstandig de opdracht de maandcontrole uit te voeren. B2 bevat uitvoeringsopdrachten, maar hun aanwezigheid maakt de beschrijving van de selectiesoort niet automatisch voorschrijvend. Loting is geen deterministische uitkomstafleiding, maar evenmin een discretionaire afweging. De ontbrekende uitzondering voor twintig of meer dure declaraties raakt de volledigheid en brongetrouwheid van de kern, niet haar INT-02-functie.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C15", "C33", "C59", "G024", "G039", "G053", "G063"],
+        "motivering": "De ontwerpen behandelen procedure tegenover begrip; G024/G053 bevatten afhandelingsstappen, G039 procesfasen. G063 is het naaste eerdere concept: taxonomisch onderscheid naast een uitvoeringsprotocol. G064 voegt een inhoudelijke functie toe: een niet-deterministische trekkingswijze bepaalt selectiekansen en de bruikbaarheid van resultaten. Dat toetst het onderscheid tussen toeval, discretie en beschrijving van een methode; geen loutere naamwisseling."
+      },
+      "redundantie_met": ["G063"],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "G063 is een mogelijke overlap op de structuur classificatiebron plus uitvoeringsbron; de aanvullende testwaarde berust hier op loting en selectiekansen.",
+        "G066 deelt de procedure/kenmerkgrens, maar betreft aantoonbare zorgvuldigheid van een overdracht, niet de ontstaanswijze van een steekproef.",
+        "De kern dekt de uitzondering bij twintig of meer declaraties boven 1.000 euro niet expliciet; dit is een afzonderlijk volledigheidspunt."
+      ]
+    },
+    {
+      "id": "G065",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Melding van een dier in nood waarin de beller ten minste één van de drie spoedvragen met ja beantwoordt of waarbij de centralist een antwoord niet kan vaststellen en de melding daarom als spoed aanmerkt.",
+          "functie": "Alternatieve kenmerken van een melding: een bevestigend spoedantwoord of een spoedaanmerking wegens een niet vast te stellen antwoord.",
+          "start": 0,
+          "end": 203
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Is één antwoord ja, of kunt u een antwoord niet vaststellen, merk de melding dan aan als spoed. Een melding die u als spoed hebt aangemerkt, blijft spoed, ook als ter plaatse blijkt dat het meevalt.",
+          "start": 328,
+          "end": 526
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Voor de maandelijkse evaluatie van de vertrektijden telt iedere melding die de centralist als spoed heeft aangemerkt als spoedmelding, ook als achteraf blijkt dat geen van de spoedvragen met ja had hoeven te worden beantwoord.",
+          "start": 265,
+          "end": 491
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil de term opnemen in de begrippenlijst van de dierenambulance. Die lijst wordt gebruikt door de centralisten en door de vrijwillige chauffeurspoule; de gebruiker heeft uit het uitvraagprotocol en uit de samenwerkingsafspraak een passage meegestuurd.",
+          "start": 0,
+          "end": 264
+        }
+      ],
+      "motivering": "De kern bakent meldingen af met twee alternatieven en neemt in het tweede de spoedaanmerking als kenmerk op. B2 bevestigt dat die aanmerking een blijvende classificatie draagt, ook wanneer feitelijk geen spoed blijkt. De kern schrijft niet zelfstandig de uitvraag of ambulance-inzet voor. Het niet kunnen vaststellen betreft een antwoord binnen de casus, niet ontbrekende betekenisgrond voor INT-02; het bewijst ook geen discretionaire afweging. De eerste tak vermeldt geen aanmerking en de drie vragen zijn niet uitgewerkt: dat kan de afbakening tegenover B2 onvolledig maken, zonder de functie in een opdracht te veranderen.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C69", "C85", "C107", "G006", "G014", "G055", "G062"],
+        "motivering": "G014 en G055 beschrijven een door een handeling bepaalde status; C107 betreft een constitutief oordeel. G062 plaatst handhavingsgedrag naast een overzicht. G065 onderscheidt zich door feitelijke onzekerheid als beleidsgrond voor een blijvende status, gecombineerd met een directe criteriumtak. Het toetst of onzekerheid van de centralist ten onrechte beoordelaarsonzekerheid wordt."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De reikwijdte van de twee takken ten opzichte van iedere als spoed aangemerkte melding verdient afzonderlijke betekeniscontrole.",
+        "G069 deelt het verschil tussen feiten en institutionele behandeling, maar daar staat handhaving tegenover een expliciet fysiek geldigheidscriterium."
+      ]
+    },
+    {
+      "id": "G066",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Overdracht van een lopend dossier waarbij de vertrekkende coach de openstaande termijnen en toezeggingen in een overdrachtsnotitie vastlegt en die notitie met de nieuwe coach bespreekt voordat deze het dossier overneemt.",
+          "functie": "Kenmerken van een als zorgvuldig gekwalificeerde overdracht: vastlegging en bespreking vóór de dossierovername.",
+          "start": 0,
+          "end": 220
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Wisselt een huishouden van coach, dan legt de vertrekkende coach de openstaande termijnen en toezeggingen vast in een overdrachtsnotitie en bespreekt hij die notitie met de nieuwe coach voordat deze het dossier overneemt.",
+          "start": 165,
+          "end": 386
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Deze code werkt volgens pas toe of leg uit: een team dat van een principe afwijkt, vermeldt de afwijking en de reden daarvan in het jaarverslag.",
+          "start": 403,
+          "end": 547
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Het dossier bevat een overdrachtsnotitie met de openstaande termijnen en toezeggingen en een aantekening dat de notitie vóór de overname met de nieuwe coach is besproken. De auditor scoort D3 per overdracht met ja of nee; het auditrapport vermeldt het aantal zorgvuldige overdrachten per team.",
+          "start": 175,
+          "end": 468
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term komt voor in de gedragscode voor coaches en in het auditkader dossierkwaliteit van de organisatie. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd.",
+          "start": 0,
+          "end": 225
+        }
+      ],
+      "motivering": "B2 gebruikt vastlegging en voorafgaande bespreking voor de classificatie van overdrachten. De kern beschrijft precies zulke verrichtingen als kenmerken van een zorgvuldige overdracht; zij legt niet zelfstandig iedere coachwissel die werkwijze op. B1 bevat wel een gedragsnorm, maar dezelfde handelingen kunnen een kwaliteitsbegrip afbakenen. De pas-toe-of-leg-uitbepaling maakt afwijkingen verantwoordingsplichtig en beslist niet dat ze als zorgvuldig tellen. Het verschil tussen daadwerkelijk bespreken en een dossierbewijs daarvan raakt de aansluiting op auditcriterium D3, niet de beschrijvende INT-02-functie.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C15", "C22", "C55", "G036", "G039", "G060", "G063"],
+        "motivering": "G036 en G039 vergelijken procesopdrachten met procesbeschrijving; G060 combineert een gedragsnorm met rapportage, G063 met een taxonomie. G066 voegt een expliciete binaire auditclassificatie, bewijsvereiste en afwijkingsverantwoording samen. Daardoor kan feitelijke uitvoering worden onderscheiden van bewijs en naleving, een concrete extra testvraag tegenover deze buren."
+      },
+      "redundantie_met": ["G060", "G063"],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De overlap met G060/G063 betreft de dubbele norm- en classificatiebron; het auditbewijs en pas toe of leg uit dragen de aanvullende testwaarde.",
+        "De kern noemt geen aantekening van de bespreking, terwijl B2 die voor D3 verlangt.",
+        "Geen triviale doublure van G064: de beschreven volgorde kwalificeert hier zorgvuldigheid en controleerbaarheid."
+      ]
+    },
+    {
+      "id": "G067",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Product van een licentiehouder van het streeklabel waarvan ten minste 80 procent van de grondstoffen naar gewicht binnen 30 kilometer van de productielocatie is ingekocht en waarvan de licentiehouder de inkoopfacturen vijf jaar bewaart.",
+          "functie": "Samengestelde productcriteria: licentiehouderschap, regionale herkomst naar gewicht en vijfjarige bewaring van de bijbehorende inkoopfacturen.",
+          "start": 0,
+          "end": 236
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het certificatieschema is een bijlage bij en maakt deel uit van deze overeenkomst.",
+          "start": 100,
+          "end": 182
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Hij bewaart de inkoopfacturen van die grondstoffen vijf jaar en toont ze op verzoek aan de keurmeester.",
+          "start": 376,
+          "end": 479
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "a. Ten minste 80 procent van de grondstoffen, naar gewicht, is binnen 30 kilometer van de productielocatie ingekocht. b. De inkoopfacturen van die grondstoffen zijn vijf jaar beschikbaar.",
+          "start": 175,
+          "end": 362
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Een product dat niet meer aan §2 voldoet, verliest het streeklabel en wordt uit de productlijst van streekproducten verwijderd.",
+          "start": 369,
+          "end": 496
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term wordt gebruikt in de licentieovereenkomst, in het certificatieschema en in de productlijst op de website van de stichting. De gebruiker heeft uit de overeenkomst en uit het schema een passage meegestuurd.",
+          "start": 0,
+          "end": 212
+        }
+      ],
+      "motivering": "B2 koppelt beide producteisen uitdrukkelijk aan behoud van het label en opname in de lijst van streekproducten. Daardoor is ook factuurbewaring begripsbepalend binnen dit synthetische schema. B1 neemt het schema op in de overeenkomst; de daarnaast bestaande contractuele bewaarplicht ontkracht die classificatiefunctie niet. De kern voert geen schorsingsbeslissing uit en schrijft geen afzonderlijke controlehandeling voor. Persoonlijk bewaren door de licentiehouder is mogelijk smaller dan vijf jaar beschikbaar zijn; dat verschil betreft de juiste afbakening, niet een onbesliste INT-02-functie.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C19", "C54", "C112", "G015", "G041", "G044", "G057", "G059"],
+        "motivering": "De ontwerpen en G015 betreffen samengestelde kenmerken; G041/G044 normatieve inhoud rond een object. G057/G059 plaatsen een objectkenmerk naast een gedragsnorm. G067 maakt de documentbewaring via een geïncorporeerd certificatieschema expliciet bepalend voor het label, naast een afzonderlijke licentiesanctie. Daarmee toetst het een gedragen dubbele functie van hetzelfde gedrag, niet alleen een normatieve bron of objectnaam."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Controleer afzonderlijk of bewaren door de licentiehouder hetzelfde bereik heeft als beschikbaarheid van de facturen.",
+        "G069 bevat eveneens een criterium en een handhavingsregeling, maar G067 verbindt criteriumverlies rechtstreeks aan labelverlies."
+      ]
+    },
+    {
+      "id": "G068",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Toezending van een boek ter inzage aan een lid, waarbij het lid het boek binnen veertien dagen na ontvangst terugstuurt of de prijs betaalt.",
+          "functie": "Onbesliste functie van de retour-/betalingspassage: kenmerk van de aangeboden keuzeconstructie of rechtstreeks voorschrift aan het ontvangende lid.",
+          "start": 0,
+          "end": 140
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Bij een zichtzending ontvangt het lid een boek ter inzage. Het lid stuurt het boek binnen veertien dagen na ontvangst onbeschadigd terug of betaalt de prijs.",
+          "start": 94,
+          "end": 251
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Heeft de club het boek na die veertien dagen niet terugontvangen, dan is het boek gekocht; de club schrijft de prijs dan van de rekening van het lid af, voor zover het lid die nog niet heeft betaald.",
+          "start": 252,
+          "end": 451
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "U hebt dan veertien dagen de tijd om te kiezen: stuurt u het boek terug, dan betaalt u niets; houdt u het, dan schrijven wij de prijs af.",
+          "start": 148,
+          "end": 285
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term wordt gebruikt in de algemene voorwaarden van de leesclub en in de welkomstbrief voor nieuwe leden. De gebruiker heeft uit beide stukken een passage meegestuurd.",
+          "start": 0,
+          "end": 169
+        }
+      ],
+      "motivering": "B1 draagt een concrete retour-/betalingsplicht; B2 beschrijft de keuze en automatische afrekening die de toezending begeleiden. De kern kan die constructie als begripskenmerk beschrijven, maar kan ook het handelingsvoorschrift uit B1 in het definitieveld uitvoeren. De bedoeling noemt uitsluitend de twee gebruiksplaatsen en kiest geen referent tussen toezendingsconstructie en gedragsopdracht. De bronnen spreken elkaar niet noodzakelijk tegen; onbeslist is welke functie hun handelingsinhoud in deze kern draagt. Daarom is noch een zelfstandig voorschrift noch uitsluitend beschrijvende werking voldoende bewezen. De termijn alleen rechtvaardigt geen afkeur.",
+      "vraag": "Beschrijft de passage over terugsturen of betalen de retour-/koopkeuze die deze toezending kenmerkt, of moet zij het lid in deze begrippenlijst rechtstreeks opdragen binnen veertien dagen terug te sturen of te betalen?",
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C14", "C30", "C103", "C112", "G004", "G037", "G045", "G047", "G058"],
+        "motivering": "C112/G004/G037 beschrijven normatieve constructies; G045 betreft ambigue modaliteit en G047 een handelingstermijn. G058 bevat expliciete redactionele continuïteitsgrond die hier ontbreekt. G068 combineert een alternatieve handelingsplicht met een retourkeuze en automatisch koopgevolg, waardoor de referent van de gehele constructie beslissend wordt. Het is niet alleen een vervanging van een termijn of actor."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De vraag betreft de functie van de kern zelf; zij vraagt niet naar feiten over een individuele verzending.",
+        "Een beantwoorde functievraag kan het voorstel wijzigen; er wordt hier geen labelbesluit van Chris verondersteld.",
+        "Geen zelfstandig bewezen voorschrift wordt door deze open uitkomst terzijde geschoven: juist de functie van de retour-/betalingspassage blijft onbeslist."
+      ]
+    },
+    {
+      "id": "G069",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Worp waarbij de speler de boule met beide voeten binnen de werpcirkel werpt en die voeten op de grond houdt tot de boule de grond raakt.",
+          "functie": "Fysieke uitvoeringscriteria voor de geldigheid van een worp, inclusief positie en duur van het grondcontact.",
+          "start": 0,
+          "end": 136
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De speler werpt met beide voeten binnen de werpcirkel en houdt die voeten op de grond tot de geworpen boule de grond raakt. Een worp die daaraan niet voldoet, is ongeldig; een ongeldig geworpen boule wordt uit het spel genomen.",
+          "start": 240,
+          "end": 467
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "De scheidsrechter beoordeelt een voetfout alleen op verzoek van de tegenpartij, gedaan vóór de volgende worp. Zonder zo'n verzoek blijft de boule in het spel, ook als de scheidsrechter de voetfout heeft gezien.",
+          "start": 168,
+          "end": 378
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Speler A tilde bij het werpen een hiel op; de tegenpartij vroeg geen beoordeling; de boule bleef in het spel en telde mee voor het punt.",
+          "start": 566,
+          "end": 702
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term wordt gebruikt in de spelregels en in de handleiding voor scheidsrechters van de vereniging. De gebruiker wil de term opnemen in de begrippenlijst bij het spelreglement en heeft uit beide stukken een passage meegestuurd.",
+          "start": 0,
+          "end": 228
+        }
+      ],
+      "motivering": "B1 verklaart niet voldoen aan de beschreven voetcriteria expliciet ongeldig. De kern neemt die criteria over als kenmerken van een worp. B2 beperkt beoordeling en verwijdering tot een tijdig verzoek; blijven meespelen en meetellen bewijzen niet dat het fysieke geldigheidscriterium vervalt. Ook als beide stukken spanning laten tussen ongeldigheid en spelgevolg, wordt de kern daardoor geen opdracht aan speler of scheidsrechter. Of geldig tevens een onaantastbaar spelresultaat moet omvatten, is een afzonderlijke afbakeningsvraag. Voor INT-02 zijn de handelingen hier gedragen criteria, geen uitgevoerde handhavingsprocedure.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C19", "C55", "C69", "C107", "G048", "G049", "G055", "G062"],
+        "motivering": "C55 onderscheidt waarneming van discretie; G048/G049 tonen spanning tussen normgedrag en geregistreerde gevallen; G062 verbindt handhaving en classificatie. G069 voegt een expliciet ongeldigverklarend criterium toe naast een verzoekafhankelijke handhaving die het spelresultaat laat staan. Dat test het onderscheid tussen geldigheid en handhaafbaarheid, niet alleen bronconflict."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De bronspanning tussen uit het spel nemen en zonder verzoek laten meetellen wordt niet stil opgelost; zij verhindert dit beperkte functieoordeel niet.",
+        "G065 gaat over een uitdrukkelijk blijvende toegekende status; G069 over een fysiek criterium waarvan de handhaving kan uitblijven.",
+        "G067 deelt de combinatie criterium en sanctie, maar daar is verlies van de productstatus expliciet aan niet voldoen gekoppeld."
+      ]
+    }
+  ],
+  "selectiepunten": [
+    "G068: de ene functievraag staat bij het geval; het antwoord kan het voorstel wijzigen. Chris beslist het label.",
+    "G064/G063 en G066/G060/G063: mogelijke overlap door een gedragsnorm naast classificatiegegevens. Behoud als zelfstandige kandidaten moet berusten op respectievelijk loting/selectiekansen en auditbewijs/afwijkingsverantwoording; alleen andere namen en getallen zouden onvoldoende zijn.",
+    "Binnen de zes delen G064 en G066 proceskenmerken; G065 en G069 delen spanning tussen feiten en institutionele behandeling; G067 en G069 delen criteria naast handhaving. De genoemde verschillen dragen zelfstandige testvragen, zodat ik geen onderlinge triviale doublure vaststel.",
+    "G064, G065, G066, G067 en G069 bevatten afzonderlijk benoemde afbakenings-, bewijs- of toepassingspunten. Die vormen op zichzelf geen reden om INT-02 alsnog open of negatief te labelen.",
+    "Geen voorgestelde uitkomst of familie is afgestemd op een gewenste testverdeling; er is geen selectie-, split- of freezebesluit genomen."
+  ],
+  "bewijsgrenzen": [
+    "Zelfstandige documentbeoordeling van uitsluitend G064–G069; geen agents of herdelegatie en geen bestanden gewijzigd.",
+    "Alle zeven opgegeven bronnen volledig gelezen. De 76 ontwerpgevallen, 40 bestaande kandidaten en zeven eerdere concepten uitsluitend gebruikt voor afstand en overlap; geen nieuwe labels daarvoor vastgesteld.",
+    "De zes rechtstreeks controleerbare SHA-256-bronhashes komen overeen met het manifest. concept_v2 is exact uit het manifest overgenomen; het bijbehorende redacteurbestand is niet gelezen en die hash is niet onafhankelijk gecontroleerd.",
+    "Alle geciteerde kern-, bron- en bedoelingspassages zijn exacte deelstrings; posities tellen Unicode-tekens vanaf nul, met exclusieve eindpositie, binnen respectievelijk kern, bronnen[].tekst of bedoeling. JSON-geldigheid en aanwezigheid van precies zes gevalobjecten zijn gecontroleerd.",
+    "De voorstellen gelden uitsluitend voor INT-02 onder def771-int02/2; bruikbaar betekent geschikt als bespreekbaar synthetisch testconcept, niet geaccepteerd als goldgeval.",
+    "Alle inhoud is synthetisch. Geen uitspraak over geldend recht, productiedata, appkwaliteit, gemeten beoordelaarskwaliteit of een expertgoldset.",
+    "Geen hold-outsplit of freeze. Deze blootstelling aan mogelijke eindtestkandidaten sluit later optreden als O2-promptontwikkelaar of appimplementator uit."
+  ]
+}

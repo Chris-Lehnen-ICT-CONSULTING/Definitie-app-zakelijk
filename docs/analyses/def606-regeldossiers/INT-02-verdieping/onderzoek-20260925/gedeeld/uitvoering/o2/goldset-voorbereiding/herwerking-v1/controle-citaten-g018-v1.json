@@ -1,0 +1,15 @@
+{
+  "methode": "Posities uit unieke exacte citaatstrings afgeleid; geen labelwijziging.",
+  "checks": [
+    {
+      "beoordelaar": "A",
+      "citaten": 5,
+      "fouten": []
+    },
+    {
+      "beoordelaar": "B",
+      "citaten": 3,
+      "fouten": []
+    }
+  ]
+}

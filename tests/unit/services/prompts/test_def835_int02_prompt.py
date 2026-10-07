@@ -215,7 +215,7 @@ def test_systeemprompt_legt_offsetregels_scoreverbod_en_gegevensrol_vast():
 
 
 def test_promptversie_is_eigen_en_verschilt_van_contract_en_norm():
-    assert PROMPT_VERSION == "def835-int02-prompt/1"
+    assert PROMPT_VERSION == "def835-int02-prompt/2"
     assert PROMPT_VERSION not in (CONTRACTVERSIE, NORMVERSIE)
 
 
@@ -313,3 +313,59 @@ def test_elke_functiecode_staat_expliciet_bij_zijn_betekenis_uit_t():
     assert set(verwacht) == FUNCTIES
     for code, betekenis in verwacht.items():
         assert f'"{code}" = {betekenis}' in systeem, code
+
+
+# --- promptversie /2: aanwijzingen na C107 (promptcorrectie-voorstel-v1) --------
+
+#: Algemene aanwijzing: `fail` alleen op zelfstandig dragende grond.
+AANWIJZING_FAIL = (
+    '- Voor "fail" moet de aangeleverde grond uit kern, bevestigde bedoeling, '
+    "context of bronpassage de functie als handelingsvoorschrift "
+    '("actor_prescription") of discretionaire beslisregel '
+    '("discretionary_decision_rule") zelfstandig dragen. Is de bedoeling '
+    'onbekend ("bedoeling": null) en kan de passage zowel een begripscriterium '
+    "als een voorschrift zijn, kies dan bij ontbrekende beslissende grond "
+    '"insufficient_information" met precies één gerichte vraag. Leid "fail" '
+    "niet enkel af uit een kwalitatief of modaal woord of uit het feit dat een "
+    "actor een oordeel vormt."
+)
+#: Algemene aanwijzing: citaat letterlijk, positie berekend en gecontroleerd.
+AANWIJZING_CITAAT = (
+    "- Kopieer elk passage- en grondcitaat letterlijk uit het opgegeven veld. "
+    'Bepaal "start" nulgebaseerd, bereken "end" = "start" + len("quote") in '
+    "Python-Unicode-codepoints en controleer vóór verzending dat "
+    "tekst[start:end] == quote voor de exacte tekst van dat veld. Lukt dat "
+    "niet, verzin dan geen citaat of positie."
+)
+
+
+def test_promptversie_is_twee_na_de_promptcorrectie():
+    assert PROMPT_VERSION == "def835-int02-prompt/2"
+
+
+@pytest.mark.parametrize(
+    "aanwijzing", [AANWIJZING_FAIL, AANWIJZING_CITAAT], ids=["fail", "citaat"]
+)
+def test_systeemprompt_bevat_de_aanwijzing_als_een_regel(aanwijzing):
+    systeem, _ = bouw_int02_prompt(_invoer(), _norm())
+    assert systeem.splitlines().count(aanwijzing) == 1
+
+
+@pytest.mark.parametrize(
+    "aanwijzing", [AANWIJZING_FAIL, AANWIJZING_CITAAT], ids=["fail", "citaat"]
+)
+def test_aanwijzing_staat_na_de_invoerduiding_en_voor_de_posities(aanwijzing):
+    regels = bouw_int02_prompt(_invoer(), _norm())[0].splitlines()
+    assert aanwijzing in regels
+    invoer = regels.index("Invoer:")
+    posities = regels.index("Posities:")
+    assert invoer < regels.index(aanwijzing) < posities
+
+
+def test_aanwijzingen_zijn_invoeronafhankelijk_en_zonder_casusmateriaal():
+    """Geen hardgecodeerde casus: de regressievoorbeelden staan er niet in."""
+    systeem, _ = bouw_int02_prompt(_invoer(bedoeling=None), _norm())
+    assert systeem == bouw_int02_prompt(_invoer(), _norm())[0]
+    fragmenten = ("C105", "C107", "C112", "gemotiveerde oordeel", "van de beoordelaar")
+    for fragment in fragmenten:
+        assert fragment not in systeem, fragment
