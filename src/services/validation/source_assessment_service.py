@@ -89,6 +89,8 @@ HASH_ALGORITME = "sha256-utf8-hex"
 #: Het begin van een JSON-object: `{` gevolgd door een sleutel of `}`. Een
 #: accolade in vrije tekst (`{zie bron}`) is geen kandidaat (DEF-842).
 _JSON_BEGIN = re.compile(r"\{\s*[\"}]")
+#: Bijpassende sluiter per opener, voor de haakjesscanner in vrije tekst.
+_SLUITER = {"{": "}", "[": "]"}
 #: Stopredenen die betekenen dat het antwoord op het tokenbudget is afgekapt
 #: (Anthropic resp. OpenAI).
 _AFGEKAPT = frozenset({"max_tokens", "length"})
@@ -226,7 +228,8 @@ def lees_modeluitvoer(text: Any) -> tuple[dict[str, Any] | None, str | None]:
     * alleen objecten op het hoogste niveau tellen: een object dat binnen een
       nog open `{`/`[` begint (een ongeldig, onvolledig of niet-object
       omvattend geheel, zoals `{result: {...}}` of `[{...}]`) maakt het
-      antwoord ongeldig — er wordt nooit een deelobject uit gelicht;
+      antwoord ongeldig — er wordt nooit een deelobject uit gelicht; haakjes
+      in een JSON-string daarbinnen tellen niet (`{result: "}", ...}`);
     * strikte JSON: een ongeëscapet controleteken (regeleinde, NUL) in een
       tekstwaarde is ongeldig; een correct geëscapete `\\n` is gewone JSON.
 
@@ -240,10 +243,8 @@ def lees_modeluitvoer(text: Any) -> tuple[dict[str, Any] | None, str | None]:
     decoder = json.JSONDecoder()
     objecten: list[dict[str, Any]] = []
     positie = 0
-    diepte = 0
     while (begin := _JSON_BEGIN.search(text, positie)) is not None:
-        diepte = _open_haakjes(text[positie : begin.start()], diepte)
-        if diepte > 0:
+        if _binnen_open_geheel(text[positie : begin.start()]):
             return None, (
                 f"JSON-object vanaf teken {begin.start()} van {len(text)} staat "
                 "binnen een omvattend object of lijst dat geen geldig antwoord is"
@@ -266,19 +267,38 @@ def lees_modeluitvoer(text: Any) -> tuple[dict[str, Any] | None, str | None]:
     return None, f"{len(objecten)} JSON-objecten in het antwoord; niet eenduidig"
 
 
-def _open_haakjes(tekst: str, diepte: int) -> int:
-    """Aantal nog open `{`/`[` na `tekst` (vrije tekst tussen JSON-objecten).
+def _binnen_open_geheel(tekst: str) -> bool:
+    """Of een object na `tekst` binnen een open of ongeldig `{`/`[` begint.
 
-    Een sluitend haakje zonder opener telt niet onder nul. Telt bewust zonder
-    stringherkenning: vrije tekst is geen JSON, en een twijfelgeval maakt het
-    antwoord ongeldig in plaats van een deelobject te accepteren.
+    `tekst` is de vrije tekst sinds het vorige object op het hoogste niveau.
+    Buiten haakjes is dat proza: een `"` is een aanhalingsteken en een losse
+    sluiter telt niet. Binnen een `{`/`[` wordt de tekst als JSON gelezen: een
+    `"` opent of sluit een string, `\\` escapet het volgende teken en haakjes
+    in een string tellen niet. Fail-closed: een sluiter van het verkeerde type
+    of een niet-gesloten string laat het geheel open, zodat het antwoord
+    ongeldig is in plaats van dat een deelobject wordt geaccepteerd.
     """
+    open_sluiters: list[str] = []
+    in_string = False
+    geescapet = False
     for teken in tekst:
-        if teken in "{[":
-            diepte += 1
+        if in_string:
+            if geescapet:
+                geescapet = False
+            elif teken == "\\":
+                geescapet = True
+            elif teken == '"':
+                in_string = False
+        elif teken in _SLUITER:
+            open_sluiters.append(_SLUITER[teken])
         elif teken in "}]":
-            diepte = max(0, diepte - 1)
-    return diepte
+            if not open_sluiters:
+                continue  # losse sluiter in proza
+            if teken != open_sluiters.pop():
+                return True  # haakjestypen passen niet: geen geldig geheel
+        elif teken == '"' and open_sluiters:
+            in_string = True
+    return bool(open_sluiters)
 
 
 def parse_modeluitvoer(text: Any) -> dict[str, Any] | None:

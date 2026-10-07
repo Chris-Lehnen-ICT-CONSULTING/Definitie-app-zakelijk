@@ -246,6 +246,20 @@ OMVATTEND_ONGELDIG = {
     "lijst": "[" + GELDIG + "]",
     "lijst-afgekapt": "[" + GELDIG,
     "lijst-met-meer": "[" + GELDIG + ", 1]",
+    # Haakjes in een JSON-string tellen niet; escapes worden gevolgd.
+    "sluiter-in-string": '{result: "}", assessment: ' + GELDIG + "}",
+    "sluiter-in-string-afgekapt": '{result: "}", assessment: ' + GELDIG,
+    "lijstsluiter-in-string": '["]", ' + GELDIG + "]",
+    "geescapete-quote-voor-sluiter": '{result: "a\\"}", assessment: ' + GELDIG + "}",
+    "geescapete-quote-in-lijst": '["a\\"]", ' + GELDIG + "]",
+    "geescapete-backslash-sluit-string": (
+        '{result: "a\\\\", x: "}", assessment: ' + GELDIG + "}"
+    ),
+    "geescapete-backslash-in-lijst": '["a\\\\", "]", ' + GELDIG + "]",
+    "ongesloten-string": '{result: "geen einde, ' + GELDIG + "}",
+    # Haakjestypen moeten bij elkaar passen.
+    "verkeerde-sluiter-voor-object": "{result: ] " + GELDIG,
+    "verkeerde-sluiter-voor-lijst": "[1, 2} " + GELDIG,
 }
 
 
@@ -266,6 +280,48 @@ async def test_geldig_deelobject_uit_ongeldig_omvattend_geheel_wordt_afgewezen(
     assert d["status"] == "error"
     assert d["error"]["type"] == "malformed_response"
     assert d["parts"] == {}
+
+
+def _met_reden(reden):
+    uitvoer = _uitvoer()
+    uitvoer[ONDERDEEL_GEZAG]["reason"] = reden
+    return uitvoer
+
+
+@pytest.mark.parametrize(
+    ("antwoord", "verwacht"),
+    [
+        (
+            json.dumps(_met_reden("Zie {art. 27} en }{ los."), ensure_ascii=False),
+            _met_reden("Zie {art. 27} en }{ los."),
+        ),
+        (
+            json.dumps(_met_reden('Citaat "}]" uit art. 27'), ensure_ascii=False),
+            _met_reden('Citaat "}]" uit art. 27'),
+        ),
+        (
+            json.dumps(_met_reden("Pad C:\\{map}\\"), ensure_ascii=False),
+            _met_reden("Pad C:\\{map}\\"),
+        ),
+        ('{noot: "}"} en daarna:\n' + GELDIG, _uitvoer()),
+        ('["]"] en daarna:\n' + GELDIG, _uitvoer()),
+        ('{noot: "a\\\\"} en daarna:\n' + GELDIG, _uitvoer()),
+        ('Een 12" scherm; daarna:\n' + GELDIG, _uitvoer()),
+    ],
+    ids=[
+        "accolades-in-tekstwaarde",
+        "geescapete-quote-en-sluiters-in-tekstwaarde",
+        "geescapete-backslash-en-accolades-in-tekstwaarde",
+        "gesloten-geheel-met-sluiter-in-string-ervoor",
+        "gesloten-lijst-met-sluiter-in-string-ervoor",
+        "gesloten-geheel-met-geescapete-backslash-ervoor",
+        "losse-quote-in-proza-ervoor",
+    ],
+)
+async def test_haakjes_in_strings_laten_een_geldig_antwoord_intact(antwoord, verwacht):
+    geparsed, reden = lees_modeluitvoer(antwoord)
+    assert reden is None
+    assert geparsed == verwacht
 
 
 async def test_geldig_omvattend_object_levert_het_buitenobject_nooit_het_deelobject():
