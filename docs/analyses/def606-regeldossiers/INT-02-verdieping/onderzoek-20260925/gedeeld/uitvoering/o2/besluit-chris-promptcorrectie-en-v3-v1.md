@@ -159,3 +159,21 @@ Verslag met open punten en gevolgen voor manifest v6: `goldset-voorbereiding/die
 3. Offline manifest v6. Daarin veranderen de hashes van `contract.py`, de dienst (alleen de docstring) en `runtime_contract.py` (alleen commentaar), en daardoor de identiteit en de proefmap. De systeemprompt en de payloads per geval blijven gelijk.
 4. Nieuw exact akkoord van Chris op v6.
 5. Daarna opnieuw alleen fase 1 (C105/C107/C112).
+
+## Besluit 13 — manifest v6 en fase 1 (07-10-2026)
+
+**Manifest v6.** v6 is offline aangemaakt (geen API-call, geen sleutel) op HEAD `8c6bf74d2` (contract `def835-int02-assessment/3` met de dienstregel van besluit 12, prompt `def835-int02-prompt/3`).
+
+Verschil met v5:
+- bestandshashes van `src/domain/int02/contract.py` (→ `9635f9c1…`), `src/services/validation/int02_assessment_service.py` (→ `c59e373a…`) en `src/toetsregels/runtime_contract.py` (→ `27e76bf9…`);
+- `identiteit.proefmap` (`kwalificatieproef-v6`), `identiteit_sha256` (`90920d6c35337be48cacb58c0f8f01616200aab332915ddc1a960c62314def4b`) en het tijdstempel `aangemaakt`.
+
+Alle 43 payloads zijn byte-gelijk aan v5; het payloadbestand verschilt alleen in de kopregel `identiteit_sha256`. Gelijk aan v5: gevallen, per geval de invoer, dataprompt en label, promptversie en systeemprompt, model, SDK, limieten, prijzen, criteria, fasevolgorde en protocol/norm.
+
+- `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v6.json`: `37b8e36a46c30a3d62b579a0eaf2afc544a454d709c49030c5626fa318539e37`
+- `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-payloads-v6.json`: `fb556f4c52221316859ac35ba58021f3213f8aef428eaa423a318c8cf76d1f36`
+- `kwalificatie-gevallen-v1.json` ongewijzigd: `af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953`
+
+**Akkoord Chris: alleen fase 1** (`--fase regressie`, C105/C107/C112, maximaal 3 calls); daarna stoppen en bespreken. Het akkoordbestand `kwalificatie-akkoord-v6.json` bevat net als bij v4 en v5 het protocolkader (43 calls, US$12), omdat de runner dat veldformaat eist; de beperking tot fase 1 is deze procesafspraak. Besluit 10 (v5) is hiermee vervangen.
+
+**Sleutel.** Zoals bij v4 en v5 wordt de API-sleutel bij de run door de shell uit de `.env` van de hoofdcheckout gelezen en niet getoond; er komt geen `.env` in de werkboom.

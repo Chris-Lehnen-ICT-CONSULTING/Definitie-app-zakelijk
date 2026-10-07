@@ -93,3 +93,13 @@ Bij het stagen van manifest v5 (`besluit-chris-promptcorrectie-en-v3-v1.md`, bes
 | 15 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v5.json` | r110 | SHA-256 van de huidige `src/utils/async_api.py` (gelijk bevonden, werkboom en HEAD `f83959eb0`); de bronnaam bevat `api` |
 
 Zelfde constructie als 14: exact pad én exacte volledige regel, `condition = "AND"`, alleen `generic-api-key`. Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. De hookuitvoer geeft alleen het aantal; dat de bevinding precies r110 was, blijkt uit de herhaalde hookrun: met alleen dit exacte blok erbij daalde de telling van 1 naar 0. `kwalificatie-payloads-v5.json`, `kwalificatie-akkoord-v5.json` en de bijgewerkte besluitnotitie gaven dus geen bevindingen. De kopteksten in `.gitleaks.toml` zijn van "van 14" naar "van 15" gezet; de blokken 1–14 zelf zijn ongewijzigd. De regex van 15 is gelijk aan die van 9–11 en 14; voor 15 is geen eigen mutatieproef gedraaid.
+
+## Aanvulling: uitzondering 16 (besluit 13, 07-10-2026)
+
+Bij het stagen van manifest v6 (`besluit-chris-promptcorrectie-en-v3-v1.md`, besluit 13) meldde de gitleaks-hook 1 bevinding. Het is dezelfde soort als uitzondering 9–11, 14 en 15: r110 van manifest v6 is byte-gelijk aan r110 van manifest v5.
+
+| Nr | Pad | Regel | Waarom false positive |
+|---|---|---|---|
+| 16 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v6.json` | r110 | SHA-256 van de huidige `src/utils/async_api.py` (gelijk bevonden, werkboom en HEAD `8c6bf74d2`); de bronnaam bevat `api` |
+
+Zelfde constructie als 15: exact pad én exacte volledige regel, `condition = "AND"`, alleen `generic-api-key`. Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. De hookuitvoer geeft alleen het aantal; dat de bevinding precies r110 was, blijkt uit de herhaalde hookrun: met alleen dit exacte blok erbij daalde de telling van 1 naar 0. `kwalificatie-payloads-v6.json`, `kwalificatie-akkoord-v6.json` en de bijgewerkte besluitnotitie gaven dus geen bevindingen. De kopteksten in `.gitleaks.toml` zijn van "van 15" naar "van 16" gezet; de blokken 1–15 zelf zijn ongewijzigd. De regex van 16 is gelijk aan die van 9–11, 14 en 15; voor 16 is geen eigen mutatieproef gedraaid.
