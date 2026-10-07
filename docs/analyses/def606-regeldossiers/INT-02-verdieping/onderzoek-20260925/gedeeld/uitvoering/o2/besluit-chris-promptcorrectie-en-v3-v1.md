@@ -53,3 +53,18 @@ De Codex-review van 07-10 signaleert een kleine dubbelzinnigheid (`int02_assessm
 De staged commit uit besluit 4 (459 bestanden) werd door de gitleaks-hook geblokkeerd met 26 bevindingen; alle 26 zijn false positives (12 SHA-256-regels van repo-bestanden, 2 regels uit een JSONL-commandolog, 12 keer de nep-fixture uit `tests/unit/utils/test_pii_redaction_api_keys.py`). Er zijn geen echte credentials gevonden.
 
 **Besluit Chris: optie A.** Exacte uitzonderingen volgens het runbook (per bestand eigen blok, `condition = "AND"`, exact pad én volledige regel, alleen `generic-api-key`) voor de 12 hashregels en de 2 streamregels; onderbouwing per regel in `gitleaks-metadata-akkoord-v2.md`. De 4 gate-uitvoerbestanden met de nep-fixture (`bewijs/mergevoorbereiding-v1/gates/` en `bewijs/mergevoorbereiding-v1/samengevoegde-gates/`, telkens `unit-inventaris.json` en `unit-junit.xml`) worden niet gecommit; ze blijven lokaal staan. De hook wordt niet omzeild.
+
+## Besluit 8 — manifest v4 en fase 1 (07-10-2026)
+
+**Oorzaak.** Manifest v3 legde `anthropic` 0.107.1 vast in de identiteit. De hoofd-venv werd op 07-10 om 00:13 door Claude bij `pip install -r requirements.txt` bijgewerkt naar de al sinds juli gepinde 0.116.0 (`anthropic-0.116.0.dist-info`, mtime 2026-10-07 00:13). De runner weigerde v3 daardoor met `identiteit_gewijzigd`.
+
+**Keuze Chris: optie A — nieuw manifest v4.** v4 is offline aangemaakt (geen API-call, geen sleutel). Het verschil met v3 is alleen `identiteit.versies.anthropic` (0.107.1 → 0.116.0), `identiteit.proefmap` en `identiteit_sha256`, plus het tijdstempel `aangemaakt`. Alle 43 payloads zijn byte-identiek aan v3; het payloadbestand verschilt alleen in de identiteitshash in de kop. Gevallen, prompt `def835-int02-prompt/2`, bron en limieten zijn gelijk.
+
+- `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v4.json`: `57a988de4b159065f0b5279b201973c40573e07c1d8af97258fa9bbb1cf5364a`
+- `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-payloads-v4.json`: `6b09b01d31fccd85d3e1b96c37f711c1c0e0cbc597bf3eefaa56aa8040be83b0`
+- `identiteit_sha256` (v4): `0a095697705b8bfde676d8653b5317c5da701197f6b04975c0fc7c2a77f2d644`
+- `kwalificatie-gevallen-v1.json` ongewijzigd: `af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953`
+
+**Akkoord Chris: alleen fase 1** (`--fase regressie`, C105/C107/C112, maximaal 3 calls); daarna stoppen en bespreken. Het akkoordbestand `kwalificatie-akkoord-v4.json` bevat het protocolkader (43 calls, US$12), omdat de runner dat veldformaat eist; de beperking tot fase 1 is deze procesafspraak. Besluit 6 (v3) is hiermee vervangen.
+
+**Sleutel.** De API-sleutel wordt bij de run door de shell uit de `.env` van de hoofdcheckout gelezen en niet getoond; er komt geen `.env` in de werkboom.

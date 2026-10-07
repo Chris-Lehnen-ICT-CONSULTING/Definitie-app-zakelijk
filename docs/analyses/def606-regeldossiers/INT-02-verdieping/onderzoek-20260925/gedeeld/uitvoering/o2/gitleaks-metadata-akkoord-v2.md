@@ -73,3 +73,13 @@ Uitgevoerd door een Claude Code CLI-job in deze werkboom vóór de commit; hulpb
 - **Onafhankelijke review:** verse Codex CLI-sessie (read-only, 07-10): geen blokkerende bevindingen; alle tien blokken exact verankerd, `condition = "AND"`, alleen `generic-api-key`; 127 negatieve regexproeven geweigerd; alle 12 SHA-256-waarden nagerekend met `shasum -a 256` (de historische tegen commit `45439aa58d50`); streamregels 25/26 zonder credentialvorm; geen andere credentialvormen in de staged bestanden buiten bekende synthetische testfixtures. Belangrijk (niet blokkerend): uitzondering 4–13 hebben geen vaste canary-tests.
 
 Opmerking: de hashes van `docs/technisch/def522-secret-scan-runbook.md` in uitzondering 4–8 zijn historische metadata uit de bewijsbestanden. Ze waren gelijk aan het runbook vóór de bijwerking van 07-10-2026; door die bijwerking (dertien uitzonderingen) wijkt de huidige runbookhash af. De uitzonderingen blijven geldig omdat ze op de vastgelegde metadataregel matchen, niet op het runbook.
+
+## Aanvulling: uitzondering 14 (besluit 8, 07-10-2026)
+
+Bij het stagen van manifest v4 (`besluit-chris-promptcorrectie-en-v3-v1.md`, besluit 8) meldde de gitleaks-hook 1 bevinding. Het is dezelfde soort als uitzondering 9–11: r110 van het nieuwe manifest is byte-gelijk aan r110 van manifest v3.
+
+| Nr | Pad | Regel | Waarom false positive |
+|---|---|---|---|
+| 14 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v4.json` | r110 | SHA-256 van de huidige `src/utils/async_api.py` (gelijk bevonden, werkboom en HEAD); de bronnaam bevat `api` |
+
+Zelfde constructie als 9–11: exact pad én exacte volledige regel, `condition = "AND"`, alleen `generic-api-key`. Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. `kwalificatie-payloads-v4.json` en `kwalificatie-akkoord-v4.json` gaven geen bevindingen. De kopteksten in `.gitleaks.toml` zijn van "van 13" naar "van 14" gezet; de blokken 1–13 zelf zijn ongewijzigd. De regex van 14 is gelijk aan die van 9–11; voor 14 is geen eigen mutatieproef gedraaid.

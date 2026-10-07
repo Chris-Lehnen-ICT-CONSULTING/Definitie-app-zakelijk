@@ -98,9 +98,9 @@ Gebruik voor triage het bestaande incidentproces, met alleen geautoriseerd
 materiaal en zonder ruwe secretinhoud te publiceren. Persoonlijke of operationele
 gegevens (UI-sessies, `.env`, de database) horen daar niet bij.
 
-## De dertien uitzonderingen in `.gitleaks.toml`
+## De veertien uitzonderingen in `.gitleaks.toml`
 
-Alle dertien gebruiken dezelfde constructie: `targetRules`, `condition = "AND"`, een
+Alle veertien gebruiken dezelfde constructie: `targetRules`, `condition = "AND"`, een
 exact pad **én** exacte inhoud, plus rationale, eigenaar (Chris Lehnen) en
 reviewdatum.
 
@@ -122,9 +122,10 @@ reviewdatum.
    voorafgaand regeleinde als bij 2. Eigenaar Chris Lehnen (DEF-835);
    herbeoordelen op 2026-12-28, of eerder als de bronhash of de manifestroute
    wijzigt.
-4. **Uitzondering 4–13 (DEF-835)** — exacte pad+regel-uitzonderingen
+4. **Uitzondering 4–14 (DEF-835)** — exacte pad+regel-uitzonderingen
    (`generic-api-key`) voor SHA-256-metadata en twee Codex-streamregels. Besluit
-   Chris 07-10-2026, eigenaar Chris Lehnen, herbeoordelen op 2027-01-07.
+   Chris 07-10-2026 (uitzondering 14: besluit 8, manifest v4), eigenaar Chris
+   Lehnen, herbeoordelen op 2027-01-07.
    Toelichting:
    `docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/gitleaks-metadata-akkoord-v2.md`.
 
@@ -136,9 +137,10 @@ uitzondering aan de regel zelf en geldt de AND-voorwaarde echt.
 Ze worden bewaakt door `scripts/ci/test_secret_scan_exceptions.py`,
 `scripts/ci/test_secret_scan_metadata.py` en
 `scripts/ci/test_secret_scan_def835_metadata.py`, die meelopen in
-`make test-secret-scan`. Uitzondering 4–13 hebben (nog) geen vaste
-canary-tests; het regressiebewijs daarvoor is alleen de eenmalige mutatieproef
-van 07-10-2026 (vastgelegd in akkoord-v2).
+`make test-secret-scan`. Uitzondering 4–14 hebben (nog) geen vaste
+canary-tests; het regressiebewijs voor 4–13 is alleen de eenmalige mutatieproef
+van 07-10-2026 (vastgelegd in akkoord-v2). Uitzondering 14 gebruikt dezelfde
+regex als 9–11 en heeft geen eigen mutatieproef.
 
 ## Tagconflict
 
