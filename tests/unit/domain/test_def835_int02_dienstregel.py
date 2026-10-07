@@ -48,6 +48,7 @@ from domain.int02.contract import (
     maak_invoer,
     toets_actualiteit,
 )
+from services.ai.base_client import response_schema_sha256
 from services.interfaces import AIGenerationResult
 from services.validation.int02_assessment_service import (
     PROMPT_VERSION,
@@ -697,13 +698,20 @@ class _AI:
 
     async def generate_definition(self, prompt, **kwargs):
         self.calls += 1
+        metadata = {"stop_reason": "end_turn"}
+        if kwargs.get("response_schema") is not None:
+            # Zoals AIServiceV2 (besluit 14): schemahash en bloktypen.
+            metadata["response_schema_sha256"] = response_schema_sha256(
+                kwargs["response_schema"]
+            )
+            metadata["content_block_types"] = ["text"]
         return AIGenerationResult(
             text=self.tekst,
             model=kwargs.get("model"),
             tokens_used=None,
             generation_time=0.01,
             cached=False,
-            metadata={"stop_reason": "end_turn"},
+            metadata=metadata,
         )
 
 
@@ -727,8 +735,9 @@ def _dienst(ai: _AI) -> Int02AssessmentService:
     )
 
 
-def test_prompt_blijft_versie_drie_met_dezelfde_systeemprompt():
-    assert PROMPT_VERSION == "def835-int02-prompt/3"
+def test_prompt_vier_houdt_dezelfde_systeemprompt_als_drie():
+    # Besluit 14: /4 = dezelfde tekst als /3 plus de schemaroute.
+    assert PROMPT_VERSION == "def835-int02-prompt/4"
     systeem, _ = bouw_int02_prompt(_invoer(), laad_int02_norm())
     assert (
         hashlib.sha256(systeem.encode("utf-8")).hexdigest() == SYSTEEMPROMPT_V3_SHA256
@@ -748,4 +757,4 @@ async def test_dienst_zet_de_ruwe_v5_fail_om_en_laat_dat_zien():
         VRAAG,
     )
     assert document.binding.contractversie == V3
-    assert resultaat.promptversie == "def835-int02-prompt/3"
+    assert resultaat.promptversie == "def835-int02-prompt/4"

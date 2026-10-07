@@ -215,7 +215,8 @@ def test_systeemprompt_legt_citaatregels_scoreverbod_en_gegevensrol_vast():
 
 
 def test_promptversie_is_eigen_en_verschilt_van_contract_en_norm():
-    assert PROMPT_VERSION == "def835-int02-prompt/3"
+    # /4 (besluit 14) = de /3-tekst plus de schemaroute.
+    assert PROMPT_VERSION == "def835-int02-prompt/4"
     assert PROMPT_VERSION not in (CONTRACTVERSIE, NORMVERSIE)
 
 
@@ -351,8 +352,9 @@ AANWIJZING_CITAAT_2 = (
 )
 
 
-def test_promptversie_is_drie_na_de_positiecorrectie():
-    assert PROMPT_VERSION == "def835-int02-prompt/3"
+def test_promptversie_is_vier_na_de_schemaroute():
+    # /3 na de positiecorrectie; /4 (besluit 14) wijzigt de tekst niet.
+    assert PROMPT_VERSION == "def835-int02-prompt/4"
 
 
 @pytest.mark.parametrize(

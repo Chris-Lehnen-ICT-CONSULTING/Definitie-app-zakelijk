@@ -21,14 +21,27 @@ grondcitaat alleen het letterlijke citaat en het veld; de posities
 (Python-codepunten, nulgebaseerd, einde exclusief) leidt het WP1-contract af
 uit de enige exacte vindplaats van het citaat in dat veld.
 
+Schemaroute (prompt /4, besluit 14 optie A). De aanroep geeft het
+vastgepinde `ANTWOORDSCHEMA` mee als native JSON-schema-uitvoer; de
+prompttekst is die van /3. Vóór de aanroep moet de schemahash gelijk zijn aan
+`ANTWOORDSCHEMA_SHA256` (anders `schema_mismatch`, geen aanroep). Weigert de
+AI-laag het schema vóór verzending (`AIStructuredOutputUnsupportedError`, ook
+verpakt), dan is er niets verstuurd: `structured_output_unsupported`. Een
+antwoord kan alleen een oordeel dragen als de AI-laag het verzonden schema
+bevestigt (`schema_unconfirmed`) en precies één tekstblok meldt
+(`unexpected_content_blocks`). Het schema vervangt geen enkele controle: de
+strikte parser en WP1 blijven ongewijzigd gezaghebbend.
+
 Volgorde. Kern of context ontbreekt → `not_evaluated` zonder aanroep.
 Ontbrekend profiel of budget, ongekwalificeerd profiel, router onbeschikbaar
-of afwijkend van het profiel, onbekend capability-beleid, te lange of
-niet-codeerbare invoer → geen aanroep; WP1-uitvoering `not_executed`
-(review_required / not_assessed) met de servicereden. Transportfouten →
+of afwijkend van het profiel, onbekend capability-beleid, een schema buiten
+de pin, te lange of niet-codeerbare invoer → geen aanroep; WP1-uitvoering
+`not_executed` (review_required / not_assessed) met de servicereden; ook een
+schemaweigering door de AI-laag vóór verzending. Transportfouten →
 `failed` (timeout/transport/provider) en dus `error`. Antwoordfouten
-(afgekapt, niet aantoonbaar afgerond, te lang, misvormd, dubbele sleutels,
-ongeldig volgens WP1) → `completed` zonder geldige uitvoer en dus `error`.
+(schema niet bevestigd, afgekapt, niet aantoonbaar afgerond, geen enkel
+tekstblok, te lang, misvormd, dubbele sleutels, ongeldig volgens WP1) →
+`completed` zonder geldige uitvoer en dus `error`.
 
 Afronding (review F1). Alleen een door de AI-laag gemelde afgeronde
 stopreden (`end_turn`, `stop`) kan een oordeel dragen. Een gemelde afkapping
@@ -82,13 +95,15 @@ import math
 import re
 import time
 from collections import OrderedDict
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import asdict, dataclass, fields, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
 
 from domain.int02.contract import (
+    ANTWOORDSCHEMA,
+    ANTWOORDSCHEMA_SHA256,
     DEKKINGEN,
     FUNCTIES,
     NORMVERSIE,
@@ -104,6 +119,10 @@ from domain.int02.contract import (
     beoordeel,
     bereken_binding,
     ontbrekende_invoer,
+)
+from services.ai.base_client import (
+    AIStructuredOutputUnsupportedError,
+    response_schema_sha256,
 )
 from services.validation.ess03_assessment_service import _foutsoort, _stop_reason
 from toetsregels.runtime_contract import lees_regelbestand
@@ -128,8 +147,10 @@ __all__ = [
 #: dragende grond voor "fail" en over citaatposities (promptcorrectie na C107).
 #: /3: het model levert alleen letterlijke, in het veld unieke citaten; de
 #: posities bepaalt het contract (besluit 9, optie A; contract /2).
+#: /4: dezelfde prompttekst als /3 plus de schemaroute (besluit 14, optie A):
+#: het vastgepinde `ANTWOORDSCHEMA` reist als native JSON-schema-uitvoer mee.
 #: Wordt bij elke aanroep uit de module gelezen en bindt zo elk document.
-PROMPT_VERSION = "def835-int02-prompt/3"
+PROMPT_VERSION = "def835-int02-prompt/4"
 #: Bestaande routertaak; er komt geen nieuwe (onbekende) taaknaam bij.
 TASK_TYPE = "validation"
 
@@ -708,6 +729,9 @@ class Int02AssessmentService:
             return "router_mismatch"
         if route.beleid is None:
             return "router_policy_unavailable"
+        if response_schema_sha256(ANTWOORDSCHEMA) != ANTWOORDSCHEMA_SHA256:
+            # Het schema hoort niet (meer) bij deze promptversie (besluit 14).
+            return "schema_mismatch"
         waarden = _invoerwaarden(invoer)
         if (
             any(len(w) > budget.max_invoertekens_veld for w in waarden)
@@ -766,8 +790,16 @@ class Int02AssessmentService:
                     max_retries=0,
                     token_estimate="heuristic",
                     offload_postprocessing=True,
+                    # Besluit 14: native JSON-schema-uitvoer; een niet
+                    # gecontroleerde combinatie faalt vóór verzending.
+                    response_schema=ANTWOORDSCHEMA,
                 )
         except Exception as exc:
+            if _schema_niet_ondersteund(exc):
+                # Vóór verzending geweigerd: niets verstuurd, geen oordeel.
+                return self._niet_uitgevoerd(
+                    aanroep, "structured_output_unsupported", type(exc).__name__
+                )
             foutsoort = _foutsoort(exc)
             uitvoering = self._uitvoering(
                 "failed", tijdstip, start, _FOUTCATEGORIE.get(foutsoort, "provider")
@@ -934,12 +966,21 @@ def _controleer_antwoord(
         return "provider", "model_mismatch", None
     if bool(getattr(antwoord, "cached", False)):
         return "transport", "raw_cache_used", None
+    metadata = getattr(antwoord, "metadata", None)
+    if not isinstance(metadata, Mapping):
+        metadata = {}
+    if metadata.get("response_schema_sha256") != ANTWOORDSCHEMA_SHA256:
+        # De AI-laag bevestigt niet dat het vastgepinde schema is verzonden.
+        return None, "schema_unconfirmed", None
     stop_reason = _stop_reason(antwoord)
     if stop_reason in _AFGEKAPT:
         return None, "truncated_response", None
     if stop_reason not in _AFGEROND:
-        # Ontbrekend of onbekend: niet aantoonbaar afgerond (review F1).
+        # Ontbrekend of onbekend (ook refusal): niet aantoonbaar afgerond (F1).
         return None, "unconfirmed_completion", None
+    if metadata.get("content_block_types") != ["text"]:
+        # Alleen precies één tekstblok kan het schema-antwoord zijn.
+        return None, "unexpected_content_blocks", None
     tekst = getattr(antwoord, "text", None)
     if not isinstance(tekst, str) or not tekst.strip():
         return None, "malformed_response", None
@@ -947,6 +988,21 @@ def _controleer_antwoord(
         return None, "response_too_long", None
     uitvoer, reden = _parse(tekst)
     return None, reden, uitvoer
+
+
+def _schema_niet_ondersteund(exc: BaseException) -> bool:
+    """Weigerde de AI-laag het schema vóór verzending (ook verpakt)?
+
+    Naar `_int03_foutsoort`: de oorzaakketen tot vijf niveaus diep.
+    """
+    huidig: BaseException | None = exc
+    for _ in range(5):
+        if huidig is None:
+            return False
+        if isinstance(huidig, AIStructuredOutputUnsupportedError):
+            return True
+        huidig = huidig.__cause__
+    return False
 
 
 def _invoerwaarden(invoer: Int02Invoer) -> list[str]:

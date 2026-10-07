@@ -1,0 +1,50 @@
+DEF-835 INT-02 O2 — schemaroute-v1 (besluit 14, optie A) — groen
+Datum: 2026-10-07 · branch feature/DEF-835-int02-o2 · basis HEAD ec1f38320 (niet gecommit)
+Python: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python (3.13.15)
+Gemeenschappelijke vlaggen: -o addopts="" --import-mode=importlib -p no:cacheprovider -q -rfE --tb=short
+Volledige uitvoer per stap staat in de deellogs hieronder (zelfde map).
+
+Nulmeting vóór de wijziging (-k "def835 or int02" tests/unit):
+  959 passed, 11 skipped, 7913 deselected
+Rood (rood.log, zeven testbestanden):
+  61 failed, 520 passed
+
+Groen 1 — nieuwe en gewijzigde tests (groen-1-gewijzigde-tests.log)
+  tests/unit/validation/test_def835_int02_schemaroute.py (nieuw)
+  tests/unit/validation/test_def835_int02_assessment_service.py
+  tests/unit/validation/test_def835_int02_modelproef.py
+  tests/unit/validation/test_def835_int02_variatiemeting.py
+  tests/unit/services/prompts/test_def835_int02_prompt.py
+  tests/unit/domain/test_def835_int02_dienstregel.py
+  tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+  Uitslag: 581 passed · exit 0
+
+Groen 2 — -k "def835 or int02" tests/unit (groen-2-def835-int02.log)
+  Uitslag: 1010 passed, 11 skipped, 7913 deselected · exit 0
+  (959 + 51 nieuwe tests: 40 in test_def835_int02_schemaroute.py, 11 in test_def835_int02_modelproef.py)
+
+Groen 3 — INT-03-schemaroute en ESS-03/INT-03 ongewijzigd
+  -k "int03 or ess03 or def836 or def766 or def772" tests/unit (groen-3-int03-ess03.log)
+  omvat tests/unit/services/test_def836_int03_schema_route.py
+  Uitslag: 791 passed, 8143 deselected · exit 0
+
+Groen 4 — ruff + black op de tien gewijzigde/nieuwe Python-bestanden (groen-4-ruff-black.log)
+  ruff check: All checks passed! · exit 0
+  black --check: 10 files would be left unchanged · exit 0
+
+Mutatiecontrole (handmatig, direct teruggezet; geen log):
+  M1 runner _exact_uitvoerschema zonder volgordegevoelige hash
+     -> 1 failed: test_schemaroute_waarnemer_weigert_ander_of_ontbrekend_schema[andere-volgorde]
+  M2 dienst zonder bloktypecontrole
+     -> 4 failed: test_onbevestigd_schema_of_afwijkende_blokken_geeft_geen_oordeel[geen-bloktypen|nul-blokken|thinking-blok|twee-tekstblokken]
+  Na terugzetten: grep op de mutatiemarkering in *.py = geen treffers; groen 1-4 hierboven zijn ná het terugzetten gedraaid.
+
+Extra vangnet — volledige unit-suite (-m unit tests/unit, zelfde vlaggen; uitvoer niet in deze map bewaard):
+  2 failed, 8808 passed, 81 skipped, 42 deselected, 1 xfailed
+  Beide falers: tests/unit/test_performance_tracker.py::TestGlobalTracker (test_reset_tracker,
+  test_get_tracker_singleton) — OfflineGateError: SQLite-doel 'data/definities.db' buiten de
+  sessieroot. Ook los gedraaid rood; raakt geen INT-02-, schema- of AI-code. Waarschijnlijk de
+  afwijkende aanroep (-o addopts="" vanuit de repo i.p.v. de canonieke gate); niet op HEAD
+  zonder wijziging nagemeten.
+
+Niet gedraaid: make test / make lint zelf (canonieke gates), live calls (verboden).

@@ -37,8 +37,9 @@ FIXTURE = json.loads(
 )
 C107 = next(g for g in FIXTURE["gevallen"] if g["id"] == "C107")
 #: `meting.payload_sha256` van C107 in kwalificatieproef v5
-#: (`goldset-freeze-v1/kwalificatieproef-v5/regressie-resultaat.json`). Faalt
-#: bewust zodra de keten wijzigt: dan is de meting niet meer vergelijkbaar.
+#: (`goldset-freeze-v1/kwalificatieproef-v5/regressie-resultaat.json`). Sinds
+#: prompt /4 (besluit 14) is de payload bewust anders: de v5-payload plus
+#: alleen het antwoordschema; de meting van 07-10-2026 is historisch.
 V5_PAYLOAD_C107 = "6f3507192174a0a90d22c8f5d8da35a87cad1d9180f159b1f5f14f9072789866"
 
 
@@ -243,7 +244,7 @@ async def test_herkomst_bindt_script_contract_dienst_en_systeemprompt(tmp_path):
     assert len(herkomst["git_head"] or "") == 40
     assert herkomst["model"] == "claude-opus-5"
     assert herkomst["profiel_id"] == "def835-kwalificatieproef-opus5-v1"
-    assert herkomst["promptversie"] == "def835-int02-prompt/3"
+    assert herkomst["promptversie"] == "def835-int02-prompt/4"
     # Het script legt de actieve contractversie vast. De live-meting van
     # 07-10-2026 liep onder /2 (live-v1/herkomst.json); sinds besluit 12 is het /3.
     assert herkomst["contractversie"] == "def835-int02-assessment/3"
@@ -252,22 +253,51 @@ async def test_herkomst_bindt_script_contract_dienst_en_systeemprompt(tmp_path):
     assert "label" not in json.dumps(herkomst)
 
 
-async def test_dryrun_payload_is_byte_gelijk_aan_kwalificatieproef_v5(tmp_path):
+def _v5_payload_c107() -> dict:
+    """De vastgelegde v5-payload van C107 (`kwalificatie-payloads-v5.json`)."""
+    pad = O2 / "goldset-freeze-v1" / "kwalificatie-payloads-v5.json"
+    [geval] = [
+        g for g in json.loads(pad.read_text("utf-8"))["gevallen"] if g["id"] == "C107"
+    ]
+    ruw = geval["payload"].encode("utf-8")
+    assert hashlib.sha256(ruw).hexdigest() == V5_PAYLOAD_C107
+    return json.loads(ruw)
+
+
+def _met_schema(body: dict) -> None:
+    """Besluit 14 (prompt /4): de enige toevoeging is exact het vastgepinde schema."""
+    from domain.int02.contract import ANTWOORDSCHEMA, ANTWOORDSCHEMA_SHA256
+    from services.ai.base_client import response_schema_sha256
+
+    assert body["output_config"] == {
+        "format": {"type": "json_schema", "schema": ANTWOORDSCHEMA}
+    }
+    schema = body["output_config"]["format"]["schema"]
+    assert response_schema_sha256(schema) == ANTWOORDSCHEMA_SHA256
+    zonder = {k: w for k, w in body.items() if k != "output_config"}
+    assert zonder == _v5_payload_c107()
+
+
+async def test_dryrun_payload_is_niet_meer_die_van_kwalificatieproef_v5(tmp_path):
+    # Bewust gesprongen struikeldraad: onder prompt /4 reist het schema mee,
+    # dus de variatiemeting van 07-10-2026 (v5-payload) is niet meer
+    # bytevergelijkbaar met de actuele keten.
     uitvoer = tmp_path / "dry"
     await v.voer_uit(uitvoer)
     herkomst = json.loads((uitvoer / "herkomst.json").read_text())
-    assert herkomst["payload_sha256"] == V5_PAYLOAD_C107
+    assert herkomst["payload_sha256"] != V5_PAYLOAD_C107
 
 
-async def test_live_verstuurt_de_v5_payload(tmp_path):
+async def test_live_verstuurt_de_v5_payload_plus_alleen_het_schema(tmp_path):
     nep = NepAI([_antwoord()])
     await _live(tmp_path / "live", nep, aantal=1)
     [verzoek] = nep.inferenties()
     ruw = json.dumps(verzoek["body"])
     # Geen geval-ID en geen label in het verzoek.
     assert "C107" not in ruw and "review_required" not in ruw
+    _met_schema(verzoek["body"])
     [run] = _runs(tmp_path / "live")
-    assert run["payload_sha256"] == V5_PAYLOAD_C107
+    assert run["payload_sha256"] != V5_PAYLOAD_C107
 
 
 # --- live met nep-AI ----------------------------------------------------------------
@@ -297,7 +327,7 @@ async def test_live_vijf_runs_alleen_c107_zonder_sleutel_in_uitvoer(tmp_path, ca
     assert eerste["passages"][0]["ground"]["field"] == "kern"
     assert eerste["usage"] == {"input_tokens": 3574, "output_tokens": 418}
     assert eerste["gerapporteerd_model"] == "claude-opus-5"
-    assert eerste["promptversie"] == "def835-int02-prompt/3"
+    assert eerste["promptversie"] == "def835-int02-prompt/4"
     assert eerste["contractversie"] == "def835-int02-assessment/3"
     for bestand in uitvoer.iterdir():
         assert SLEUTEL not in bestand.read_text()

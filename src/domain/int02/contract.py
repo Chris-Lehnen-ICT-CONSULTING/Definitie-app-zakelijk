@@ -12,7 +12,9 @@ functie; deze code controleert alleen wat mechanisch controleerbaar is:
   bedoeling, context en bronnen;
 - **uitvoer**: een gesloten structuur (onbekende velden, verkeerde typen en
   bool-als-int worden geweigerd) met per passage- en grondcitaat alleen het
-  letterlijke citaat en het veld;
+  letterlijke citaat en het veld. Dezelfde vorm staat als vastgepind
+  JSON-schema in `ANTWOORDSCHEMA` (besluit 14, optie A: schema via de API);
+  dat schema vervangt geen enkele controle hieronder;
 - **posities**: door deze code afgeleid, nooit door de beoordelaar geleverd
   (/2, besluit 9 optie A). Een citaat moet precies één keer als exacte
   substring (Python-codepunten, geen normalisatie) in de kern of in het
@@ -52,6 +54,8 @@ from decimal import Decimal
 from typing import Any, cast
 
 __all__ = [
+    "ANTWOORDSCHEMA",
+    "ANTWOORDSCHEMA_SHA256",
     "CONTRACTVERSIE",
     "NORMVERSIE",
     "ONBEKEND",
@@ -156,6 +160,87 @@ _FUNCTIELABEL = {"criterion": "een criterium", "derivation": "een afleiding"}
 #: Alleen een termlabel zoals 'Toegang:' is geen definitiekern (C23; O1-regel).
 _LABEL_ZONDER_KERN = re.compile(r"[^:.!?;\n]{1,80}:")
 _HEX64 = re.compile(r"[0-9a-f]{64}")
+
+#: Besluit 14 (optie A): het antwoordschema voor native JSON-schema-uitvoer
+#: (Anthropic `output_config.format`). Exact de gesloten uitvoervorm die
+#: `_controleer_structuur` toetst: dezelfde velden, enums en nullability, elk
+#: object gesloten, elk veld verplicht. De eigenschapsvolgorde volgt de prompt
+#: en hoort bij de schema-identiteit. Enums zijn gesorteerd: de iteratievolgorde
+#: van een frozenset hangt af van PYTHONHASHSEED. Geen nieuwe semantische eis
+#: (geen minimumlengte, geen indexbereik): de code-controles hierna
+#: blijven gezaghebbend en ongewijzigd. De uitvoervorm is gelijk aan /3, dus de
+#: contractversie blijft /3.
+_NUL_OF_TEKST: dict[str, Any] = {"anyOf": [{"type": "string"}, {"type": "null"}]}
+
+
+def _grondvariant(velden: Iterable[str], ref: dict[str, Any]) -> dict[str, Any]:
+    """Eén gesloten grondvariant: deze velden met dit ref-type."""
+    return {
+        "type": "object",
+        "properties": {
+            "field": {"type": "string", "enum": sorted(velden)},
+            "ref": ref,
+            "quote": _NUL_OF_TEKST,
+        },
+        "required": ["field", "ref", "quote"],
+        "additionalProperties": False,
+    }
+
+
+#: `ground` volgt exact de koppeling veld → ref van `_controleer_grondvorm`
+#: (Codex-review 07-10, P2): scalaire velden ref null, contextvelden een
+#: geheel getal, bron een tekst. Wat het schema niet kan uitdrukken (bereik
+#: van de index, bestaan en niet-leegheid van de bron-ID, letterlijkheid en
+#: uniciteit van citaten) blijft in de code.
+_GRONDSCHEMA: dict[str, Any] = {
+    "anyOf": [
+        _grondvariant(_SCALAIRE_GRONDEN, {"type": "null"}),
+        _grondvariant(_CONTEXTVELDEN, {"type": "integer"}),
+        _grondvariant(("bron",), {"type": "string"}),
+    ]
+}
+ANTWOORDSCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "verdict": {"type": "string", "enum": sorted(VERDICTS)},
+        "passages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "quote": {"type": "string"},
+                    "function": {"type": "string", "enum": sorted(FUNCTIES)},
+                    "ground": _GRONDSCHEMA,
+                },
+                "required": ["quote", "function", "ground"],
+                "additionalProperties": False,
+            },
+        },
+        "reason": {"type": "string"},
+        "question": _NUL_OF_TEKST,
+        "uncertainty": {"type": "string", "enum": sorted(ONZEKERHEDEN)},
+        "scope_reason": _NUL_OF_TEKST,
+        "coverage": {"type": "string", "enum": sorted(DEKKINGEN)},
+    },
+    "required": [
+        "verdict",
+        "passages",
+        "reason",
+        "question",
+        "uncertainty",
+        "scope_reason",
+        "coverage",
+    ],
+    "additionalProperties": False,
+}
+#: Gepinde, eigenschapsvolgorde-gevoelige SHA-256 van `ANTWOORDSCHEMA`
+#: (`services.ai.base_client.response_schema_sha256`: compacte JSON zonder
+#: sort_keys, de functie waarmee de AI-laag het verzonden schema bevestigt).
+#: Hoort bij promptversie def835-int02-prompt/4; een ander schema vraagt een
+#: nieuwe promptversie.
+ANTWOORDSCHEMA_SHA256 = (
+    "72adfe7428b67bf0fd999520581f0fc2cbe801101e1e8e6df300179405511f17"
+)
 
 # Letterlijke appmeldingen uit synthese v5 §4 (B3 V06).
 MELDING_V = (

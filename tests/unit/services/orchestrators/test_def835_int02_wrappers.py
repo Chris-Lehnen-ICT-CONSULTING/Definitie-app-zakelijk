@@ -42,6 +42,7 @@ from domain.int02.contract import (
     beoordeel,
     maak_invoer,
 )
+from services.ai.base_client import response_schema_sha256
 from services.interfaces import AIGenerationResult, Definition, GenerationRequest
 from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
 from services.validation.int02_assessment_service import (
@@ -511,8 +512,20 @@ class FakeAI:
             tokens_used=None,
             generation_time=0.01,
             cached=False,
-            metadata={"stop_reason": "end_turn"},
+            metadata={"stop_reason": "end_turn", **_schemabevestiging(kwargs)},
         )
+
+
+def _schemabevestiging(kwargs: dict) -> dict:
+    """Zoals AIServiceV2 (besluit 14): bij een meegegeven antwoordschema de
+    lokale schemahash en de bloktypen van de respons."""
+    schema = kwargs.get("response_schema")
+    if schema is None:
+        return {}
+    return {
+        "response_schema_sha256": response_schema_sha256(schema),
+        "content_block_types": ["text"],
+    }
 
 
 def _profiel(**over) -> Modelprofiel:

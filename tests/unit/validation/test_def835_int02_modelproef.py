@@ -31,12 +31,21 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
+from domain.int02 import contract as int02_contract
+from services.ai.base_client import response_schema_sha256
 from services.validation.int02_assessment_service import (
     bouw_int02_prompt,
     laad_int02_norm,
 )
 
 pytestmark = [pytest.mark.unit]
+
+#: Besluit 14 (optie A): het vastgepinde INT-02-antwoordschema. Ontbreekt het
+#: (rood), dan maakt een lege plaatshouder de schematests zichtbaar rood.
+SCHEMA = getattr(int02_contract, "ANTWOORDSCHEMA", {"ontbreekt": True})
+OUTPUT_CONFIG = {"format": {"type": "json_schema", "schema": SCHEMA}}
+#: Schemahash na de Codex-review (P2: `ground` als unie van gesloten varianten).
+SCHEMA_SHA256_P2 = "72adfe7428b67bf0fd999520581f0fc2cbe801101e1e8e6df300179405511f17"
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "scripts" / "analysis" / "def835_int02_modelproef.py"
@@ -249,7 +258,12 @@ async def test_payload_bevat_alleen_invoer_en_geen_cache_tools_of_labels(
             "system",
             "thinking",
             "temperature",  # alleen volgens het bestaande routerbeleid
+            "output_config",  # besluit 14: exact het vastgepinde schema
         }
+        assert body["output_config"] == OUTPUT_CONFIG
+        assert response_schema_sha256(body["output_config"]["format"]["schema"]) == (
+            int02_contract.ANTWOORDSCHEMA_SHA256
+        )
         assert body["model"] == "claude-opus-5"
         assert body["max_tokens"] == 6000
         assert body.get("thinking", {"type": "disabled"}) == {"type": "disabled"}
@@ -379,9 +393,11 @@ async def test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage(
     for telling, inferentie in zip(
         provider.verzoeken[::2], provider.inferenties(), strict=True
     ):
-        # Zelfde inhoud (zonder max_tokens/temperature) en zelfde authenticatie.
-        velden = ("model", "system", "messages", "thinking")
+        # Zelfde inhoud (zonder max_tokens/temperature, mét het antwoordschema
+        # van besluit 14) en zelfde authenticatie.
+        velden = ("model", "system", "messages", "thinking", "output_config")
         body = inferentie["body"]
+        assert body["output_config"] == OUTPUT_CONFIG
         assert telling["body"] == {k: body[k] for k in velden if k in body}
         for header in ("x-api-key", "anthropic-version"):
             assert telling["headers"][header] == inferentie["headers"][header]
@@ -625,6 +641,7 @@ BODY = {
     "system": "s",
     "messages": [{"role": "user", "content": "{}"}],
     "thinking": {"type": "disabled"},
+    "output_config": OUTPUT_CONFIG,
 }
 
 
@@ -2328,3 +2345,107 @@ async def test_f3_beeindigde_fase_zonder_voltooiingsbewijs_blokkeert(tmp_path):
         await _fase(k, "ontwikkeling", vervolg)
     assert fout.value.reden == "afronding_onvolledig"
     assert vervolg.verzoeken == []
+
+
+# --- besluit 14 (optie A): antwoordschema via de API --------------------------------
+
+
+def _schema_variant(wijzig) -> dict:
+    schema = json.loads(json.dumps(SCHEMA))  # diepe kopie, volgorde behouden
+    wijzig(schema)
+    return schema
+
+
+def _omgekeerde_volgorde(schema):
+    schema["properties"] = dict(reversed(list(schema["properties"].items())))
+
+
+def _extra_enumwaarde(schema):
+    schema["properties"]["verdict"]["enum"].append("misschien")
+
+
+def _open_passage(schema):
+    schema["properties"]["passages"]["items"]["additionalProperties"] = True
+
+
+async def test_schemaroute_waarnemer_accepteert_exact_schema_en_telt_het_mee():
+    provider = NepProvider([_bericht("{}")])
+    waarnemer = _waarnemer(provider)
+    waarnemer.huidig = "C105"
+    await waarnemer.handle_async_request(_verzoek(BODY))
+    assert waarnemer.stopreden is None
+    assert provider.paden() == ["/v1/messages/count_tokens", "/v1/messages"]
+    tel = provider.verzoeken[0]["body"]
+    # De tokenmeting telt het schema mee: dezelfde inhoud als de inference.
+    assert tel["output_config"] == OUTPUT_CONFIG
+    assert set(tel) == {"model", "system", "messages", "thinking", "output_config"}
+    assert response_schema_sha256(tel["output_config"]["format"]["schema"]) == (
+        int02_contract.ANTWOORDSCHEMA_SHA256
+    )
+
+
+def _met_schema(schema) -> dict:
+    return {"format": {"type": "json_schema", "schema": schema}}
+
+
+@pytest.mark.parametrize(
+    "maak",
+    [
+        lambda: ...,
+        lambda: _met_schema(_schema_variant(_extra_enumwaarde)),
+        lambda: _met_schema(_schema_variant(_open_passage)),
+        lambda: _met_schema(_schema_variant(_omgekeerde_volgorde)),
+        lambda: {**_met_schema(SCHEMA), "effort": "low"},
+        lambda: {"format": {"type": "json_object", "schema": SCHEMA}},
+        lambda: {"format": {"type": "json_schema", "schema": SCHEMA, "extra": 1}},
+        lambda: None,
+    ],
+    ids=[
+        "ontbreekt",
+        "andere-enum",
+        "open-object",
+        "andere-volgorde",
+        "extra-optie",
+        "ander-formaat",
+        "extra-formaatveld",
+        "null",
+    ],
+)
+async def test_schemaroute_waarnemer_weigert_ander_of_ontbrekend_schema(maak):
+    output_config = maak()
+    body = {k: v for k, v in BODY.items() if k != "output_config"}
+    if output_config is not ...:
+        body["output_config"] = output_config
+    provider = NepProvider()
+    waarnemer = _waarnemer(provider)
+    waarnemer.huidig = "C105"
+    with pytest.raises(m.ProefStopError):
+        await waarnemer.handle_async_request(_verzoek(body))
+    assert waarnemer.stopreden == PAYLOAD
+    assert provider.verzoeken == []
+
+
+async def test_schemaroute_identiteit_bindt_schemahash_en_capability(manifest):
+    identiteit = json.loads(manifest.read_text("utf-8"))["identiteit"]
+    router = identiteit["router"]
+    assert router["supports_structured_outputs"] is True
+    assert router["antwoordschema_sha256"] == int02_contract.ANTWOORDSCHEMA_SHA256
+    # Na de Codex-review (P2, grondvarianten): de nieuwe pin, niet de eerste.
+    assert router["antwoordschema_sha256"] == SCHEMA_SHA256_P2
+    # Geen beta-header: de headernamen blijven exact de SDK-standaard.
+    assert identiteit["transport"]["headernamen"] == STANDAARDHEADERNAMEN
+    assert identiteit["profiel"]["promptversie"] == "def835-int02-prompt/4"
+
+
+async def test_schemaroute_zonder_capability_geen_payload_en_geen_manifest(
+    tmp_path, monkeypatch
+):
+    from services.ai.model_router import ModelRouter
+
+    monkeypatch.setattr(
+        ModelRouter, "supports_structured_outputs", lambda self, *a, **k: False
+    )
+    pad = tmp_path / "manifest.json"
+    with pytest.raises(m.ProefGeweigerdError):
+        await m.voorbereid(pad)
+    assert not pad.exists()

@@ -8,9 +8,11 @@ DEF-815-kwaliteitsclaim. Acceptatiecriteria: technische-modelproef-voorstel-v1.
 Keten (ongewijzigd): Int02AssessmentService → AIServiceV2 → AsyncGPTClient →
 AnthropicClient → Anthropic-SDK → httpx. De runner voegt alleen een
 `Waarnemer` toe als httpx-transport van de SDK-client: die ziet het exacte
-verzoek, begrenst de payload (geen tools, cache, stream, beta of retry), telt
-elke verzending (ook mislukte), vraagt vooraf de provider-tokenmeting op
-dezelfde inhoud en boekt de door de provider gemelde usage.
+verzoek, begrenst de payload (geen tools, cache, stream, beta of retry; sinds
+prompt /4 verplicht exact het vastgepinde antwoordschema in `output_config`,
+besluit 14), telt elke verzending (ook mislukte), vraagt vooraf de
+provider-tokenmeting op dezelfde inhoud (inclusief het schema) en boekt de
+door de provider gemelde usage.
 
 Standaard: voorbereiding zonder netwerk en zonder sleutel. De keten draait
 met een dry-run-transport dat elk verzoek opvangt en niets verstuurt; het
@@ -132,10 +134,14 @@ DIENSTBUDGET = {
 API_HOST = "api.anthropic.com"
 BERICHTEN = "/v1/messages"
 TELLEN = "/v1/messages/count_tokens"
+#: Besluit 14 (prompt /4): `output_config` is verplicht en moet exact het
+#: vastgepinde INT-02-antwoordschema dragen (`_exact_uitvoerschema`).
 TOEGESTANE_VELDEN = frozenset(
     {"model", "max_tokens", "messages", "system", "thinking", "temperature"}
+    | {"output_config"}
 )
-TELVELDEN = ("model", "system", "messages", "thinking")
+#: De tokenmeting telt het schema mee: het hoort bij de invoer van de call.
+TELVELDEN = ("model", "system", "messages", "thinking", "output_config")
 #: Goedgekeurde API-versie en authenticatie: de SDK-default, zonder envopties.
 API_VERSIE = "2023-06-01"
 BASIS_URL = f"https://{API_HOST}"
@@ -382,6 +388,24 @@ def _json(inhoud: bytes) -> Any:
         return json.loads(inhoud)
     except ValueError:
         return None
+
+
+def _exact_uitvoerschema(output_config: Any) -> bool:
+    """Besluit 14: precies het vastgepinde INT-02-schema, ook in sleutelvolgorde.
+
+    De dict-vergelijking dekt vorm en inhoud; de volgordegevoelige hash
+    (dezelfde functie als de AI-laag) dekt wat Python-gelijkheid mist:
+    eigenschapsvolgorde en `0`/`1` tegenover `false`/`true`.
+    """
+    from domain.int02.contract import ANTWOORDSCHEMA, ANTWOORDSCHEMA_SHA256
+    from services.ai.base_client import response_schema_sha256
+
+    verwacht = {"format": {"type": "json_schema", "schema": ANTWOORDSCHEMA}}
+    return (
+        output_config == verwacht
+        and response_schema_sha256(output_config["format"]["schema"])
+        == ANTWOORDSCHEMA_SHA256
+    )
 
 
 def _fouttype(data: Any) -> str:
@@ -709,6 +733,7 @@ class Waarnemer(httpx.AsyncBaseTransport):
             and berichten[0].get("role") == "user"
             and isinstance(berichten[0].get("content"), str)
             and not _bevat_sleutel(payload, "cache_control")
+            and _exact_uitvoerschema(payload.get("output_config"))
         )
         if not toegestaan:
             self._stop("payload_niet_toegestaan")
@@ -1114,6 +1139,8 @@ def _ketenidentiteit(
     """Limieten, prijzen, router, transport, norm/T, bronhashes en versies."""
     import anthropic
 
+    from domain.int02.contract import ANTWOORDSCHEMA
+    from services.ai.base_client import response_schema_sha256
     from services.validation.int02_assessment_service import (
         T_TEKST,
         TASK_TYPE,
@@ -1122,6 +1149,7 @@ def _ketenidentiteit(
 
     norm = laad_int02_norm(NORM_PAD)
     provider, model = router.get_model(TASK_TYPE)
+    denken = router.thinking_default_on(model, provider=provider)
     return {
         "limieten": asdict(limieten),
         "dienstbudget": dict(DIENSTBUDGET),
@@ -1129,7 +1157,16 @@ def _ketenidentiteit(
         "router": {
             "uitkomst": [provider, model],
             "accepts_temperature": router.accepts_temperature(model, provider=provider),
-            "thinking_default_on": router.thinking_default_on(model, provider=provider),
+            "thinking_default_on": denken,
+            # Besluit 14: de gecontroleerde schemacombinatie (zelfde endpoint
+            # en thinking-type als de adapter verstuurt) en het schema zelf.
+            "supports_structured_outputs": router.supports_structured_outputs(
+                model,
+                provider=provider,
+                endpoint=BASIS_URL,
+                thinking="disabled" if denken else None,
+            ),
+            "antwoordschema_sha256": response_schema_sha256(ANTWOORDSCHEMA),
         },
         "transport": {
             "basis_url": BASIS_URL,

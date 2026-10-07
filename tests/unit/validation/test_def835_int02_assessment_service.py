@@ -28,6 +28,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from domain.int02 import contract as int02_contract
 from domain.int02.contract import (
     MELDING_E,
     MELDING_NIET_BEOORDEELD,
@@ -40,7 +41,11 @@ from domain.int02.contract import (
     toets_actualiteit,
 )
 from services.ai.anthropic_client import AnthropicClient
-from services.ai.base_client import AIConnectionClientError, ChatResponse
+from services.ai.base_client import (
+    AIConnectionClientError,
+    ChatResponse,
+    response_schema_sha256,
+)
 from services.ai.model_router import ModelRouter
 from services.ai.openai_client import OpenAIClient
 from services.ai_service_v2 import AIServiceV2
@@ -230,6 +235,13 @@ class FakeAI:
         metadata = {"tokens_estimated": True}
         if self.stop_reason is not None:
             metadata["stop_reason"] = self.stop_reason
+        if kwargs.get("response_schema") is not None:
+            # Besluit 14: zoals AIServiceV2 bevestigt de fake het verzonden
+            # schema (hash) en de responsvorm (één tekstblok).
+            metadata["response_schema_sha256"] = response_schema_sha256(
+                kwargs["response_schema"]
+            )
+            metadata["content_block_types"] = ["text"]
         return AIGenerationResult(
             text=tekst,
             model=self.model if self.model is not None else kwargs.get("model"),
@@ -524,6 +536,8 @@ async def test_aanroep_gebruikt_opt_ins_budget_en_routing():
     assert call["max_retries"] == 0
     assert call["token_estimate"] == "heuristic"
     assert call["offload_postprocessing"] is True
+    # Besluit 14: het vastgepinde antwoordschema reist mee.
+    assert call["response_schema"] == int02_contract.ANTWOORDSCHEMA
     assert set(router.calls) == {"validation"}
 
 
@@ -1040,10 +1054,18 @@ class _Provider:
         uitkomst = self.uitkomsten.pop(0) if self.uitkomsten else _fail_uitvoer()
         if isinstance(uitkomst, BaseException):
             raise uitkomst
+        metadata = {}
+        if kw.get("response_schema") is not None:
+            # Zoals de Anthropic-adapter: lokale schemabevestiging + bloktypen.
+            metadata = {
+                "response_schema_sha256": response_schema_sha256(kw["response_schema"]),
+                "content_block_types": ["text"],
+            }
         return ChatResponse(
             text=json.dumps(uitkomst, ensure_ascii=False),
             tokens_used=5,
             model=self.gerapporteerd_model or model,
+            metadata=metadata,
             stop_reason=self.stop_reason,
         )
 
@@ -1064,7 +1086,10 @@ async def test_echte_ai_laag_een_aanroep_met_sdk_retries_nul_en_exacte_berichten
     assert resultaat.status == "fail"
     assert len(provider.calls) == 1
     call = provider.calls[0]
-    assert call["kw"] == {"max_retries": 0}
+    assert call["kw"] == {
+        "max_retries": 0,
+        "response_schema": int02_contract.ANTWOORDSCHEMA,
+    }
     assert call["model"] == MODEL
     assert call["max_tokens"] == 800
     systeem, data = bouw_int02_prompt(invoer, laad_int02_norm())
@@ -1250,23 +1275,28 @@ def _openai_dienst(sdk: _OpenAISDK):
 
 
 async def test_f1_echte_openai_adapter_afgekapt_antwoord_is_geen_oordeel():
+    # Besluit 14: de OpenAI-adapter ondersteunt het antwoordschema niet en
+    # weigert vóór verzending; er komt dus nooit een (afgekapt) antwoord.
     sdk = _OpenAISDK("length")
     dienst = _openai_dienst(sdk)
     eerste = await dienst.assess(_invoer())
     tweede = await dienst.assess(_invoer())
-    assert eerste.status == "error"
     assert eerste.document.oordeel is None
-    # De adapter geeft finish_reason niet door: niet aantoonbaar afgerond.
-    assert eerste.reden == "unconfirmed_completion"
+    assert eerste.reden == "structured_output_unsupported"
+    assert eerste.document.uitvoering.status == "not_executed"
     assert tweede.gecachet is False
-    assert sdk.calls == 2
+    assert sdk.calls == 0
 
 
 async def test_f1_openai_route_blijft_geblokkeerd_zolang_de_stopreden_ontbreekt():
-    # Ook finish_reason "stop" bereikt de dienst niet: bewuste beperking.
-    resultaat = await _openai_dienst(_OpenAISDK("stop")).assess(_invoer())
-    assert resultaat.status == "error"
-    assert resultaat.reden == "unconfirmed_completion"
+    # Ook finish_reason "stop" bereikt de dienst niet: bewuste beperking; sinds
+    # besluit 14 al vóór verzending (geen schema-ondersteuning).
+    sdk = _OpenAISDK("stop")
+    resultaat = await _openai_dienst(sdk).assess(_invoer())
+    assert resultaat.status == "review_required"
+    assert resultaat.document.reden == "not_assessed"
+    assert resultaat.reden == "structured_output_unsupported"
+    assert sdk.calls == 0
 
 
 # F2: het effectieve capability-beleid van de router zit in de binding.

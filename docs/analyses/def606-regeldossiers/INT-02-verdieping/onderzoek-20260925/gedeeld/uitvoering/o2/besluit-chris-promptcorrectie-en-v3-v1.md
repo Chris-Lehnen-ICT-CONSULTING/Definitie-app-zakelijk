@@ -177,3 +177,43 @@ Alle 43 payloads zijn byte-gelijk aan v5; het payloadbestand verschilt alleen in
 **Akkoord Chris: alleen fase 1** (`--fase regressie`, C105/C107/C112, maximaal 3 calls); daarna stoppen en bespreken. Het akkoordbestand `kwalificatie-akkoord-v6.json` bevat net als bij v4 en v5 het protocolkader (43 calls, US$12), omdat de runner dat veldformaat eist; de beperking tot fase 1 is deze procesafspraak. Besluit 10 (v5) is hiermee vervangen.
 
 **Sleutel.** Zoals bij v4 en v5 wordt de API-sleutel bij de run door de shell uit de `.env` van de hoofdcheckout gelezen en niet getoond; er komt geen `.env` in de werkboom.
+
+## Besluit 14 — schema via API (07-10-2026)
+
+**Uitslag v6.** Fase 1 van v6 stopte na de eerste call, op C105, met `invalid_output` (stopreden van de runner; 1 inferentie). C107 en C112 zijn niet gedraaid. Het model gaf voor C105 inhoudelijk het juiste oordeel: `fail`, passage "De medewerker laat de aanvrager toe.", functie `actor_prescription`, grond de bedoeling. Maar het zette in de passage een extra veld `reason`. Het gesloten contract weigert onbekende velden, dus het document werd `error`. Bron: `goldset-voorbereiding/goldset-freeze-v1/kwalificatieproef-v6/regressie-bundel.json` en `regressie-resultaat.json`.
+
+**Keuze Chris: optie A — het antwoordschema via de API meesturen** (native JSON-schema-uitvoer, `output_config.format`). Het schema legt de bestaande gesloten uitvoervorm vast. Een extra veld zoals `reason` in een passage kan het model dan niet meer produceren.
+
+**Afgewezen:**
+- B: een optioneel extra veld in het contract toestaan;
+- C: fase 1 opnieuw draaien zonder wijziging;
+- D: stoppen.
+
+**Haalbaarheidsonderzoek (alleen lezen, vóór de keuze).** De keten ondersteunt gestructureerde uitvoer al:
+- AIServiceV2 heeft `response_schema` als opt-in, en `async_api` geeft het door;
+- de Anthropic-adapter bouwt `output_config` alleen voor de gecontroleerde combinatie in `config.yaml` (`claude-opus-5`, `api.anthropic.com`, thinking `disabled`); anders weigert hij vóór verzending;
+- INT-03 gebruikt deze route al (DEF-836);
+- SDK 0.116.0 ondersteunt `output_config`, ook bij `count_tokens`.
+
+Volgens de actuele Anthropic-documentatie (gelezen door de coördinator) gelden deze grenzen: `type`/`properties`/`required`/`enum`/`anyOf`, `additionalProperties: false`, geen min/maxLength, maximaal 24 optionele parameters en 16 union-velden. De grammatica geldt niet voor thinking; INT-02 heeft thinking uitgeschakeld.
+
+**Route.**
+- `ANTWOORDSCHEMA` en `ANTWOORDSCHEMA_SHA256` staan in `src/domain/int02/contract.py`. Het schema is exact de bestaande structuur, met gesorteerde enums, nullables via `anyOf` en alles verplicht en gesloten. `ground` is een unie van drie gesloten varianten die de koppeling veld → ref van de code volgen (Codex-review 07-10, P2). De hash is vastgepind: `72adfe74…511f17` (de eerste pin `2b1ac6a8…f96191` is vervangen).
+- Contractversie blijft `def835-int02-assessment/3`, want de uitvoervorm is ongewijzigd. Alle code-controles blijven ongewijzigd: citaten, ref-koppeling, vraag, samenhang en de dienstregel.
+- Promptversie wordt `def835-int02-prompt/4`: dezelfde tekst als /3 (systeemprompt `da4a4112…`) plus de schemaroute.
+- De dienst doet het volgende:
+  - controleert de schemahash vóór de aanroep;
+  - stuurt het schema mee;
+  - eist dat de AI-laag het verzonden schema bevestigt en precies één tekstblok meldt;
+  - meldt een niet-ondersteunde combinatie apart, met de reden `structured_output_unsupported` en zonder verzending;
+  - blijft bij `refusal` fail-closed.
+- De runner accepteert alleen exact dit schema in `output_config` en telt het mee in de tokenmeting. Schemahash en capability staan in de identiteit. Er is geen beta-header.
+
+Uitvoering en tests: `goldset-voorbereiding/schemaroute-v1/uitvoeringsverslag-claude-v1.md`.
+
+**Vervolg:**
+1. Onafhankelijke review van de diff.
+2. Commit (de logs met `git add -f`).
+3. Offline manifest v7. De payloads veranderen, want `output_config` komt erbij. Ook de promptversie, de bestandshashes en de routerdelen van de identiteit veranderen.
+4. Nieuw exact akkoord van Chris op v7.
+5. Daarna opnieuw alleen fase 1 (C105/C107/C112). Die run is meteen de live-rooktest van het schema: of de API het schema accepteert, blijkt pas dan.
