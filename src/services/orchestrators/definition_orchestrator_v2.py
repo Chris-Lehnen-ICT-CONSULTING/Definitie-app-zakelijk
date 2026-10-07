@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any, Optional, cast
 
 from domain.categorie_herkomst import lees_keuze_invoer
 from domain.rechtsgebieden import normaliseer_rechtsgebied
+from domain.sources.rangorde import rangschik_bronnen
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,
@@ -670,6 +671,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                     # STORY 3.1: Extract legal metadata for juridical sources
                     provenance_sources = build_provenance(prepared, extract_legal=True)
+                    # DEF-844: officiële wetgevingsdomeinen vóór algemene
+                    # webbronnen, vóór de top-K-markering (dus ook in de prompt).
+                    provenance_sources = rangschik_bronnen(provenance_sources)
 
                     # Mark top-K as used_in_prompt (we'll include these first in any context pack)
                     top_k = max(0, int(getattr(self.config, "web_lookup_top_k", 3)))
@@ -978,6 +982,13 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     f"Generation {generation_id}: Failed to merge document snippets: {type(e).__name__}: {e}",
                     exc_info=True,
                 )
+
+            # DEF-844: één bronvolgorde voor weergave en opslag — brontype
+            # eerst (wetgeving → eigen bronnen → overig web), daarbinnen de
+            # eigen score; scores van verschillende schalen worden niet
+            # vergeleken. Zelfde objecten, dus de kanaalkoppeling van de
+            # kwitantie (op identiteit) blijft intact.
+            provenance_sources = rangschik_bronnen(provenance_sources)
 
             # =====================================
             # PHASE 3: Intelligent Prompt Generation (with ontological category fix)

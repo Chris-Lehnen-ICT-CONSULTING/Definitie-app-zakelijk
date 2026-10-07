@@ -15,6 +15,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, TypedDict
 
+from domain.sources.rangorde import bronrang
 from services.definition_generator_config import ContextConfig, UnifiedGeneratorConfig
 from services.definition_generator_context import (
     EnrichedContext,
@@ -257,10 +258,12 @@ def _select_web_sources(
     )
 
     if aug.get("prioritize_juridical", True):
-        # Stable sort: authoritative first, then score desc, then title/url
+        # Stable sort: DEF-844-brontype (wetgeving vóór overig web, zoals in
+        # de weergave), then authoritative, then score desc, then title/url
         selected = sorted(
             selected,
             key=lambda item: (
+                bronrang(item[1]),
                 int(_is_auth_web(item[1]))
                 * -1,  # False comes after True when multiplied by -1
                 -(float(item[1].get("score", 0.0) or 0.0)),
