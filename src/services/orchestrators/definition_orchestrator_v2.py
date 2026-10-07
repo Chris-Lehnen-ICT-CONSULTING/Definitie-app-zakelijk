@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any, Optional, cast
 
 from domain.categorie_herkomst import lees_keuze_invoer
 from domain.rechtsgebieden import normaliseer_rechtsgebied
+from domain.sources.rangorde import rangschik_bronnen
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,
@@ -665,6 +666,13 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                                     if isinstance(r.metadata, dict)
                                     else None
                                 ),
+                                # DEF-844: SRU-documenttype; bepaalt of een
+                                # gemengd publicatiedomein als wetgeving telt.
+                                "document_type": (
+                                    safe_dict_get(r.metadata, "dc_type")
+                                    if isinstance(r.metadata, dict)
+                                    else None
+                                ),
                             }
                         )
 
@@ -873,6 +881,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                                 "created_at",
                                 "filename",
                                 "bron_type",
+                                # DEF-844: herkomst voor de bronrangorde
+                                "collection_name",
                                 "rechtsgebied",
                                 "wet_regeling",
                                 "artikel_lid",
@@ -978,6 +988,15 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     f"Generation {generation_id}: Failed to merge document snippets: {type(e).__name__}: {e}",
                     exc_info=True,
                 )
+
+            # DEF-844: één bronvolgorde voor weergave en opslag — brontype
+            # eerst (wetgeving → eigen bronnen → overig web), daarbinnen de
+            # eigen score; scores van verschillende schalen worden niet
+            # vergeleken. Alleen volgorde: de selectie hierboven (top-K,
+            # RAG-drempel) is al gedaan. De promptservice ordent haar
+            # opgenomen bronnen met dezelfde sleutel. Zelfde objecten, dus de
+            # kanaalkoppeling van de kwitantie (op identiteit) blijft intact.
+            provenance_sources = rangschik_bronnen(provenance_sources)
 
             # =====================================
             # PHASE 3: Intelligent Prompt Generation (with ontological category fix)

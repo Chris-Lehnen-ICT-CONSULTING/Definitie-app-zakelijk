@@ -16,6 +16,7 @@ import streamlit as st
 if TYPE_CHECKING:
     from database.definitie_repository import DefinitieRecord
 
+from domain.sources.rangorde import rangschik_bronnen
 from ui.components.formatters import get_provider_label
 
 logger = logging.getLogger(__name__)
@@ -156,8 +157,8 @@ class SourcesRenderer:
                 )
                 return
 
-            # Render sources list
-            self._render_sources_list(sources)
+            # DEF-844: ook opgeslagen (oudere) records in brontype-rangorde.
+            self._render_sources_list(rangschik_bronnen(sources))
 
         except KeyError as e:
             logger.error(f"Missing required source data key: {e}", exc_info=True)
@@ -626,7 +627,8 @@ class SourcesRenderer:
                 render_rule_results({"CON-02": dict(con02)})
             self._render_kwitantie(receipt)
             self._render_beoordeling_samenvatting(assessment)
-            bronnen = list(sources or [])
+            # DEF-844: dezelfde rangorde als "Gebruikte Bronnen".
+            bronnen = rangschik_bronnen(list(sources or []))
             if not bronnen:
                 st.info(
                     "ℹ️ Geen bronnen bij dit record. CON-02 blijft 'nog te beoordelen' "

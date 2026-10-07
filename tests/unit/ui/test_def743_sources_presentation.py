@@ -104,6 +104,9 @@ LEGACY_UPLOAD = {
     "source_label": "Geüpload document",
 }
 BRONNEN = [OVERHEID, RAG, KORT_DOCUMENT, TERMTREFFER, LEGACY_UPLOAD]
+# DEF-844: de renderer toont in brontype-rangorde. OVERHEID (wetten.overheid.nl)
+# is wettelijk; RAG zonder bron_type is een eigen bron en komt na de uploads.
+NR_OVERHEID, NR_KORT, NR_TREFFER, NR_LEGACY, NR_RAG = 1, 2, 3, 4, 5
 
 
 # ------------------------------------------------------------------ driver
@@ -220,7 +223,7 @@ def test_driver_draait_achter_de_offline_gate_zonder_fouten(waarnemingen):
 
 def test_overheidsbron_krijgt_neutrale_herkomst_en_geen_gezagsoordeel(waarnemingen):
     """provider=overheid + is_authoritative=True: geen 'Autoritatief'-badge."""
-    bron = _bron(waarnemingen, 1)
+    bron = _bron(waarnemingen, NR_OVERHEID)
     assert bron["success"] == []
     assert "Herkomst: Overheid.nl" in bron["caption"]
     tekst = waarnemingen["alle_tekst"].lower()
@@ -232,7 +235,7 @@ def test_overheidsbron_krijgt_neutrale_herkomst_en_geen_gezagsoordeel(waarneming
 
 
 def test_webbron_toont_zoekscore_en_respecteert_echte_nul(waarnemingen):
-    bron = _bron(waarnemingen, 1)
+    bron = _bron(waarnemingen, NR_OVERHEID)
     assert "**Zoekscore**: 0.00" in bron["markdown"]
     assert _regels(bron, "**Score**") == []
     assert "0.90" not in "\n".join(bron["markdown"])  # confidence overschrijft niet.
@@ -240,7 +243,7 @@ def test_webbron_toont_zoekscore_en_respecteert_echte_nul(waarnemingen):
 
 
 def test_rag_bron_toont_zoekscore_met_kleur_link_en_citatie(waarnemingen):
-    bron = _bron(waarnemingen, 2)
+    bron = _bron(waarnemingen, NR_RAG)
     assert bron["label"].endswith("🟢")  # Bestaande kleurfunctie blijft.
     assert "Herkomst: RAG: Synthetisch testregister" in bron["caption"]
     assert "**Zoekscore**: 🟢 0.91" in bron["markdown"]
@@ -253,19 +256,19 @@ def test_rag_bron_toont_zoekscore_met_kleur_link_en_citatie(waarnemingen):
 
 
 def test_lange_passage_blijft_verkort_en_is_volledig_raadpleegbaar(waarnemingen):
-    bron = _bron(waarnemingen, 2)
+    bron = _bron(waarnemingen, NR_RAG)
     assert f"**Fragment**: {LANGE_PASSAGE[:500]}..." in bron["markdown"]
     passages = _passages(waarnemingen)
     assert len(passages) == 1, [e["label"] for e in waarnemingen["expanders"]]
     (passage,) = passages
-    assert "bron 2" in passage["label"]
+    assert f"bron {NR_RAG}" in passage["label"]
     assert f"{len(LANGE_PASSAGE)} tekens" in passage["label"]
     assert passage["text"] == [LANGE_PASSAGE]  # Exact wat is aangeleverd.
     assert passage["markdown"] == []
 
 
 def test_upload_toont_selectiewijze_en_citatie_zonder_score(waarnemingen):
-    kort = _bron(waarnemingen, 3)
+    kort = _bron(waarnemingen, NR_KORT)
     assert "**Document**: awb32.txt · Locatie: volledig document" in kort["markdown"]
     assert "**Selectie**: Geselecteerd kort document" in kort["markdown"]
     assert "Herkomst: Geüpload document" in kort["caption"]
@@ -273,7 +276,7 @@ def test_upload_toont_selectiewijze_en_citatie_zonder_score(waarnemingen):
     assert _regels(kort, "**Zoekscore**") == []
     assert "0.00" not in "\n".join(kort["markdown"])
 
-    treffer = _bron(waarnemingen, 4)
+    treffer = _bron(waarnemingen, NR_TREFFER)
     assert "**Document**: register.txt · Locatie: p. 2" in treffer["markdown"]
     assert "**Selectie**: Letterlijke termtreffer" in treffer["markdown"]
     assert _regels(treffer, "**Score**") == []
@@ -284,7 +287,7 @@ def test_upload_toont_selectiewijze_en_citatie_zonder_score(waarnemingen):
 def test_legacy_upload_zonder_selectiewijze_krijgt_geen_verzonnen_oordeel(
     waarnemingen,
 ):
-    legacy = _bron(waarnemingen, 5)
+    legacy = _bron(waarnemingen, NR_LEGACY)
     assert "**Document**: los.txt" in legacy["markdown"]
     assert _regels(legacy, "**Selectie**") == []
     assert _regels(legacy, "**Score**") == []

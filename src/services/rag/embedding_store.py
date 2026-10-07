@@ -330,9 +330,12 @@ class EmbeddingStore:
             "rc.wet_regeling, rc.artikel_lid, rc.bron_type, "
             "json(rc.metadata) AS metadata, "
             "rc.document_id, rc.chunk_index, rc.created_at, "
-            "rd.filename "
+            "rd.filename, rcol.collection_name "
             "FROM rag_chunks rc "
             "LEFT JOIN rag_documents rd ON rc.document_id = rd.id "
+            # DEF-844: herkomst van het fragment (uploadcollectie of
+            # bronbibliotheek) reist mee voor de bronrangorde.
+            "LEFT JOIN rag_collections rcol ON rc.collection_id = rcol.id "
             "WHERE rc.collection_id = ? AND rc.embedding IS NOT NULL"
         )
         params: list = [collection_id]
@@ -366,6 +369,7 @@ class EmbeddingStore:
             "chunk_index": row["chunk_index"],
             "created_at": row["created_at"],
             "filename": row["filename"],
+            "collection_name": row["collection_name"],
         }
 
     def search_keyword(

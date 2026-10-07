@@ -147,11 +147,12 @@ async def test_receipt_matches_exact_xml_and_ids_for_rag_web_and_document(servic
     assert receipt["errors"] == []
     assert receipt["omitted"] == []
     assert [s["nr"] for s in receipt["sources"]] == [1, 2, 3]
-    assert [s["source_type"] for s in receipt["sources"]] == ["rag", "web", "document"]
+    # DEF-844-rangorde: wettelijke webbron → geüpload document → overige RAG.
+    assert [s["source_type"] for s in receipt["sources"]] == ["web", "document", "rag"]
     assert [s["source_id"] for s in receipt["sources"]] == [
-        501,
         "https://wetten.overheid.nl/awb#1:1",
         "upload-01",
+        501,
     ]
     assert result.text.count("<bron ") == 3
     for record in receipt["sources"]:
@@ -162,7 +163,7 @@ async def test_receipt_matches_exact_xml_and_ids_for_rag_web_and_document(servic
         assert record["content"].strip()
         assert record["truncated"] is False
 
-    rag, web, doc = receipt["sources"]
+    web, doc, rag = receipt["sources"]
     assert rag["content"] == PASSAGE_RAG
     assert rag["sanitized"] is False
     assert rag["retrieval_score"] == 0.91
@@ -423,7 +424,8 @@ async def test_channel_failure_discards_its_xml_and_records_the_error(
     receipt = result.metadata["source_receipt"]
 
     assert receipt["status"] == "used"
-    assert [s["source_type"] for s in receipt["sources"]] == ["rag", "document"]
+    # DEF-844: document vóór overige RAG (beide eigen bron; kanaalvolgorde).
+    assert [s["source_type"] for s in receipt["sources"]] == ["document", "rag"]
     assert [s["nr"] for s in receipt["sources"]] == [1, 2]
     assert 'type="web"' not in result.text
     assert PASSAGE_WEB not in result.text
@@ -711,7 +713,7 @@ async def test_web_input_index_is_pre_sort_and_pre_selection(service):
         {
             **WEB,
             "provider": "overheid",
-            "url": "https://o",
+            "url": "https://wetten.overheid.nl/o",
             "snippet": "Overheid.",
             "score": 0.5,
         },
@@ -727,11 +729,11 @@ async def test_web_input_index_is_pre_sort_and_pre_selection(service):
         await service.build_generation_prompt(_request(), context=_context(web=web))
     ).metadata["source_receipt"]
 
-    # overheid eerst in de prompt (sortering), maar input_index blijft 1.
+    # Wetgeving eerst in de prompt (DEF-844-rangorde), maar input_index blijft 1.
     assert [
         (r["nr"], r["source_id"], r["input_index"]) for r in receipt["sources"]
     ] == [
-        (1, "https://o", 1),
+        (1, "https://wetten.overheid.nl/o", 1),
         (2, "https://w", 0),
     ]
     assert [
