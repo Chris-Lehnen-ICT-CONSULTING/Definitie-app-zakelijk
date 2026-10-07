@@ -6,20 +6,27 @@ een cosine-score (in de praktijk ~0.3–0.6), een document een termtreffer.
 Die scores zijn onderling niet vergelijkbaar. De volgorde volgt daarom eerst
 het **brontype** en pas daarbinnen de eigen score:
 
-1. Wettelijke bronnen: RAG-fragmenten met ``bron_type == "wetgeving"`` en
-   webbronnen van een officieel wetgevingsdomein (zie ``WETGEVING_HOSTS``) of
-   uit het eigen wetgevingskanaal (``WETGEVING_PROVIDERS``; een BWB-treffer
-   heeft niet altijd een URL).
-2. Eigen bronnen: geüploade documenten, daarna overige RAG-fragmenten (de
-   volgorde van vóór DEF-844 tussen die twee blijft zo behouden).
+1. Wettelijke bronnen, alleen op aantoonbare herkomst:
+   - RAG-fragmenten met ``bron_type == "wetgeving"`` uit de bronbibliotheek
+     (een bekende collectie die niet de uploadcollectie is);
+   - webbronnen uit het BWB-kanaal (``WETGEVING_PROVIDERS``; een BWB-treffer
+     heeft niet altijd een URL) of van ``WETGEVING_HOSTS``;
+   - webbronnen van een gemengd publicatiedomein (``GEMENGDE_HOSTS``) alleen
+     als het meegeleverde documenttype (SRU ``dc_type``) wet- of regelgeving
+     aanduidt — daar staan ook Kamerstukken, Kamervragen en arresten.
+2. Eigen bronnen: geüploade documenten en alle overige RAG-fragmenten. Een
+   upload telt nooit als wettelijk, ook niet met een ``wetgeving``-label (dat
+   label zet de uploadroute op basis van een gekozen rechtsgebied).
 3. Overige webbronnen (encyclopedisch/algemeen: Wikipedia, Wiktionary,
-   zoekmachines, maar ook jurisprudentie — geen wetgeving).
+   zoekmachines, maar ook jurisprudentie en Kamerstukken — geen wetgeving).
 
 Binnen een groep: per kanaal (document → rag → web) en binnen een kanaal op
 score aflopend. Documenten behouden hun aangeleverde volgorde (hun score is
-alleen een termtreffer). De sortering is stabiel; er valt geen bron weg en er
-verandert geen veld — de relevantiepoort (DEF-620) blijft volledig
-stroomopwaarts.
+alleen een termtreffer). De rangorde bepaalt alleen de **volgorde** van wat
+al geselecteerd is — nooit welke bronnen worden opgenomen; selectie,
+budgetten en de relevantiepoort (DEF-620) blijven volledig stroomopwaarts.
+Weergave (``rangschik_bronnen``) en prompt (``sorteersleutel``) gebruiken
+dezelfde sleutel.
 """
 
 from __future__ import annotations
@@ -29,20 +36,41 @@ from collections.abc import Iterable, Mapping
 from typing import Any, TypeVar
 from urllib.parse import urlsplit
 
-# Officiële publicatieplaatsen van wet- en regelgeving. Bewust smal: alleen
-# hosts waar geconsolideerde of bekendgemaakte regelgeving staat; algemene
-# overheidsdomeinen (repository.overheid.nl, rijksoverheid.nl) en
-# rechtspraak.nl zijn geen wetgeving.
+# Hosts waar uitsluitend geconsolideerde wet- en regelgeving staat.
 WETGEVING_HOSTS: tuple[str, ...] = (
     "wetten.overheid.nl",
     "lokaleregelgeving.overheid.nl",
-    "zoek.officielebekendmakingen.nl",
+)
+# Gemengde publicatieplaatsen: naast regelgeving ook Kamerstukken,
+# Kamervragen, Handelingen en (EUR-Lex) arresten. Host alleen is geen bewijs.
+GEMENGDE_HOSTS: tuple[str, ...] = (
     "officielebekendmakingen.nl",
     "eur-lex.europa.eu",
+)
+# Documenttypen (SRU ``dc_type``, kleine letters) die wet- of regelgeving
+# aanduiden. Bewust smal: een onbekend of ontbrekend type telt als "overig".
+WETGEVING_DOCUMENTTYPEN: frozenset[str] = frozenset(
+    {
+        "wet",
+        "rijkswet",
+        "amvb",
+        "algemene maatregel van bestuur",
+        "ministeriele-regeling",
+        "ministeriele regeling",
+        "ministeriële regeling",
+        "verordening",
+        "richtlijn",
+        "regulation",
+        "directive",
+        "staatsblad",
+    }
 )
 # Webprovider (`source.name`, kleine letters) van het SRU-kanaal op het
 # Basiswettenbestand (sru_service: "Wetgeving.nl", x-connection=BWB).
 WETGEVING_PROVIDERS: tuple[str, ...] = ("wetgeving.nl",)
+# RAG-collectie van de uploadroute (document_upload_renderer en de
+# standaardcollectie van de orchestrator).
+UPLOAD_COLLECTIE = "user_documents"
 
 RANG_WETTELIJK = 0
 RANG_EIGEN = 1
@@ -63,24 +91,50 @@ def _host(url: Any) -> str:
         return ""
 
 
-def is_wetgevingsdomein(url: Any) -> bool:
-    """True als de URL op een officieel wetgevingsdomein (of subdomein) staat."""
+def _op_host(url: Any, hosts: tuple[str, ...]) -> bool:
     host = _host(url)
-    return any(host == h or host.endswith("." + h) for h in WETGEVING_HOSTS)
+    return any(host == h or host.endswith("." + h) for h in hosts)
+
+
+def is_wetgevingsdomein(url: Any) -> bool:
+    """True als de URL op een host met uitsluitend wetgeving (of subdomein) staat."""
+    return _op_host(url, WETGEVING_HOSTS)
+
+
+def is_wetgevingsdocumenttype(documenttype: Any) -> bool:
+    """True als het aangeleverde documenttype wet- of regelgeving aanduidt."""
+    if not isinstance(documenttype, str):
+        return False
+    return documenttype.strip().casefold() in WETGEVING_DOCUMENTTYPEN
+
+
+def _rag_rang(bron: Mapping[str, Any]) -> int:
+    bron_type = str(bron.get("bron_type") or "").casefold()
+    collectie = str(bron.get("collection_name") or "").strip()
+    # Herkomst verplicht: zonder bekende collectie (oudere records) of uit de
+    # uploadcollectie is een wetgeving-label geen bewijs.
+    if bron_type == "wetgeving" and collectie and collectie != UPLOAD_COLLECTIE:
+        return RANG_WETTELIJK
+    return RANG_EIGEN
 
 
 def bronrang(bron: Mapping[str, Any]) -> int:
     """Brontype-prioriteit: 0 wettelijk, 1 eigen bron, 2 overige webbron."""
     provider = str(bron.get("provider") or "").casefold()
     if provider == "rag":
-        bron_type = str(bron.get("bron_type") or "").casefold()
-        return RANG_WETTELIJK if bron_type == "wetgeving" else RANG_EIGEN
+        return _rag_rang(bron)
     if provider == "documents":
         return RANG_EIGEN
     if provider in WETGEVING_PROVIDERS:
         return RANG_WETTELIJK
     url = bron.get("url") or bron.get("link")
-    return RANG_WETTELIJK if is_wetgevingsdomein(url) else RANG_OVERIG_WEB
+    if is_wetgevingsdomein(url):
+        return RANG_WETTELIJK
+    if _op_host(url, GEMENGDE_HOSTS) and is_wetgevingsdocumenttype(
+        bron.get("document_type")
+    ):
+        return RANG_WETTELIJK
+    return RANG_OVERIG_WEB
 
 
 def _score(bron: Mapping[str, Any]) -> float:
@@ -92,7 +146,11 @@ def _score(bron: Mapping[str, Any]) -> float:
     return 0.0 if math.isnan(score) else score
 
 
-def _sorteersleutel(bron: Any) -> tuple[int, int, float]:
+def sorteersleutel(bron: Any) -> tuple[int, int, float]:
+    """De gedeelde DEF-844-sleutel: (brontype, kanaal, -eigen score).
+
+    Kanaal via ``provider``: ``"documents"``, ``"rag"`` of een webprovider.
+    """
     if not isinstance(bron, Mapping):
         # Onleesbaar element: achteraan, in aangeleverde volgorde.
         return (RANG_OVERIG_WEB + 1, _KANAAL_WEB + 1, 0.0)
@@ -105,4 +163,4 @@ def _sorteersleutel(bron: Any) -> tuple[int, int, float]:
 
 def rangschik_bronnen(bronnen: Iterable[B]) -> list[B]:
     """Nieuwe lijst in DEF-844-rangorde; dezelfde objecten, niets gemuteerd."""
-    return sorted(bronnen, key=_sorteersleutel)
+    return sorted(bronnen, key=sorteersleutel)

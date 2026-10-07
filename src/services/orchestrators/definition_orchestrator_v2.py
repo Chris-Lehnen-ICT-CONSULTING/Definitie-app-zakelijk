@@ -666,14 +666,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                                     if isinstance(r.metadata, dict)
                                     else None
                                 ),
+                                # DEF-844: SRU-documenttype; bepaalt of een
+                                # gemengd publicatiedomein als wetgeving telt.
+                                "document_type": (
+                                    safe_dict_get(r.metadata, "dc_type")
+                                    if isinstance(r.metadata, dict)
+                                    else None
+                                ),
                             }
                         )
 
                     # STORY 3.1: Extract legal metadata for juridical sources
                     provenance_sources = build_provenance(prepared, extract_legal=True)
-                    # DEF-844: officiële wetgevingsdomeinen vóór algemene
-                    # webbronnen, vóór de top-K-markering (dus ook in de prompt).
-                    provenance_sources = rangschik_bronnen(provenance_sources)
 
                     # Mark top-K as used_in_prompt (we'll include these first in any context pack)
                     top_k = max(0, int(getattr(self.config, "web_lookup_top_k", 3)))
@@ -877,6 +881,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                                 "created_at",
                                 "filename",
                                 "bron_type",
+                                # DEF-844: herkomst voor de bronrangorde
+                                "collection_name",
                                 "rechtsgebied",
                                 "wet_regeling",
                                 "artikel_lid",
@@ -986,8 +992,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # DEF-844: één bronvolgorde voor weergave en opslag — brontype
             # eerst (wetgeving → eigen bronnen → overig web), daarbinnen de
             # eigen score; scores van verschillende schalen worden niet
-            # vergeleken. Zelfde objecten, dus de kanaalkoppeling van de
-            # kwitantie (op identiteit) blijft intact.
+            # vergeleken. Alleen volgorde: de selectie hierboven (top-K,
+            # RAG-drempel) is al gedaan. De promptservice ordent haar
+            # opgenomen bronnen met dezelfde sleutel. Zelfde objecten, dus de
+            # kanaalkoppeling van de kwitantie (op identiteit) blijft intact.
             provenance_sources = rangschik_bronnen(provenance_sources)
 
             # =====================================

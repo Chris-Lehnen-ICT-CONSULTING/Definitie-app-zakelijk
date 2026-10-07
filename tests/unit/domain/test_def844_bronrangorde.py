@@ -14,9 +14,12 @@ from domain.sources.rangorde import (
     RANG_EIGEN,
     RANG_OVERIG_WEB,
     RANG_WETTELIJK,
+    UPLOAD_COLLECTIE,
     bronrang,
+    is_wetgevingsdocumenttype,
     is_wetgevingsdomein,
     rangschik_bronnen,
+    sorteersleutel,
 )
 
 pytestmark = pytest.mark.unit
@@ -47,7 +50,12 @@ WETTEN_WEB = {
 }
 
 
-def _rag(artikel: str, score: float, bron_type: str | None = "wetgeving") -> dict:
+def _rag(
+    artikel: str,
+    score: float,
+    bron_type: str | None = "wetgeving",
+    collectie: str | None = "Wetboek van Strafvordering",
+) -> dict:
     bron = {
         "provider": "rag",
         "title": "Wetboek van Strafvordering",
@@ -56,6 +64,15 @@ def _rag(artikel: str, score: float, bron_type: str | None = "wetgeving") -> dic
     }
     if bron_type is not None:
         bron["bron_type"] = bron_type
+    if collectie is not None:
+        bron["collection_name"] = collectie
+    return bron
+
+
+def _web(url: str, document_type: str | None = None, score: float = 0.5) -> dict:
+    bron = {"provider": "overheid.nl", "title": url, "url": url, "score": score}
+    if document_type is not None:
+        bron["document_type"] = document_type
     return bron
 
 
@@ -154,6 +171,7 @@ def test_zonder_rag_en_wetgeving_blijft_webvolgorde_ongewijzigd():
         (_rag("27", 0.4, bron_type="WETGEVING"), RANG_WETTELIJK),
         (_rag("x", 0.4, bron_type="pdf"), RANG_EIGEN),
         (_rag("x", 0.4, bron_type=None), RANG_EIGEN),
+        (_rag("27", 0.4, collectie=UPLOAD_COLLECTIE), RANG_EIGEN),
         (_doc("a.txt", 1.0), RANG_EIGEN),
         (WETTEN_WEB, RANG_WETTELIJK),
         (WIKIPEDIA, RANG_OVERIG_WEB),
@@ -173,10 +191,11 @@ def test_bronrang(bron, rang):
     [
         ("https://wetten.overheid.nl/BWBR0001903", True),
         ("https://WETTEN.overheid.nl/x", True),
-        ("https://zoek.officielebekendmakingen.nl/stb-2026-1.html", True),
-        ("https://www.officielebekendmakingen.nl/x", True),
-        ("https://eur-lex.europa.eu/eli/reg/2016/679/oj", True),
         ("https://lokaleregelgeving.overheid.nl/CVDR1", True),
+        # Gemengde domeinen: host alleen is geen bewijs (zie documenttype).
+        ("https://zoek.officielebekendmakingen.nl/stb-2026-1.html", False),
+        ("https://www.officielebekendmakingen.nl/x", False),
+        ("https://eur-lex.europa.eu/eli/reg/2016/679/oj", False),
         ("https://nl.wikipedia.org/wiki/Verdachte", False),
         ("https://repository.overheid.nl/frbr/x", False),
         ("https://wetten.overheid.nl.example.com/x", False),
@@ -188,6 +207,148 @@ def test_bronrang(bron, rang):
 )
 def test_is_wetgevingsdomein(url, verwacht):
     assert is_wetgevingsdomein(url) is verwacht
+
+
+# --- Punt 1 (Codex): uploads tellen nooit als wettelijk ----------------------
+
+
+@pytest.mark.parametrize(
+    "bron",
+    [
+        # Uploadroute zet "wetgeving" zodra een rechtsgebied is gekozen.
+        _rag("27", 0.9, collectie=UPLOAD_COLLECTIE),
+        _rag("27", 0.9, bron_type="WETGEVING", collectie=UPLOAD_COLLECTIE),
+        # Herkomst onbekend (ouder record): geen bewijs, dus geen voorrang.
+        _rag("27", 0.9, collectie=None),
+        _rag("27", 0.9, collectie="  "),
+    ],
+)
+def test_wetgevingslabel_zonder_bibliotheekherkomst_is_eigen_bron(bron):
+    assert bronrang(bron) == RANG_EIGEN
+
+
+def test_upload_met_wetgevingslabel_onder_echte_wetgeving():
+    upload = _rag("upload", 0.9, collectie=UPLOAD_COLLECTIE)
+    bibliotheek = _rag("27", 0.4)
+    invoer = [WIKIPEDIA, upload, WETTEN_WEB, bibliotheek]
+    assert _labels(rangschik_bronnen(invoer)) == [
+        "27",  # bronbibliotheek-wetgeving (RAG)
+        "Wetboek van Strafvordering",  # BWB-webbron
+        "upload",  # upload: eigen bron, ondanks hogere score en label
+        "Wikipedia",
+    ]
+
+
+# --- Punt 2 (Codex): gemengde domeinen alleen met documenttype -----------------
+
+
+@pytest.mark.parametrize(
+    ("bron", "rang"),
+    [
+        # Officiële bekendmakingen: alleen regelgeving telt.
+        (
+            _web(
+                "https://zoek.officielebekendmakingen.nl/stb-2026-1.html", "Staatsblad"
+            ),
+            RANG_WETTELIJK,
+        ),
+        (
+            _web("https://zoek.officielebekendmakingen.nl/stb-2026-2.html", "Wet"),
+            RANG_WETTELIJK,
+        ),
+        (
+            _web(
+                "https://zoek.officielebekendmakingen.nl/kst-36000-1.html", "Kamerstuk"
+            ),
+            RANG_OVERIG_WEB,
+        ),
+        (
+            _web(
+                "https://zoek.officielebekendmakingen.nl/ah-tk-2026-1.html",
+                "Kamervragen (Aanhangsel)",
+            ),
+            RANG_OVERIG_WEB,
+        ),
+        (
+            _web(
+                "https://zoek.officielebekendmakingen.nl/kv-tk-2026-1.html",
+                "Kamervragen zonder antwoord",
+            ),
+            RANG_OVERIG_WEB,
+        ),
+        (
+            _web(
+                "https://zoek.officielebekendmakingen.nl/h-tk-2026-1.html",
+                "Handelingen",
+            ),
+            RANG_OVERIG_WEB,
+        ),
+        (
+            _web("https://zoek.officielebekendmakingen.nl/stb-2026-3.html"),
+            RANG_OVERIG_WEB,
+        ),
+        (
+            _web("https://zoek.officielebekendmakingen.nl/stb-2026-4.html", ""),
+            RANG_OVERIG_WEB,
+        ),
+        # EUR-Lex: verordening/richtlijn wel, arrest niet.
+        (
+            _web("https://eur-lex.europa.eu/eli/reg/2016/679/oj", "Verordening"),
+            RANG_WETTELIJK,
+        ),
+        (
+            _web("https://eur-lex.europa.eu/eli/dir/2016/680/oj", "Directive"),
+            RANG_WETTELIJK,
+        ),
+        (
+            _web(
+                "https://eur-lex.europa.eu/legal-content/NL/TXT/?uri=CELEX:62018CJ0311",
+                "Arrest",
+            ),
+            RANG_OVERIG_WEB,
+        ),
+        (
+            _web(
+                "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:62018CJ0311",
+                "Judgment",
+            ),
+            RANG_OVERIG_WEB,
+        ),
+        (_web("https://eur-lex.europa.eu/eli/reg/2016/679/oj"), RANG_OVERIG_WEB),
+        # Documenttype zonder gemengd domein maakt niets wettelijk.
+        (_web("https://nl.wikipedia.org/wiki/Wet", "Wet"), RANG_OVERIG_WEB),
+        # Host met uitsluitend regelgeving: wettelijk, ook zonder type.
+        (_web("https://wetten.overheid.nl/BWBR0001903"), RANG_WETTELIJK),
+        (
+            _web("https://lokaleregelgeving.overheid.nl/CVDR1", "Kamerstuk"),
+            RANG_WETTELIJK,
+        ),
+    ],
+)
+def test_gemengde_domeinen_alleen_wettelijk_met_documenttype(bron, rang):
+    assert bronrang(bron) == rang
+
+
+@pytest.mark.parametrize(
+    ("documenttype", "verwacht"),
+    [
+        ("Wet", True),
+        (" wet ", True),
+        ("Staatsblad", True),
+        ("Kamerstuk", False),
+        ("Arrest", False),
+        ("", False),
+        (None, False),
+        (12, False),
+    ],
+)
+def test_is_wetgevingsdocumenttype(documenttype, verwacht):
+    assert is_wetgevingsdocumenttype(documenttype) is verwacht
+
+
+def test_rangschik_bronnen_gebruikt_de_gedeelde_sorteersleutel():
+    invoer = [WIKIPEDIA, _doc("a.txt", 0.1), _rag("27", 0.4), WETTEN_WEB]
+    assert rangschik_bronnen(invoer) == sorted(invoer, key=sorteersleutel)
 
 
 def test_muteert_niets_en_levert_dezelfde_objecten():

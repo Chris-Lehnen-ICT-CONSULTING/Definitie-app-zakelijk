@@ -30,6 +30,9 @@ def build_provenance(
             "retrieved_at": r.get("retrieved_at"),
             "is_authoritative": _is_authoritative_source(r.get("provider", "")),
         }
+        # DEF-844: documenttype (SRU dc_type) alleen als het is aangeleverd.
+        if isinstance(r.get("document_type"), str) and r["document_type"].strip():
+            source_dict["document_type"] = r["document_type"].strip()
 
         # Extract legal metadata if requested and source is legal
         if extract_legal and r.get("provider") in ["rechtspraak", "overheid"]:
