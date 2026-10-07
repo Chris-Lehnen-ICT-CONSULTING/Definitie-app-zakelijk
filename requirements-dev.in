@@ -26,6 +26,8 @@ mkdocs-material>=9.7.6
 
 # Code quality
 pre-commit>=4.6.2
+# DEF-426: transitief via pre-commit; ondergrens wegens PYSEC-2026-4011..4014.
+virtualenv>=21.7.13
 pylint>=4.0.8
 
 # Testing utilities
@@ -37,4 +39,6 @@ freezegun>=1.4.0
 # Performance testing
 pytest-benchmark>=5.3.0
 locust>=2.46.4
+# DEF-426: transitief via locust (en flask); ondergrens wegens GHSA-g6x2-hccm-hh4m.
+werkzeug>=3.1.9
 memory-profiler>=0.61.0
