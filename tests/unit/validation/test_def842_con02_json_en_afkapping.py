@@ -11,12 +11,17 @@ echt model):
   steeds afgekapt is, de herkenbare technische fout `truncated_response`;
 * de route vraagt geen ruwe antwoordcache (een gecachet afgekapt antwoord
   mist de stopreden en zou steeds terugkomen);
-* half-geldige JSON wordt nooit gerepareerd en de foutreden bevat geen
-  antwoordinhoud.
+* half-geldige JSON wordt nooit gerepareerd, een deelobject wordt nooit uit
+  een ongeldig omvattend geheel gelicht, de decoder is strikt en de
+  foutreden bevat geen antwoordinhoud;
+* beide pogingen samen blijven binnen het resterende generatiebudget, zodat
+  de UI-grens de generatie niet annuleert.
 """
 
+import asyncio
 import json
 import time
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -28,12 +33,14 @@ from domain.sources.contract import (
 from services.ai.base_client import ChatResponse
 from services.ai_service_v2 import AIServiceV2
 from services.interfaces import AIGenerationResult, AITimeoutError
+from services.service_factory import ServiceAdapter
 from services.validation.source_assessment_service import (
     SourceAssessmentService,
     lees_modeluitvoer,
     parse_modeluitvoer,
 )
 from utils.async_api import RateLimitConfig
+from utils.generatie_deadline import generatie_deadline, huidige_generatie_deadline
 
 pytestmark = [pytest.mark.unit, pytest.mark.asyncio]
 
@@ -115,8 +122,9 @@ AFGEKAPT = GELDIG[: len(GELDIG) * 2 // 3]
 
 
 class NepProvider:
-    """AI-grens die per aanroep (tekst, stop_reason) of een exception teruggeeft
-    en de kwargs vastlegt."""
+    """AI-grens die per aanroep (tekst, stop_reason[, vertraging]) of een
+    exception teruggeeft en de kwargs vastlegt. De vertraging negeert de
+    meegegeven timeout bewust (een AI-laag die haar grens niet haalt)."""
 
     def __init__(self, *antwoorden):
         self.antwoorden = list(antwoorden)
@@ -128,7 +136,9 @@ class NepProvider:
         uitkomst = self.antwoorden.pop(0)
         if isinstance(uitkomst, Exception):
             raise uitkomst
-        tekst, stop_reason = uitkomst
+        tekst, stop_reason, *vertraging = uitkomst
+        if vertraging:
+            await asyncio.sleep(vertraging[0])
         return AIGenerationResult(
             text=tekst,
             model="nep-model-1",
@@ -170,7 +180,7 @@ async def _assess(service):
         GELDIG + "\nToelichting: zie {bron} en artikel 27.",
         "```json\n" + GELDIG + "\n```\nNoot: de passage {art. 27} is leidend.",
         '{"los": 1}\n' + GELDIG,
-        "[" + GELDIG + "]",
+        "Lijst [1, 2] en {noot}; daarna:\n" + GELDIG,
     ],
     ids=[
         "kaal",
@@ -182,7 +192,7 @@ async def _assess(service):
         "accolade-in-tekst-erna",
         "fences-plus-toelichting-met-accolade",
         "los-object-ervoor",
-        "enkel-object-in-lijst",  # zoals de oude parser: eenduidig, één object
+        "gesloten-haakjes-in-tekst-ervoor",
     ],
 )
 async def test_geldige_json_rond_tekst_of_fences_wordt_gelezen(antwoord):
@@ -191,15 +201,86 @@ async def test_geldige_json_rond_tekst_of_fences_wordt_gelezen(antwoord):
     assert geparsed == _uitvoer()
 
 
-async def test_letterlijk_regeleinde_in_tekstwaarde_wordt_geaccepteerd():
+@pytest.mark.parametrize(
+    "waarde",
+    ["Wettelijke\ndefinitiebepaling.", "Wettelijke\x00definitiebepaling.", "a\tb"],
+    ids=["regeleinde", "nul", "tab"],
+)
+async def test_ongeescapet_controleteken_in_tekstwaarde_wordt_afgewezen(waarde):
+    tekst = GELDIG.replace("Wettelijke definitiebepaling.", waarde)
+    assert waarde in tekst  # letterlijk, niet geëscapet
+    geparsed, reden = lees_modeluitvoer(tekst)
+    assert geparsed is None
+    assert "onvolledig of ongeldig JSON-object" in reden
+    assert "control character" in reden
+
+
+async def test_geescapet_regeleinde_in_tekstwaarde_wordt_geaccepteerd():
     tekst = GELDIG.replace(
-        "Wettelijke definitiebepaling.", "Wettelijke\ndefinitiebepaling."
+        "Wettelijke definitiebepaling.", "Wettelijke\\ndefinitiebepaling."
     )
-    with pytest.raises(json.JSONDecodeError):
-        json.loads(tekst)  # strikte JSON weigert een letterlijk regeleinde
+    assert "Wettelijke\\ndefinitiebepaling." in tekst  # JSON-escape `\n`
     geparsed = parse_modeluitvoer(tekst)
     assert geparsed is not None
     assert geparsed[ONDERDEEL_GEZAG]["reason"] == "Wettelijke\ndefinitiebepaling."
+
+
+async def test_ongeescapet_controleteken_via_service_is_malformed_response():
+    tekst = GELDIG.replace("Wettelijke definitiebepaling.", "Wet\x00telijk")
+    service, _ = _service((tekst, "end_turn"))
+    d = await _assess(service)
+    assert d["status"] == "error"
+    assert d["error"]["type"] == "malformed_response"
+    assert d["parts"] == {}
+
+
+# Een geldig beoordelingsobject G binnen een ongeldig, onvolledig of
+# niet-object omvattend geheel: G wordt nooit als antwoord uitgelicht.
+OMVATTEND_ONGELDIG = {
+    "buiten-afgekapt": '{"result": ' + GELDIG,
+    "buiten-afgekapt-in-fence": '```json\n{"result": ' + GELDIG + "\n```",
+    "buiten-ongequote-sleutel": "{result: " + GELDIG + "}",
+    "buiten-ongequote-sleutel-afgekapt": "{result: " + GELDIG,
+    "buiten-enkele-quotes": "{'result': " + GELDIG + "}",
+    "buiten-proza-na-accolade": "{ Hier het object:\n" + GELDIG + "\n}",
+    "lijst": "[" + GELDIG + "]",
+    "lijst-afgekapt": "[" + GELDIG,
+    "lijst-met-meer": "[" + GELDIG + ", 1]",
+}
+
+
+@pytest.mark.parametrize(
+    "antwoord", OMVATTEND_ONGELDIG.values(), ids=OMVATTEND_ONGELDIG.keys()
+)
+async def test_geldig_deelobject_uit_ongeldig_omvattend_geheel_wordt_afgewezen(
+    antwoord,
+):
+    geparsed, reden = lees_modeluitvoer(antwoord)
+    assert geparsed is None
+    assert (
+        "binnen een omvattend object of lijst" in reden
+        or "onvolledig of ongeldig JSON-object vanaf teken" in reden
+    )
+    service, _ = _service((antwoord, "end_turn"))
+    d = await _assess(service)
+    assert d["status"] == "error"
+    assert d["error"]["type"] == "malformed_response"
+    assert d["parts"] == {}
+
+
+async def test_geldig_omvattend_object_levert_het_buitenobject_nooit_het_deelobject():
+    """`{"result": G}` is geldige JSON: het antwoord is het buitenobject (zonder
+    beoordelingsonderdelen) — nooit G — en dus een structuurfout."""
+    antwoord = '{"result": ' + GELDIG + "}"
+    geparsed, reden = lees_modeluitvoer(antwoord)
+    assert reden is None
+    assert geparsed == {"result": _uitvoer()}
+    service, _ = _service((antwoord, "end_turn"))
+    d = await _assess(service)
+    assert d["status"] == "error"
+    assert d["error"]["type"] == "malformed_response"
+    assert "onderdelen ontbreken" in d["error"]["message"]
+    assert d["parts"] == {}
 
 
 @pytest.mark.parametrize(
@@ -281,9 +362,12 @@ async def test_afgekapt_antwoord_krijgt_een_herhaling_met_hoger_budget(stopreden
     d = await _assess(service)
     assert d["status"] == "assessed"
     assert [c["max_tokens"] for c in ai.calls] == [5000, 10000]
-    # De herhaling krijgt een naar rato langere deadline, ook voor de SDK.
-    assert [c["timeout_seconds"] for c in ai.calls] == [45, 90]
-    assert [c["request_timeout"] for c in ai.calls] == [45, 90]
+    # Beide pogingen samen binnen het totaalbudget (2 × 45 s): de herhaling
+    # krijgt de rest daarvan, ook als SDK-requesttimeout.
+    eerste, herhaling = ai.calls
+    assert eerste["timeout_seconds"] == eerste["request_timeout"] == 45
+    assert herhaling["timeout_seconds"] == herhaling["request_timeout"]
+    assert 89 < herhaling["timeout_seconds"] <= 90
     assert all(c["use_cache"] is False for c in ai.calls)
     assert d["attribution"]["attempts"] == 2
     assert d["attribution"]["max_tokens"] == 10000
@@ -355,6 +439,128 @@ async def test_fout_bij_eerste_poging_noemt_geen_herhaling():
     assert d["error"]["type"] == "timeout"
     assert "herhaling" not in d["error"]["message"]
     assert d["attribution"]["attempts"] == 1
+
+
+# --- tijdsbudget: beide pogingen binnen het resterende generatiebudget -----------
+#
+# Geschaald: een generatiebudget van 2 s staat voor de 120 s van DEF-840.
+
+
+async def test_trage_herhaling_na_verbruikte_generatietijd_annuleert_generatie_niet():
+    """Generatie en voorbeelden hebben al het grootste deel van het budget
+    verbruikt; de herhaling hangt (negeert haar timeout). CON-02 eindigt met
+    een technische fout op de eigen deadline (budget min reserve) en de
+    generatie loopt binnen de UI-grens door."""
+    budget, verbruikt, reserve = 2.0, 0.8, 0.6
+    service, ai = _service(
+        (AFGEKAPT, "max_tokens"),
+        (GELDIG, "end_turn", 30.0),  # trage herhaling
+        generatie_reserve_seconds=reserve,
+        min_poging_seconds=0.05,
+    )
+
+    async def generatie():
+        with generatie_deadline(budget) as deadline:
+            await asyncio.sleep(verbruikt)  # generatie + voorbeelden
+            d = await _assess(service)
+            return d, deadline, time.monotonic()
+
+    # De UI-grens: een overschrijding zou hier TimeoutError geven.
+    d, deadline, klaar = await asyncio.wait_for(generatie(), timeout=budget)
+    assert d["status"] == "error"
+    assert d["error"]["type"] == "timeout"
+    assert "tijdens de herhaling" in d["error"]["message"]
+    assert d["attribution"]["attempts"] == 2
+    assert len(ai.calls) == 2
+    # CON-02 stopt op haar deadline en laat de reserve over voor vervolgstappen.
+    assert klaar <= deadline - reserve + 0.25
+    assert ai.calls[1]["timeout_seconds"] <= budget - verbruikt - reserve
+    assert ai.calls[1]["request_timeout"] == ai.calls[1]["timeout_seconds"]
+
+
+async def test_geen_herhaling_als_de_resterende_tijd_te_kort_is():
+    """De afgekapte eerste poging duurde langer dan er nog over is: de
+    herhaling start niet en het antwoord is direct `truncated_response`."""
+    service, ai = _service(
+        (AFGEKAPT, "max_tokens", 0.5),
+        (GELDIG, "end_turn"),
+        generatie_reserve_seconds=0.2,
+        min_poging_seconds=0.05,
+    )
+    with generatie_deadline(1.0):
+        d = await _assess(service)
+    assert d["status"] == "error"
+    assert d["error"]["type"] == "truncated_response"
+    assert "geen herhaling: onvoldoende resterende tijd" in d["error"]["message"]
+    assert "max_tokens=5000" in d["error"]["message"]
+    assert d["attribution"]["attempts"] == 1
+    assert len(ai.calls) == 1
+
+
+async def test_geen_aanroep_als_het_generatiebudget_al_op_is():
+    service, ai = _service((GELDIG, "end_turn"))  # reserve 30 s > budget
+    with generatie_deadline(20):
+        d = await _assess(service)
+    assert d["status"] == "error"
+    assert d["error"]["type"] == "timeout"
+    assert "onvoldoende resterende tijd" in d["error"]["message"]
+    assert ai.calls == []
+
+
+async def test_eerste_poging_begrensd_op_resterend_generatiebudget():
+    service, ai = _service((GELDIG, "end_turn"))
+    with generatie_deadline(60):  # 60 - reserve 30 = 30 s < 45 s
+        d = await _assess(service)
+    assert d["status"] == "assessed"
+    assert 29 < ai.calls[0]["timeout_seconds"] <= 30
+
+
+async def test_totaalbudget_begrenst_beide_pogingen_ook_zonder_generatie():
+    """Buiten een generatie (hervalidatie) geldt het eigen totaalbudget."""
+    service, ai = _service(
+        (AFGEKAPT, "max_tokens", 0.3),
+        (GELDIG, "end_turn", 30.0),
+        timeout_seconds=0.5,
+        totaal_timeout_seconds=0.8,
+        min_poging_seconds=0.05,
+    )
+    begin = time.monotonic()
+    d = await _assess(service)
+    assert time.monotonic() - begin < 0.8 + 0.25
+    assert d["error"]["type"] == "timeout"
+    assert len(ai.calls) == 2
+    assert ai.calls[1]["timeout_seconds"] <= 0.5
+
+
+async def test_generatiedeadline_nest_nooit_ruimer_en_wordt_opgeruimd():
+    assert huidige_generatie_deadline() is None
+    with generatie_deadline(10) as buiten:
+        with generatie_deadline(100) as binnen:
+            assert binnen == buiten
+        with generatie_deadline(1) as strenger:
+            assert strenger < buiten
+        assert huidige_generatie_deadline() == buiten
+    assert huidige_generatie_deadline() is None
+
+
+async def test_serviceadapter_zet_generatiedeadline_uit_dezelfde_bron_als_de_ui():
+    from config.rate_limit_config import get_endpoint_timeout
+
+    gezien = []
+
+    async def create_definition(request, context=None):
+        gezien.append(huidige_generatie_deadline())
+        return "response"
+
+    container = MagicMock()
+    container.orchestrator.return_value.create_definition = create_definition
+    adapter = ServiceAdapter(container)
+    begin = time.monotonic()
+    assert await adapter.generate_definition("verdachte", {}) == "response"
+    budget = get_endpoint_timeout("definition_generation")
+    assert gezien[0] is not None
+    assert begin + budget - 1 < gezien[0] <= time.monotonic() + budget
+    assert huidige_generatie_deadline() is None
 
 
 # --- AI-laag: request_timeout-opt-in (echte AIServiceV2 + AsyncGPTClient) --------

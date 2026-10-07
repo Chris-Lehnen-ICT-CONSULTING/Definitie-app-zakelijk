@@ -14,7 +14,9 @@ modelnaam). De service:
    afgewezen en onder `rejected` zichtbaar gemaakt — nooit stil gerepareerd.
    Een op het tokenbudget afgekapt antwoord (`stop_reason` max_tokens/length)
    krijgt één herhaling met een hoger budget en is daarna, als het nog steeds
-   afgekapt is, de technische fout `truncated_response` (DEF-842);
+   afgekapt is, de technische fout `truncated_response` (DEF-842). Beide
+   pogingen samen vallen onder één deadline binnen het resterende
+   generatiebudget; past de herhaling daar niet meer in, dan volgt zij niet;
 4. levert een store-ready `SourceAssessment` (contract §5) met attributie
    (provider/model/promptversie) en technische fouten als eigen status.
 
@@ -34,8 +36,8 @@ import asyncio
 import hashlib
 import json
 import logging
-import math
 import re
+import time
 from collections import OrderedDict
 from collections.abc import Mapping
 from copy import deepcopy
@@ -63,6 +65,7 @@ from domain.sources.normalisatie import (
     kwitantiefout,
 )
 from services.interfaces import AIRateLimitError, AIServiceError, AITimeoutError
+from utils.generatie_deadline import huidige_generatie_deadline
 
 logger = logging.getLogger(__name__)
 
@@ -214,22 +217,37 @@ def lees_modeluitvoer(text: Any) -> tuple[dict[str, Any] | None, str | None]:
     """(JSON-object, None) uit een modelantwoord, of (None, reden) (DEF-842).
 
     Tekst of codefences rond het object zijn toegestaan: elk objectbegin
-    (`{` + sleutel) wordt als JSON gedecodeerd, accolades in vrije tekst
-    tellen niet mee. Fail-closed, geen reparatie: een objectbegin dat niet
-    tot een volledig object decodeert (afgekapt, half-geldig) maakt het hele
-    antwoord ongeldig — er wordt dan niet naar deelobjecten gezocht. Bij
-    meerdere objecten telt alleen het enige object met beoordelingsonderdelen;
-    is dat er niet precies één, dan is het antwoord niet eenduidig. Letterlijke
-    regeleinden binnen een tekstwaarde (strict=False) worden geaccepteerd: dat
-    verandert geen inhoud. De reden noemt nooit antwoordinhoud, alleen
-    posities en de decodeerfout.
+    (`{` + sleutel) wordt als strikte JSON gedecodeerd, een losse, gesloten
+    accolade in vrije tekst (`{zie bron}`) telt niet mee. Fail-closed, geen
+    reparatie:
+
+    * een objectbegin dat niet tot een volledig object decodeert (afgekapt,
+      half-geldig) maakt het hele antwoord ongeldig;
+    * alleen objecten op het hoogste niveau tellen: een object dat binnen een
+      nog open `{`/`[` begint (een ongeldig, onvolledig of niet-object
+      omvattend geheel, zoals `{result: {...}}` of `[{...}]`) maakt het
+      antwoord ongeldig — er wordt nooit een deelobject uit gelicht;
+    * strikte JSON: een ongeëscapet controleteken (regeleinde, NUL) in een
+      tekstwaarde is ongeldig; een correct geëscapete `\\n` is gewone JSON.
+
+    Bij meerdere objecten telt alleen het enige object met
+    beoordelingsonderdelen; is dat er niet precies één, dan is het antwoord
+    niet eenduidig. De reden noemt nooit antwoordinhoud, alleen posities en
+    de decodeerfout.
     """
     if not isinstance(text, str) or not text.strip():
         return None, "leeg antwoord"
-    decoder = json.JSONDecoder(strict=False)
+    decoder = json.JSONDecoder()
     objecten: list[dict[str, Any]] = []
     positie = 0
+    diepte = 0
     while (begin := _JSON_BEGIN.search(text, positie)) is not None:
+        diepte = _open_haakjes(text[positie : begin.start()], diepte)
+        if diepte > 0:
+            return None, (
+                f"JSON-object vanaf teken {begin.start()} van {len(text)} staat "
+                "binnen een omvattend object of lijst dat geen geldig antwoord is"
+            )
         try:
             waarde, positie = decoder.raw_decode(text, begin.start())
         except json.JSONDecodeError as exc:
@@ -246,6 +264,21 @@ def lees_modeluitvoer(text: Any) -> tuple[dict[str, Any] | None, str | None]:
     if len(met_onderdelen) == 1:
         return met_onderdelen[0], None
     return None, f"{len(objecten)} JSON-objecten in het antwoord; niet eenduidig"
+
+
+def _open_haakjes(tekst: str, diepte: int) -> int:
+    """Aantal nog open `{`/`[` na `tekst` (vrije tekst tussen JSON-objecten).
+
+    Een sluitend haakje zonder opener telt niet onder nul. Telt bewust zonder
+    stringherkenning: vrije tekst is geen JSON, en een twijfelgeval maakt het
+    antwoord ongeldig in plaats van een deelobject te accepteren.
+    """
+    for teken in tekst:
+        if teken in "{[":
+            diepte += 1
+        elif teken in "}]":
+            diepte = max(0, diepte - 1)
+    return diepte
 
 
 def parse_modeluitvoer(text: Any) -> dict[str, Any] | None:
@@ -325,7 +358,7 @@ class SourceAssessmentService:
         ai_service: Any,
         *,
         model_router: Any | None = None,
-        timeout_seconds: int = 45,
+        timeout_seconds: float = 45,
         # DEF-842: 1800 is krap voor drie onderdelen met per bron een oordeel
         # en letterlijke citaten (vermoedelijke oorzaak van de mislukte
         # beoordelingen bij meerdere bronnen). Gelijk aan het INT-03-budget;
@@ -333,6 +366,14 @@ class SourceAssessmentService:
         # `max_tokens_herhaling` (standaard het dubbele).
         max_tokens: int = 5000,
         max_tokens_herhaling: int | None = None,
+        # DEF-842: beide pogingen samen vallen onder één deadline:
+        # `totaal_timeout_seconds` (standaard 2 × timeout_seconds), binnen een
+        # generatie ook begrensd op het resterende generatiebudget min
+        # `generatie_reserve_seconds` (ruimte voor ESS-03/INT-03, opslag).
+        # Een poging start alleen met minstens `min_poging_seconds` te gaan.
+        totaal_timeout_seconds: float | None = None,
+        generatie_reserve_seconds: float = 30,
+        min_poging_seconds: float = 10,
         max_passage_chars: int = 4000,
         cache_size: int = 64,
     ) -> None:
@@ -341,7 +382,17 @@ class SourceAssessmentService:
             raise ValueError(msg)
         self._ai_service = ai_service
         self._model_router = model_router
-        self._timeout_seconds = int(timeout_seconds)
+        self._timeout_seconds = float(timeout_seconds)
+        self._totaal_timeout_seconds = max(
+            self._timeout_seconds,
+            float(
+                totaal_timeout_seconds
+                if totaal_timeout_seconds is not None
+                else 2 * self._timeout_seconds
+            ),
+        )
+        self._generatie_reserve_seconds = max(0.0, float(generatie_reserve_seconds))
+        self._min_poging_seconds = max(0.0, float(min_poging_seconds))
         self._max_tokens = max(1, int(max_tokens))
         self._max_tokens_herhaling = max(
             self._max_tokens,
@@ -591,7 +642,13 @@ class SourceAssessmentService:
                 (
                     f"modelantwoord is afgekapt op het tokenbudget "
                     f"(stop_reason={stop_reason} bij max_tokens={budget}, na "
-                    f"{pogingen} poging(en)); het antwoord is onvolledig en er is "
+                    f"{pogingen} poging(en)"
+                    + (
+                        "; geen herhaling: onvoldoende resterende tijd"
+                        if pogingen == 1
+                        else ""
+                    )
+                    + "); het antwoord is onvolledig en er is "
                     "geen inhoudelijk oordeel gegeven"
                 ),
                 bronnen=bronnen,
@@ -675,59 +732,119 @@ class SourceAssessmentService:
         dienst cachet zelf alleen gevalideerde beoordelingen, en een gecachet
         ruw antwoord mist de `stop_reason` — een afgekapt antwoord zou dan een
         uur lang als `malformed_response` terugkomen (DEF-842). Meldt de
-        provider afkapping op het tokenbudget, dan volgt precies één herhaling
-        met het hogere budget en een naar rato langere deadline.
+        provider afkapping op het tokenbudget, dan volgt hooguit één herhaling
+        met het hogere budget.
+
+        Beide pogingen samen vallen onder één deadline (`_deadline`), zodat de
+        herhaling het generatiebudget niet overschrijdt en de UI-grens nooit
+        de hele generatie annuleert. Is de resterende tijd te kort voor een
+        poging — minder dan `min_poging_seconds`, of voor de herhaling minder
+        dan de duur van de afgekapte eerste poging — dan start die poging
+        niet: zonder eerste poging is dat een timeout, zonder herhaling blijft
+        het afgekapte antwoord staan (→ `truncated_response`).
         `voortgang` houdt pogingen en budget bij, ook als een aanroep faalt.
         """
+        deadline = self._deadline()
+        rest = deadline - time.monotonic()
+        if rest < max(self._min_poging_seconds, 0.001):
+            msg = (
+                f"onvoldoende resterende tijd voor de bronbeoordeling "
+                f"({max(rest, 0.0):.1f} s binnen het tijdsbudget)"
+            )
+            raise TimeoutError(msg)
+        begin = time.monotonic()
         resultaat = await self._roep_model_aan(
-            prompt, system_prompt, self._max_tokens, self._timeout_seconds, voortgang
+            prompt,
+            system_prompt,
+            self._max_tokens,
+            min(self._timeout_seconds, rest),
+            voortgang,
         )
         stop_reason = _stop_reason(resultaat)
         if stop_reason not in _AFGEKAPT:
             return resultaat, self._max_tokens, 1
-        deadline = math.ceil(
-            self._timeout_seconds * self._max_tokens_herhaling / self._max_tokens
+        eerste_duur = time.monotonic() - begin
+        rest = deadline - time.monotonic()
+        extra = {
+            "component": "source_assessment_service",
+            "correlation_id": correlation_id,
+        }
+        # Een afgekapt antwoord is langer dan het eerste budget: een herhaling
+        # met minder tijd dan de eerste poging kost kan niet slagen.
+        if rest < max(self._min_poging_seconds, eerste_duur):
+            logger.warning(
+                "CON-02: modelantwoord afgekapt (stop_reason=%s bij max_tokens=%s); "
+                "geen herhaling: %.1f s resterend, eerste poging duurde %.1f s",
+                stop_reason,
+                self._max_tokens,
+                max(rest, 0.0),
+                eerste_duur,
+                extra=extra,
+            )
+            return resultaat, self._max_tokens, 1
+        tijd = min(
+            rest, self._timeout_seconds * self._max_tokens_herhaling / self._max_tokens
         )
         logger.warning(
             "CON-02: modelantwoord afgekapt (stop_reason=%s bij max_tokens=%s); "
-            "één herhaling met max_tokens=%s en deadline %s s",
+            "één herhaling met max_tokens=%s en %.1f s",
             stop_reason,
             self._max_tokens,
             self._max_tokens_herhaling,
-            deadline,
-            extra={
-                "component": "source_assessment_service",
-                "correlation_id": correlation_id,
-            },
+            tijd,
+            extra=extra,
         )
         herhaald = await self._roep_model_aan(
-            prompt, system_prompt, self._max_tokens_herhaling, deadline, voortgang
+            prompt, system_prompt, self._max_tokens_herhaling, tijd, voortgang
         )
         return herhaald, self._max_tokens_herhaling, 2
+
+    def _deadline(self) -> float:
+        """De ene deadline (`time.monotonic()`) voor beide pogingen samen.
+
+        Het eigen totaalbudget, binnen een generatie ook begrensd op de
+        generatiedeadline min de reserve voor de stappen daarna (DEF-842).
+        """
+        deadline = time.monotonic() + self._totaal_timeout_seconds
+        generatie = huidige_generatie_deadline()
+        if generatie is not None:
+            deadline = min(deadline, generatie - self._generatie_reserve_seconds)
+        return deadline
 
     async def _roep_model_aan(
         self,
         prompt: str,
         system_prompt: str,
         max_tokens: int,
-        deadline: int,
+        tijd: float,
         voortgang: dict[str, int],
     ) -> Any:
-        """Eén modelaanroep. De requesttimeout van de providerclient volgt de
-        deadline, zodat de SDK-default (30 s) een lang antwoord niet eerder
-        afbreekt dan bedoeld (DEF-842)."""
+        """Eén modelaanroep van hooguit `tijd` seconden.
+
+        De requesttimeout van de providerclient volgt die tijd, zodat de
+        SDK-default (30 s) een lang antwoord niet eerder afbreekt dan bedoeld;
+        `asyncio.timeout` bewaakt de grens ook als de AI-laag haar zelf niet
+        haalt (wachttijd rate limiter, nabewerking) (DEF-842)."""
         voortgang["attempts"] = voortgang.get("attempts", 0) + 1
         voortgang["max_tokens"] = max_tokens
-        return await self._ai_service.generate_definition(
-            prompt=prompt,
-            system_prompt=system_prompt,
-            task_type=self.TASK_TYPE,
-            temperature=0.0,
-            max_tokens=max_tokens,
-            timeout_seconds=deadline,
-            request_timeout=deadline,
-            use_cache=False,
-        )
+        try:
+            async with asyncio.timeout(tijd):
+                return await self._ai_service.generate_definition(
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    task_type=self.TASK_TYPE,
+                    temperature=0.0,
+                    max_tokens=max_tokens,
+                    timeout_seconds=tijd,
+                    request_timeout=tijd,
+                    use_cache=False,
+                )
+        except TimeoutError as exc:
+            if str(exc).strip():
+                raise
+            # De grens van asyncio.timeout zelf: een TimeoutError zonder tekst.
+            msg = f"geen antwoord binnen {tijd:.1f} s"
+            raise TimeoutError(msg) from None
 
     def _misvormd(
         self,
