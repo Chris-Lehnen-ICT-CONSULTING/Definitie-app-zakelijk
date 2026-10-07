@@ -116,20 +116,18 @@ def _invoer(**over):
 
 
 def _grond(**over):
-    grond = {"field": "kern", "ref": None, "quote": None, "start": None, "end": None}
+    grond = {"field": "kern", "ref": None, "quote": None}
     grond.update(over)
     return grond
 
 
-def _fail_uitvoer(kern: str = KERN, quote: str = PASSAGE, **over):
-    start = kern.index(quote)
+def _fail_uitvoer(quote: str = PASSAGE, **over):
+    """Modeluitvoer volgens contract /2: geen posities (die leidt WP1 af)."""
     uitvoer = {
         "verdict": "fail",
         "passages": [
             {
                 "quote": quote,
-                "start": start,
-                "end": start + len(quote),
                 "function": "actor_prescription",
                 "ground": _grond(),
             }
@@ -707,9 +705,6 @@ async def test_markdown_codeblok_rond_een_object_wordt_aanvaard():
 async def test_c117_fictief_citaat_is_invalid_citation():
     uitvoer = _fail_uitvoer()
     uitvoer["passages"][0]["quote"] = "de behandelaar moet weigeren"
-    uitvoer["passages"][0]["end"] = uitvoer["passages"][0]["start"] + len(
-        "de behandelaar moet weigeren"
-    )
     ai = FakeAI(uitvoer)
     resultaat = await _dienst(ai).assess(_invoer())
     assert resultaat.status == "error"
@@ -718,12 +713,11 @@ async def test_c117_fictief_citaat_is_invalid_citation():
     assert resultaat.document.oordeel is None
 
 
-async def test_citaat_op_verkeerde_positie_is_invalid_citation():
-    uitvoer = _fail_uitvoer()
-    uitvoer["passages"][0]["start"] += 1
-    uitvoer["passages"][0]["end"] += 1
+async def test_citaat_met_afwijkende_witruimte_is_invalid_citation():
+    uitvoer = _fail_uitvoer(quote=PASSAGE.replace(" ", "  ", 1))
     resultaat = await _dienst(FakeAI(uitvoer)).assess(_invoer())
     assert resultaat.document.foutcategorie == "invalid_citation"
+    assert resultaat.document.foutdetail == "niet_gevonden"
 
 
 async def test_scoreveld_in_de_uitvoer_is_invalid_output():
@@ -762,7 +756,10 @@ async def test_geldig_fail_oordeel_met_volledige_binding_en_eerlijke_metadata():
     doc = resultaat.document
     assert resultaat.status == "fail"
     assert resultaat.melding.startswith(f"INT-02 — Voldoet niet. '{PASSAGE}'")
-    assert doc.oordeel == _fail_uitvoer()
+    verwacht = _fail_uitvoer()  # plus de door WP1 afgeleide posities
+    verwacht["passages"][0].update({"start": 13, "end": 69})
+    verwacht["passages"][0]["ground"].update({"start": None, "end": None})
+    assert doc.oordeel == verwacht
     assert doc.invoer == invoer
     assert resultaat.reden is None
     assert resultaat.gecachet is False
@@ -806,16 +803,13 @@ async def test_onvoldoende_informatie_wordt_review_required_met_een_vraag():
 async def test_offsets_zijn_python_unicode_codepoints():
     kern = "Ding 𝔸 met 😀 dat de behandelaar moet afwijzen."
     quote = "de behandelaar moet afwijzen"
-    goed = _fail_uitvoer(kern=kern, quote=quote)
-    resultaat = await _dienst(FakeAI(goed)).assess(_invoer(kern=kern))
+    resultaat = await _dienst(FakeAI(_fail_uitvoer(quote=quote))).assess(
+        _invoer(kern=kern)
+    )
     assert resultaat.status == "fail"
-    utf16 = _fail_uitvoer(kern=kern, quote=quote)
-    utf16["passages"][0][
-        "start"
-    ] += 2  # twee astrale tekens = twee extra UTF-16-eenheden
-    utf16["passages"][0]["end"] += 2
-    fout = await _dienst(FakeAI(utf16)).assess(_invoer(kern=kern))
-    assert fout.document.foutcategorie == "invalid_citation"
+    passage = resultaat.document.oordeel["passages"][0]
+    # Twee astrale tekens: in UTF-16-eenheden zou start 19 zijn, niet 17.
+    assert (passage["start"], passage["end"]) == (17, 45)
 
 
 # --- onveranderlijk resultaat ----------------------------------------------------
@@ -1130,9 +1124,8 @@ async def test_oneindigheid_in_het_antwoord_is_malformed(constante):
 
 
 async def test_getal_boven_de_cijferlimiet_is_malformed_en_geen_uitzondering():
-    uitvoer = _fail_uitvoer()
-    tekst = json.dumps(uitvoer).replace(
-        f'"start": {uitvoer["passages"][0]["start"]}', '"start": ' + "9" * 5000, 1
+    tekst = json.dumps(_fail_uitvoer()).replace(
+        '"question": null', '"question": ' + "9" * 5000, 1
     )
     budget = _budget(max_antwoordtekens=100000)
     resultaat = await _dienst(FakeAI(tekst), budget=budget).assess(_invoer())
@@ -1464,3 +1457,67 @@ def test_f2_snapshot_is_een_onveranderlijke_losse_kopie():
     tweede = _snapshot(dienst)
     assert tweede != _snapshot(_dienst())
     assert eerste.routeringshash == _snapshot(_dienst()).routeringshash
+
+
+# --- besluit 9: citaatposities door de dienst (contract /2, prompt /3) -----------
+
+
+def _uitvoer_zonder_posities(kern_citaat: str = PASSAGE, grondcitaat=None) -> dict:
+    """Modeluitvoer volgens contract /2: alleen citaat en veld, geen posities."""
+    return {
+        "verdict": "fail",
+        "passages": [
+            {
+                "quote": kern_citaat,
+                "function": "actor_prescription",
+                "ground": {"field": "kern", "ref": None, "quote": grondcitaat},
+            }
+        ],
+        "reason": "De passage schrijft de behandelaar een handeling voor.",
+        "question": None,
+        "uncertainty": "none",
+        "scope_reason": None,
+        "coverage": "complete",
+    }
+
+
+async def test_dienst_leidt_posities_af_uit_een_uniek_citaat():
+    uitvoer = _uitvoer_zonder_posities(grondcitaat="moet afwijzen")
+    resultaat = await _dienst(FakeAI(uitvoer)).assess(_invoer())
+    assert (resultaat.status, resultaat.reden) == ("fail", None)
+    passage = resultaat.document.oordeel["passages"][0]
+    assert (passage["start"], passage["end"]) == (13, 69)
+    assert (passage["ground"]["start"], passage["ground"]["end"]) == (28, 41)
+    actueel = toets_actualiteit(
+        resultaat.document, _invoer(), resultaat.document.binding.configuratie()
+    )
+    assert actueel.status == "fail"
+
+
+@pytest.mark.parametrize(
+    ("citaat", "detail"),
+    [
+        ("de behandelaar moet weigeren", "niet_gevonden"),
+        ("e", "niet_uniek"),
+        ("", "leeg"),
+    ],
+    ids=["niet-gevonden", "niet-uniek", "leeg"],
+)
+async def test_dienst_meldt_citaatfout_met_onderscheidbaar_detail(citaat, detail):
+    resultaat = await _dienst(FakeAI(_uitvoer_zonder_posities(citaat))).assess(
+        _invoer()
+    )
+    assert resultaat.status == "error"
+    assert resultaat.reden == "invalid_citation"
+    assert resultaat.document.foutcategorie == "invalid_citation"
+    assert resultaat.document.foutdetail == detail
+    assert resultaat.document.oordeel is None
+
+
+async def test_dienst_weigert_modelposities_als_onbekend_veld():
+    uitvoer = _uitvoer_zonder_posities()
+    uitvoer["passages"][0].update({"start": 13, "end": 69})  # zelfs juist
+    resultaat = await _dienst(FakeAI(uitvoer)).assess(_invoer())
+    assert resultaat.status == "error"
+    assert resultaat.reden == "invalid_output"
+    assert resultaat.document.foutcategorie == "invalid_output"

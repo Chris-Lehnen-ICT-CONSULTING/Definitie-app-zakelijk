@@ -195,19 +195,12 @@ VOLTOOID = Uitvoering(actor="ai", status="completed", tijdstip="2026-09-27T00:00
 
 
 def _passage(kern: str, citaat: str, functie: str) -> dict:
-    start = kern.index(citaat)
+    # Contract /2: geen posities in de modeluitvoer; het citaat is uniek.
+    assert kern.count(citaat) == 1
     return {
         "quote": citaat,
-        "start": start,
-        "end": start + len(citaat),
         "function": functie,
-        "ground": {
-            "field": "kern",
-            "ref": None,
-            "quote": None,
-            "start": None,
-            "end": None,
-        },
+        "ground": {"field": "kern", "ref": None, "quote": None},
     }
 
 
@@ -768,7 +761,7 @@ def _ongeldig_antwoord() -> Beoordelingsdocument:
 
 def _verzonnen_citaat() -> Beoordelingsdocument:
     respons = copy.deepcopy(SCENARIO["fail"][1])
-    respons["passages"][0].update({"quote": "zij vertrekt", "start": 0, "end": 12})
+    respons["passages"][0]["quote"] = "zij vertrekt"
     return beoordeel(_invoer(KERN_PASS), CONFIG, respons, VOLTOOID)
 
 

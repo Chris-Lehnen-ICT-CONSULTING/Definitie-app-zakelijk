@@ -1,0 +1,98 @@
+# DEF-835 positiecorrectie-v1 — RODE migratierun (Codex-review 07-10), vóór de fix in contract.py
+# basis-HEAD 3ba526daefe7da71d8332faba9e5d25fb1df06a3 + niet-gecommitte positiecorrectie; 2026-10-07T12:09:44Z; exit=1
+# /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/domain/test_def835_int02_migratie.py -o addopts= --import-mode=importlib -q -rA --tb=line -p no:randomly
+# Verwacht: (a) faalt (geldig /1-document → error i.p.v. historical); (b)-(e) slagen al (vangnet tegen een te soepele fix).
+.FFFFFFFFFF.........................                                     [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'error' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_migratie.py:105: AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+E   AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'error' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_migratie.py:105: AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+E   AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'error' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_migratie.py:105: AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+E   AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'error' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_migratie.py:105: AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+E   AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'error' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_migratie.py:105: AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+E   AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'error' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_migratie.py:105: AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+E   AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'error' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_migratie.py:105: AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+E   AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'error' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_migratie.py:105: AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+E   AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'error' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_migratie.py:105: AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...en is nodig.')
+E   assert None == 'historical'
+     +  where None = Actualiteit(status='error', reden=None, melding='INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.').reden
+     +    where Actualiteit(status='error', reden=None, melding='INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.') = _actualiteit(Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='dagtotaal', kern='Totaal v..."reason": "Synthetische afleiding.", "scope_reason": null, "uncertainty": "none", "verdict": "pass"}', foutdetail=None), {'document': {'binding': {'bedoeling_hash': '81148c80f265ab54bc507ee7b7ceea50b4b90b4e25c7f830523cfd26c382e93b', 'begri...question": null, "reason": "Synthetische afleiding.", "scope_reason": null, "uncertainty": "none", "verdict": "pass"}'})
+     +      where Beoordelingsdocument(contractversie='def835-int02-assessment/1', invoer=Int02Invoer(begrip='dagtotaal', kern='Totaal v..."reason": "Synthetische afleiding.", "scope_reason": null, "uncertainty": "none", "verdict": "pass"}', foutdetail=None) = _uit_dict({'document': {'binding': {'bedoeling_hash': '81148c80f265ab54bc507ee7b7ceea50b4b90b4e25c7f830523cfd26c382e93b', 'begri...question": null, "reason": "Synthetische afleiding.", "scope_reason": null, "uncertainty": "none", "verdict": "pass"}'})
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_migratie.py:119: assert None == 'historical'
+==================================== PASSES ====================================
+_____________________ test_referentie_komt_uit_de_v1_code ______________________
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+=========================== short test summary info ============================
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_referentie_komt_uit_de_v1_code
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_blijft_ongewijzigd
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_gemanipuleerde_positie_is_error[start]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_gemanipuleerde_positie_is_error[end]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_gemanipuleerde_positie_is_error[grond-start]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_gemanipuleerde_positie_is_error[grond-end]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_gemanipuleerde_positie_is_error[niet-uniek-start]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_zonder_posities_is_error
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_gewijzigde_quote_is_error[citaat]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_gewijzigde_quote_is_error[citaat-consistent]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_gewijzigde_quote_is_error[grondcitaat]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_gewijzigde_uitkomst_is_error[status]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_gewijzigde_uitkomst_is_error[melding]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_gemanipuleerd_v2_document_is_error[positie]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_gemanipuleerd_v2_document_is_error[quote]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_gemanipuleerd_v2_document_is_error[status]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_gemanipuleerd_v2_document_is_error[melding]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_gemanipuleerd_v2_document_is_error[als-v1-zonder-posities]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_onbekende_contractversie_is_error[v1-def835-int02-assessment/0]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_onbekende_contractversie_is_error[v1-def835-int02-assessment/9]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_onbekende_contractversie_is_error[v1-onbekend]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_onbekende_contractversie_is_error[v2-def835-int02-assessment/0]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_onbekende_contractversie_is_error[v2-def835-int02-assessment/9]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_onbekende_contractversie_is_error[v2-onbekend]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_document_en_binding_met_verschillende_versie_is_error[v1]
+PASSED tests/unit/domain/test_def835_int02_migratie.py::test_document_en_binding_met_verschillende_versie_is_error[v2]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_geldig_v1_document_wordt_historisch_en_geen_error[C105]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_geldig_v1_document_wordt_historisch_en_geen_error[C107]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_geldig_v1_document_wordt_historisch_en_geen_error[C112]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_geldig_v1_document_wordt_historisch_en_geen_error[C115]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_geldig_v1_document_wordt_historisch_en_geen_error[C116]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_geldig_v1_document_wordt_historisch_en_geen_error[C101]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_geldig_v1_document_wordt_historisch_en_geen_error[C118-v1]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_geldig_v1_document_wordt_historisch_en_geen_error[C118-v2]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_geldig_v1_document_wordt_historisch_en_geen_error[SYN-niet-uniek]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v1_document_met_niet_uniek_citaat_blijft_onder_v1_regels_geldig
+10 failed, 26 passed in 0.57s

@@ -1,4 +1,4 @@
-"""INT-02 — begrensde AI-beoordeling op het contract def835-int02-assessment/1.
+"""INT-02 — begrensde AI-beoordeling op het contract def835-int02-assessment/2.
 
 DEF-835 WP2 (plan-v1 §WP2). Eén provider-agnostische aanroep via
 `AIServiceInterface.generate_definition` met `task_type="validation"`, een
@@ -15,8 +15,10 @@ Prompt. De systeemprompt bevat de norm uit het actieve regelrecord
 `INT-02.json` (normversie def771-int02/2), de T-tekst uit synthese v5 §4
 letterlijk (`T_TEKST`) en het gesloten WP1-uitvoercontract; zij is
 onafhankelijk van de invoer. De dataprompt is uitsluitend JSON met de exacte
-invoer: alle materiaal is gegevens. Posities zijn Python-Unicode-codepoints,
-nulgebaseerd, einde exclusief.
+invoer: alle materiaal is gegevens. Het model levert per passage- en
+grondcitaat alleen het letterlijke citaat en het veld; de posities
+(Python-codepunten, nulgebaseerd, einde exclusief) leidt het WP1-contract af
+uit de enige exacte vindplaats van het citaat in dat veld.
 
 Volgorde. Kern of context ontbreekt → `not_evaluated` zonder aanroep.
 Ontbrekend profiel of budget, ongekwalificeerd profiel, router onbeschikbaar
@@ -123,8 +125,10 @@ __all__ = [
 
 #: /1: eerste promptversie (DEF-835 WP2). /2: aanwijzingen over zelfstandig
 #: dragende grond voor "fail" en over citaatposities (promptcorrectie na C107).
+#: /3: het model levert alleen letterlijke, in het veld unieke citaten; de
+#: posities bepaalt het contract (besluit 9, optie A; contract /2).
 #: Wordt bij elke aanroep uit de module gelezen en bindt zo elk document.
-PROMPT_VERSION = "def835-int02-prompt/2"
+PROMPT_VERSION = "def835-int02-prompt/3"
 #: Bestaande routertaak; er komt geen nieuwe (onbekende) taaknaam bij.
 TASK_TYPE = "validation"
 
@@ -381,18 +385,11 @@ def _systeemprompt(norm: Int02Norm) -> str:
             ),
             (
                 "- Kopieer elk passage- en grondcitaat letterlijk uit het opgegeven "
-                'veld. Bepaal "start" nulgebaseerd, bereken "end" = "start" + '
-                'len("quote") in Python-Unicode-codepoints en controleer vóór '
-                "verzending dat tekst[start:end] == quote voor de exacte tekst van "
-                "dat veld. Lukt dat niet, verzin dan geen citaat of positie."
-            ),
-            "",
-            "Posities:",
-            (
-                '- "start" en "end" zijn posities in Python-Unicode-codepoints in de '
-                "exacte tekst na JSON-decodering: nulgebaseerd, einde exclusief, "
-                'zodat tekst[start:end] exact gelijk is aan "quote". Geen '
-                "normalisatie van hoofdletters, witruimte of leestekens."
+                "veld: exact dezelfde tekens, zonder normalisatie van hoofdletters, "
+                "witruimte of leestekens. Kies elk citaat zo dat het precies één "
+                "keer in de exacte tekst van dat veld voorkomt; neem zo nodig meer "
+                "aangrenzende tekst mee. Geef geen posities; de dienst zoekt het "
+                "citaat zelf op. Lukt dat niet, verzin dan geen citaat."
             ),
             "",
             (
@@ -402,20 +399,19 @@ def _systeemprompt(norm: Int02Norm) -> str:
             f'- "verdict": {_enum(VERDICTS)}',
             (
                 '- "passages": lijst van passageobjecten met precies "quote", '
-                '"start", "end", "function" en "ground". "quote" is een letterlijk '
-                'citaat uit "kern" op de posities "start"/"end".'
+                '"function" en "ground". "quote" is een letterlijk citaat dat '
+                'precies één keer in "kern" voorkomt.'
             ),
             f'  "function": {_enum(FUNCTIES)}. Betekenis: {functies}.',
             (
-                '  "ground": object met precies "field", "ref", "quote", "start" en '
-                '"end". "field": "kern" | "begrip" | "bedoeling" | '
-                '"organisatorische_context" | "juridische_context" | '
-                '"wettelijke_basis" | "bron". "ref" is null bij "kern", "begrip" en '
-                '"bedoeling", een index (geheel getal) bij een contextlijst en een '
-                'bestaand bron-"id" bij "bron". "quote", "start" en "end" zijn '
-                "samen null, of samen een exact citaat in die grondtekst met "
-                "dezelfde positieregels. De grondtekst moet gevuld zijn; een "
-                "onbekende bedoeling is geen grond."
+                '  "ground": object met precies "field", "ref" en "quote". "field": '
+                '"kern" | "begrip" | "bedoeling" | "organisatorische_context" | '
+                '"juridische_context" | "wettelijke_basis" | "bron". "ref" is null '
+                'bij "kern", "begrip" en "bedoeling", een index (geheel getal) bij '
+                'een contextlijst en een bestaand bron-"id" bij "bron". "quote" is '
+                "null, of een letterlijk citaat dat precies één keer in die "
+                "grondtekst voorkomt. De grondtekst moet gevuld zijn; een onbekende "
+                "bedoeling is geen grond."
             ),
             '- "reason": niet-lege korte onderbouwing.',
             (

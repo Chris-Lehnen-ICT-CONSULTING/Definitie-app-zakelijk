@@ -1,4 +1,4 @@
-"""INT-02 — beoordelingscontract def835-int02-assessment/1 (norm def771-int02/2).
+"""INT-02 — beoordelingscontract def835-int02-assessment/2 (norm def771-int02/2).
 
 Zuiver domein (DEF-835 WP1, plan-v1 §Ontwerpvoorstel): geen AI-client,
 database of Streamlit. Een beoordelaar (model of mens) bepaalt per passage de
@@ -11,14 +11,24 @@ functie; deze code controleert alleen wat mechanisch controleerbaar is:
   routeringshash, gevraagde provider/model en hashes van begrip, kern,
   bedoeling, context en bronnen;
 - **uitvoer**: een gesloten structuur (onbekende velden, verkeerde typen en
-  bool-als-int worden geweigerd) waarvan elk citaat exact op nulgebaseerde
-  posities (einde exclusief) in de kern of in het genoemde grondveld staat;
+  bool-als-int worden geweigerd) met per passage- en grondcitaat alleen het
+  letterlijke citaat en het veld;
+- **posities**: door deze code afgeleid, nooit door de beoordelaar geleverd
+  (/2, besluit 9 optie A). Een citaat moet precies één keer als exacte
+  substring (Python-codepunten, geen normalisatie) in de kern of in het
+  genoemde grondveld staan: `start` is die vindplaats, `end` = `start` +
+  `len(quote)`, einde exclusief. Nul of meer vindplaatsen (ook overlappend)
+  of een leeg citaat is `invalid_citation` met een `foutdetail`. Uitvoer die
+  zelf `start`/`end` meelevert, heeft onbekende velden (`invalid_output`);
 - **status**: de mapping uit synthese v5 §4 (pass, fail, review_required,
   not_evaluated, error, not_applicable), zonder cijfer, met exacte meldingen.
 
-Ongeldige uitvoer wordt nooit gerepareerd en geeft `error`, nooit fail of
-review_required. De code bewijst geen semantische juistheid of volledigheid
-van de beoordeling. Opslag valt buiten dit contract (DEF-626).
+Het bewaarde oordeel is de geaccepteerde uitvoer mét de afgeleide posities,
+in dezelfde vorm als onder /1, zodat melding, UI en export ongewijzigd
+werken. Een bewaard /1-document wordt bij replay nog volgens de /1-regels op
+integriteit getoetst en is daarna historisch (niet `error`). Ongeldige uitvoer wordt nooit gerepareerd en geeft `error`, nooit
+fail of review_required. De code bewijst geen semantische juistheid of
+volledigheid van de beoordeling. Opslag valt buiten dit contract (DEF-626).
 """
 
 from __future__ import annotations
@@ -50,7 +60,14 @@ __all__ = [
     "toets_actualiteit",
 ]
 
-CONTRACTVERSIE = "def835-int02-assessment/1"
+#: /1: posities door de beoordelaar. /2: posities door deze code afgeleid
+#: (besluit 9, optie A); documenten onder /1 zijn daardoor historisch.
+CONTRACTVERSIE = "def835-int02-assessment/2"
+#: Vorige versie. Een bewaard /1-document wordt volgens de /1-regels op
+#: integriteit getoetst (`_herleidbaar`) en is daarna historisch, geen error.
+_CONTRACTVERSIE_V1 = "def835-int02-assessment/1"
+#: Versies waarvan een bewaard document herleidbaar kan zijn; andere → error.
+_BEKENDE_CONTRACTVERSIES = frozenset({_CONTRACTVERSIE_V1, CONTRACTVERSIE})
 NORMVERSIE = "def771-int02/2"
 #: Expliciete waarde voor een niet-gerapporteerde meting; nooit 0 of None.
 ONBEKEND = "unknown"
@@ -76,13 +93,24 @@ TRANSPORTFOUTEN = frozenset({"timeout", "transport", "provider"})
 #: Door deze code vastgestelde fouten in de uitvoer.
 FOUT_UITVOER = "invalid_output"
 FOUT_CITAAT = "invalid_citation"
+#: Onderscheidbare redenen bij `invalid_citation` (`Beoordelingsdocument.foutdetail`).
+CITAAT_NIET_GEVONDEN = "niet_gevonden"
+CITAAT_NIET_UNIEK = "niet_uniek"
+CITAAT_LEEG = "leeg"
+GROND_NIET_HERLEIDBAAR = "grond_niet_herleidbaar"
 
 _UITVOERVELDEN = frozenset(
     {"verdict", "passages", "reason", "question", "uncertainty"}
     | {"scope_reason", "coverage"}
 )
-_PASSAGEVELDEN = frozenset({"quote", "start", "end", "function", "ground"})
-_GRONDVELDEN = frozenset({"field", "ref", "quote", "start", "end"})
+_PASSAGEVELDEN = frozenset({"quote", "function", "ground"})
+_GRONDVELDEN = frozenset({"field", "ref", "quote"})
+#: Door deze code afgeleid en alleen in het bewaarde oordeel aanwezig.
+_POSITIEVELDEN = ("start", "end")
+#: /1 (alleen voor de integriteitscontrole van bewaarde /1-documenten):
+#: posities door de beoordelaar, als verplichte velden.
+_PASSAGEVELDEN_V1 = _PASSAGEVELDEN | frozenset(_POSITIEVELDEN)
+_GRONDVELDEN_V1 = _GRONDVELDEN | frozenset(_POSITIEVELDEN)
 _SCALAIRE_GRONDEN = ("kern", "begrip", "bedoeling")
 _CONTEXTVELDEN = ("organisatorische_context", "juridische_context", "wettelijke_basis")
 _GRONDLABEL = {
@@ -398,11 +426,17 @@ class Binding:
 
 
 def bereken_binding(invoer: Int02Invoer, configuratie: Configuratie) -> Binding:
+    return _bereken_binding(invoer, configuratie, CONTRACTVERSIE)
+
+
+def _bereken_binding(
+    invoer: Int02Invoer, configuratie: Configuratie, contractversie: str
+) -> Binding:
     _eis(isinstance(invoer, Int02Invoer), "invoer moet een Int02Invoer zijn")
     _eis(isinstance(configuratie, Configuratie), "configuratie ontbreekt")
     data = invoer.als_dict()
     return Binding(
-        contractversie=CONTRACTVERSIE,
+        contractversie=contractversie,
         normversie=configuratie.normversie,
         normhash=configuratie.normhash,
         promptversie=configuratie.promptversie,
@@ -423,9 +457,10 @@ def bereken_binding(invoer: Int02Invoer, configuratie: Configuratie) -> Binding:
 class _AfwijzingError(Exception):
     """Interne afwijzing van de uitvoer met foutcategorie (nooit naar buiten)."""
 
-    def __init__(self, categorie: str) -> None:
+    def __init__(self, categorie: str, detail: str | None = None) -> None:
         super().__init__(categorie)
         self.categorie = categorie
+        self.detail = detail
 
 
 def _vorm(voorwaarde: bool) -> None:
@@ -433,21 +468,35 @@ def _vorm(voorwaarde: bool) -> None:
         raise _AfwijzingError(FOUT_UITVOER)
 
 
-def _citaat(voorwaarde: bool) -> None:
+def _citaat(voorwaarde: bool, detail: str) -> None:
     if not voorwaarde:
-        raise _AfwijzingError(FOUT_CITAAT)
+        raise _AfwijzingError(FOUT_CITAAT, detail)
 
 
 def _object(waarde: Any, velden: frozenset[str]) -> None:
     _vorm(isinstance(waarde, dict) and set(waarde) == velden)
 
 
+def _positie(tekst: str, citaat: str) -> tuple[int, int]:
+    """(start, end) van de enige exacte vindplaats; anders `invalid_citation`.
+
+    Exacte substring in Python-codepunten, zonder normalisatie. Ook een
+    overlappende tweede vindplaats maakt het citaat niet uniek.
+    """
+    _citaat(bool(citaat), CITAAT_LEEG)
+    start = tekst.find(citaat)
+    _citaat(start >= 0, CITAAT_NIET_GEVONDEN)
+    _citaat(tekst.find(citaat, start + 1) < 0, CITAAT_NIET_UNIEK)
+    return start, start + len(citaat)
+
+
 def _staat_op(tekst: str, citaat: str, start: int, eind: int) -> bool:
+    """/1: het citaat staat exact op de door de beoordelaar opgegeven posities."""
     return 0 <= start < eind <= len(tekst) and tekst[start:eind] == citaat
 
 
-def _controleer_grondvorm(grond: Any) -> None:
-    _object(grond, _GRONDVELDEN)
+def _controleer_grondvorm(grond: Any, v1: bool) -> None:
+    _object(grond, _GRONDVELDEN_V1 if v1 else _GRONDVELDEN)
     veld, ref = grond["field"], grond["ref"]
     _vorm(_in(veld, _GRONDLABEL.keys() | {"bron"}))
     if veld in _SCALAIRE_GRONDEN:
@@ -456,6 +505,9 @@ def _controleer_grondvorm(grond: Any) -> None:
         _vorm(_gevuld(ref))
     else:
         _vorm(_is_int(ref))
+    if not v1:
+        _vorm(grond["quote"] is None or isinstance(grond["quote"], str))
+        return
     geciteerd = (grond["quote"], grond["start"], grond["end"])
     _vorm(
         geciteerd == (None, None, None)
@@ -467,8 +519,13 @@ def _controleer_grondvorm(grond: Any) -> None:
     )
 
 
-def _controleer_structuur(uitvoer: Any) -> None:
-    """Gesloten vorm: exacte velden, typen en enums (bool is geen int)."""
+def _controleer_structuur(uitvoer: Any, v1: bool = False) -> None:
+    """Gesloten vorm: exacte velden, typen en enums (bool is geen int).
+
+    `v1` alleen voor de integriteitscontrole van een bewaard /1-document:
+    dan zijn `start`/`end` verplichte gehele getallen (of samen null bij een
+    grond zonder citaat), zoals onder /1.
+    """
     _object(uitvoer, _UITVOERVELDEN)
     _vorm(_in(uitvoer["verdict"], VERDICTS))
     _vorm(_gevuld(uitvoer["reason"]))
@@ -478,11 +535,12 @@ def _controleer_structuur(uitvoer: Any) -> None:
     _vorm(_in(uitvoer["coverage"], DEKKINGEN))
     _vorm(isinstance(uitvoer["passages"], list))
     for passage in uitvoer["passages"]:
-        _object(passage, _PASSAGEVELDEN)
+        _object(passage, _PASSAGEVELDEN_V1 if v1 else _PASSAGEVELDEN)
         _vorm(isinstance(passage["quote"], str))
-        _vorm(_is_int(passage["start"]) and _is_int(passage["end"]))
+        if v1:
+            _vorm(_is_int(passage["start"]) and _is_int(passage["end"]))
         _vorm(_in(passage["function"], FUNCTIES))
-        _controleer_grondvorm(passage["ground"])
+        _controleer_grondvorm(passage["ground"], v1)
 
 
 def _grondbron(grond: dict[str, Any], invoer: Int02Invoer) -> str:
@@ -497,27 +555,58 @@ def _grondbron(grond: dict[str, Any], invoer: Int02Invoer) -> str:
         tekst = getattr(invoer, veld)
     elif veld == "bron":
         teksten = {b.id: b.tekst for b in invoer.bronnen}
-        _citaat(ref in teksten)
+        _citaat(ref in teksten, GROND_NIET_HERLEIDBAAR)
         tekst = teksten[ref]
     else:
         waarden = getattr(invoer, veld)
-        _citaat(0 <= ref < len(waarden))
+        _citaat(0 <= ref < len(waarden), GROND_NIET_HERLEIDBAAR)
         tekst = waarden[ref]
-    _citaat(_gevuld(tekst))
+    _citaat(_gevuld(tekst), GROND_NIET_HERLEIDBAAR)
     # _gevuld eist isinstance(tekst, str); anders werpt _citaat hierboven.
     return cast(str, tekst)
 
 
-def _controleer_citaten(uitvoer: dict[str, Any], invoer: Int02Invoer) -> None:
-    """Elk citaat staat exact op zijn posities; elke grond is herleidbaar."""
+def _met_posities(uitvoer: dict[str, Any], invoer: Int02Invoer) -> dict[str, Any]:
+    """Nieuwe kopie van de uitvoer met afgeleide posities; elke grond herleidbaar.
+
+    Elk passagecitaat krijgt zijn enige vindplaats in de kern, elk grondcitaat
+    die in zijn grondtekst; een grond zonder citaat krijgt `start`/`end` None.
+    De meegegeven uitvoer wordt niet gewijzigd.
+    """
+    passages = []
+    for passage in uitvoer["passages"]:
+        start, end = _positie(invoer.kern, passage["quote"])
+        grond = dict(passage["ground"])
+        tekst = _grondbron(grond, invoer)
+        grondpositie = (None, None)
+        if grond["quote"] is not None:
+            grondpositie = _positie(tekst, grond["quote"])
+        grond.update(zip(_POSITIEVELDEN, grondpositie, strict=True))
+        passages.append({**passage, "start": start, "end": end, "ground": grond})
+    return {**uitvoer, "passages": passages}
+
+
+def _controleer_citaten_v1(
+    uitvoer: dict[str, Any], invoer: Int02Invoer
+) -> dict[str, Any]:
+    """/1: elk citaat staat exact op zijn opgegeven posities; elke grond herleidbaar.
+
+    Alleen voor de integriteitscontrole van een bewaard /1-document; de regel
+    is letterlijk die van contract /1. De uitvoer blijft ongewijzigd het oordeel.
+    """
     for passage in uitvoer["passages"]:
         _citaat(
-            _staat_op(invoer.kern, passage["quote"], passage["start"], passage["end"])
+            _staat_op(invoer.kern, passage["quote"], passage["start"], passage["end"]),
+            CITAAT_NIET_GEVONDEN,
         )
         grond = passage["ground"]
         tekst = _grondbron(grond, invoer)
         if grond["quote"] is not None:
-            _citaat(_staat_op(tekst, grond["quote"], grond["start"], grond["end"]))
+            _citaat(
+                _staat_op(tekst, grond["quote"], grond["start"], grond["end"]),
+                CITAAT_NIET_GEVONDEN,
+            )
+    return uitvoer
 
 
 def _een_vraag(vraag: Any) -> bool:
@@ -641,11 +730,14 @@ def _status_en_melding(uitvoer: dict[str, Any]) -> tuple[str, str | None, str]:
 class Beoordelingsdocument:
     """Onveranderlijk document: exacte invoer, binding, uitvoering en oordeel.
 
-    `oordeel_json` is de canonieke JSON van de geaccepteerde uitvoer, of None
-    als er geen geldig oordeel is. `toets_actualiteit` accepteert een document
-    alleen als het opnieuw exact uit zijn eigen invoer, binding, uitvoering
-    en oordeel volgt; een direct samengesteld of gemanipuleerd document is dus
-    nooit stil een actueel oordeel.
+    `oordeel_json` is de canonieke JSON van de geaccepteerde uitvoer met de
+    door deze code afgeleide posities, of None als er geen geldig oordeel is.
+    `foutdetail` onderscheidt bij `invalid_citation` niet gevonden, niet
+    uniek, leeg citaat en niet-herleidbare grond; anders is het None.
+    `toets_actualiteit` accepteert een document alleen als het opnieuw exact
+    uit zijn eigen invoer, binding, uitvoering en oordeel volgt; een direct
+    samengesteld of gemanipuleerd document is dus nooit stil een actueel
+    oordeel.
     """
 
     contractversie: str
@@ -658,6 +750,7 @@ class Beoordelingsdocument:
     vraag: str | None
     foutcategorie: str | None
     oordeel_json: str | None
+    foutdetail: str | None = None
 
     @property
     def oordeel(self) -> dict[str, Any] | None:
@@ -675,6 +768,7 @@ class Beoordelingsdocument:
             "melding": self.melding,
             "vraag": self.vraag,
             "foutcategorie": self.foutcategorie,
+            "foutdetail": self.foutdetail,
             "oordeel": self.oordeel,
         }
 
@@ -706,10 +800,27 @@ def beoordeel(
 
     Volgorde: ontbrekende kern/context (NE, oordeel genegeerd) → mislukte
     uitvoering (error) → niet uitgevoerd (nog te beoordelen) → structuur →
-    citaten en gronden → samenhang → status.
+    citaten, posities en gronden → samenhang → status. Een nieuw document
+    valt altijd onder de actuele `CONTRACTVERSIE`.
     """
+    return _beoordeel(invoer, configuratie, modeluitvoer, uitvoering, CONTRACTVERSIE)
+
+
+def _beoordeel(
+    invoer: Int02Invoer,
+    configuratie: Configuratie,
+    modeluitvoer: Any,
+    uitvoering: Uitvoering,
+    contractversie: str,
+) -> Beoordelingsdocument:
+    """`beoordeel` volgens de regels van `contractversie` (/2, of /1 voor replay).
+
+    Onder /1 levert de beoordelaar de posities en is het oordeel de uitvoer
+    zelf; /1 kende geen `foutdetail`. Onder /2 leidt deze code de posities af.
+    """
+    v1 = contractversie == _CONTRACTVERSIE_V1
     _eis(isinstance(uitvoering, Uitvoering), "uitvoering moet een Uitvoering zijn")
-    binding = bereken_binding(invoer, configuratie)
+    binding = _bereken_binding(invoer, configuratie, contractversie)
 
     def document(
         status: str,
@@ -718,12 +829,13 @@ def beoordeel(
         fout: str | None = None,
         uitvoer: dict[str, Any] | None = None,
         vraag: str | None = None,
+        foutdetail: str | None = None,
     ) -> Beoordelingsdocument:
         oordeel = None
         if uitvoer is not None:
             oordeel = json.dumps(uitvoer, ensure_ascii=False, sort_keys=True)
         return Beoordelingsdocument(
-            contractversie=CONTRACTVERSIE,
+            contractversie=contractversie,
             invoer=invoer,
             binding=binding,
             uitvoering=uitvoering,
@@ -733,6 +845,7 @@ def beoordeel(
             vraag=vraag,
             foutcategorie=fout,
             oordeel_json=oordeel,
+            foutdetail=foutdetail,
         )
 
     ontbreekt = ontbrekende_invoer(invoer)
@@ -748,19 +861,46 @@ def beoordeel(
         )
     try:
         _vorm(uitvoering.status == "completed")
-        _controleer_structuur(modeluitvoer)
-        _controleer_citaten(modeluitvoer, invoer)
-        _controleer_samenhang(modeluitvoer)
+        _controleer_structuur(modeluitvoer, v1)
+        if v1:
+            oordeel = _controleer_citaten_v1(modeluitvoer, invoer)
+        else:
+            oordeel = _met_posities(modeluitvoer, invoer)
+        _controleer_samenhang(oordeel)
     except _AfwijzingError as afwijzing:
-        return document("error", MELDING_E, fout=afwijzing.categorie)
-    status, reden, melding = _status_en_melding(modeluitvoer)
+        detail = None if v1 else afwijzing.detail
+        return document("error", MELDING_E, fout=afwijzing.categorie, foutdetail=detail)
+    status, reden, melding = _status_en_melding(oordeel)
     return document(
         status,
         melding,
         reden=reden,
-        uitvoer=modeluitvoer,
-        vraag=modeluitvoer["question"],
+        uitvoer=oordeel,
+        vraag=oordeel["question"],
     )
+
+
+def _zonder_posities(oordeel: Any) -> Any:
+    """Het bewaarde oordeel terug in modelvorm: zonder de afgeleide posities.
+
+    Alleen voor replay. Een oordeel dat niet de verwachte vorm heeft, blijft
+    ongewijzigd; `beoordeel` wijst het dan zelf af.
+    """
+    if not isinstance(oordeel, dict) or not isinstance(oordeel.get("passages"), list):
+        return oordeel
+
+    def zonder(waarde: Any) -> Any:
+        if not isinstance(waarde, dict):
+            return waarde
+        return {k: v for k, v in waarde.items() if k not in _POSITIEVELDEN}
+
+    passages = []
+    for passage in oordeel["passages"]:
+        kaal = zonder(passage)
+        if isinstance(kaal, dict) and "ground" in kaal:
+            kaal["ground"] = zonder(kaal["ground"])
+        passages.append(kaal)
+    return {**oordeel, "passages": passages}
 
 
 def _hervalideer(waarde: Any, soort: type) -> Any:
@@ -775,7 +915,18 @@ def _herleidbaar(document: Beoordelingsdocument) -> bool:
     Vangt directe constructie en manipulatie (bijvoorbeeld via
     `object.__setattr__`): alleen een document dat `beoordeel` opnieuw
     identiek oplevert, kan een actueel oordeel dragen.
+
+    De controle volgt de *originele* contractversie van het document (review
+    Codex 07-10-2026): onder /2 worden de bewaarde posities weggelaten en
+    opnieuw afgeleid; onder /1 gelden de /1-regels (opgeslagen posities,
+    `tekst[start:end] == quote` exact). Een gewijzigde of ontbrekende positie
+    of quote maakt het document in beide gevallen niet-herleidbaar; een
+    onbekende contractversie is nooit herleidbaar. Een herleidbaar
+    /1-document is daarna via de bindingstoets historisch.
     """
+    versie = document.contractversie
+    if not _in(versie, _BEKENDE_CONTRACTVERSIES):
+        return False
     try:
         invoer = _hervalideer(document.invoer, Int02Invoer)
         for bron in invoer.bronnen:
@@ -794,8 +945,12 @@ def _herleidbaar(document: Beoordelingsdocument) -> bool:
         # Niet te decoderen: ongeldige JSON (JSONDecodeError), een getal boven
         # de cijferlimiet van int of te diepe nesting (review WP1 P2-3).
         return False
+    if versie == CONTRACTVERSIE:
+        oordeel = _zonder_posities(oordeel)
     try:
-        opnieuw = beoordeel(invoer, binding.configuratie(), oordeel, uitvoering)
+        opnieuw = _beoordeel(
+            invoer, binding.configuratie(), oordeel, uitvoering, versie
+        )
     except Int02ContractError:
         return False
     return opnieuw == document

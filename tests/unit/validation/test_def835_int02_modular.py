@@ -94,16 +94,8 @@ def _pass_respons_c105() -> dict[str, Any]:
         "passages": [
             {
                 "quote": kern,
-                "start": 0,
-                "end": len(kern),
                 "function": "criterion",
-                "ground": {
-                    "field": "kern",
-                    "ref": None,
-                    "quote": None,
-                    "start": None,
-                    "end": None,
-                },
+                "ground": {"field": "kern", "ref": None, "quote": None},
             }
         ],
         "reason": "Synthetische pass voor de mapping; geen modeloordeel.",

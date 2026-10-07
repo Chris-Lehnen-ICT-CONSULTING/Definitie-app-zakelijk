@@ -1,0 +1,12 @@
+{"akkoord_sha256": "77e044aa6a6746033703ecf8dde5baa6d4c02e9d13252d3bc4222fcceb558ec2", "gebeurtenis": "mandaat", "manifest_sha256": "57a988de4b159065f0b5279b201973c40573e07c1d8af97258fa9bbb1cf5364a", "soort": "def835-int02-kwalificatie-grootboek/1", "tijd": "2026-10-07T11:17:44.555456+00:00"}
+{"akkoord_sha256": "77e044aa6a6746033703ecf8dde5baa6d4c02e9d13252d3bc4222fcceb558ec2", "fase": "regressie", "gebeurtenis": "fase_start", "tijd": "2026-10-07T11:17:44.556025+00:00"}
+{"gebeurtenis": "tel_reservering", "geval": "C105", "tel": 1, "tijd": "2026-10-07T11:17:44.557788+00:00"}
+{"call": 1, "gebeurtenis": "inferentie_reservering", "geval": "C105", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-07T11:17:45.125811+00:00"}
+{"call": 1, "gebeurtenis": "inferentie_boeking", "geval": "C105", "kosten_usd": 0.024795, "tijd": "2026-10-07T11:17:49.788554+00:00", "usage": {"input_tokens": 3644, "output_tokens": 263}}
+{"gebeurtenis": "tel_reservering", "geval": "C107", "tel": 2, "tijd": "2026-10-07T11:17:49.805874+00:00"}
+{"call": 2, "gebeurtenis": "inferentie_reservering", "geval": "C107", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-07T11:17:49.982620+00:00"}
+{"call": 2, "gebeurtenis": "inferentie_boeking", "geval": "C107", "kosten_usd": 0.031375, "tijd": "2026-10-07T11:17:59.639004+00:00", "usage": {"input_tokens": 3675, "output_tokens": 520}}
+{"gebeurtenis": "tel_reservering", "geval": "C112", "tel": 3, "tijd": "2026-10-07T11:17:59.643417+00:00"}
+{"call": 3, "gebeurtenis": "inferentie_reservering", "geval": "C112", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-07T11:17:59.862068+00:00"}
+{"call": 3, "gebeurtenis": "inferentie_boeking", "geval": "C112", "kosten_usd": 0.026215000000000002, "tijd": "2026-10-07T11:18:05.191340+00:00", "usage": {"input_tokens": 3668, "output_tokens": 315}}
+{"bewijs_opgeslagen": true, "fase": "regressie", "gebeurtenis": "fase_einde", "looptijd_seconden": 21.768, "mechanisch_geslaagd": false, "stopreden": "invalid_citation", "tijd": "2026-10-07T11:18:05.194346+00:00"}

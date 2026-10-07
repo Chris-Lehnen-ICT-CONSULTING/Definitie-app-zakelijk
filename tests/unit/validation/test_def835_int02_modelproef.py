@@ -418,14 +418,8 @@ def _ander_oordeel(geval_id):
     verdict, functie = (
         ("fail", "actor_prescription") if geval_id == "C112" else ("pass", "criterion")
     )
-    grond = {"field": "kern", "ref": None, "quote": None, "start": None, "end": None}
-    passage = {
-        "quote": kern,
-        "start": 0,
-        "end": len(kern),
-        "function": functie,
-        "ground": grond,
-    }
+    grond = {"field": "kern", "ref": None, "quote": None}
+    passage = {"quote": kern, "function": functie, "ground": grond}
     return json.dumps(
         {
             "verdict": verdict,
@@ -451,9 +445,11 @@ async def test_semantisch_ander_oordeel_is_bevinding_zonder_herhaling(
     assert statussen != [VERWACHT[i] for i in IDS]
 
 
-def _met_foute_positie():
+def _met_fout_citaat():
+    # Contract /2: een citaat dat niet letterlijk in de kern staat.
     respons = dict(GEVALLEN["C105"]["modelrespons"])
-    respons["passages"] = [dict(respons["passages"][0], start=1)]
+    passage = respons["passages"][0]
+    respons["passages"] = [dict(passage, quote=passage["quote"] + " (verzonnen)")]
     return json.dumps(respons)
 
 
@@ -507,7 +503,7 @@ def _met_foute_positie():
         ),
         (_bericht("{}", usage=_usage(output_tokens=6001)), "usage_boven_limiet"),
         (_bericht(_fixtureantwoord("C105"), stop="max_tokens"), "truncated_response"),
-        (_bericht(_met_foute_positie()), "invalid_citation"),
+        (_bericht(_met_fout_citaat()), "invalid_citation"),
     ],
     ids=[
         "geen-usage",
@@ -983,11 +979,10 @@ def _oordeel(invoer: dict, soort: str) -> str:
             }
         )
     kern = invoer["kern"]
-    grond = {"field": "kern", "ref": None, "quote": None, "start": None, "end": None}
+    grond = {"field": "kern", "ref": None, "quote": None}
     passage = {
-        "quote": kern,
-        "start": 1 if soort == "citaatfout" else 0,
-        "end": len(kern),
+        # Contract /2: een citaatfout is een citaat dat niet in de kern staat.
+        "quote": kern + " (verzonnen)" if soort == "citaatfout" else kern,
         "function": "actor_prescription" if soort == "fail" else "criterion",
         "ground": grond,
     }

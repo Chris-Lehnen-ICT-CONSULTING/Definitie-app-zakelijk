@@ -1,0 +1,11 @@
+# DEF-835 positiecorrectie-v1 — GROENE run 3: gerichte selectie uit takenlijst-v51 (zie goldset-freeze-v1/promptcorrectie-testbinding-v1.md; toen 452)
+# basis-HEAD 3ba526daefe7da71d8332faba9e5d25fb1df06a3 + niet-gecommitte wijzigingen; 2026-10-07T11:52:23Z; exit=0
+# /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/services/prompts/test_def835_int02_prompt.py tests/unit/validation/test_def835_int02_assessment_service.py tests/unit/validation/test_def835_int02_evaluator.py tests/unit/validation/test_def835_int02_modelproef.py -o addopts= -q -ra
+........................................................................ [ 15%]
+........................................................................ [ 31%]
+........................................................................ [ 47%]
+........................................................................ [ 62%]
+........................................................................ [ 78%]
+........................................................................ [ 94%]
+...........................                                              [100%]
+459 passed in 32.86s

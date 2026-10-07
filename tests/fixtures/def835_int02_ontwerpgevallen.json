@@ -1,5 +1,5 @@
 {
-  "contract": "def835-int02-assessment/1",
+  "contract": "def835-int02-assessment/2",
   "norm": "def771-int02/2",
   "gebruik": "Ontwikkel- en regressiegevallen voor het contractgedrag (DEF-835 WP1). Geen goldset en geen hold-out. De modelresponsen zijn handmatig ingevuld om contractgedrag te toetsen; zij zijn geen goldlabel en bewijzen niet dat een model de juiste functie kiest.",
   "labelregel": "Een betekenisafhankelijk referentielabel geldt alleen voor de exacte kern met de hier vastgelegde bedoeling en context (register v5: referentieoordelen voor voorschrift/discretie zijn conditioneel). Een label op de verkorte casuszin alleen is geen algemene labelclaim.",
@@ -87,10 +87,8 @@
         "passages": [
           {
             "quote": "De medewerker laat de aanvrager toe.",
-            "start": 0,
-            "end": 36,
             "function": "actor_prescription",
-            "ground": {"field": "bedoeling", "ref": null, "quote": "opdracht aan medewerker", "start": 0, "end": 23}
+            "ground": {"field": "bedoeling", "ref": null, "quote": "opdracht aan medewerker"}
           }
         ],
         "reason": "De kern schrijft een medewerker voor de aanvrager toe te laten in plaats van het begrip af te bakenen.",
@@ -125,10 +123,8 @@
         "passages": [
           {
             "quote": "naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd",
-            "start": 13,
-            "end": 82,
             "function": "unclear",
-            "ground": {"field": "kern", "ref": null, "quote": null, "start": null, "end": null}
+            "ground": {"field": "kern", "ref": null, "quote": null}
           }
         ],
         "reason": "De bedoeling is onbekend; uit de kern blijkt niet of het oordeel een kenmerk van de aanvraag beschrijft of de beoordelaar een afweging voorschrijft.",
@@ -162,10 +158,8 @@
         "passages": [
           {
             "quote": "Verplichting van een partij om de overeengekomen prestatie te verrichten",
-            "start": 0,
-            "end": 72,
             "function": "criterion",
-            "ground": {"field": "bedoeling", "ref": null, "quote": "Synthetische beschrijving van verplichting zelf", "start": 0, "end": 47}
+            "ground": {"field": "bedoeling", "ref": null, "quote": "Synthetische beschrijving van verplichting zelf"}
           }
         ],
         "reason": "De kern beschrijft wat een verplichting is; zij draagt niemand op de prestatie te verrichten.",
@@ -199,10 +193,8 @@
         "passages": [
           {
             "quote": "alleen als de bijdrage betaald is",
-            "start": 22,
-            "end": 55,
             "function": "criterion",
-            "ground": {"field": "bedoeling", "ref": null, "quote": "uitsluitend noodzakelijke voorwaarde, voldoende voorwaarden onbekend", "start": 0, "end": 68}
+            "ground": {"field": "bedoeling", "ref": null, "quote": "uitsluitend noodzakelijke voorwaarde, voldoende voorwaarden onbekend"}
           }
         ],
         "reason": "De passage noemt een noodzakelijke voorwaarde voor lidmaatschap van de klasse toegelaten leden.",
@@ -236,10 +228,8 @@
         "passages": [
           {
             "quote": "gelijk is aan de som van de bedragen van de verkopen op die dag",
-            "start": 14,
-            "end": 77,
             "function": "derivation",
-            "ground": {"field": "bedoeling", "ref": null, "quote": "afgeleid feit; berekening definieert de grootheid, niet een werkinstructie", "start": 0, "end": 74}
+            "ground": {"field": "bedoeling", "ref": null, "quote": "afgeleid feit; berekening definieert de grootheid, niet een werkinstructie"}
           }
         ],
         "reason": "De passage leidt de grootheid deterministisch af uit de verkopen op die dag.",
@@ -271,10 +261,8 @@
         "passages": [
           {
             "quote": "twee maal wegens een misdrijf",
-            "start": 125,
-            "end": 154,
             "function": "derivation",
-            "ground": {"field": "bedoeling", "ref": null, "quote": null, "start": null, "end": null}
+            "ground": {"field": "bedoeling", "ref": null, "quote": null}
           }
         ],
         "reason": "Afleiding uit het aantal veroordelingen.",
@@ -324,10 +312,8 @@
         "passages": [
           {
             "quote": "tenzij hij van oordeel is dat de aanvrager onevenredig wordt benadeeld",
-            "start": 36,
-            "end": 106,
             "function": "discretionary_decision_rule",
-            "ground": {"field": "bedoeling", "ref": null, "quote": "discretionair handelingsvoorschrift, verkorte ASTRA-Ppw-illustratie", "start": 0, "end": 67}
+            "ground": {"field": "bedoeling", "ref": null, "quote": "discretionair handelingsvoorschrift, verkorte ASTRA-Ppw-illustratie"}
           }
         ],
         "reason": "De passage laat de weigering afhangen van een afweging van de autoriteit.",
@@ -363,10 +349,8 @@
             "passages": [
               {
                 "quote": "dan en slechts dan als het zonder rest door twee deelbaar is",
-                "start": 25,
-                "end": 85,
                 "function": "criterion",
-                "ground": {"field": "bedoeling", "ref": null, "quote": "expliciet bevestigde equivalentie op gehele getallen", "start": 0, "end": 52}
+                "ground": {"field": "bedoeling", "ref": null, "quote": "expliciet bevestigde equivalentie op gehele getallen"}
               }
             ],
             "reason": "De passage bakent de klasse af met een noodzakelijk en voldoende criterium.",
@@ -393,10 +377,8 @@
             "passages": [
               {
                 "quote": "De medewerker wijst de aanvraag af indien de bijlage ontbreekt.",
-                "start": 0,
-                "end": 63,
                 "function": "actor_prescription",
-                "ground": {"field": "bedoeling", "ref": null, "quote": "gebonden handelingsvoorschrift zonder discretionaire afweging", "start": 0, "end": 61}
+                "ground": {"field": "bedoeling", "ref": null, "quote": "gebonden handelingsvoorschrift zonder discretionaire afweging"}
               }
             ],
             "reason": "De kern draagt de medewerker een gebonden handeling op.",

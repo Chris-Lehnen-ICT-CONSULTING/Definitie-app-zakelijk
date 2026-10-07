@@ -1,0 +1,669 @@
+{
+  "soort": "def835-int02-contract-v1-referentiedocumenten/1",
+  "gebruik": "Migratieregressie (Codex-review 07-10-2026): geldige documenten, gemaakt met de /1-contractcode uit git. Ontwikkelgevallen en één synthetisch geval; geen goldset en geen hold-out.",
+  "herkomst": {
+    "revisie": "3ba526daefe7da71d8332faba9e5d25fb1df06a3",
+    "contract_pad": "src/domain/int02/contract.py",
+    "contract_sha256": "6dcae57bc60d1edec09d49fa35d21d135cf0dd43e587ef7e8ba60dac22f16ca8",
+    "fixture_pad": "tests/fixtures/def835_int02_ontwerpgevallen.json",
+    "fixture_sha256": "e18adb97279fa0fe75889df3541186c9341051c33348d1dd848526867239867d",
+    "generator": "scripts/analysis/def835_int02_v1_referentiedocumenten.py"
+  },
+  "configuratie": {
+    "normhash": "632b83ec043f397ed2be8365548dfe9a5e264ebf82c05ab959389c23d96beb66",
+    "promptversie": "def835-int02-prompt/2",
+    "routeringshash": "a87c899de263c4e4870baca386bfc49ffb6ac6f13d111f142e3e1f0d0082b9fa",
+    "provider": "synthetisch",
+    "model": "synthetisch-model"
+  },
+  "documenten": [
+    {
+      "id": "C105",
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "toelating",
+          "kern": "De medewerker laat de aanvrager toe.",
+          "bedoeling": "opdracht aan medewerker",
+          "organisatorische_context": [
+            "synthetische procedure"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "632b83ec043f397ed2be8365548dfe9a5e264ebf82c05ab959389c23d96beb66",
+          "promptversie": "def835-int02-prompt/2",
+          "routeringshash": "a87c899de263c4e4870baca386bfc49ffb6ac6f13d111f142e3e1f0d0082b9fa",
+          "provider": "synthetisch",
+          "model": "synthetisch-model",
+          "begrip_hash": "ff56293e13aad0c2a9a8ffa34d4bd9b440925ac6f5ebe3dbc18959e40a7d4824",
+          "kern_hash": "14a75bb6a5ef7507caaa8db4655dc2bce49b7737c19b8d98e671f5a816fb7705",
+          "bedoeling_hash": "0621a08481a5d1e4a7b50ba406bd9e02ee84bd8753b229b4aeb3078e253b7715",
+          "context_hash": "bd1cdeff8a4b4a8fe7ee7432926c8ace9ebc6276712600a489533ec9b23d0345",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "unknown",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": "unknown",
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "fail",
+        "reden": null,
+        "melding": "INT-02 — Voldoet niet. 'De medewerker laat de aanvrager toe.' schrijft een handeling voor in plaats van het begrip af te bakenen. Grond: de bevestigde bedoeling ('opdracht aan medewerker'). De tekst is ongewijzigd.",
+        "vraag": null,
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 36,
+              "function": "actor_prescription",
+              "ground": {
+                "end": 23,
+                "field": "bedoeling",
+                "quote": "opdracht aan medewerker",
+                "ref": null,
+                "start": 0
+              },
+              "quote": "De medewerker laat de aanvrager toe.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern schrijft een medewerker voor de aanvrager toe te laten in plaats van het begrip af te bakenen.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "fail"
+        }
+      },
+      "oordeel_json": "{\"coverage\": \"complete\", \"passages\": [{\"end\": 36, \"function\": \"actor_prescription\", \"ground\": {\"end\": 23, \"field\": \"bedoeling\", \"quote\": \"opdracht aan medewerker\", \"ref\": null, \"start\": 0}, \"quote\": \"De medewerker laat de aanvrager toe.\", \"start\": 0}], \"question\": null, \"reason\": \"De kern schrijft een medewerker voor de aanvrager toe te laten in plaats van het begrip af te bakenen.\", \"scope_reason\": null, \"uncertainty\": \"none\", \"verdict\": \"fail\"}"
+    },
+    {
+      "id": "C107",
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "voldoende onderbouwde aanvraag",
+          "kern": "Aanvraag die naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is.",
+          "bedoeling": null,
+          "organisatorische_context": [
+            "synthetische begrippenstudie"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "632b83ec043f397ed2be8365548dfe9a5e264ebf82c05ab959389c23d96beb66",
+          "promptversie": "def835-int02-prompt/2",
+          "routeringshash": "a87c899de263c4e4870baca386bfc49ffb6ac6f13d111f142e3e1f0d0082b9fa",
+          "provider": "synthetisch",
+          "model": "synthetisch-model",
+          "begrip_hash": "0eb4e59887776fd2e1ae7abda1749b6316cf30aa7822718cca2e6c1b3716b250",
+          "kern_hash": "0b3044f05c78ea879654924166734b1741c4b9d6b2bff29b63d95a6139dbcbdf",
+          "bedoeling_hash": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "context_hash": "42c6c9a33f429c3b52833fddcde19f9befcbe57d0ee2a326f2d975d9dc0fd7c3",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "unknown",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": "unknown",
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "review_required",
+        "reden": "insufficient_information",
+        "melding": "INT-02 — Onvoldoende informatie. De bedoeling is onbekend; uit de kern blijkt niet of het oordeel een kenmerk van de aanvraag beschrijft of de beoordelaar een afweging voorschrijft. Vraag: Beschrijft het gemotiveerde oordeel van de beoordelaar een kenmerk van de aanvraag, of schrijft de definitie de beoordelaar voor hoe hij moet afwegen?",
+        "vraag": "Beschrijft het gemotiveerde oordeel van de beoordelaar een kenmerk van de aanvraag, of schrijft de definitie de beoordelaar voor hoe hij moet afwegen?",
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 82,
+              "function": "unclear",
+              "ground": {
+                "end": null,
+                "field": "kern",
+                "quote": null,
+                "ref": null,
+                "start": null
+              },
+              "quote": "naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd",
+              "start": 13
+            }
+          ],
+          "question": "Beschrijft het gemotiveerde oordeel van de beoordelaar een kenmerk van de aanvraag, of schrijft de definitie de beoordelaar voor hoe hij moet afwegen?",
+          "reason": "De bedoeling is onbekend; uit de kern blijkt niet of het oordeel een kenmerk van de aanvraag beschrijft of de beoordelaar een afweging voorschrijft.",
+          "scope_reason": null,
+          "uncertainty": "decisive",
+          "verdict": "insufficient_information"
+        }
+      },
+      "oordeel_json": "{\"coverage\": \"complete\", \"passages\": [{\"end\": 82, \"function\": \"unclear\", \"ground\": {\"end\": null, \"field\": \"kern\", \"quote\": null, \"ref\": null, \"start\": null}, \"quote\": \"naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd\", \"start\": 13}], \"question\": \"Beschrijft het gemotiveerde oordeel van de beoordelaar een kenmerk van de aanvraag, of schrijft de definitie de beoordelaar voor hoe hij moet afwegen?\", \"reason\": \"De bedoeling is onbekend; uit de kern blijkt niet of het oordeel een kenmerk van de aanvraag beschrijft of de beoordelaar een afweging voorschrijft.\", \"scope_reason\": null, \"uncertainty\": \"decisive\", \"verdict\": \"insufficient_information\"}"
+    },
+    {
+      "id": "C112",
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "verplichting",
+          "kern": "Verplichting van een partij om de overeengekomen prestatie te verrichten.",
+          "bedoeling": "Synthetische beschrijving van verplichting zelf",
+          "organisatorische_context": [
+            "synthetische begrippenstudie"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "632b83ec043f397ed2be8365548dfe9a5e264ebf82c05ab959389c23d96beb66",
+          "promptversie": "def835-int02-prompt/2",
+          "routeringshash": "a87c899de263c4e4870baca386bfc49ffb6ac6f13d111f142e3e1f0d0082b9fa",
+          "provider": "synthetisch",
+          "model": "synthetisch-model",
+          "begrip_hash": "896597153b1154dcacb67e091ff3e25f7420cc225a06248ec5f81488e1df3e61",
+          "kern_hash": "9bb1ed627aab8b40d845878a286be2c00018259f37ebf542697e11c50fd6c9fa",
+          "bedoeling_hash": "e2bc7e9ba783e167514fa82f835e43809c13a34a596da548c1c639685a82a72e",
+          "context_hash": "42c6c9a33f429c3b52833fddcde19f9befcbe57d0ee2a326f2d975d9dc0fd7c3",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "unknown",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": "unknown",
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Verplichting van een partij om de overeengekomen prestatie te verrichten' beschrijft een criterium; grond: de bevestigde bedoeling ('Synthetische beschrijving van verplichting zelf'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 72,
+              "function": "criterion",
+              "ground": {
+                "end": 47,
+                "field": "bedoeling",
+                "quote": "Synthetische beschrijving van verplichting zelf",
+                "ref": null,
+                "start": 0
+              },
+              "quote": "Verplichting van een partij om de overeengekomen prestatie te verrichten",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern beschrijft wat een verplichting is; zij draagt niemand op de prestatie te verrichten.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "oordeel_json": "{\"coverage\": \"complete\", \"passages\": [{\"end\": 72, \"function\": \"criterion\", \"ground\": {\"end\": 47, \"field\": \"bedoeling\", \"quote\": \"Synthetische beschrijving van verplichting zelf\", \"ref\": null, \"start\": 0}, \"quote\": \"Verplichting van een partij om de overeengekomen prestatie te verrichten\", \"start\": 0}], \"question\": null, \"reason\": \"De kern beschrijft wat een verplichting is; zij draagt niemand op de prestatie te verrichten.\", \"scope_reason\": null, \"uncertainty\": \"none\", \"verdict\": \"pass\"}"
+    },
+    {
+      "id": "C115",
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "toegelaten lid",
+          "kern": "Een lid is toegelaten alleen als de bijdrage betaald is.",
+          "bedoeling": "uitsluitend noodzakelijke voorwaarde, voldoende voorwaarden onbekend",
+          "organisatorische_context": [
+            "synthetische begrippenstudie"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "632b83ec043f397ed2be8365548dfe9a5e264ebf82c05ab959389c23d96beb66",
+          "promptversie": "def835-int02-prompt/2",
+          "routeringshash": "a87c899de263c4e4870baca386bfc49ffb6ac6f13d111f142e3e1f0d0082b9fa",
+          "provider": "synthetisch",
+          "model": "synthetisch-model",
+          "begrip_hash": "a7767925148d70348902c43e092959575dc7e2c7ead1e4d540d3dd97ff717329",
+          "kern_hash": "11aa230896fc73dcb03496d806f09332c87bb1f63571fe27f1954da23345b9ff",
+          "bedoeling_hash": "d53534a15c1b78697a09e5bb050639cfccbbae9a6ed19784fedf7261e52ab823",
+          "context_hash": "42c6c9a33f429c3b52833fddcde19f9befcbe57d0ee2a326f2d975d9dc0fd7c3",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "unknown",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": "unknown",
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'alleen als de bijdrage betaald is' beschrijft een criterium; grond: de bevestigde bedoeling ('uitsluitend noodzakelijke voorwaarde, voldoende voorwaarden onbekend'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 55,
+              "function": "criterion",
+              "ground": {
+                "end": 68,
+                "field": "bedoeling",
+                "quote": "uitsluitend noodzakelijke voorwaarde, voldoende voorwaarden onbekend",
+                "ref": null,
+                "start": 0
+              },
+              "quote": "alleen als de bijdrage betaald is",
+              "start": 22
+            }
+          ],
+          "question": null,
+          "reason": "De passage noemt een noodzakelijke voorwaarde voor lidmaatschap van de klasse toegelaten leden.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "oordeel_json": "{\"coverage\": \"complete\", \"passages\": [{\"end\": 55, \"function\": \"criterion\", \"ground\": {\"end\": 68, \"field\": \"bedoeling\", \"quote\": \"uitsluitend noodzakelijke voorwaarde, voldoende voorwaarden onbekend\", \"ref\": null, \"start\": 0}, \"quote\": \"alleen als de bijdrage betaald is\", \"start\": 22}], \"question\": null, \"reason\": \"De passage noemt een noodzakelijke voorwaarde voor lidmaatschap van de klasse toegelaten leden.\", \"scope_reason\": null, \"uncertainty\": \"none\", \"verdict\": \"pass\"}"
+    },
+    {
+      "id": "C116",
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "dagtotaal",
+          "kern": "Dagtotaal dat gelijk is aan de som van de bedragen van de verkopen op die dag.",
+          "bedoeling": "afgeleid feit; berekening definieert de grootheid, niet een werkinstructie",
+          "organisatorische_context": [
+            "synthetische begrippenstudie"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "632b83ec043f397ed2be8365548dfe9a5e264ebf82c05ab959389c23d96beb66",
+          "promptversie": "def835-int02-prompt/2",
+          "routeringshash": "a87c899de263c4e4870baca386bfc49ffb6ac6f13d111f142e3e1f0d0082b9fa",
+          "provider": "synthetisch",
+          "model": "synthetisch-model",
+          "begrip_hash": "29651159a465541013bde4867f1a8b4c13d24241df06150922376175c5d24b59",
+          "kern_hash": "03f48b84ece9b15ecd01369a24af20f8ab1a919d194f4ef7bf856f09ec02d089",
+          "bedoeling_hash": "9d66361bb7db231d3621e7212815be31c39e9f4e163d733a684fb3755209b139",
+          "context_hash": "42c6c9a33f429c3b52833fddcde19f9befcbe57d0ee2a326f2d975d9dc0fd7c3",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "unknown",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": "unknown",
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'gelijk is aan de som van de bedragen van de verkopen op die dag' beschrijft een afleiding; grond: de bevestigde bedoeling ('afgeleid feit; berekening definieert de grootheid, niet een werkinstructie'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 77,
+              "function": "derivation",
+              "ground": {
+                "end": 74,
+                "field": "bedoeling",
+                "quote": "afgeleid feit; berekening definieert de grootheid, niet een werkinstructie",
+                "ref": null,
+                "start": 0
+              },
+              "quote": "gelijk is aan de som van de bedragen van de verkopen op die dag",
+              "start": 14
+            }
+          ],
+          "question": null,
+          "reason": "De passage leidt de grootheid deterministisch af uit de verkopen op die dag.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "oordeel_json": "{\"coverage\": \"complete\", \"passages\": [{\"end\": 77, \"function\": \"derivation\", \"ground\": {\"end\": 74, \"field\": \"bedoeling\", \"quote\": \"afgeleid feit; berekening definieert de grootheid, niet een werkinstructie\", \"ref\": null, \"start\": 0}, \"quote\": \"gelijk is aan de som van de bedragen van de verkopen op die dag\", \"start\": 14}], \"question\": null, \"reason\": \"De passage leidt de grootheid deterministisch af uit de verkopen op die dag.\", \"scope_reason\": null, \"uncertainty\": \"none\", \"verdict\": \"pass\"}"
+    },
+    {
+      "id": "C101",
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "weigering",
+          "kern": "De autoriteit weigert het document, tenzij hij van oordeel is dat de aanvrager onevenredig wordt benadeeld.",
+          "bedoeling": "discretionair handelingsvoorschrift, verkorte ASTRA-Ppw-illustratie",
+          "organisatorische_context": [
+            "synthetische begrippenstudie"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "632b83ec043f397ed2be8365548dfe9a5e264ebf82c05ab959389c23d96beb66",
+          "promptversie": "def835-int02-prompt/2",
+          "routeringshash": "a87c899de263c4e4870baca386bfc49ffb6ac6f13d111f142e3e1f0d0082b9fa",
+          "provider": "synthetisch",
+          "model": "synthetisch-model",
+          "begrip_hash": "a748ceefadcdfcd254636c216d29057ad3ab5930d3a5f4fe53926cb3f720dac8",
+          "kern_hash": "42be432a1fe1e3e7128988999d52d45ee2696199c0d848e94ff9fadc53055ced",
+          "bedoeling_hash": "6abdfa69ab31549bdd3f6085fc26178ca49ebbd95bf4ca9872476e59c047c5a8",
+          "context_hash": "42c6c9a33f429c3b52833fddcde19f9befcbe57d0ee2a326f2d975d9dc0fd7c3",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "unknown",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": "unknown",
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "fail",
+        "reden": null,
+        "melding": "INT-02 — Voldoet niet. 'tenzij hij van oordeel is dat de aanvrager onevenredig wordt benadeeld' schrijft een afweging voor in plaats van het begrip af te bakenen. Grond: de bevestigde bedoeling ('discretionair handelingsvoorschrift, verkorte ASTRA-Ppw-illustratie'). De tekst is ongewijzigd. Deze passage functioneert als discretionaire beslisregel voor het handelen: 'tenzij hij van oordeel is dat de aanvrager onevenredig wordt benadeeld'. Dat is onder de gekozen INT-02-norm geen beschrijvende afbakening van dit begrip. Het enkele beschrijven van een bevoegdheid of besluit is geen overtreding.",
+        "vraag": null,
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 106,
+              "function": "discretionary_decision_rule",
+              "ground": {
+                "end": 67,
+                "field": "bedoeling",
+                "quote": "discretionair handelingsvoorschrift, verkorte ASTRA-Ppw-illustratie",
+                "ref": null,
+                "start": 0
+              },
+              "quote": "tenzij hij van oordeel is dat de aanvrager onevenredig wordt benadeeld",
+              "start": 36
+            }
+          ],
+          "question": null,
+          "reason": "De passage laat de weigering afhangen van een afweging van de autoriteit.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "fail"
+        }
+      },
+      "oordeel_json": "{\"coverage\": \"complete\", \"passages\": [{\"end\": 106, \"function\": \"discretionary_decision_rule\", \"ground\": {\"end\": 67, \"field\": \"bedoeling\", \"quote\": \"discretionair handelingsvoorschrift, verkorte ASTRA-Ppw-illustratie\", \"ref\": null, \"start\": 0}, \"quote\": \"tenzij hij van oordeel is dat de aanvrager onevenredig wordt benadeeld\", \"start\": 36}], \"question\": null, \"reason\": \"De passage laat de weigering afhangen van een afweging van de autoriteit.\", \"scope_reason\": null, \"uncertainty\": \"none\", \"verdict\": \"fail\"}"
+    },
+    {
+      "id": "C118-v1",
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "even getal",
+          "kern": "Geheel getal dat even is dan en slechts dan als het zonder rest door twee deelbaar is.",
+          "bedoeling": "expliciet bevestigde equivalentie op gehele getallen",
+          "organisatorische_context": [
+            "synthetische begrippenstudie"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "632b83ec043f397ed2be8365548dfe9a5e264ebf82c05ab959389c23d96beb66",
+          "promptversie": "def835-int02-prompt/2",
+          "routeringshash": "a87c899de263c4e4870baca386bfc49ffb6ac6f13d111f142e3e1f0d0082b9fa",
+          "provider": "synthetisch",
+          "model": "synthetisch-model",
+          "begrip_hash": "cacde65af1ca905fc4b285cbc75047713a6f73c0bcb92fa39f063e36795bf9d3",
+          "kern_hash": "1a727464be33856862eea73f25bc45adcffcfa0e2bbf58145d1647b860fa1701",
+          "bedoeling_hash": "c74011893f45adbd1ce4ec4effe2179c8aa0e209b4c14d34775654e5c06e887f",
+          "context_hash": "42c6c9a33f429c3b52833fddcde19f9befcbe57d0ee2a326f2d975d9dc0fd7c3",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "unknown",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": "unknown",
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'dan en slechts dan als het zonder rest door twee deelbaar is' beschrijft een criterium; grond: de bevestigde bedoeling ('expliciet bevestigde equivalentie op gehele getallen'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 85,
+              "function": "criterion",
+              "ground": {
+                "end": 52,
+                "field": "bedoeling",
+                "quote": "expliciet bevestigde equivalentie op gehele getallen",
+                "ref": null,
+                "start": 0
+              },
+              "quote": "dan en slechts dan als het zonder rest door twee deelbaar is",
+              "start": 25
+            }
+          ],
+          "question": null,
+          "reason": "De passage bakent de klasse af met een noodzakelijk en voldoende criterium.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "oordeel_json": "{\"coverage\": \"complete\", \"passages\": [{\"end\": 85, \"function\": \"criterion\", \"ground\": {\"end\": 52, \"field\": \"bedoeling\", \"quote\": \"expliciet bevestigde equivalentie op gehele getallen\", \"ref\": null, \"start\": 0}, \"quote\": \"dan en slechts dan als het zonder rest door twee deelbaar is\", \"start\": 25}], \"question\": null, \"reason\": \"De passage bakent de klasse af met een noodzakelijk en voldoende criterium.\", \"scope_reason\": null, \"uncertainty\": \"none\", \"verdict\": \"pass\"}"
+    },
+    {
+      "id": "C118-v2",
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "afwijzing",
+          "kern": "De medewerker wijst de aanvraag af indien de bijlage ontbreekt.",
+          "bedoeling": "gebonden handelingsvoorschrift zonder discretionaire afweging",
+          "organisatorische_context": [
+            "synthetische procedure"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "632b83ec043f397ed2be8365548dfe9a5e264ebf82c05ab959389c23d96beb66",
+          "promptversie": "def835-int02-prompt/2",
+          "routeringshash": "a87c899de263c4e4870baca386bfc49ffb6ac6f13d111f142e3e1f0d0082b9fa",
+          "provider": "synthetisch",
+          "model": "synthetisch-model",
+          "begrip_hash": "84c2b67d1858742204a553bf07894eb4358197019d0bd30b8516cf6534a38043",
+          "kern_hash": "4d3d3e62961758de5bd350c7e14054759c3ea471e9f6a9acf6db0406417bc611",
+          "bedoeling_hash": "2f273f13c5b39f85e452ff1511c47168bed438927014dbdec4a586c617e06cb3",
+          "context_hash": "bd1cdeff8a4b4a8fe7ee7432926c8ace9ebc6276712600a489533ec9b23d0345",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "unknown",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": "unknown",
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "fail",
+        "reden": null,
+        "melding": "INT-02 — Voldoet niet. 'De medewerker wijst de aanvraag af indien de bijlage ontbreekt.' schrijft een handeling voor in plaats van het begrip af te bakenen. Grond: de bevestigde bedoeling ('gebonden handelingsvoorschrift zonder discretionaire afweging'). De tekst is ongewijzigd.",
+        "vraag": null,
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 63,
+              "function": "actor_prescription",
+              "ground": {
+                "end": 61,
+                "field": "bedoeling",
+                "quote": "gebonden handelingsvoorschrift zonder discretionaire afweging",
+                "ref": null,
+                "start": 0
+              },
+              "quote": "De medewerker wijst de aanvraag af indien de bijlage ontbreekt.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern draagt de medewerker een gebonden handeling op.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "fail"
+        }
+      },
+      "oordeel_json": "{\"coverage\": \"complete\", \"passages\": [{\"end\": 63, \"function\": \"actor_prescription\", \"ground\": {\"end\": 61, \"field\": \"bedoeling\", \"quote\": \"gebonden handelingsvoorschrift zonder discretionaire afweging\", \"ref\": null, \"start\": 0}, \"quote\": \"De medewerker wijst de aanvraag af indien de bijlage ontbreekt.\", \"start\": 0}], \"question\": null, \"reason\": \"De kern draagt de medewerker een gebonden handeling op.\", \"scope_reason\": null, \"uncertainty\": \"none\", \"verdict\": \"fail\"}"
+    },
+    {
+      "id": "SYN-niet-uniek",
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "dagtotaal",
+          "kern": "Totaal van de dag, berekend als som van de dag.",
+          "bedoeling": "Synthetische afleiding van een dagtotaal.",
+          "organisatorische_context": [
+            "synthetische begrippenstudie"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "632b83ec043f397ed2be8365548dfe9a5e264ebf82c05ab959389c23d96beb66",
+          "promptversie": "def835-int02-prompt/2",
+          "routeringshash": "a87c899de263c4e4870baca386bfc49ffb6ac6f13d111f142e3e1f0d0082b9fa",
+          "provider": "synthetisch",
+          "model": "synthetisch-model",
+          "begrip_hash": "29651159a465541013bde4867f1a8b4c13d24241df06150922376175c5d24b59",
+          "kern_hash": "bbeacc47c89dd7dc12c18ae990944180277057762662b8a1dc15ed0ccdda78f1",
+          "bedoeling_hash": "81148c80f265ab54bc507ee7b7ceea50b4b90b4e25c7f830523cfd26c382e93b",
+          "context_hash": "42c6c9a33f429c3b52833fddcde19f9befcbe57d0ee2a326f2d975d9dc0fd7c3",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "unknown",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": "unknown",
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'van de dag' beschrijft een afleiding; grond: de kern. Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 46,
+              "function": "derivation",
+              "ground": {
+                "end": null,
+                "field": "kern",
+                "quote": null,
+                "ref": null,
+                "start": null
+              },
+              "quote": "van de dag",
+              "start": 36
+            }
+          ],
+          "question": null,
+          "reason": "Synthetische afleiding.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "oordeel_json": "{\"coverage\": \"complete\", \"passages\": [{\"end\": 46, \"function\": \"derivation\", \"ground\": {\"end\": null, \"field\": \"kern\", \"quote\": null, \"ref\": null, \"start\": null}, \"quote\": \"van de dag\", \"start\": 36}], \"question\": null, \"reason\": \"Synthetische afleiding.\", \"scope_reason\": null, \"uncertainty\": \"none\", \"verdict\": \"pass\"}"
+    }
+  ]
+}

@@ -68,3 +68,21 @@ De staged commit uit besluit 4 (459 bestanden) werd door de gitleaks-hook geblok
 **Akkoord Chris: alleen fase 1** (`--fase regressie`, C105/C107/C112, maximaal 3 calls); daarna stoppen en bespreken. Het akkoordbestand `kwalificatie-akkoord-v4.json` bevat het protocolkader (43 calls, US$12), omdat de runner dat veldformaat eist; de beperking tot fase 1 is deze procesafspraak. Besluit 6 (v3) is hiermee vervangen.
 
 **Sleutel.** De API-sleutel wordt bij de run door de shell uit de `.env` van de hoofdcheckout gelezen en niet getoond; er komt geen `.env` in de werkboom.
+
+## Besluit 9 — citaatposities door de dienst (07-10-2026)
+
+**Uitslag fase 1 (manifest v4).** Inhoudelijk waren alle drie de gevallen juist: C105 `fail`, C107 `insufficient_information` (hersteld ten opzichte van v2) en C112 `pass`. C105 en C107 hadden geldige citaten. C112 werd toch `invalid_citation`, omdat het model `end` te kort telde: 71 in plaats van 73 in de kern en 46 in plaats van 47 in de bedoeling. De citaten zelf stonden letterlijk in het veld. In v2 lag een `start` één codepunt te laat. Het model telt codepunten dus niet betrouwbaar, en de zelfcontrole-instructie van prompt /2 hielp daar niet tegen. Kosten $0,082385 (3 calls), stopreden `invalid_citation`. Aandachtspunt 3 (besluit 3) was in deze drie gevallen niet toetsbaar. Details: `goldset-voorbereiding/goldset-freeze-v1/kwalificatieproef-v4-uitslag-v1.md`.
+
+**Keuze Chris: optie A.** De dienst bepaalt de posities. Het model levert per passage- en grondcitaat alleen het letterlijke citaat en het veld. De code zoekt het citaat als exacte substring (Python-codepunten, geen normalisatie) in de tekst van het opgegeven veld: `start` is de vindplaats en `end = start + len(quote)`. Komt het citaat 0 keer of meer dan 1 keer voor, dan volgt `invalid_citation` met een onderscheidbare reden (`niet_gevonden` of `niet_uniek`; ook `leeg` en `grond_niet_herleidbaar`). De letterlijkheidseis blijft even streng. Dit is geen stille reparatie van modelposities: het model levert ze niet meer, en meegeleverde `start`/`end` worden als onbekend veld geweigerd. Het opgeslagen document houdt `start`/`end`, nu door de code afgeleid, zodat UI en export ongewijzigd blijven. Nieuwe versies: contract `def835-int02-assessment/2` en prompt `def835-int02-prompt/3`. Uitvoering: `goldset-voorbereiding/positiecorrectie-v1/uitvoeringsverslag-claude-v1.md`.
+
+**Afgewezen:**
+- B: een strengere instructie in de prompt (de zelfcontrole-instructie van /2 hielp al niet);
+- C: genummerde woorden;
+- D: parkeren.
+
+**Vervolg:**
+1. Onafhankelijke Codex-review van de diff.
+2. Commit en push.
+3. Offline manifest v5 met nieuwe prompt-, systeemprompt-, bestands- en payloadhashes.
+4. Nieuw exact akkoord van Chris op v5.
+5. Daarna opnieuw alleen fase 1 (C105/C107/C112).

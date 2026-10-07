@@ -120,16 +120,8 @@ def _pass_respons(kern: str = KERN) -> dict[str, Any]:
         "passages": [
             {
                 "quote": kern,
-                "start": 0,
-                "end": len(kern),
                 "function": "criterion",
-                "ground": {
-                    "field": "kern",
-                    "ref": None,
-                    "quote": None,
-                    "start": None,
-                    "end": None,
-                },
+                "ground": {"field": "kern", "ref": None, "quote": None},
             }
         ],
         "reason": "Synthetische pass voor de mapping; geen modeloordeel.",
@@ -603,7 +595,13 @@ async def test_ontwerpgevallen_via_echte_dienst_en_modulaire_service(
     assert detail["parts"][0]["reason"] == beoordeling.document.melding
     if aanvaard:
         assert detail["assessment"] == beoordeling.document.als_dict()
-        assert detail["assessment"]["oordeel"] == geval["modelrespons"]
+        # Contract /2: het oordeel is de modelrespons plus afgeleide posities.
+        oordeel = copy.deepcopy(detail["assessment"]["oordeel"])
+        kern = geval["invoer"]["kern"]
+        for passage in oordeel["passages"]:
+            assert kern[passage.pop("start") : passage.pop("end")] == passage["quote"]
+            passage["ground"].pop("start"), passage["ground"].pop("end")
+        assert oordeel == geval["modelrespons"]
         assert detail["assessment"]["invoer"] == geval["invoer"]
     else:
         assert beoordeling.document.foutcategorie == "invalid_citation"
