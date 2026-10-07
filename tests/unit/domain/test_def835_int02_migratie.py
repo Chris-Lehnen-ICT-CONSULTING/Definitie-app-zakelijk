@@ -11,6 +11,12 @@ De /1-documenten komen uit `tests/fixtures/def835_int02_contract_v1_documenten.j
 Die zijn gemaakt met de /1-contractcode die letterlijk uit git is geladen
 (`scripts/analysis/def835_int02_v1_referentiedocumenten.py`, revisie
 3ba526dae, contract-SHA-256 6dcae57b…), dus niet met de code onder test.
+
+Sinds /3 (besluit 12, review Codex 07-10-2026): het /2-document is het in
+kwalificatieproef v5 door de echte /2-code bewaarde C107-document
+(`kwalificatieproef-v5/regressie-resultaat.json`), ook niet gemaakt met de
+code onder test. Documenten via de actuele `beoordeel` zijn /3 en heten hier
+"actueel".
 """
 
 from __future__ import annotations
@@ -43,7 +49,13 @@ REFERENTIE = json.loads(
     )
 )
 V1 = "def835-int02-assessment/1"
+V2 = "def835-int02-assessment/2"
 IDS = [d["id"] for d in REFERENTIE["documenten"]]
+V5_RESULTAAT = (
+    ROOT / "docs/analyses/def606-regeldossiers/INT-02-verdieping/"
+    "onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/"
+    "goldset-freeze-v1/kwalificatieproef-v5/regressie-resultaat.json"
+)
 
 
 def _configuratie() -> Configuratie:
@@ -190,10 +202,11 @@ def test_v1_document_met_gewijzigde_uitkomst_is_error(veld):
     assert _actualiteit(document, item).status == "error"
 
 
-# --- (d) /2-document gemanipuleerd → error ------------------------------------
+# --- (d) actueel (/3) document gemanipuleerd → error ----------------------------
 
 
-def _v2_document(item: dict) -> Beoordelingsdocument:
+def _actueel_document(item: dict) -> Beoordelingsdocument:
+    """Een document onder de actuele contractversie (/3) via `beoordeel`."""
     oordeel = json.loads(item["oordeel_json"])
     for passage in oordeel["passages"]:
         del passage["start"], passage["end"]
@@ -209,10 +222,10 @@ def _v2_document(item: dict) -> Beoordelingsdocument:
 @pytest.mark.parametrize(
     "manipulatie", ["positie", "quote", "status", "melding", "als-v1-zonder-posities"]
 )
-def test_gemanipuleerd_v2_document_is_error(manipulatie):
+def test_gemanipuleerd_actueel_document_is_error(manipulatie):
     item = _item("C105")
-    document = _v2_document(item)
-    assert document.contractversie == CONTRACTVERSIE
+    document = _actueel_document(item)
+    assert document.contractversie == CONTRACTVERSIE != V2
     assert _actualiteit(document, item).status == "fail"  # ongemanipuleerd actueel
     oordeel = document.oordeel
     if manipulatie == "positie":
@@ -239,30 +252,133 @@ def test_gemanipuleerd_v2_document_is_error(manipulatie):
     assert (actualiteit.status, actualiteit.melding) == ("error", MELDING_E)
 
 
+# --- (d2) echt /2-document (kwalificatieproef v5): historisch; gemanipuleerd → error
+
+
+def _v2_proefdocument() -> Beoordelingsdocument:
+    """Het in kwalificatieproef v5 door de /2-code bewaarde C107-document."""
+    resultaat = json.loads(V5_RESULTAAT.read_text("utf-8"))
+    (geval,) = [g for g in resultaat["gevallen"] if g["id"] == "C107"]
+    data = geval["document"]
+    return Beoordelingsdocument(
+        contractversie=data["contractversie"],
+        invoer=maak_invoer(**data["invoer"]),
+        binding=Binding(**data["binding"]),
+        uitvoering=Uitvoering(**data["uitvoering"]),
+        status=data["status"],
+        reden=data["reden"],
+        melding=data["melding"],
+        vraag=data["vraag"],
+        foutcategorie=data["foutcategorie"],
+        oordeel_json=json.dumps(data["oordeel"], ensure_ascii=False, sort_keys=True),
+        foutdetail=data["foutdetail"],
+    )
+
+
+def _actualiteit_eigen(document: Beoordelingsdocument):
+    """Actuele invoer en configuratie = die van het document zelf."""
+    return toets_actualiteit(document, document.invoer, document.binding.configuratie())
+
+
+def test_v2_proefdocument_is_echt_v2_en_wordt_historisch():
+    document = _v2_proefdocument()
+    assert document.contractversie == document.binding.contractversie == V2
+    assert document.status == "fail"
+    actualiteit = _actualiteit_eigen(document)
+    assert (actualiteit.status, actualiteit.reden, actualiteit.melding) == (
+        "review_required",
+        "historical",
+        MELDING_HISTORISCH,
+    )
+
+
+@pytest.mark.parametrize(
+    ("pad", "delta"),
+    [
+        (("start",), 1),
+        (("start",), -1),
+        (("end",), -1),
+        (("end",), 1),
+        (("ground", "start"), 1),
+        (("ground", "end"), -1),
+    ],
+    ids=["start+1", "start-1", "end-1", "end+1", "grond-start+1", "grond-end-1"],
+)
+def test_v2_proefdocument_met_gemanipuleerde_positie_is_error(pad, delta):
+    document = _v2_proefdocument()
+    oordeel = document.oordeel
+    doel = oordeel["passages"][0]
+    for stap in pad[:-1]:
+        doel = doel[stap]
+    doel[pad[-1]] += delta
+    actualiteit = _actualiteit_eigen(_met_oordeel(document, oordeel))
+    assert (actualiteit.status, actualiteit.melding) == ("error", MELDING_E)
+
+
+def test_v2_proefdocument_zonder_posities_is_error():
+    document = _v2_proefdocument()
+    oordeel = document.oordeel
+    for passage in oordeel["passages"]:
+        del passage["start"], passage["end"]
+        del passage["ground"]["start"], passage["ground"]["end"]
+    assert _actualiteit_eigen(_met_oordeel(document, oordeel)).status == "error"
+
+
+@pytest.mark.parametrize(
+    "wijziging",
+    ["citaat", "citaat-consistent", "grondcitaat", "grondcitaat-consistent"],
+)
+def test_v2_proefdocument_met_gewijzigde_quote_is_error(wijziging):
+    document = _v2_proefdocument()
+    kern = document.invoer.kern
+    oordeel = document.oordeel
+    passage = oordeel["passages"][0]
+    if wijziging == "citaat":
+        passage["quote"] = passage["quote"].upper()
+    elif wijziging == "citaat-consistent":
+        # Een ander, wel uniek en op zijn posities staand citaat.
+        passage.update({"quote": kern[0:12], "start": 0, "end": 12})
+    elif wijziging == "grondcitaat":
+        passage["ground"]["quote"] += "!"
+    else:
+        passage["ground"].update({"quote": kern[13:48], "start": 13, "end": 48})
+    actualiteit = _actualiteit_eigen(_met_oordeel(document, oordeel))
+    assert (actualiteit.status, actualiteit.melding) == ("error", MELDING_E)
+
+
 # --- (e) onbekende contractversie → error -------------------------------------
+
+
+def _basisdocument(basis: str) -> tuple[Beoordelingsdocument, object]:
+    """(document, actualiteitsfunctie) voor /1, echt /2 of actueel /3."""
+    if basis == "v2":
+        return _v2_proefdocument(), _actualiteit_eigen
+    item = _item("C112")
+    document = _uit_dict(item) if basis == "v1" else _actueel_document(item)
+    return document, lambda doc: _actualiteit(doc, item)
 
 
 @pytest.mark.parametrize(
     "versie",
     ["def835-int02-assessment/0", "def835-int02-assessment/9", "onbekend"],
 )
-@pytest.mark.parametrize("basis", ["v1", "v2"])
+@pytest.mark.parametrize("basis", ["v1", "v2", "v3"])
 def test_onbekende_contractversie_is_error(versie, basis):
-    item = _item("C112")
-    document = _uit_dict(item) if basis == "v1" else _v2_document(item)
+    document, actualiteit_van = _basisdocument(basis)
     document = dataclasses.replace(
         document,
         contractversie=versie,
         binding=dataclasses.replace(document.binding, contractversie=versie),
     )
-    actualiteit = _actualiteit(document, item)
+    actualiteit = actualiteit_van(document)
     assert (actualiteit.status, actualiteit.melding) == ("error", MELDING_E)
 
 
-@pytest.mark.parametrize("basis", ["v1", "v2"])
-def test_document_en_binding_met_verschillende_versie_is_error(basis):
-    item = _item("C112")
-    document = _uit_dict(item) if basis == "v1" else _v2_document(item)
-    ander = CONTRACTVERSIE if basis == "v1" else V1
+@pytest.mark.parametrize(
+    ("basis", "ander"),
+    [("v1", CONTRACTVERSIE), ("v2", CONTRACTVERSIE), ("v2", V1), ("v3", V2)],
+)
+def test_document_en_binding_met_verschillende_versie_is_error(basis, ander):
+    document, actualiteit_van = _basisdocument(basis)
     document = dataclasses.replace(document, contractversie=ander)
-    assert _actualiteit(document, item).status == "error"
+    assert actualiteit_van(document).status == "error"

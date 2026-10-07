@@ -1,0 +1,223 @@
+........................................................................ [ 17%]
+.........................................F.............................. [ 35%]
+.........F...F.......................................................... [ 53%]
+....F................................F.............F......FFFFFFFFFFF..F [ 70%]
+.FFFF.FFFFFFFFFF.FFFF.FFFFFFFFFFFFFF..F................................. [ 88%]
+...........F..................................                           [100%]
+=================================== FAILURES ===================================
+E   FileNotFoundError: [Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/architectuur/contracts/int02_assessment_contract_v3.md'
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/pathlib/_local.py:537: FileNotFoundError: [Errno 2] No such file or directory: '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/architectuur/contracts/int02_assessment_contract_v3.md'
+E   AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+      
+      - def835-int02-assessment/3
+      ?                         ^
+      + def835-int02-assessment/2
+      ?                         ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_contract.py:539: AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+E   AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+      
+      - def835-int02-assessment/3
+      ?                         ^
+      + def835-int02-assessment/2
+      ?                         ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_contract.py:389: AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+E   AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+      
+      - def835-int02-assessment/3
+      ?                         ^
+      + def835-int02-assessment/2
+      ?                         ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:134: AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+E   AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+      
+      - def835-int02-assessment/3
+      ?                         ^
+      + def835-int02-assessment/2
+      ?                         ^
+------------------------------ Captured log call -------------------------------
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: High Error Rate - 1.000 gt 0.1 (Severity: error)
+WARNING  monitoring.api_monitor:api_monitor.py:378 🚨 ALERT: Low Cache Hit Rate - 0.000 lt 0.3 (Severity: info)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting.py:301: AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+E   AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+      
+      - def835-int02-assessment/3
+      ?                         ^
+      + def835-int02-assessment/2
+      ?                         ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting.py:249: AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:420: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AssertionError: assert ('fail', 'INT...overtreding.') == ('error', 'IN...ongewijzigd.')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:521: AssertionError: assert ('fail', 'INT...overtreding.') == ('error', 'IN...ongewijzigd.')
+E   AssertionError: assert ('fail', None...overtreding.') == ('review_requ...overtreding.')
+      
+      At index 0 diff: 'fail' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:487: AssertionError: assert ('fail', None...overtreding.') == ('review_requ...overtreding.')
+E   AssertionError: assert ('fail', 'INT...overtreding.') == ('error', 'IN...ongewijzigd.')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:521: AssertionError: assert ('fail', 'INT...overtreding.') == ('error', 'IN...ongewijzigd.')
+E   AssertionError: assert ('fail', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'fail' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:233: AssertionError: assert ('fail', None) == ('review_requ..._information')
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:287: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:358: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/dataclasses.py:1679: TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+E   TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/dataclasses.py:1679: TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:338: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:211: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/dataclasses.py:1679: TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:270: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/dataclasses.py:1679: TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+E   TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/dataclasses.py:1679: TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+E   AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+      
+      - def835-int02-assessment/3
+      ?                         ^
+      + def835-int02-assessment/2
+      ?                         ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:196: AssertionError: assert 'def835-int02-assessment/2' == 'def835-int02-assessment/3'
+E   TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/dataclasses.py:1679: TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+E   AssertionError: assert 'fail' == 'review_required'
+      
+      - review_required
+      + fail
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:721: AssertionError: assert 'fail' == 'review_required'
+E   AssertionError: assert 'fail' == 'error'
+      
+      - error
+      + fail
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:528: AssertionError: assert 'fail' == 'error'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:308: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/dataclasses.py:1679: TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:298: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:446: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/dataclasses.py:1679: TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:420: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:358: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:467: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:358: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:270: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:322: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:358: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:372: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:338: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:432: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:456: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AssertionError: assert ('fail', None...overtreding.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'fail' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:604: AssertionError: assert ('fail', None...overtreding.') == ('review_requ...en is nodig.')
+E   TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+/opt/homebrew/Cellar/python@3.13/3.13.15/Frameworks/Python.framework/Versions/3.13/lib/python3.13/dataclasses.py:1679: TypeError: Beoordelingsdocument.__init__() got an unexpected keyword argument 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:381: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:322: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:420: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:620: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:358: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   assert None == 'Is de bedoeling dat deze passage een begripskenmerk beschrijft of de actor een afweging voorschrijft?'
+     +  where None = Beoordelingsdocument(contractversie='def835-int02-assessment/2', invoer=Int02Invoer(begrip='voldoende onderbouwde aanv...ason": "Synthetische onderbouwing.", "scope_reason": null, "uncertainty": "none", "verdict": "fail"}', foutdetail=None).vraag
+     +    where Beoordelingsdocument(contractversie='def835-int02-assessment/2', invoer=Int02Invoer(begrip='voldoende onderbouwde aanv...ason": "Synthetische onderbouwing.", "scope_reason": null, "uncertainty": "none", "verdict": "fail"}', foutdetail=None) = _beoordeel(Int02Invoer(begrip='voldoende onderbouwde aanvraag', kern='Aanvraag die naar het gemotiveerde oordeel van de beoordela...idische_context=(), wettelijke_basis=(), bronnen=(Bronpassage(id='B1', tekst='Synthetische bron over een afweging.'),)), {'coverage': 'complete', 'passages': [{'function': 'discretionary_decision_rule', 'ground': {'field': 'kern', 'quote':...e oordeel van de beoordelaar voldoende onderbouwd is'}], 'question': None, 'reason': 'Synthetische onderbouwing.', ...})
+     +      where Int02Invoer(begrip='voldoende onderbouwde aanvraag', kern='Aanvraag die naar het gemotiveerde oordeel van de beoordela...idische_context=(), wettelijke_basis=(), bronnen=(Bronpassage(id='B1', tekst='Synthetische bron over een afweging.'),)) = _invoer('Aanvraag die naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is.')
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:205: assert None == 'Is de bedoeling dat deze passage een begripskenmerk beschrijft of de actor een afweging voorschrijft?'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:596: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:270: AttributeError: 'Beoordelingsdocument' object has no attribute 'omzetting'
+E   AssertionError: assert <ResultStatus.FAIL: 'fail'> is <ResultStatus.REVIEW_REQUIRED: 'review_required'>
+     +  where <ResultStatus.FAIL: 'fail'> = EvaluationOutcome(status=<ResultStatus.FAIL: 'fail'>, score=None, findings=(), pattern_hits=(), first_hit_pattern=None...reason': None, 'uncertainty': 'none', 'verdict': 'fail'}}, 'signals': ['\\btenzij\\b', '\\bvan\\s+oordeel\\s+is\\b']}}).status
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_evaluator.py:401: AssertionError: assert <ResultStatus.FAIL: 'fail'> is <ResultStatus.REVIEW_REQUIRED: 'review_required'>
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_contract.py::test_contractdocument_legt_versies_en_exacte_meldingen_vast
+FAILED tests/unit/domain/test_def835_int02_contract.py::test_document_is_json_serialiseerbaar_zonder_score
+FAILED tests/unit/domain/test_def835_int02_contract.py::test_binding_legt_versies_en_hashes_vast
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_contractversie_is_drie_met_de_positieregel_van_twee
+FAILED tests/unit/validation/test_def835_int02_variatiemeting.py::test_live_vijf_runs_alleen_c107_zonder_sleutel_in_uitvoer
+FAILED tests/unit/validation/test_def835_int02_variatiemeting.py::test_herkomst_bindt_script_contract_dienst_en_systeemprompt
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_andere_verdicts_blijven_ongewijzigd[pass]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_omgezet_document_is_error[vraag-weg]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_hercontrole_van_een_omgezet_document_is_stabiel
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_omgezet_document_is_error[terug-naar-fail]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_c107_v5_fail_wordt_review_required_met_vaste_vraag_en_omzetting
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_niet_dragende_passages_tellen_niet_mee
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_andere_grond_zonder_bedoeling_blijft_fail[context-citaat]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_omgezet_document_is_error[omzetting-weg]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_omgezet_document_is_error[omzetting-anders]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_naast_actorvoorschrift_blijft_fail[voorschrift-eerst]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_document_zonder_omzetting_draagt_het_veld_als_none
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_omgezet_document_is_error[terug-naar-fail-zonder-omzetting]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_kerngrond_met_of_zonder_grondcitaat_wordt_omgezet[beoordelaar]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_v2_proefdocument_is_error[als-omgezet]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_v2_proefdocument_is_error[omzetting-erbij]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_contractversie_is_drie
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_omzetting_op_een_niet_omgezet_document_is_error[onvoldoende]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_dienst_zet_de_ruwe_v5_fail_om_en_laat_dat_zien
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_omgezet_document_met_andere_melding_is_error
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_c107_v5_met_bekende_bedoeling_blijft_fail
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_omzetting_op_een_niet_omgezet_document_is_error[fail]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_meerdere_discretionaire_kernpassages_noemen_de_eerste
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_ongeldige_fail_uitvoer_blijft_error_en_wordt_niet_omgezet
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_omzetting_op_een_niet_omgezet_document_is_error[pass]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_andere_verdicts_blijven_ongewijzigd[onvoldoende]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_andere_grond_zonder_bedoeling_blijft_fail[begrip]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_modelvraag_bij_fail_wordt_niet_overgenomen_maar_blijft_zichtbaar
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_andere_grond_zonder_bedoeling_blijft_fail[context]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_kerngrond_met_of_zonder_grondcitaat_wordt_omgezet[None]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_actorvoorschrift_met_kerngrond_zonder_bedoeling_blijft_fail[None]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_andere_grond_zonder_bedoeling_blijft_fail[bron-citaat]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_naast_discretie_met_contextgrond_blijft_fail
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_naast_actorvoorschrift_blijft_fail[discretie-eerst]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_ontbrekende_invoer_mislukte_en_niet_uitgevoerde_beoordeling_blijven
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_menselijke_beoordelaar_wordt_niet_omgezet
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_v2_proefdocument_wordt_historisch_en_niet_omgezet_of_error
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_omgezet_document_is_error[omzetting-spatie]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_bedoelingsgrond_bij_onbekende_bedoeling_blijft_een_fout
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_actorvoorschrift_met_kerngrond_zonder_bedoeling_blijft_fail[de behandelaar moet afwijzen]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_andere_verdicts_blijven_ongewijzigd[nvt]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_zelfde_uitvoer_onder_contract_3_wordt_wel_omgezet
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_andere_grond_zonder_bedoeling_blijft_fail[bron]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_vaste_vraag_is_precies_een_vraag_en_invoeronafhankelijk
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_v2_proefdocument_is_een_fail_onder_contract_2
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_kerngrond_met_of_zonder_grondcitaat_wordt_omgezet[naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestActueelOordeel::test_omgezette_discretie_zonder_bedoeling_is_zichtbaar_open
+52 failed, 354 passed in 1.94s

@@ -1,4 +1,4 @@
-"""INT-02 — beoordelingscontract def835-int02-assessment/2 (norm def771-int02/2).
+"""INT-02 — beoordelingscontract def835-int02-assessment/3 (norm def771-int02/2).
 
 Zuiver domein (DEF-835 WP1, plan-v1 §Ontwerpvoorstel): geen AI-client,
 database of Streamlit. Een beoordelaar (model of mens) bepaalt per passage de
@@ -21,12 +21,22 @@ functie; deze code controleert alleen wat mechanisch controleerbaar is:
   of een leeg citaat is `invalid_citation` met een `foutdetail`. Uitvoer die
   zelf `start`/`end` meelevert, heeft onbekende velden (`invalid_output`);
 - **status**: de mapping uit synthese v5 §4 (pass, fail, review_required,
-  not_evaluated, error, not_applicable), zonder cijfer, met exacte meldingen.
+  not_evaluated, error, not_applicable), zonder cijfer, met exacte meldingen;
+- **dienstregel discretie zonder bedoeling** (/3, besluit 12 optie A): geeft
+  een model (actor `ai`) `fail`, is de bevestigde bedoeling onbekend en
+  hebben alle passages die de fail dragen functie
+  `discretionary_decision_rule` met uitsluitend het veld `kern` als grond,
+  dan is de status `review_required` / `insufficient_information` met de
+  vaste vraag `VRAAG_DISCRETIE_ZONDER_BEDOELING`. De omzetting staat
+  zichtbaar in `Beoordelingsdocument.omzetting`; het bewaarde oordeel blijft
+  de geaccepteerde uitvoer (verdict `fail`). Een actorvoorschrift of een
+  andere grond houdt de fail in stand (besluit 1); er komt geen pass-pad bij.
 
 Het bewaarde oordeel is de geaccepteerde uitvoer mét de afgeleide posities,
 in dezelfde vorm als onder /1, zodat melding, UI en export ongewijzigd
-werken. Een bewaard /1-document wordt bij replay nog volgens de /1-regels op
-integriteit getoetst en is daarna historisch (niet `error`). Ongeldige uitvoer wordt nooit gerepareerd en geeft `error`, nooit
+werken. Een bewaard /1- of /2-document wordt bij replay nog volgens de regels
+van zijn eigen versie op integriteit getoetst en is daarna historisch (niet
+`error`). Ongeldige uitvoer wordt nooit gerepareerd en geeft `error`, nooit
 fail of review_required. De code bewijst geen semantische juistheid of
 volledigheid van de beoordeling. Opslag valt buiten dit contract (DEF-626).
 """
@@ -61,13 +71,18 @@ __all__ = [
 ]
 
 #: /1: posities door de beoordelaar. /2: posities door deze code afgeleid
-#: (besluit 9, optie A); documenten onder /1 zijn daardoor historisch.
-CONTRACTVERSIE = "def835-int02-assessment/2"
-#: Vorige versie. Een bewaard /1-document wordt volgens de /1-regels op
-#: integriteit getoetst (`_herleidbaar`) en is daarna historisch, geen error.
+#: (besluit 9, optie A). /3: plus de dienstregel discretie zonder bedoeling
+#: (besluit 12, optie A). Documenten onder /1 en /2 zijn daardoor historisch.
+CONTRACTVERSIE = "def835-int02-assessment/3"
+#: Vorige versies. Een bewaard /1- of /2-document wordt volgens de regels van
+#: zijn eigen versie op integriteit getoetst (`_herleidbaar`) en is daarna
+#: historisch, geen error.
 _CONTRACTVERSIE_V1 = "def835-int02-assessment/1"
+_CONTRACTVERSIE_V2 = "def835-int02-assessment/2"
 #: Versies waarvan een bewaard document herleidbaar kan zijn; andere → error.
-_BEKENDE_CONTRACTVERSIES = frozenset({_CONTRACTVERSIE_V1, CONTRACTVERSIE})
+_BEKENDE_CONTRACTVERSIES = frozenset(
+    {_CONTRACTVERSIE_V1, _CONTRACTVERSIE_V2, CONTRACTVERSIE}
+)
 NORMVERSIE = "def771-int02/2"
 #: Expliciete waarde voor een niet-gerapporteerde meting; nooit 0 of None.
 ONBEKEND = "unknown"
@@ -98,6 +113,22 @@ CITAAT_NIET_GEVONDEN = "niet_gevonden"
 CITAAT_NIET_UNIEK = "niet_uniek"
 CITAAT_LEEG = "leeg"
 GROND_NIET_HERLEIDBAAR = "grond_niet_herleidbaar"
+#: /3 (besluit 12): zichtbare omzetting van fail naar review_required /
+#: insufficient_information (`Beoordelingsdocument.omzetting`).
+OMZETTING_DISCRETIE_ZONDER_BEDOELING = "discretie_zonder_bedoeling"
+#: Vaste, invoeronafhankelijke vraag bij die omzetting. Ook als het model bij
+#: zijn fail zelf een vraag gaf: die gaat volgens de T-tekst over andere open
+#: punten (SC-C-03) en blijft zichtbaar in het oordeel.
+VRAAG_DISCRETIE_ZONDER_BEDOELING = (
+    "Is de bedoeling dat deze passage een begripskenmerk beschrijft of de actor "
+    "een afweging voorschrijft?"
+)
+#: Betekenisgrond in de O-melding bij die omzetting; `{citaat}` is de eerste
+#: dragende passage.
+REDEN_DISCRETIE_ZONDER_BEDOELING = (
+    "De bevestigde bedoeling is onbekend; alleen de kern zelf draagt de lezing "
+    "van '{citaat}' als discretionaire beslisregel"
+)
 
 _UITVOERVELDEN = frozenset(
     {"verdict", "passages", "reason", "question", "uncertainty"}
@@ -723,6 +754,52 @@ def _status_en_melding(uitvoer: dict[str, Any]) -> tuple[str, str | None, str]:
     return "not_applicable", None, melding
 
 
+# --- Dienstregel discretie zonder bedoeling (/3, besluit 12) ---------------------
+
+
+def _discretie_zonder_bedoeling(
+    oordeel: dict[str, Any], invoer: Int02Invoer, uitvoering: Uitvoering
+) -> bool:
+    """Draagt alleen de kern een discretionaire fail van het model, zonder bedoeling?
+
+    Alle passages met een gebrekfunctie tellen; andere passages dragen de
+    fail niet. Eén `actor_prescription` of één andere grond dan `kern`
+    (begrip, bedoeling, context of bron) houdt de fail in stand.
+    """
+    if (
+        oordeel["verdict"] != "fail"
+        or uitvoering.actor != "ai"
+        or _gevuld(invoer.bedoeling)
+    ):
+        return False
+    dragend = [p for p in oordeel["passages"] if p["function"] in GEBREK]
+    return all(
+        p["function"] == "discretionary_decision_rule"
+        and p["ground"]["field"] == "kern"
+        for p in dragend
+    )
+
+
+def _omzetting_discretie(oordeel: dict[str, Any]) -> tuple[str, str, str, str]:
+    """(status, reden, melding, vraag) na de omzetting; de O-melding met vaste vraag."""
+    p = _eerste(oordeel["passages"], GEBREK)
+    melding = _vul(
+        MELDING_O,
+        {
+            "{ontbrekende of strijdige betekenisgrond}": _vul(
+                REDEN_DISCRETIE_ZONDER_BEDOELING, {"{citaat}": p["quote"]}
+            ),
+            "{één vraag}": VRAAG_DISCRETIE_ZONDER_BEDOELING,
+        },
+    )
+    return (
+        "review_required",
+        "insufficient_information",
+        melding,
+        VRAAG_DISCRETIE_ZONDER_BEDOELING,
+    )
+
+
 # --- Document en replay ---------------------------------------------------------
 
 
@@ -734,6 +811,9 @@ class Beoordelingsdocument:
     door deze code afgeleide posities, of None als er geen geldig oordeel is.
     `foutdetail` onderscheidt bij `invalid_citation` niet gevonden, niet
     uniek, leeg citaat en niet-herleidbare grond; anders is het None.
+    `omzetting` is `OMZETTING_DISCRETIE_ZONDER_BEDOELING` als de dienstregel
+    van /3 een fail heeft omgezet (het oordeel houdt dan verdict `fail`);
+    anders None, ook onder /1 en /2.
     `toets_actualiteit` accepteert een document alleen als het opnieuw exact
     uit zijn eigen invoer, binding, uitvoering en oordeel volgt; een direct
     samengesteld of gemanipuleerd document is dus nooit stil een actueel
@@ -751,6 +831,7 @@ class Beoordelingsdocument:
     foutcategorie: str | None
     oordeel_json: str | None
     foutdetail: str | None = None
+    omzetting: str | None = None
 
     @property
     def oordeel(self) -> dict[str, Any] | None:
@@ -769,6 +850,7 @@ class Beoordelingsdocument:
             "vraag": self.vraag,
             "foutcategorie": self.foutcategorie,
             "foutdetail": self.foutdetail,
+            "omzetting": self.omzetting,
             "oordeel": self.oordeel,
         }
 
@@ -800,8 +882,9 @@ def beoordeel(
 
     Volgorde: ontbrekende kern/context (NE, oordeel genegeerd) → mislukte
     uitvoering (error) → niet uitgevoerd (nog te beoordelen) → structuur →
-    citaten, posities en gronden → samenhang → status. Een nieuw document
-    valt altijd onder de actuele `CONTRACTVERSIE`.
+    citaten, posities en gronden → samenhang → status → dienstregel
+    discretie zonder bedoeling. Een nieuw document valt altijd onder de
+    actuele `CONTRACTVERSIE`.
     """
     return _beoordeel(invoer, configuratie, modeluitvoer, uitvoering, CONTRACTVERSIE)
 
@@ -813,10 +896,11 @@ def _beoordeel(
     uitvoering: Uitvoering,
     contractversie: str,
 ) -> Beoordelingsdocument:
-    """`beoordeel` volgens de regels van `contractversie` (/2, of /1 voor replay).
+    """`beoordeel` volgens de regels van `contractversie` (/3, of /1 en /2 voor replay).
 
     Onder /1 levert de beoordelaar de posities en is het oordeel de uitvoer
-    zelf; /1 kende geen `foutdetail`. Onder /2 leidt deze code de posities af.
+    zelf; /1 kende geen `foutdetail`. Onder /2 en /3 leidt deze code de
+    posities af. Alleen /3 kent de dienstregel discretie zonder bedoeling.
     """
     v1 = contractversie == _CONTRACTVERSIE_V1
     _eis(isinstance(uitvoering, Uitvoering), "uitvoering moet een Uitvoering zijn")
@@ -830,6 +914,7 @@ def _beoordeel(
         uitvoer: dict[str, Any] | None = None,
         vraag: str | None = None,
         foutdetail: str | None = None,
+        omzetting: str | None = None,
     ) -> Beoordelingsdocument:
         oordeel = None
         if uitvoer is not None:
@@ -846,6 +931,7 @@ def _beoordeel(
             foutcategorie=fout,
             oordeel_json=oordeel,
             foutdetail=foutdetail,
+            omzetting=omzetting,
         )
 
     ontbreekt = ontbrekende_invoer(invoer)
@@ -871,12 +957,19 @@ def _beoordeel(
         detail = None if v1 else afwijzing.detail
         return document("error", MELDING_E, fout=afwijzing.categorie, foutdetail=detail)
     status, reden, melding = _status_en_melding(oordeel)
+    vraag, omzetting = oordeel["question"], None
+    if contractversie == CONTRACTVERSIE and _discretie_zonder_bedoeling(
+        oordeel, invoer, uitvoering
+    ):
+        status, reden, melding, vraag = _omzetting_discretie(oordeel)
+        omzetting = OMZETTING_DISCRETIE_ZONDER_BEDOELING
     return document(
         status,
         melding,
         reden=reden,
         uitvoer=oordeel,
-        vraag=oordeel["question"],
+        vraag=vraag,
+        omzetting=omzetting,
     )
 
 
@@ -917,12 +1010,13 @@ def _herleidbaar(document: Beoordelingsdocument) -> bool:
     identiek oplevert, kan een actueel oordeel dragen.
 
     De controle volgt de *originele* contractversie van het document (review
-    Codex 07-10-2026): onder /2 worden de bewaarde posities weggelaten en
-    opnieuw afgeleid; onder /1 gelden de /1-regels (opgeslagen posities,
-    `tekst[start:end] == quote` exact). Een gewijzigde of ontbrekende positie
-    of quote maakt het document in beide gevallen niet-herleidbaar; een
-    onbekende contractversie is nooit herleidbaar. Een herleidbaar
-    /1-document is daarna via de bindingstoets historisch.
+    Codex 07-10-2026): onder /2 en /3 worden de bewaarde posities weggelaten
+    en opnieuw afgeleid; onder /1 gelden de /1-regels (opgeslagen posities,
+    `tekst[start:end] == quote` exact). Alleen onder /3 hoort de dienstregel
+    erbij: een ontbrekende, gewijzigde of onterechte `omzetting` maakt het
+    document niet-herleidbaar, net als een gewijzigde of ontbrekende positie
+    of quote; een onbekende contractversie is nooit herleidbaar. Een
+    herleidbaar /1- of /2-document is daarna via de bindingstoets historisch.
     """
     versie = document.contractversie
     if not _in(versie, _BEKENDE_CONTRACTVERSIES):
@@ -945,7 +1039,7 @@ def _herleidbaar(document: Beoordelingsdocument) -> bool:
         # Niet te decoderen: ongeldige JSON (JSONDecodeError), een getal boven
         # de cijferlimiet van int of te diepe nesting (review WP1 P2-3).
         return False
-    if versie == CONTRACTVERSIE:
+    if versie != _CONTRACTVERSIE_V1:
         oordeel = _zonder_posities(oordeel)
     try:
         opnieuw = _beoordeel(

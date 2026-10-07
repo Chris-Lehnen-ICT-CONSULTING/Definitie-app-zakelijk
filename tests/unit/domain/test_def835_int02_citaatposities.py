@@ -129,10 +129,11 @@ def _beoordeel(invoerdata: dict, uitvoer):
 # --- versie en schema ------------------------------------------------------------
 
 
-def test_contractversie_is_twee():
-    assert CONTRACTVERSIE == "def835-int02-assessment/2"
+def test_contractversie_is_drie_met_de_positieregel_van_twee():
+    # /3 (besluit 12) voegt alleen de dienstregel toe; de positieregel van /2 blijft.
+    assert CONTRACTVERSIE == "def835-int02-assessment/3"
     binding = bereken_binding(maak_invoer(**_invoer()), _configuratie())
-    assert binding.contractversie == "def835-int02-assessment/2"
+    assert binding.contractversie == "def835-int02-assessment/3"
 
 
 def test_modelschema_bevat_geen_positievelden_meer():

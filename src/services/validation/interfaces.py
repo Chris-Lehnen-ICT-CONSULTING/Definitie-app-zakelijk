@@ -77,8 +77,8 @@ from services.interfaces import Definition
 #
 # 2.3.0 (DEF-835, additief): rule_results['INT-02'] mag dezelfde optionele
 # velden `assessment` (het INT-02-beoordelingsdocument, contract
-# def835-int02-assessment/2; een aanvaard historisch document kan nog /1
-# zijn; of null) en `signals` (patroonlijst; leeshulp)
+# def835-int02-assessment/3; een aanvaard historisch document kan nog /1
+# of /2 zijn; of null) en `signals` (patroonlijst; leeshulp)
 # dragen als INT-03. Alleen deze twee regels; onbekende velden blijven overal
 # afgewezen. Geen bestaand veld of bestaande status is van betekenis
 # veranderd. Het actieve INT-02-record levert deze velden nog niet (O1); de
@@ -285,7 +285,7 @@ class RuleResult(TypedDict):
     # DEF-772 (beschreven in 2.2.0): rule_results['INT-03'] — het
     # beoordelingsdocument (of None) en de vurende patronen (zoekhulp).
     # DEF-835 (2.3.0): ook rule_results['INT-02'] — het document van
-    # def835-int02-assessment/2 (historisch ook /1), alleen als het als
+    # def835-int02-assessment/3 (historisch ook /1 en /2), alleen als het als
     # actueel of historisch is aanvaard (anders None), en de recordpatronen
     # op de actuele kern. Geen andere regel draagt deze velden.
     assessment: NotRequired[dict[str, Any] | None]

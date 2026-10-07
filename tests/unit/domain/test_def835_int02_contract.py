@@ -1,9 +1,10 @@
-"""DEF-835 WP1: het interne INT-02-beoordelingscontract def835-int02-assessment/2.
+"""DEF-835 WP1: het interne INT-02-beoordelingscontract def835-int02-assessment/3.
 
 Sinds /2 (besluit 9, optie A) levert de beoordelaar geen posities meer; de
 code leidt ze af uit de enige exacte vindplaats van elk citaat. Dat gedrag
 staat in `test_def835_int02_citaatposities.py`; hier is de rest van het
-contract op /2 herijkt.
+contract op /2 herijkt. /3 (besluit 12) voegt alleen de smalle dienstregel
+"discretie zonder bedoeling" toe; die staat in `test_def835_int02_dienstregel.py`.
 
 Bron: plan-v1.md §Ontwerpvoorstel en §WP1 (akkoord 26-09-2026), synthese v5
 §2/§4 (norm def771-int02/2, T-tekst, appmeldingen, statusmapping) en het
@@ -74,7 +75,7 @@ _APP = next(
     r for r in _SYN.splitlines() if r.startswith("**Appmeldingen [V, B3 V06]:**")
 )
 V, VN, VN_DISCRETIE, ONVOLDOENDE, NE, E, HISTORISCH = re.findall(r'"([^"]+)"', _APP)
-CONTRACTDOC = ROOT / "docs/architectuur/contracts/int02_assessment_contract_v2.md"
+CONTRACTDOC = ROOT / "docs/architectuur/contracts/int02_assessment_contract_v3.md"
 
 # Eigen formuleringen (zie moduledocstring); de T-tekst noemt de toestand
 # "nog te beoordelen — beoordeling niet uitgevoerd".
@@ -385,7 +386,7 @@ _BINDINGSVELDEN = (
 
 def test_binding_legt_versies_en_hashes_vast():
     binding = bereken_binding(maak_invoer(**_basis_invoer()), _configuratie())
-    assert binding.contractversie == "def835-int02-assessment/2"
+    assert binding.contractversie == "def835-int02-assessment/3"
     assert binding.normversie == "def771-int02/2"
     assert (binding.normhash, binding.routeringshash) == (NORMHASH, ROUTERINGSHASH)
     assert (binding.provider, binding.model) == ("fake-provider", "fake-model-1")
@@ -535,7 +536,7 @@ def test_document_is_json_serialiseerbaar_zonder_score():
     geval = _geval("C116")
     doc = _beoordeel(geval["invoer"], geval["modelrespons"])
     data = json.loads(json.dumps(doc.als_dict(), ensure_ascii=False))
-    assert data["contractversie"] == "def835-int02-assessment/2"
+    assert data["contractversie"] == "def835-int02-assessment/3"
     assert data["binding"]["normversie"] == "def771-int02/2"
     assert not any("score" in s or "cijfer" in s for s in _sleutels(data))
     assert not hasattr(doc, "score")
@@ -1111,9 +1112,16 @@ def test_ongeldige_uitvoeringsmetadata_wordt_geweigerd(wijziging):
 def test_contractdocument_legt_versies_en_exacte_meldingen_vast():
     tekst = CONTRACTDOC.read_text(encoding="utf-8")
     for verplicht in (
+        "def835-int02-assessment/3",
         "def835-int02-assessment/2",
+        "def835-int02-assessment/1",
         "niet_gevonden",
         "niet_uniek",
+        "discretie_zonder_bedoeling",
+        (
+            "Is de bedoeling dat deze passage een begripskenmerk beschrijft of de "
+            "actor een afweging voorschrijft?"
+        ),
         "def771-int02/2",
         V,
         VN,

@@ -120,3 +120,42 @@ Gelijk aan v4: gevallen, per geval de invoer, dataprompt en label, model, SDK `a
 - D: parkeren.
 
 **Uitvoering.** Meetscript `goldset-voorbereiding/variatiemeting-c107-v1/variatiemeting.py`. Het gebruikt dezelfde keten als de v5-proef: dienst, profiel, `claude-opus-5`, prompt /3, contract /2, limieten per call en `use_cache=False`. De verstuurde payload is byte-gelijk aan die van C107 in v5. Manifest, akkoord en grootboek van de kwalificatie worden niet gebruikt. De meting telt niet als kwalificatie.
+
+## Besluit 12 — smalle dienstregel (07-10-2026)
+
+**Uitslag variatiemeting.** De 5 losse calls op C107 gaven 5 keer `review_required` / `insufficient_information` (juist). Met de v5-proef erbij is C107 op prompt /3 met contract /2 dus 6 keer beoordeeld: 5 keer goed en 1 keer `fail`. Die ene fout had functie `discretionary_decision_rule` en als enige grond de kern, bij een onbekende bedoeling. De fout is geen vast patroon, maar ook geen nul-kans (ongeveer 1 op 6; 95%-interval ongeveer 0,4–64%). Details: `goldset-voorbereiding/variatiemeting-c107-v1/uitslag-v1.md`.
+
+**Keuze Chris: optie A — een smalle, deterministische dienstregel in het contract.**
+
+- Geeft het model `fail`, is de bevestigde bedoeling onbekend en hebben alle passages die de fail dragen functie `discretionary_decision_rule` met als grond uitsluitend het veld `kern`, dan wordt de uitkomst `review_required` met reden `insufficient_information` in plaats van `fail`.
+- Draagt minstens één passage de fail op een andere manier, dan blijft het `fail`. Voorbeelden: een `actor_prescription`, of een discretionaire beslisregel met grond uit bedoeling, context of bronpassage.
+- **Een expliciet actorvoorschrift in de kern blijft `fail`, conform besluit 1.**
+- De omzetting is zichtbaar in het document (`omzetting: "discretie_zonder_bedoeling"`) en nooit stil. Het bewaarde oordeel houdt het verdict `fail` van het model. Er komt geen pass-pad bij.
+- Het resultaatcontract eist bij `insufficient_information` precies één gerichte vraag. Daarvoor geldt een vaste, invoeronafhankelijke vraag: `Is de bedoeling dat deze passage een begripskenmerk beschrijft of de actor een afweging voorschrijft?`
+- Citaten en posities blijven zoals onder contract /2. De prompt blijft `def835-int02-prompt/3` (systeemprompt `da4a4112…`, ongewijzigd).
+
+**Afgewezen:**
+- B: fase 1 opnieuw draaien zonder wijziging;
+- C: stoppen.
+
+**Uitvoering.** Contract `def835-int02-assessment/3` in `src/domain/int02/contract.py`; contractdocument `docs/architectuur/contracts/int02_assessment_contract_v3.md` (v1 en v2 ongewijzigd). Bewaarde /1- en /2-documenten worden volgens hun eigen versie gecontroleerd en zijn daarna historisch, ook het in v5 bewaarde /2-document van C107.
+
+Keuzes van de uitvoerder, ter bevestiging bij de review:
+- altijd de vaste vraag, ook als het model zelf een vraag gaf; die blijft zichtbaar in het oordeel;
+- de regel geldt alleen voor modeloordelen (actor `ai`).
+
+Testen gebeurde TDD:
+- rood: 52 gefaald;
+- groen: 941 def835/int02-unittests geslaagd en 11 overgeslagen; de gerichte selectie 460 geslaagd;
+- na de Codex-review (07-10, "commit verantwoord: ja", twee kleine punten verwerkt): 959 geslaagd en 11 overgeslagen;
+- ruff en black schoon;
+- een mutatiecontrole op vijf naïeve varianten.
+
+Verslag met open punten en gevolgen voor manifest v6: `goldset-voorbereiding/dienstregel-v1/uitvoeringsverslag-claude-v1.md`.
+
+**Vervolg:**
+1. Onafhankelijke review van de diff (gedaan: Codex, 07-10).
+2. Commit, waarbij de logs met `git add -f` worden toegevoegd.
+3. Offline manifest v6. Daarin veranderen de hashes van `contract.py`, de dienst (alleen de docstring) en `runtime_contract.py` (alleen commentaar), en daardoor de identiteit en de proefmap. De systeemprompt en de payloads per geval blijven gelijk.
+4. Nieuw exact akkoord van Chris op v6.
+5. Daarna opnieuw alleen fase 1 (C105/C107/C112).

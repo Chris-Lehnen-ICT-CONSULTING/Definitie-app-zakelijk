@@ -1,0 +1,63 @@
+## Stap A - nieuwe/gewijzigde review-tests op de huidige code (gedrag bestond al; deze tests zijn vangnet)
+........................................................................ [ 67%]
+...................................                                      [100%]
+107 passed in 3.30s
+## Stap B - ROOD: mutatie R1 in _herleidbaar (een /2-document is altijd herleidbaar)
+F..F.....F..F....F..F..F..........F......FF...FF......................F. [ 67%]
+.......F.....F.................F...                                      [100%]
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_document_en_binding_met_verschillende_versie_is_error[v3-def835-int02-assessment/2]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_met_gewijzigde_quote_is_error[grondcitaat]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_met_gewijzigde_quote_is_error[citaat-consistent]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_met_gemanipuleerde_positie_is_error[grond-start+1]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_met_gewijzigde_quote_is_error[citaat]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_zonder_posities_is_error
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_met_gemanipuleerde_positie_is_error[grond-end-1]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_met_gewijzigde_quote_is_error[grondcitaat-consistent]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_met_gemanipuleerde_positie_is_error[end-1]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_met_gemanipuleerde_positie_is_error[end+1]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_met_gemanipuleerde_positie_is_error[start-1]
+FAILED tests/unit/domain/test_def835_int02_migratie.py::test_v2_proefdocument_met_gemanipuleerde_positie_is_error[start+1]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_v2_proefdocument_is_error[status]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_v2_proefdocument_is_error[melding]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_v2_proefdocument_is_error[als-omgezet]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_gemanipuleerd_v2_proefdocument_is_error[omzetting-erbij]
+16 failed, 91 passed in 2.75s
+## Stap C - GROEN na herstel: nieuwe en gewijzigde testbestanden (6)
+........................................................................ [ 16%]
+........................................................................ [ 33%]
+........................................................................ [ 50%]
+........................................................................ [ 67%]
+........................................................................ [ 84%]
+................................................................         [100%]
+424 passed in 7.57s
+## Stap D - GROEN: pytest -o addopts='' --import-mode=importlib -q -k 'def835 or int02' tests/unit
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 22%]
+........................................................................ [ 29%]
+........................................................................ [ 37%]
+........................................................................ [ 44%]
+........................................................................ [ 51%]
+........................................................................ [ 59%]
+........................................................................ [ 66%]
+........................................................................ [ 74%]
+........................................................................ [ 81%]
+........................................................................ [ 89%]
+........................................................................ [ 96%]
+....................s.ss.ssss.ssss                                       [100%]
+=============================== warnings summary ===============================
+../../../.venv/lib/python3.13/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+../../../.venv/lib/python3.13/site-packages/fastapi/testclient.py:1
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+959 passed, 11 skipped, 7913 deselected, 2 warnings in 154.01s (0:02:34)
+## Stap E - ruff check en black --check op de 11 gewijzigde/nieuwe .py-bestanden
+All checks passed!
+All done! ✨ 🍰 ✨
+11 files would be left unchanged.

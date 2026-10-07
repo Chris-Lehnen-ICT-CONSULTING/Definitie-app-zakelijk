@@ -1,4 +1,4 @@
-"""INT-02 — begrensde AI-beoordeling op het contract def835-int02-assessment/2.
+"""INT-02 — begrensde AI-beoordeling op het contract def835-int02-assessment/3.
 
 DEF-835 WP2 (plan-v1 §WP2). Eén provider-agnostische aanroep via
 `AIServiceInterface.generate_definition` met `task_type="validation"`, een
@@ -8,7 +8,8 @@ niet geactiveerd.
 
 Rolverdeling. De dienst bouwt de prompt, doet hoogstens één aanroep en
 parseert strikt. Het WP1-contract (`domain.int02.contract.beoordeel`) beslist
-over structuur, citaten, samenhang, status en melding; dat wordt hier niet
+over structuur, citaten, samenhang, status en melding, ook over de dienstregel
+discretie zonder bedoeling (contract /3, besluit 12); dat wordt hier niet
 gedupliceerd. Een ongeldig antwoord wordt nooit gerepareerd.
 
 Prompt. De systeemprompt bevat de norm uit het actieve regelrecord

@@ -251,12 +251,21 @@ SCENARIO = {
         _respons(
             "fail",
             [
-                _passage(
-                    KERN_DISCRETIE,
-                    "tenzij zij van oordeel is dat de aanvrager daardoor onevenredig "
-                    "zou worden benadeeld",
-                    "discretionary_decision_rule",
-                )
+                {
+                    **_passage(
+                        KERN_DISCRETIE,
+                        "tenzij zij van oordeel is dat de aanvrager daardoor "
+                        "onevenredig zou worden benadeeld",
+                        "discretionary_decision_rule",
+                    ),
+                    # Contract /3 (besluit 12): met alleen de kern als grond en
+                    # een onbekende bedoeling zou dit review_required worden.
+                    "ground": {
+                        "field": "organisatorische_context",
+                        "ref": 0,
+                        "quote": None,
+                    },
+                }
             ],
         ),
         ResultStatus.FAIL,
@@ -596,6 +605,31 @@ class TestActueelOordeel:
         assert uitkomst.status is ResultStatus.REVIEW_REQUIRED
         assert doc.vraag and doc.vraag in (uitkomst.reason or "")
         assert _detail(uitkomst)["review"]["actuality"] == "current"
+
+    def test_omgezette_discretie_zonder_bedoeling_is_zichtbaar_open(self):
+        # Contract /3 (besluit 12): fail op alleen de kern, bedoeling onbekend.
+        respons = _respons(
+            "fail",
+            [
+                _passage(
+                    KERN_DISCRETIE,
+                    "tenzij zij van oordeel is dat de aanvrager daardoor onevenredig "
+                    "zou worden benadeeld",
+                    "discretionary_decision_rule",
+                )
+            ],
+        )
+        doc = beoordeel(_invoer(KERN_DISCRETIE), CONFIG, respons, VOLTOOID)
+        uitkomst = _evalueer(_metadata(KERN_DISCRETIE, doc))
+        detail = _assert_scoreloos_met_melding(
+            uitkomst, ResultStatus.REVIEW_REQUIRED, doc.melding
+        )
+        assert uitkomst.violation is None
+        assert uitkomst.reason == doc.melding
+        assert doc.vraag and doc.vraag in doc.melding
+        assert detail["assessment"]["omzetting"] == "discretie_zonder_bedoeling"
+        assert detail["assessment"]["oordeel"]["verdict"] == "fail"
+        assert detail["review"]["actuality"] == "current"
 
 
 # ---------------------------------------------------------------------------
