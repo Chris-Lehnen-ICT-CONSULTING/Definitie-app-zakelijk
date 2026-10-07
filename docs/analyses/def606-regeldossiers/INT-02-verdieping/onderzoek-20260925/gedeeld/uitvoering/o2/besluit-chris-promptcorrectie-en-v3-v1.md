@@ -86,3 +86,24 @@ De staged commit uit besluit 4 (459 bestanden) werd door de gitleaks-hook geblok
 3. Offline manifest v5 met nieuwe prompt-, systeemprompt-, bestands- en payloadhashes.
 4. Nieuw exact akkoord van Chris op v5.
 5. Daarna opnieuw alleen fase 1 (C105/C107/C112).
+
+## Besluit 10 — manifest v5 en fase 1 (07-10-2026)
+
+**Manifest v5.** v5 is offline aangemaakt (geen API-call, geen sleutel) op HEAD `f83959eb0` (contract `def835-int02-assessment/2`, prompt `def835-int02-prompt/3`).
+
+Verschil met v4:
+- `promptversie` `def835-int02-prompt/2` → `def835-int02-prompt/3`;
+- `systeemprompt_sha256` `92deecb8…` → `da4a4112…`;
+- bestandshashes van `src/domain/int02/contract.py`, `src/services/validation/int02_assessment_service.py`, `src/toetsregels/runtime_contract.py` en `tests/fixtures/def835_int02_ontwerpgevallen.json`;
+- alle 43 payloads, uitsluitend in de systeemtekst (veld `system`, telkens −273 bytes);
+- `identiteit.proefmap` (`kwalificatieproef-v5`), `identiteit_sha256` (`bfc574547890…`) en het tijdstempel `aangemaakt`.
+
+Gelijk aan v4: gevallen, per geval de invoer, dataprompt en label, model, SDK `anthropic` 0.116.0, limieten, prijzen, criteria, fasevolgorde en protocol/norm.
+
+- `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v5.json`: `6655153275346ffbc95d1b1c26c8b22c5ff7f9ff521e8900793a4ecfae498fe7`
+- `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-payloads-v5.json`: `dc39a758e719f815de60d4d23c7f57498bd4875febae4d9f802f5b3e15270f04`
+- `kwalificatie-gevallen-v1.json` ongewijzigd: `af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953`
+
+**Akkoord Chris: alleen fase 1** (`--fase regressie`, C105/C107/C112, maximaal 3 calls); daarna stoppen en bespreken. Het akkoordbestand `kwalificatie-akkoord-v5.json` bevat net als bij v4 het protocolkader (43 calls, US$12), omdat de runner dat veldformaat eist; de beperking tot fase 1 is deze procesafspraak. Besluit 8 (v4) is hiermee vervangen.
+
+**Sleutel.** Zoals bij v4 wordt de API-sleutel bij de run door de shell uit de `.env` van de hoofdcheckout gelezen en niet getoond; er komt geen `.env` in de werkboom.
