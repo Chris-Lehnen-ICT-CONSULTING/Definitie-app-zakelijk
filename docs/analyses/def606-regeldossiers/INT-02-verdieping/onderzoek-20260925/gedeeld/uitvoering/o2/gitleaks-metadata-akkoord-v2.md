@@ -103,3 +103,13 @@ Bij het stagen van manifest v6 (`besluit-chris-promptcorrectie-en-v3-v1.md`, bes
 | 16 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v6.json` | r110 | SHA-256 van de huidige `src/utils/async_api.py` (gelijk bevonden, werkboom en HEAD `8c6bf74d2`); de bronnaam bevat `api` |
 
 Zelfde constructie als 15: exact pad én exacte volledige regel, `condition = "AND"`, alleen `generic-api-key`. Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. De hookuitvoer geeft alleen het aantal; dat de bevinding precies r110 was, blijkt uit de herhaalde hookrun: met alleen dit exacte blok erbij daalde de telling van 1 naar 0. `kwalificatie-payloads-v6.json`, `kwalificatie-akkoord-v6.json` en de bijgewerkte besluitnotitie gaven dus geen bevindingen. De kopteksten in `.gitleaks.toml` zijn van "van 15" naar "van 16" gezet; de blokken 1–15 zelf zijn ongewijzigd. De regex van 16 is gelijk aan die van 9–11, 14 en 15; voor 16 is geen eigen mutatieproef gedraaid.
+
+## Aanvulling: uitzondering 17 (besluit 15, 07-10-2026)
+
+Bij het stagen van manifest v7 (`besluit-chris-promptcorrectie-en-v3-v1.md`, besluit 15) meldde de gitleaks-hook 1 bevinding. Het is dezelfde soort als uitzondering 9–11 en 14–16: r112 van manifest v7 is byte-gelijk aan r110 van manifest v6. De regel schoof twee posities op doordat de router in v7 twee velden meer heeft (`supports_structured_outputs`, `antwoordschema_sha256`).
+
+| Nr | Pad | Regel | Waarom false positive |
+|---|---|---|---|
+| 17 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v7.json` | r112 | SHA-256 van de huidige `src/utils/async_api.py` (gelijk bevonden, werkboom en HEAD `2081899ea`); de bronnaam bevat `api` |
+
+Zelfde constructie als 16: exact pad én exacte volledige regel, `condition = "AND"`, alleen `generic-api-key`. Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. De hookuitvoer geeft alleen het aantal; dat de bevinding precies r112 was, blijkt uit de herhaalde hookrun: met alleen dit exacte blok erbij daalde de telling van 1 naar 0. `kwalificatie-payloads-v7.json`, `kwalificatie-akkoord-v7.json`, de bijgewerkte besluitnotitie, `kwalificatieproef-v6-uitslag-v1.md` en de bestanden in `kwalificatieproef-v6/` gaven dus geen bevindingen. De kopteksten in `.gitleaks.toml` zijn van "van 16" naar "van 17" gezet; de blokken 1–16 zelf zijn ongewijzigd. De regex van 17 is gelijk aan die van 9–11 en 14–16; voor 17 is geen eigen mutatieproef gedraaid.

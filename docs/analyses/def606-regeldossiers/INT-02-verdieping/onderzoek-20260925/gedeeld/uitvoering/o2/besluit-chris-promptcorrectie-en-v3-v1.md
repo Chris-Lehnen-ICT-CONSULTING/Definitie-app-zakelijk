@@ -217,3 +217,26 @@ Uitvoering en tests: `goldset-voorbereiding/schemaroute-v1/uitvoeringsverslag-cl
 3. Offline manifest v7. De payloads veranderen, want `output_config` komt erbij. Ook de promptversie, de bestandshashes en de routerdelen van de identiteit veranderen.
 4. Nieuw exact akkoord van Chris op v7.
 5. Daarna opnieuw alleen fase 1 (C105/C107/C112). Die run is meteen de live-rooktest van het schema: of de API het schema accepteert, blijkt pas dan.
+
+## Besluit 15 — manifest v7 en fase 1 (07-10-2026)
+
+**Uitslag v6 vastgelegd.** Fase 1 van v6: 1 call (C105), `invalid_output` door het extra veld `reason` in de passage (zie besluit 14), kosten $0,02649. Cijfers: `goldset-voorbereiding/goldset-freeze-v1/kwalificatieproef-v6-uitslag-v1.md`; het bewijs in `kwalificatieproef-v6/` is nu mee vastgelegd.
+
+**Manifest v7.** v7 is offline aangemaakt (geen API-call, geen sleutel) op HEAD `2081899ea`: prompt `def835-int02-prompt/4` (tekst /3, systeemprompt `da4a4112…`, plus de schemaroute), antwoordschema `72adfe7428b67bf0fd999520581f0fc2cbe801101e1e8e6df300179405511f17`, contract `def835-int02-assessment/3`.
+
+Verschil met v6:
+- elke payload krijgt `output_config` (+1.636 bytes, voor alle 43 gevallen hetzelfde); zonder dat veld is elke payload byte-gelijk aan v6;
+- `promptversie` `def835-int02-prompt/3` → `def835-int02-prompt/4`;
+- bestandshashes van `src/domain/int02/contract.py` (→ `de4a9659…`), `src/services/validation/int02_assessment_service.py` (→ `cf2dde81…`) en `scripts/analysis/def835_int02_modelproef.py` (→ `2de199b6…`);
+- `router.supports_structured_outputs: true` en `router.antwoordschema_sha256` (`72adfe74…`) erbij;
+- `identiteit.proefmap` (`kwalificatieproef-v7`), `identiteit_sha256` (`1ba9794ff9432b5c05ad7cf123f086a1c53b84756c4d32bdcc3163cc83a426a3`) en het tijdstempel `aangemaakt`.
+
+Gelijk aan v6: gevallen, per geval de invoer, dataprompt en label, systeemprompt, model, SDK, limieten, prijzen, criteria, fasevolgorde en protocol/norm.
+
+- `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v7.json`: `872482f4f201b2c5a7e04e3a0dd6589f088518adb7af99f395da08f89ccfc84b`
+- `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-payloads-v7.json`: `ee01d03bf1dd04af0c0b1b45b7ffced12a557ae5b2cf6c08a1ac7b91f022d289`
+- `kwalificatie-gevallen-v1.json` ongewijzigd: `af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953`
+
+**Akkoord Chris: alleen fase 1** (`--fase regressie`, C105/C107/C112, maximaal 3 calls); deze run geldt ook als live-rooktest van het schema. Daarna stoppen en bespreken. Het akkoordbestand `kwalificatie-akkoord-v7.json` bevat net als bij v4–v6 het protocolkader (43 calls, US$12), omdat de runner dat veldformaat eist; de beperking tot fase 1 is deze procesafspraak. Besluit 13 (v6) is hiermee vervangen.
+
+**Sleutel.** Zoals bij v4–v6 wordt de API-sleutel bij de run door de shell uit de `.env` van de hoofdcheckout gelezen en niet getoond; er komt geen `.env` in de werkboom.
