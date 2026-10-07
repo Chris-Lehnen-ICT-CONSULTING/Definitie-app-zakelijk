@@ -25,6 +25,10 @@ en worden historisch. Het /2-document hier is het in kwalificatieproef v5
 door de echte /2-code bewaarde document van C107; de ruwe modeluitvoer komt
 letterlijk uit dezelfde proef (`kwalificatieproef-v5/regressie-bundel.json`).
 Er wordt geen andere goldset- of hold-outinhoud gebruikt.
+
+Sinds /4 (besluit 16) is deze dienstregel de laatste tak van de beslisregel;
+de losse regel van /3 blijft gelden voor bewaarde /3-documenten. De module
+draait daarom met /3 als actuele versie (`contract_drie`).
 """
 
 from __future__ import annotations
@@ -36,6 +40,7 @@ from pathlib import Path
 
 import pytest
 
+from domain.int02 import contract as int02_contract
 from domain.int02.contract import (
     MELDING_E,
     MELDING_HISTORISCH,
@@ -68,8 +73,17 @@ V5 = (
     "goldset-freeze-v1/kwalificatieproef-v5"
 )
 
+V4 = "def835-int02-assessment/4"
 V3 = "def835-int02-assessment/3"
 V2 = "def835-int02-assessment/2"
+
+
+@pytest.fixture(autouse=True)
+def contract_drie(monkeypatch):
+    """Besluit 16: /3 als actuele versie (zie moduledocstring)."""
+    monkeypatch.setattr(int02_contract, "CONTRACTVERSIE", V3)
+
+
 OMZETTING = "discretie_zonder_bedoeling"
 VRAAG = (
     "Is de bedoeling dat deze passage een begripskenmerk beschrijft of de actor "
@@ -78,6 +92,10 @@ VRAAG = (
 #: Systeemprompt /3 volgens kwalificatie-manifest-v5 (`systeemprompt_sha256`).
 SYSTEEMPROMPT_V3_SHA256 = (
     "da4a4112b580da2924b5940ac2723ef5e177ad48ef15890b66d8d91f285a7ca6"
+)
+#: SHA-256 van de systeemprompt van def835-int02-prompt/5 (besluit 16).
+SYSTEEMPROMPT_V5_SHA256 = (
+    "3047bb1a34f878e77bd434d668d870f0dfcfb92e3e948ac0caee77af9c2d2b70"
 )
 
 C107_KERN = (
@@ -735,16 +753,18 @@ def _dienst(ai: _AI) -> Int02AssessmentService:
     )
 
 
-def test_prompt_vier_houdt_dezelfde_systeemprompt_als_drie():
-    # Besluit 14: /4 = dezelfde tekst als /3 plus de schemaroute.
-    assert PROMPT_VERSION == "def835-int02-prompt/4"
+def test_prompt_vijf_vervangt_de_systeemprompt_van_drie_en_vier():
+    # Besluit 14: /4 hield de tekst van /3; besluit 16: /5 vraagt bronfuncties.
+    assert PROMPT_VERSION == "def835-int02-prompt/5"
     systeem, _ = bouw_int02_prompt(_invoer(), laad_int02_norm())
-    assert (
-        hashlib.sha256(systeem.encode("utf-8")).hexdigest() == SYSTEEMPROMPT_V3_SHA256
-    )
+    digest = hashlib.sha256(systeem.encode("utf-8")).hexdigest()
+    assert digest != SYSTEEMPROMPT_V3_SHA256
+    # Herreview Codex P3: ook een exacte pin op de /5-systeemprompt.
+    assert digest == SYSTEEMPROMPT_V5_SHA256
 
 
-async def test_dienst_zet_de_ruwe_v5_fail_om_en_laat_dat_zien():
+async def test_dienst_zet_de_ruwe_v5_fail_om_onder_de_regels_van_drie():
+    """De ruwe v5-tekst door de echte dienst, met /3 als actuele versie."""
     ai = _AI(_c107_ruw_v5())
     resultaat = await _dienst(ai).assess(_invoer())
     assert ai.calls == 1
@@ -757,4 +777,16 @@ async def test_dienst_zet_de_ruwe_v5_fail_om_en_laat_dat_zien():
         VRAAG,
     )
     assert document.binding.contractversie == V3
-    assert resultaat.promptversie == "def835-int02-prompt/4"
+
+
+async def test_dienst_weigert_de_ruwe_v5_tekst_onder_contract_vier(monkeypatch):
+    """Besluit 16: de /3-vorm (functie en grond per passage) past niet in /4;
+    C107 onder /4 staat in de bronfunctie- en papertests."""
+    monkeypatch.setattr(int02_contract, "CONTRACTVERSIE", V4)
+    ai = _AI(_c107_ruw_v5())
+    resultaat = await _dienst(ai).assess(_invoer())
+    assert ai.calls == 1
+    assert resultaat.status == "error"
+    assert resultaat.document.foutcategorie == "invalid_output"
+    assert resultaat.document.binding.contractversie == V4
+    assert resultaat.promptversie == "def835-int02-prompt/5"

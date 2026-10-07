@@ -22,6 +22,9 @@ from pathlib import Path
 import httpx
 import pytest
 
+from domain.int02.contract import grondbronnen, maak_invoer
+from tests.fixtures.def835_int02_v4 import naar_v4
+
 pytestmark = [pytest.mark.unit]
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -82,7 +85,12 @@ def _usage(invoer=3574, uitvoer=418):
 
 
 def _antwoord(**usage):
-    """Nep-AI: het review_required-antwoord van C107 uit de ontwerpfixture."""
+    """Nep-AI: het review_required-antwoord van C107 uit de ontwerpfixture.
+
+    Sinds contract /4 (besluit 16) in /4-vorm via `naar_v4`: beschrijvende
+    kern, de eerste grondbron laat de functie open.
+    """
+    respons = naar_v4(C107["invoer"], C107["modelrespons"])
     return {
         "id": "msg_offline",
         "type": "message",
@@ -91,7 +99,7 @@ def _antwoord(**usage):
         "content": [
             {
                 "type": "text",
-                "text": json.dumps(C107["modelrespons"], ensure_ascii=False),
+                "text": json.dumps(respons, ensure_ascii=False),
             }
         ],
         "stop_reason": "end_turn",
@@ -244,10 +252,10 @@ async def test_herkomst_bindt_script_contract_dienst_en_systeemprompt(tmp_path):
     assert len(herkomst["git_head"] or "") == 40
     assert herkomst["model"] == "claude-opus-5"
     assert herkomst["profiel_id"] == "def835-kwalificatieproef-opus5-v1"
-    assert herkomst["promptversie"] == "def835-int02-prompt/4"
+    assert herkomst["promptversie"] == "def835-int02-prompt/5"
     # Het script legt de actieve contractversie vast. De live-meting van
-    # 07-10-2026 liep onder /2 (live-v1/herkomst.json); sinds besluit 12 is het /3.
-    assert herkomst["contractversie"] == "def835-int02-assessment/3"
+    # 07-10-2026 liep onder /2 (live-v1/herkomst.json); sinds besluit 16 is het /4.
+    assert herkomst["contractversie"] == "def835-int02-assessment/4"
     assert herkomst["limieten"]["max_uitvoertokens"] == 6000
     assert herkomst["limieten"]["deadline_seconden"] == 120.0
     assert "label" not in json.dumps(herkomst)
@@ -265,17 +273,33 @@ def _v5_payload_c107() -> dict:
 
 
 def _met_schema(body: dict) -> None:
-    """Besluit 14 (prompt /4): de enige toevoeging is exact het vastgepinde schema."""
+    """Besluit 14 en 16 (prompt /5) ten opzichte van de v5-payload.
+
+    Erbij: exact het vastgepinde schema. Anders: de systeemprompt (/5) en het
+    gebruikersbericht (plus de grondbronsleutels). De overige velden (model,
+    limieten, sampling) zijn bytegelijk aan de v5-payload.
+    """
     from domain.int02.contract import ANTWOORDSCHEMA, ANTWOORDSCHEMA_SHA256
     from services.ai.base_client import response_schema_sha256
+    from services.validation.int02_assessment_service import (
+        bouw_int02_prompt,
+        laad_int02_norm,
+    )
 
     assert body["output_config"] == {
         "format": {"type": "json_schema", "schema": ANTWOORDSCHEMA}
     }
     schema = body["output_config"]["format"]["schema"]
     assert response_schema_sha256(schema) == ANTWOORDSCHEMA_SHA256
-    zonder = {k: w for k, w in body.items() if k != "output_config"}
-    assert zonder == _v5_payload_c107()
+    v5 = _v5_payload_c107()
+    systeem, data = bouw_int02_prompt(
+        v.runner.lees_invoer(C107["invoer"]), laad_int02_norm()
+    )
+    assert body["system"] == systeem != v5["system"]
+    assert body["messages"] == [{"role": "user", "content": data}] != v5["messages"]
+    gewijzigd = {"output_config", "system", "messages"}
+    zonder = {k: w for k, w in body.items() if k not in gewijzigd}
+    assert zonder == {k: w for k, w in v5.items() if k not in gewijzigd}
 
 
 async def test_dryrun_payload_is_niet_meer_die_van_kwalificatieproef_v5(tmp_path):
@@ -288,7 +312,7 @@ async def test_dryrun_payload_is_niet_meer_die_van_kwalificatieproef_v5(tmp_path
     assert herkomst["payload_sha256"] != V5_PAYLOAD_C107
 
 
-async def test_live_verstuurt_de_v5_payload_plus_alleen_het_schema(tmp_path):
+async def test_live_verstuurt_v5_payload_met_prompt_vijf_en_schema(tmp_path):
     nep = NepAI([_antwoord()])
     await _live(tmp_path / "live", nep, aantal=1)
     [verzoek] = nep.inferenties()
@@ -313,22 +337,31 @@ async def test_live_vijf_runs_alleen_c107_zonder_sleutel_in_uitvoer(tmp_path, ca
     assert data["stopreden"] is None
     assert data["telling"] == {"review_required/insufficient_information": 5}
     assert data["kosten_usd_conservatief"] == pytest.approx(5 * 0.02832)
-    # Elk verzoek bevat uitsluitend de invoer van C107.
+    # Elk verzoek bevat uitsluitend de invoer van C107 en haar grondbronsleutels.
+    sleutels = list(grondbronnen(maak_invoer(**C107["invoer"])))
     for verzoek in nep.inferenties():
         [bericht] = verzoek["body"]["messages"]
-        assert json.loads(bericht["content"]) == {"invoer": C107["invoer"]}
+        assert json.loads(bericht["content"]) == {
+            "invoer": C107["invoer"],
+            "grondbronnen": sleutels,
+        }
     runs = _runs(uitvoer)
     assert [r["run"] for r in runs] == [1, 2, 3, 4, 5]
     eerste = runs[0]
     assert eerste["verdict"] == "insufficient_information"
     assert eerste["uncertainty"] == "decisive"
     assert eerste["vraag_gesteld"] is True
-    assert eerste["passages"][0]["function"] == "unclear"
-    assert eerste["passages"][0]["ground"]["field"] == "kern"
+    assert (
+        eerste["passages"][0]["quote"] == C107["modelrespons"]["passages"][0]["quote"]
+    )
+    # Bekende beperking van het afgeronde meetscript (v1): het legt de /3-velden
+    # `function` en `ground` vast; onder /4 levert het model `kernvorm` en
+    # `bronfuncties`, die het script niet registreert.
+    assert eerste["passages"][0]["function"] is None
     assert eerste["usage"] == {"input_tokens": 3574, "output_tokens": 418}
     assert eerste["gerapporteerd_model"] == "claude-opus-5"
-    assert eerste["promptversie"] == "def835-int02-prompt/4"
-    assert eerste["contractversie"] == "def835-int02-assessment/3"
+    assert eerste["promptversie"] == "def835-int02-prompt/5"
+    assert eerste["contractversie"] == "def835-int02-assessment/4"
     for bestand in uitvoer.iterdir():
         assert SLEUTEL not in bestand.read_text()
     assert SLEUTEL not in caplog.text

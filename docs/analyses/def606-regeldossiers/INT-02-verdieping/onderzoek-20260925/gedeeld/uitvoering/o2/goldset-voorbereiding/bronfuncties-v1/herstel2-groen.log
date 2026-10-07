@@ -1,0 +1,51 @@
+DEF-835 — herstel na herreview Codex (P1-rest en P3): rood → groen
+Datum: 2026-10-07/08 · branch feature/DEF-835-int02-o2 (ongecommit, HEAD 5315fa8e0)
+Interpreter: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python (Python 3.13)
+Alles offline: geen API- of netwerkcalls, .env niet gelezen, geen hold-outbestanden.
+
+0. Rood, vóór het herstel
+   pytest test_def835_int02_bronfuncties.py test_def835_int02_dienstregel.py
+          test_def835_int02_schemaroute.py
+   - herstel2-rood.log: 91 failed, 234 passed. Deze run is ongeldig als meting.
+     Mijn nieuwe helper `_fout` overschaduwde de bestaande `_fout` (r.237), waardoor
+     ook bestaande tests vielen. Hersteld door de helper `_uitslag` te noemen.
+   - herstel2-rood-2.log: 44 failed, 281 passed. Allemaal bedoeld rood:
+       42 in sectie J (P1-rest, inclusief beide Codex-reproducties);
+       2 prompt-pins (placeholder "0"*64; digest 3047bb1a…).
+   - herstel2-rood-3-bedoeling.log: 5 failed. Dit is een bijvangst: een bedoeling
+     "..." maakte een beschrijvende kern zonder grond tot pass.
+
+1. Gericht, na het herstel — herstel2-groen-0-gericht.log
+   bronfuncties, papertest, dienstregel, modelproef, schemaroute, assessment_service
+   => 759 passed in 41.43s
+
+2. -k "def835 or int02" tests/unit — herstel2-groen-1-def835-int02.log
+   => 1353 passed, 11 skipped, 7913 deselected in 49.58s
+   (11 skipped = DEF771_SKILLS_ROOT niet gezet; dezelfde als eerder)
+
+3. INT-03 / ESS-03 (-k "int03 or ess03" tests/unit) — herstel2-groen-2-int03-ess03.log
+   => 786 passed, 8491 deselected in 21.97s (gelijk aan herstel-groen-2)
+
+4. ruff (venv, python -m ruff) — herstel2-ruff.log => All checks passed!
+   Paden: dezelfde als in herstel-ruff.log, plus mutatie/vat_xml_samen.py.
+5. black --check (zelfde paden) — herstel2-black.log => 265 files would be left unchanged.
+
+6. Papieren toets — herstel2-papertest.log
+   => 86 passed, waaronder test_papertest_27_van_27_met_6_van_6_review.
+
+7. Mutatiecontrole — herstel2-mutatie.log (+ mutatie/resultaten/herstel2-*.xml)
+   => 16/16 gedood (3 nieuw voor P1-rest); nulmeting 447/447; eind-nulmeting 449/449.
+
+8. Hashes
+   - ANTWOORDSCHEMA sha256 = d3ad029e24b6b96242f4730686d3a4ebfebd9f46993607e41016761bc7fce715
+     (ongewijzigd; gepind in contract.py:374, test_def835_int02_schemaroute.py:76 en
+     test_def835_int02_modelproef.py:52, groen in run 1)
+   - Systeemprompt /5 sha256 = 3047bb1a34f878e77bd434d668d870f0dfcfb92e3e948ac0caee77af9c2d2b70
+     (nu exact gepind; prompttekst niet gewijzigd)
+
+Niet gecontroleerd
+- pre-commit-ruff v0.16.5 (uvx vraagt toestemming).
+- De volledige unit-suite (-m unit) is niet opnieuw gedraaid.
+- De /5-prompthash heeft geen externe referentie: er bestaat nog geen manifest voor
+  /5. De pin legt de huidige tekst vast; dat die tekst inhoudelijk juist is, toetst
+  hij niet.

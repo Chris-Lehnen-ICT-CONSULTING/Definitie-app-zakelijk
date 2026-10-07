@@ -20,6 +20,11 @@ zoeklogica als de implementatie berekend. Het C112-geval gebruikt alleen de
 kern- en bedoelingstekst en de ruwe modeluitvoer uit de v4-regressie
 (`kwalificatieproef-v4/regressie-bundel.json`); geen andere goldset- of
 hold-outinhoud.
+
+Sinds /4 (besluit 16) gelden deze regels voor de hercontrole van bewaarde
+/2- en /3-documenten; de module toetst ze met /3 als actuele versie
+(`contract_drie`). De positieregels van /4 staan in
+`test_def835_int02_bronfuncties.py`.
 """
 
 from __future__ import annotations
@@ -32,10 +37,10 @@ import unicodedata
 
 import pytest
 
+from domain.int02 import contract
 from domain.int02.contract import (
     _GRONDVELDEN,
     _PASSAGEVELDEN,
-    CONTRACTVERSIE,
     MELDING_E,
     Configuratie,
     Uitvoering,
@@ -46,6 +51,13 @@ from domain.int02.contract import (
 )
 
 pytestmark = [pytest.mark.unit]
+
+
+@pytest.fixture(autouse=True)
+def contract_drie(monkeypatch):
+    """Besluit 16: de /3-regels met /3 als actuele versie (zie moduledocstring)."""
+    monkeypatch.setattr(contract, "CONTRACTVERSIE", "def835-int02-assessment/3")
+
 
 NORMHASH = hashlib.sha256(b"testnorm def771-int02/2").hexdigest()
 ROUTERINGSHASH = hashlib.sha256(b"testroutering").hexdigest()
@@ -131,7 +143,7 @@ def _beoordeel(invoerdata: dict, uitvoer):
 
 def test_contractversie_is_drie_met_de_positieregel_van_twee():
     # /3 (besluit 12) voegt alleen de dienstregel toe; de positieregel van /2 blijft.
-    assert CONTRACTVERSIE == "def835-int02-assessment/3"
+    assert contract.CONTRACTVERSIE == "def835-int02-assessment/3"
     binding = bereken_binding(maak_invoer(**_invoer()), _configuratie())
     assert binding.contractversie == "def835-int02-assessment/3"
 

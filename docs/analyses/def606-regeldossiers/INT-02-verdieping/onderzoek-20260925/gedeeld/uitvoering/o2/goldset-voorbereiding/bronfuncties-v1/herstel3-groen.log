@@ -1,0 +1,53 @@
+DEF-835 — herstel na herreview 2 van Codex (P1-rest 2): rood → groen
+Datum: 2026-10-08 · branch feature/DEF-835-int02-o2 (ongecommit, HEAD 5315fa8e0)
+Interpreter: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python (Python 3.13)
+Alles offline: geen API- of netwerkcalls, .env niet gelezen, geen hold-outbestanden.
+
+0. Rood, vóór het herstel — herstel3-rood.log
+   pytest tests/unit/domain/test_def835_int02_bronfuncties.py
+   => 57 failed, 238 passed. Alle failures zijn bedoeld:
+      - fillers en cijfers in de vier routes;
+      - de vier Codex-reproducties;
+      - de helpertests;
+      - 4 hercontroles;
+      - de Unicode-borgingstest (constante bestond nog niet).
+   De geldige gevallen met letters ("é", Grieks, Cyrillisch, "artikel 7") waren al
+   groen en moeten groen blijven.
+   Na de eerste implementatie (alleen de 4 fillers) bleef de borgingstest rood. Hij
+   vond U+13441 en U+13442 (EGYPTIAN HIEROGLYPH FULL/HALF BLANK, Lo). Die zijn
+   daarna aan de constante en aan de testlijsten toegevoegd.
+
+1. Gericht — herstel3-groen-0-gericht.log
+   bronfuncties, papertest, dienstregel, modelproef, schemaroute, assessment_service
+   => 847 passed in 40.49s
+
+2. -k "def835 or int02" tests/unit — herstel3-groen-1-def835-int02.log
+   => 1441 passed, 11 skipped, 7913 deselected in 46.39s
+   (11 skipped = DEF771_SKILLS_ROOT niet gezet; dezelfde als eerder)
+
+3. INT-03 / ESS-03 (-k "int03 or ess03" tests/unit) — herstel3-groen-2-int03-ess03.log
+   => 786 passed, 8579 deselected in 20.75s (gelijk aan eerder)
+
+4. ruff (zelfde paden als herstel2) — herstel3-ruff.log => All checks passed!
+5. black --check (zelfde paden) — herstel3-black.log => schoon (exit 0)
+
+6. Papieren toets — herstel3-papertest.log
+   => 86 passed, waaronder test_papertest_27_van_27_met_6_van_6_review.
+
+7. Mutatiecontrole — herstel3-mutatie.log (+ mutatie/resultaten/herstel3-*.xml)
+   => 18/18 gedood; nulmeting 537/537.
+
+8. Hashes (beide ongewijzigd; de pintests zitten in run 1 en zijn groen)
+   - ANTWOORDSCHEMA sha256 = d3ad029e24b6b96242f4730686d3a4ebfebd9f46993607e41016761bc7fce715
+   - Systeemprompt /5 sha256 = 3047bb1a34f878e77bd434d668d870f0dfcfb92e3e948ac0caee77af9c2d2b70
+
+Werkwijze-opmerking
+- De Edit-tool zette `\uXXXX`-escapes om in letterlijke (onzichtbare) tekens. Alle
+  onzichtbare tekens staan nu als `chr(0x…)` in code en tests. Een bytecontrole (od)
+  op contract.py, het testbestand, de plugin en het contractdocument vindt geen
+  letterlijke fillers of blanco-tekens meer.
+
+Niet gecontroleerd
+- pre-commit-ruff v0.16.5 en de volledige unit-suite (-m unit).
+- Of er letters (L*) bestaan die leeg renderen zonder FILLER of BLANK in hun naam.
+  Mij zijn er geen bekend; de borging is naamgebaseerd.

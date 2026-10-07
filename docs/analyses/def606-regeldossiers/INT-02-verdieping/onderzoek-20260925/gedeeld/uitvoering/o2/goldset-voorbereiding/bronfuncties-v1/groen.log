@@ -1,0 +1,57 @@
+DEF-835 besluit 16 — groene fase contract /4 + prompt /5
+Datum: 2026-10-07 · branch feature/DEF-835-int02-o2 (ongecommit, HEAD 5315fa8e0)
+Interpreter: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python (Python 3.13; werkboom heeft geen eigen .venv)
+Alle runs offline (geen live calls; .env niet gelezen). Ruwe uitvoer per onderdeel in de genoemde bestanden.
+
+1. Nieuwe en gewijzigde tests (14 bestanden) — groen-0-gewijzigde-tests.log
+   pytest <14 bestanden> -p no:cacheprovider --tb=short -rfE
+   => 1191 passed in 42.02s
+   per bestand (pytest --co):
+     domain/test_def835_int02_bronfuncties.py        132  (nieuw)
+     domain/test_def835_int02_papertest.py            86  (nieuw)
+     domain/test_def835_int02_contract.py            176  (/3-regels via fixture)
+     domain/test_def835_int02_citaatposities.py       41  (/3-regels via fixture)
+     domain/test_def835_int02_dienstregel.py          55  (/3-regels via fixture; +1 test /4)
+     domain/test_def835_int02_migratie.py             53  (/3-regels via fixture)
+     services/orchestrators/test_def835_int02_wrappers.py   74
+     services/prompts/test_def835_int02_prompt.py     70
+     validation/test_def835_int02_assessment_service.py    140
+     validation/test_def835_int02_evaluator.py        79
+     validation/test_def835_int02_modelproef.py      191  (+2 tests max_false_pass)
+     validation/test_def835_int02_modular.py          20
+     validation/test_def835_int02_schemaroute.py      53
+     validation/test_def835_int02_variatiemeting.py   21
+
+2. -k "def835 or int02" tests/unit — groen-1-def835-int02.log
+   => 1251 passed, 11 skipped, 7913 deselected, 2 warnings in 43.60s
+   (11 skipped = test_def771_int02_contract.py: DEF771_SKILLS_ROOT niet gezet; ongewijzigd t.o.v. nulmeting)
+
+3. INT-03 / ESS-03 — groen-2-int03-ess03.log
+   pytest tests/unit -k "int03 or ess03"
+   => 786 passed, 8389 deselected, 2 warnings in 20.35s
+
+4. ruff check (venv-ruff) — groen-3-ruff.log
+   src/domain/int02, src/services/validation/int02_assessment_service.py,
+   scripts/analysis/def835_int02_modelproef.py, tests/fixtures/def835_int02_v4.py,
+   tests/unit/{domain,validation,services}, bronfuncties-v1/mutatie/mutatie_plugin.py
+   => All checks passed!
+
+5. black --check (zelfde paden) — groen-4-black.log
+   => 261 files would be left unchanged.
+
+6. Mutatiecontrole — mutatie.log (+ mutatie/resultaten/*.xml)
+   => 12/12 mutanten gedood; nulmeting 358/358 groen.
+
+Aanvullend (niet gevraagd, wel gedraaid)
+- Volledige unit-suite parallel (pytest tests/unit -m unit -n auto), vóór de
+  laatste twee string-literal-wijzigingen in contract.py:
+  9048 passed, 3 failed, 81 skipped, 1 xfailed.
+    * test_def835_int02_modelproef.py::test_f3_fout_na_flush_van_afronding_blokkeert_blijvend[...]
+      faalt alleen onder xdist; serieel groen (ook in run 1 en 2 hierboven).
+    * test_performance_tracker.py::TestGlobalTracker (2x): OfflineGateError op
+      'data/definities.db' buiten de sessieroot; ook geïsoleerd rood; bestanden
+      en afhankelijkheden niet door deze opdracht gewijzigd (omgevingsprobleem werkboom).
+
+Niet gecontroleerd
+- pre-commit-ruff v0.16.5 (strenger dan venv-ruff): uvx vroeg om toestemming; niet gedraaid.
+- make test / make lint als geheel (alleen de betrokken paden).

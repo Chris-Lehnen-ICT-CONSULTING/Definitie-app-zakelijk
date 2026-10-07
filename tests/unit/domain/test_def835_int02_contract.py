@@ -1,10 +1,15 @@
-"""DEF-835 WP1: het interne INT-02-beoordelingscontract def835-int02-assessment/3.
+"""DEF-835 WP1: het interne INT-02-beoordelingscontract, regels van /3.
 
 Sinds /2 (besluit 9, optie A) levert de beoordelaar geen posities meer; de
 code leidt ze af uit de enige exacte vindplaats van elk citaat. Dat gedrag
 staat in `test_def835_int02_citaatposities.py`; hier is de rest van het
 contract op /2 herijkt. /3 (besluit 12) voegt alleen de smalle dienstregel
 "discretie zonder bedoeling" toe; die staat in `test_def835_int02_dienstregel.py`.
+
+Sinds /4 (besluit 16, bronfuncties; `test_def835_int02_bronfuncties.py`)
+blijven de /3-regels gelden voor de hercontrole van bewaarde /3-documenten.
+Deze module toetst ze daarom met /3 als actuele versie (`contract_drie`): de
+gedeelde invoer-, bindings- en meldingslaag én de /3-uitvoerregels.
 
 Bron: plan-v1.md §Ontwerpvoorstel en §WP1 (akkoord 26-09-2026), synthese v5
 §2/§4 (norm def771-int02/2, T-tekst, appmeldingen, statusmapping) en het
@@ -50,6 +55,7 @@ from pathlib import Path
 
 import pytest
 
+from domain.int02 import contract
 from domain.int02.contract import (
     Configuratie,
     Int02ContractError,
@@ -62,6 +68,15 @@ from domain.int02.contract import (
 )
 
 pytestmark = [pytest.mark.unit]
+
+
+@pytest.fixture(autouse=True)
+def contract_drie(monkeypatch):
+    """Besluit 16: de regels van /3 blijven gelden voor bewaarde /3-documenten;
+    hier getoetst met /3 als actuele versie (de regels hangen aan de vaste
+    versienaam, niet aan `CONTRACTVERSIE`)."""
+    monkeypatch.setattr(contract, "CONTRACTVERSIE", "def835-int02-assessment/3")
+
 
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = json.loads(

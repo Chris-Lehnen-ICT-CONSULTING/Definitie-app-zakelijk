@@ -17,6 +17,10 @@ kwalificatieproef v5 door de echte /2-code bewaarde C107-document
 (`kwalificatieproef-v5/regressie-resultaat.json`), ook niet gemaakt met de
 code onder test. Documenten via de actuele `beoordeel` zijn /3 en heten hier
 "actueel".
+
+Sinds /4 (besluit 16) draait deze module met /3 als actuele versie
+(`contract_drie`): zij toetst de overgangen /1 → /2 → /3. De overgang /3 → /4
+en de manipulatie van /4-documenten staan in `test_def835_int02_bronfuncties.py`.
 """
 
 from __future__ import annotations
@@ -27,6 +31,7 @@ from pathlib import Path
 
 import pytest
 
+from domain.int02 import contract as int02_contract
 from domain.int02.contract import (
     CONTRACTVERSIE,
     MELDING_E,
@@ -42,6 +47,13 @@ from domain.int02.contract import (
 
 pytestmark = [pytest.mark.unit]
 
+
+@pytest.fixture(autouse=True)
+def contract_drie(monkeypatch):
+    """Besluit 16: /3 als actuele versie (zie moduledocstring)."""
+    monkeypatch.setattr(int02_contract, "CONTRACTVERSIE", V3)
+
+
 ROOT = Path(__file__).resolve().parents[3]
 REFERENTIE = json.loads(
     (ROOT / "tests/fixtures/def835_int02_contract_v1_documenten.json").read_text(
@@ -50,6 +62,7 @@ REFERENTIE = json.loads(
 )
 V1 = "def835-int02-assessment/1"
 V2 = "def835-int02-assessment/2"
+V3 = "def835-int02-assessment/3"
 IDS = [d["id"] for d in REFERENTIE["documenten"]]
 V5_RESULTAAT = (
     ROOT / "docs/analyses/def606-regeldossiers/INT-02-verdieping/"
@@ -225,7 +238,7 @@ def _actueel_document(item: dict) -> Beoordelingsdocument:
 def test_gemanipuleerd_actueel_document_is_error(manipulatie):
     item = _item("C105")
     document = _actueel_document(item)
-    assert document.contractversie == CONTRACTVERSIE != V2
+    assert document.contractversie == int02_contract.CONTRACTVERSIE == V3
     assert _actualiteit(document, item).status == "fail"  # ongemanipuleerd actueel
     oordeel = document.oordeel
     if manipulatie == "positie":

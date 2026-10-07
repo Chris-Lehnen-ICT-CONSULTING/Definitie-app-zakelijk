@@ -3,9 +3,10 @@
 Bewezen wordt wat code kan bewijzen: de T-tekst uit synthese v5 §4 staat
 letterlijk en volledig in de systeemprompt; de norm komt uit het actieve
 regelrecord `INT-02.json` (normversie def771-int02/2, met hash); het gesloten
-WP1-uitvoercontract staat in de systeemprompt; alle invoer is uitsluitend
-gegevens in de dataprompt, veilig als JSON geserialiseerd. Geen uitspraak over
-de semantische kwaliteit van een model.
+uitvoercontract /4 (kernvorm en bronfuncties, besluit 16) staat in de
+systeemprompt; alle invoer is uitsluitend gegevens in de dataprompt, veilig
+als JSON geserialiseerd, met de vaste lijst grondbronsleutels. Geen uitspraak
+over de semantische kwaliteit van een model.
 """
 
 from __future__ import annotations
@@ -17,13 +18,11 @@ from pathlib import Path
 
 import pytest
 
+from domain.int02 import contract
 from domain.int02.contract import (
-    _GRONDVELDEN,
-    _PASSAGEVELDEN,
     _UITVOERVELDEN,
     CONTRACTVERSIE,
     DEKKINGEN,
-    FUNCTIES,
     NORMVERSIE,
     ONZEKERHEDEN,
     VERDICTS,
@@ -185,22 +184,48 @@ def test_norm_met_andere_versie_is_geen_geldige_norm():
 # --- gesloten WP1-uitvoercontract in de systeemprompt ----------------------------
 
 
-def test_systeemprompt_noemt_alle_velden_en_enumwaarden_van_het_wp1_contract():
+def test_systeemprompt_noemt_alle_velden_en_enumwaarden_van_contract_vier():
     systeem, _ = bouw_int02_prompt(_invoer(), _norm())
-    for naam in _UITVOERVELDEN | _PASSAGEVELDEN | _GRONDVELDEN:
+    velden = _UITVOERVELDEN | contract._PASSAGEVELDEN_V4 | contract._BRONFUNCTIEVELDEN
+    for naam in velden:
         assert f'"{naam}"' in systeem, naam
-    for waarde in VERDICTS | FUNCTIES | ONZEKERHEDEN | DEKKINGEN:
+    waarden = (
+        VERDICTS
+        | contract.BRONFUNCTIES
+        | contract.KERNVORMEN
+        | ONZEKERHEDEN
+        | DEKKINGEN
+    )
+    for waarde in waarden:
         assert f'"{waarde}"' in systeem, waarde
-    for grondveld in (
-        "kern",
-        "begrip",
-        "bedoeling",
-        "organisatorische_context",
-        "juridische_context",
-        "wettelijke_basis",
-        "bron",
+    for sleutel in (
+        '"bedoeling"',
+        '"organisatorische_context/<index>"',
+        '"juridische_context/<index>"',
+        '"wettelijke_basis/<index>"',
+        '"bron/<id>"',
+        '"grondbronnen"',
     ):
-        assert f'"{grondveld}"' in systeem, grondveld
+        assert sleutel in systeem, sleutel
+
+
+def test_systeemprompt_vraagt_het_eigen_verdict_als_laatste_veld():
+    regels = bouw_int02_prompt(_invoer(), _norm())[0].splitlines()
+    volgorde = [
+        "passages",
+        "reason",
+        "question",
+        "uncertainty",
+        "coverage",
+        "scope_reason",
+        "verdict",
+    ]
+    posities = [
+        next(i for i, r in enumerate(regels) if r.startswith(f'- "{veld}":'))
+        for veld in volgorde
+    ]
+    assert posities == sorted(posities)
+    assert list(contract.ANTWOORDSCHEMA["properties"]) == volgorde
 
 
 def test_systeemprompt_legt_citaatregels_scoreverbod_en_gegevensrol_vast():
@@ -215,18 +240,37 @@ def test_systeemprompt_legt_citaatregels_scoreverbod_en_gegevensrol_vast():
 
 
 def test_promptversie_is_eigen_en_verschilt_van_contract_en_norm():
-    # /4 (besluit 14) = de /3-tekst plus de schemaroute.
-    assert PROMPT_VERSION == "def835-int02-prompt/4"
+    # /5 (besluit 16): kernvorm en bronfuncties bij contract /4.
+    assert PROMPT_VERSION == "def835-int02-prompt/5"
     assert PROMPT_VERSION not in (CONTRACTVERSIE, NORMVERSIE)
 
 
 # --- invoer uitsluitend als gegevens -------------------------------------------
 
 
+def _data(invoer) -> dict:
+    return {
+        "invoer": invoer.als_dict(),
+        "grondbronnen": list(contract.grondbronnen(invoer)),
+    }
+
+
 def test_dataprompt_is_uitsluitend_json_met_de_exacte_invoer():
     invoer = _invoer()
     _, data = bouw_int02_prompt(invoer, _norm())
-    assert json.loads(data) == {"invoer": invoer.als_dict()}
+    assert json.loads(data) == _data(invoer)
+    assert json.loads(data)["grondbronnen"] == [
+        "bedoeling",
+        "organisatorische_context/0",
+        "juridische_context/0",
+        "bron/B1",
+    ]
+
+
+def test_dataprompt_zonder_bedoeling_noemt_geen_bedoelingsleutel():
+    invoer = _invoer(bedoeling=None)
+    _, data = bouw_int02_prompt(invoer, _norm())
+    assert "bedoeling" not in json.loads(data)["grondbronnen"]
 
 
 def test_systeemprompt_is_onafhankelijk_van_de_invoer():
@@ -271,7 +315,7 @@ def test_injectie_in_elk_invoerveld_blijft_exacte_gegevens(veld, injectie):
     invoer = _invoer(**over)
     systeem, data = bouw_int02_prompt(invoer, _norm())
     assert injectie not in systeem
-    assert json.loads(data) == {"invoer": invoer.als_dict()}
+    assert json.loads(data) == _data(invoer)
 
 
 def test_onbekende_bedoeling_is_json_null_en_geen_tekst():
@@ -302,17 +346,65 @@ def test_geen_implicite_bronnen_alleen_aangeleverde_bronpassages():
 # --- GREEN-aanvulling: functiecode en betekenis gekoppeld (niet op volgorde) ----
 
 
-def test_elke_functiecode_staat_expliciet_bij_zijn_betekenis_uit_t():
+#: /5 (besluit 16, ontwerp §2.1): betekenis van elke kernvorm, casusvrij.
+KERNVORMBETEKENIS = {
+    "instruction": (
+        "zelfstandig voorschrift zonder genus en kenmerk: gebiedende wijs, of een "
+        "hoofdzin met een actor als onderwerp en een handeling als gezegde"
+    ),
+    "obligation_form": (
+        'een expliciet modaal woord van verplichting aan een actor ("moet", '
+        '"dient te", "is verplicht") binnen een genus-kenmerkstructuur'
+    ),
+    "discretion_form": (
+        "de passage laat de uitkomst afhangen van een oordeel, afweging of "
+        "goedvinden van een actor"
+    ),
+    "descriptive_act": (
+        "een handeling of beslissing van een actor in beschrijvende vorm "
+        '(indicatief, passief, voltooid of een "is te"-constructie)'
+    ),
+    "no_act": "geen handeling van een actor",
+}
+#: /5: betekenis van elke bronfunctie (functie voor de inhoud van de passage).
+BRONFUNCTIEBETEKENIS = {
+    "criterion": (
+        "de grondbron gebruikt de inhoud als kenmerk dat bepaalt wat tot het "
+        "begrip behoort, ook als zij een plicht, bevoegdheid of beslissing "
+        "beschrijft waarvan de passage alleen het bestaan of de uitkomst als "
+        "kenmerk gebruikt"
+    ),
+    "derivation": (
+        "de grondbron gebruikt de inhoud als deterministische afleiding die "
+        "bepaalt wat tot het begrip behoort"
+    ),
+    "actor_prescription": (
+        "de grondbron stelt precies het handelen uit de passage als plicht, taak "
+        "of procedure van een actor"
+    ),
+    "discretionary_decision_rule": (
+        "de grondbron stelt precies de afweging uit de passage als afweging of "
+        "oordeel van een actor"
+    ),
+    "not_a_criterion": (
+        "de grondbron toont dat de inhoud niet bepaalt wat tot het begrip "
+        "behoort: er vallen gevallen onder het begrip zonder dit kenmerk, of "
+        "gevallen met dit kenmerk vallen erbuiten"
+    ),
+    "unclear": "de grondbron gaat over de inhoud, maar laat de functie open",
+    "not_addressed": (
+        "de grondbron zegt niets over de functie van deze inhoud; ook een "
+        "bedoeling die alleen noemt waar de term voorkomt of welke stukken zijn "
+        "meegestuurd"
+    ),
+}
+
+
+def test_elke_kernvorm_en_bronfunctie_staat_expliciet_bij_zijn_betekenis():
     systeem, _ = bouw_int02_prompt(_invoer(), _norm())
-    verwacht = {
-        "criterion": "begripscriterium",
-        "derivation": "deterministische afleiding",
-        "actor_prescription": "actorvoorschrift of procedure",
-        "discretionary_decision_rule": "discretionaire beslisregel",
-        "unclear": "onduidelijk",
-    }
-    assert set(verwacht) == FUNCTIES
-    for code, betekenis in verwacht.items():
+    assert set(KERNVORMBETEKENIS) == contract.KERNVORMEN
+    assert set(BRONFUNCTIEBETEKENIS) == contract.BRONFUNCTIES
+    for code, betekenis in (KERNVORMBETEKENIS | BRONFUNCTIEBETEKENIS).items():
         assert f'"{code}" = {betekenis}' in systeem, code
 
 
@@ -333,14 +425,30 @@ AANWIJZING_FAIL = (
     "actor een oordeel vormt."
 )
 #: Algemene aanwijzing (/3): citaat letterlijk en uniek in het veld; geen
-#: posities, die bepaalt de dienst.
-AANWIJZING_CITAAT = (
+#: posities, die bepaalt de dienst. Vervangen door AANWIJZING_CITAAT_5.
+AANWIJZING_CITAAT_3 = (
     "- Kopieer elk passage- en grondcitaat letterlijk uit het opgegeven veld: "
     "exact dezelfde tekens, zonder normalisatie van hoofdletters, witruimte of "
     "leestekens. Kies elk citaat zo dat het precies één keer in de exacte tekst "
     "van dat veld voorkomt; neem zo nodig meer aangrenzende tekst mee. Geef geen "
     "posities; de dienst zoekt het citaat zelf op. Lukt dat niet, verzin dan "
     "geen citaat."
+)
+#: /5: dezelfde citaatregels, nu voor passage- en bronfunctiecitaten.
+AANWIJZING_CITAAT = (
+    "- Kopieer elk passagecitaat letterlijk uit de kern en elk "
+    "bronfunctiecitaat letterlijk uit de tekst van die grondbron: exact dezelfde "
+    "tekens, zonder normalisatie van hoofdletters, witruimte of leestekens. Kies "
+    "elk citaat zo dat het precies één keer in die exacte tekst voorkomt; neem "
+    "zo nodig meer aangrenzende tekst mee. Geef geen posities; de dienst zoekt "
+    "het citaat zelf op. Lukt dat niet, verzin dan geen citaat."
+)
+#: /5 (besluit 16): elke grondbron afzonderlijk, geen tegenspraak oplossen.
+AANWIJZING_BRONNEN = (
+    '- Vul in "bronfuncties" elke grondbron afzonderlijk in, ook als '
+    "grondbronnen elkaar tegenspreken; los een tegenspraak niet op door één "
+    "grondbron te kiezen. De dienst leidt de uitkomst af uit de kernvorm en de "
+    'bronfuncties; geef je eigen "verdict" als laatste.'
 )
 #: De citaataanwijzing van /2, die /3 vervangt.
 AANWIJZING_CITAAT_2 = (
@@ -352,22 +460,27 @@ AANWIJZING_CITAAT_2 = (
 )
 
 
-def test_promptversie_is_vier_na_de_schemaroute():
-    # /3 na de positiecorrectie; /4 (besluit 14) wijzigt de tekst niet.
-    assert PROMPT_VERSION == "def835-int02-prompt/4"
+def test_promptversie_is_vijf_na_de_bronfuncties():
+    # /3 na de positiecorrectie; /4 (besluit 14) de schemaroute; /5 (besluit
+    # 16) kernvorm en bronfuncties.
+    assert PROMPT_VERSION == "def835-int02-prompt/5"
 
 
-@pytest.mark.parametrize(
-    "aanwijzing", [AANWIJZING_FAIL, AANWIJZING_CITAAT], ids=["fail", "citaat"]
-)
+AANWIJZINGEN = [AANWIJZING_FAIL, AANWIJZING_CITAAT, AANWIJZING_BRONNEN]
+
+
+@pytest.mark.parametrize("aanwijzing", AANWIJZINGEN, ids=["fail", "citaat", "bronnen"])
 def test_systeemprompt_bevat_de_aanwijzing_als_een_regel(aanwijzing):
     systeem, _ = bouw_int02_prompt(_invoer(), _norm())
     assert systeem.splitlines().count(aanwijzing) == 1
 
 
-@pytest.mark.parametrize(
-    "aanwijzing", [AANWIJZING_FAIL, AANWIJZING_CITAAT], ids=["fail", "citaat"]
-)
+def test_citaataanwijzing_van_drie_is_vervangen():
+    systeem, _ = bouw_int02_prompt(_invoer(), _norm())
+    assert AANWIJZING_CITAAT_3 not in systeem.splitlines()
+
+
+@pytest.mark.parametrize("aanwijzing", AANWIJZINGEN, ids=["fail", "citaat", "bronnen"])
 def test_aanwijzing_staat_na_de_invoerduiding_en_voor_het_uitvoerschema(aanwijzing):
     regels = bouw_int02_prompt(_invoer(), _norm())[0].splitlines()
     assert aanwijzing in regels
@@ -393,13 +506,68 @@ def test_systeemprompt_vraagt_geen_posities_meer():
         assert fragment not in systeem, fragment
 
 
-def test_uitvoerschema_noemt_alleen_citaat_en_veld():
+def test_uitvoerschema_noemt_kernvorm_en_bronfuncties_in_plaats_van_grond():
     systeem, _ = bouw_int02_prompt(_invoer(), _norm())
     assert (
-        '- "passages": lijst van passageobjecten met precies "quote", "function" en '
-        '"ground".'
+        '- "passages": lijst van passageobjecten met precies "quote", "kernvorm" en '
+        '"bronfuncties".'
     ) in systeem
-    assert '  "ground": object met precies "field", "ref" en "quote".' in systeem
+    assert (
+        '  "bronfuncties": lijst met voor elke sleutel uit "grondbronnen" precies '
+        'één object met precies "bron", "function" en "quote", in de volgorde van '
+        '"grondbronnen".'
+    ) in systeem
+    assert (
+        '  "quote": een letterlijk citaat uit de tekst van die grondbron dat de '
+        'functie toont: verplicht bij "criterion", "derivation", '
+        '"actor_prescription", "discretionary_decision_rule" en '
+        '"not_a_criterion"; null of een citaat bij "unclear"; null bij '
+        '"not_addressed".'
+    ) in systeem
+    for oud in ('"ground"', '"field"', '"ref"'):
+        assert oud not in systeem, oud
+
+
+def _ontwikkelteksten() -> list[str]:
+    """Alle teksten van de 24 ontwikkelgevallen (alleen ontwikkeling-v1.json)."""
+    pad = (
+        ROOT / "docs/analyses/def606-regeldossiers/INT-02-verdieping"
+        "/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding"
+        "/goldset-freeze-v1/ontwikkeling-v1.json"
+    )
+    teksten = []
+    for item in json.loads(pad.read_text("utf-8"))["gevallen"]:
+        geval, label = item["geval"], item["label"]
+        teksten += [geval["begrip"], geval["kern"], geval["bedoeling"] or ""]
+        teksten += [b["tekst"] for b in geval["bronnen"]]
+        teksten += [p["citaat"] for p in label["passages"]]
+        teksten += [g["citaat"] for g in label["grondcitaten"]]
+        teksten.append(label["normgrond"])
+    return [t for t in teksten if t]
+
+
+def _woordreeksen(tekst: str, lengte: int) -> set[tuple[str, ...]]:
+    woorden = re.findall(r"\w+", tekst.lower())
+    return {tuple(woorden[i : i + lengte]) for i in range(len(woorden) - lengte + 1)}
+
+
+def test_systeemprompt_bevat_geen_casusmateriaal_uit_de_ontwikkelset():
+    """Geen reeks van vijf woorden uit kern, bedoeling, bron, labelcitaat of
+    normgrond van een ontwikkelgeval staat in de systeemprompt (hold-out wordt
+    hier niet gelezen). De norm en de T-tekst tellen niet mee: labels mogen de
+    norm citeren."""
+    norm = _norm()
+    systeem, _ = bouw_int02_prompt(_invoer(), norm)
+    eigen = systeem
+    for normtekst in (T_TEKST, norm.uitleg, norm.toelichting, norm.toetsvraag):
+        eigen = eigen.replace(normtekst, "")
+    prompt = _woordreeksen(eigen, 5)
+    teksten = _ontwikkelteksten()
+    assert len(teksten) > 100
+    gedeeld = set()
+    for tekst in teksten:
+        gedeeld |= prompt & _woordreeksen(tekst, 5)
+    assert not gedeeld, sorted(gedeeld)[:10]
 
 
 def test_aanwijzingen_zijn_invoeronafhankelijk_en_zonder_casusmateriaal():

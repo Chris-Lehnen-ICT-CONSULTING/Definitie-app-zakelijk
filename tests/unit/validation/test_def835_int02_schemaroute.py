@@ -1,14 +1,16 @@
-"""DEF-835 besluit 14 (optie A) — INT-02-antwoordschema via de API.
+"""DEF-835 besluit 14 (optie A) en 16 — INT-02-antwoordschema via de API.
 
-Bewezen: het vastgepinde antwoordschema is exact de bestaande gesloten
-WP1-uitvoerstructuur (velden, volgorde, enums, nullability), zijn hash is
-procesonafhankelijk (ook onder een andere PYTHONHASHSEED), het blijft binnen
-de gedocumenteerde grenzen van structured outputs, alle geldige
-ontwerpvoorbeelden voldoen en de v6-respons van C105 (extra passageveld
-`reason`) niet. De dienst stuurt het schema mee, eist dat de AI-laag het
-verzonden schema en precies één tekstblok bevestigt, weigert vóór de aanroep
-een schema dat niet bij de pin hoort en meldt een niet-ondersteunde
-combinatie met een eigen reden zonder verzending.
+Bewezen: het vastgepinde antwoordschema is exact de gesloten uitvoervorm van
+contract /4 (besluit 16: per passage `kernvorm` en per grondbron een
+`function` met citaat, het eigen `verdict` als laatste veld), in die volgorde
+en met gesorteerde enums; zijn hash is procesonafhankelijk (ook onder een
+andere PYTHONHASHSEED); het blijft binnen de gedocumenteerde grenzen van
+structured outputs (≤24 optionele velden, ≤16 unies); schema en
+structuurcontrole van de code zijn gelijk over een matrix van bronfunctie- en
+kernvormwaarden; de v6-respons van C105 voldoet niet. De dienst stuurt het
+schema mee, eist dat de AI-laag het verzonden schema en precies één tekstblok
+bevestigt, weigert vóór de aanroep een schema dat niet bij de pin hoort en
+meldt een niet-ondersteunde combinatie met een eigen reden zonder verzending.
 
 Niet bewezen: dat de echte API het schema accepteert (pas live, fase 1) of
 hoe het model zich onder de grammatica gedraagt.
@@ -34,7 +36,6 @@ from anthropic import AsyncAnthropic
 from domain.int02 import contract
 from domain.int02.contract import (
     DEKKINGEN,
-    FUNCTIES,
     ONZEKERHEDEN,
     VERDICTS,
     Configuratie,
@@ -58,6 +59,7 @@ from services.validation.int02_assessment_service import (
     bouw_int02_prompt,
     laad_int02_norm,
 )
+from tests.fixtures.def835_int02_v4 import passage, respons_voor_status, uitvoer
 from utils.async_api import RateLimitConfig
 
 pytestmark = [pytest.mark.unit]
@@ -68,38 +70,22 @@ FIXTURE = json.loads(
 )
 SLEUTEL = "sk-ant-offline-def835-schema-000000000000"
 
-#: Vastgepinde, volgordegevoelige hash van het INT-02-antwoordschema
+#: Vastgepinde, volgordegevoelige hash van het INT-02-antwoordschema /4
 #: (`services.ai.base_client.response_schema_sha256`, dezelfde functie
 #: waarmee de AI-laag het verzonden schema bevestigt).
-#: Na de Codex-review (P2, grondvarianten); de eerste pin was `2b1ac6a8…f96191`.
-SCHEMA_SHA256 = "72adfe7428b67bf0fd999520581f0fc2cbe801101e1e8e6df300179405511f17"
+SCHEMA_SHA256 = "d3ad029e24b6b96242f4730686d3a4ebfebd9f46993607e41016761bc7fce715"
+#: De pin van het /3-schema (besluit 14, na de Codex-review) en de eerste pin.
 VORIGE_SCHEMA_SHA256 = (
-    "2b1ac6a869c0b989287c421ee66d40a204fcca0ffe41c6971d6d0ed896f96191"
+    "72adfe7428b67bf0fd999520581f0fc2cbe801101e1e8e6df300179405511f17",
+    "2b1ac6a869c0b989287c421ee66d40a204fcca0ffe41c6971d6d0ed896f96191",
 )
-#: Promptvolgorde (systeemprompt "met precies deze velden").
-TOPVOLGORDE = [
-    "verdict",
-    "passages",
-    "reason",
-    "question",
-    "uncertainty",
-    "scope_reason",
-    "coverage",
-]
-PASSAGEVOLGORDE = ["quote", "function", "ground"]
-GRONDVOLGORDE = ["field", "ref", "quote"]
-GRONDVELDEN = {
-    "kern",
-    "begrip",
-    "bedoeling",
-    "organisatorische_context",
-    "juridische_context",
-    "wettelijke_basis",
-    "bron",
-}
-#: Systeemprompt onder /3 (test_def835_int02_dienstregel); /4 wijzigt hem niet.
+#: Systeemprompt onder /3 en /4 (test_def835_int02_dienstregel); /5 wijzigt hem.
 SYSTEEMPROMPT_V3_SHA256 = (
     "da4a4112b580da2924b5940ac2723ef5e177ad48ef15890b66d8d91f285a7ca6"
+)
+#: SHA-256 van de systeemprompt van def835-int02-prompt/5 (besluit 16).
+SYSTEEMPROMPT_V5_SHA256 = (
+    "3047bb1a34f878e77bd434d668d870f0dfcfb92e3e948ac0caee77af9c2d2b70"
 )
 #: Toegestane sleutelwoorden (subset die structured outputs ondersteunt).
 SLEUTELWOORDEN = {
@@ -112,9 +98,82 @@ SLEUTELWOORDEN = {
     "anyOf",
 }
 
+_NUL_OF_TEKST = {"anyOf": [{"type": "string"}, {"type": "null"}]}
+#: Ontwerp §2.2 letterlijk: eerst de passages met kernvorm en bronfuncties,
+#: dan de onderbouwing, als laatste het eigen modelverdict.
+VERWACHT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "passages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "quote": {"type": "string"},
+                    "kernvorm": {
+                        "type": "string",
+                        "enum": [
+                            "descriptive_act",
+                            "discretion_form",
+                            "instruction",
+                            "no_act",
+                            "obligation_form",
+                        ],
+                    },
+                    "bronfuncties": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "bron": {"type": "string"},
+                                "function": {
+                                    "type": "string",
+                                    "enum": [
+                                        "actor_prescription",
+                                        "criterion",
+                                        "derivation",
+                                        "discretionary_decision_rule",
+                                        "not_a_criterion",
+                                        "not_addressed",
+                                        "unclear",
+                                    ],
+                                },
+                                "quote": _NUL_OF_TEKST,
+                            },
+                            "required": ["bron", "function", "quote"],
+                            "additionalProperties": False,
+                        },
+                    },
+                },
+                "required": ["quote", "kernvorm", "bronfuncties"],
+                "additionalProperties": False,
+            },
+        },
+        "reason": {"type": "string"},
+        "question": _NUL_OF_TEKST,
+        "uncertainty": {"type": "string", "enum": ["decisive", "non_decisive", "none"]},
+        "coverage": {"type": "string", "enum": ["complete", "none", "partial"]},
+        "scope_reason": _NUL_OF_TEKST,
+        "verdict": {
+            "type": "string",
+            "enum": ["fail", "insufficient_information", "not_applicable", "pass"],
+        },
+    },
+    "required": [
+        "passages",
+        "reason",
+        "question",
+        "uncertainty",
+        "coverage",
+        "scope_reason",
+        "verdict",
+    ],
+    "additionalProperties": False,
+}
+
 #: Letterlijk de modeltekst van C105 in kwalificatieproef v6
-#: (`kwalificatieproef-v6/regressie-bundel.json`, `antwoorden.C105`): inhoud
-#: juist, maar een extra veld `reason` in de passage.
+#: (`kwalificatieproef-v6/regressie-bundel.json`, `antwoorden.C105`): /3-vorm
+#: met een extra veld `reason` in de passage.
 V6_C105_TEKST = (
     '{"verdict":"fail","passages":[{"quote":"De medewerker laat de aanvrager '
     'toe.","function":"actor_prescription","ground":{"field":"bedoeling",'
@@ -143,6 +202,18 @@ def _pin() -> str:
     if not isinstance(pin, str):
         pytest.fail("domain.int02.contract.ANTWOORDSCHEMA_SHA256 ontbreekt")
     return pin
+
+
+def _structuur(data: Any) -> bool:
+    """De structuurcontrole van contract /4 (vorm, typen, enums; geen semantiek)."""
+    controle = getattr(contract, "_controleer_structuur_v4", None)
+    if controle is None:
+        pytest.fail("domain.int02.contract._controleer_structuur_v4 ontbreekt")
+    try:
+        controle(data)
+    except contract._AfwijzingError:
+        return False
+    return True
 
 
 # --- een kleine, strikte validator voor de gebruikte schemasubset ------------------
@@ -232,210 +303,64 @@ def _schemas(schema: Any) -> list[dict[str, Any]]:
     return gevonden
 
 
-def _modelresponsen(knoop: Any) -> list[dict[str, Any]]:
-    """Alle niet-lege `modelrespons`-waarden in de ontwerpfixture, diep."""
-    gevonden: list[dict[str, Any]] = []
-    if isinstance(knoop, dict):
-        for sleutel, waarde in knoop.items():
-            if sleutel == "modelrespons" and waarde is not None:
-                gevonden.append(waarde)
-            else:
-                gevonden.extend(_modelresponsen(waarde))
-    elif isinstance(knoop, list):
-        for item in knoop:
-            gevonden.extend(_modelresponsen(item))
-    return gevonden
-
-
 def _geldig() -> dict[str, Any]:
     return {
-        "verdict": "fail",
         "passages": [
             {
                 "quote": "q",
-                "function": "actor_prescription",
-                "ground": {
-                    "field": "organisatorische_context",
-                    "ref": 0,
-                    "quote": None,
-                },
+                "kernvorm": "descriptive_act",
+                "bronfuncties": [
+                    {"bron": "bron/B1", "function": "criterion", "quote": "c"}
+                ],
             }
         ],
         "reason": "r",
         "question": None,
         "uncertainty": "none",
-        "scope_reason": None,
         "coverage": "complete",
+        "scope_reason": None,
+        "verdict": "pass",
     }
 
 
 # --- 1. het schema zelf -----------------------------------------------------------
 
 
-def _grondvarianten() -> list[dict[str, Any]]:
-    grond = _schema()["properties"]["passages"]["items"]["properties"]["ground"]
-    assert set(grond) == {"anyOf"}, "ground hoort een anyOf van varianten te zijn"
-    return grond["anyOf"]
-
-
-def test_schema_is_de_gesloten_wp1_structuur_in_promptvolgorde():
+def test_schema_is_exact_de_gesloten_vorm_van_contract_vier():
     schema = _schema()
-    assert schema["type"] == "object"
-    assert list(schema["properties"]) == TOPVOLGORDE
-    passage = schema["properties"]["passages"]
-    assert passage["type"] == "array"
-    assert list(passage["items"]["properties"]) == PASSAGEVOLGORDE
-    for variant in _grondvarianten():
-        assert list(variant["properties"]) == GRONDVOLGORDE
-        assert set(variant["properties"]) == contract._GRONDVELDEN
-    # Gesloten en volledig verplicht: elk object, ook elke grondvariant.
-    for object_ in _objecten(schema):
-        assert object_["type"] == "object"
-        assert object_["additionalProperties"] is False
-        assert object_["required"] == list(object_["properties"])
-    # Dezelfde veldensets als de bestaande contractcontrole.
-    assert set(schema["properties"]) == contract._UITVOERVELDEN
-    assert set(passage["items"]["properties"]) == contract._PASSAGEVELDEN
+    assert schema == VERWACHT_SCHEMA
+    # Ook de eigenschapsvolgorde (dict-gelijkheid negeert die).
+    assert json.dumps(schema) == json.dumps(VERWACHT_SCHEMA)
+    assert list(schema["properties"])[-1] == "verdict"  # eigen verdict als laatste
 
 
-def test_enums_komen_uit_de_constanten_en_zijn_gesorteerd():
+def test_schema_en_contractconstanten_zijn_dezelfde_velden_en_enums():
     schema = _schema()
     top = schema["properties"]
-    passage = top["passages"]["items"]["properties"]
+    passage_ = top["passages"]["items"]
+    bronfunctie = passage_["properties"]["bronfuncties"]["items"]
+    assert set(top) == contract._UITVOERVELDEN
+    assert set(passage_["properties"]) == contract._PASSAGEVELDEN_V4
+    assert set(bronfunctie["properties"]) == contract._BRONFUNCTIEVELDEN
     for veld, constanten in (
         (top["verdict"], VERDICTS),
         (top["uncertainty"], ONZEKERHEDEN),
         (top["coverage"], DEKKINGEN),
-        (passage["function"], FUNCTIES),
+        (passage_["properties"]["kernvorm"], contract.KERNVORMEN),
+        (bronfunctie["properties"]["function"], contract.BRONFUNCTIES),
     ):
         assert veld == {"type": "string", "enum": sorted(constanten)}
-    velden = [v["properties"]["field"]["enum"] for v in _grondvarianten()]
-    assert all(enum == sorted(enum) for enum in velden)
-    # De varianten verdelen de grondvelden zonder overlap.
-    assert sorted(f for enum in velden for f in enum) == sorted(GRONDVELDEN)
-    assert set(contract._GRONDLABEL) | {"bron"} == GRONDVELDEN
+    # Gesloten en volledig verplicht: elk object.
+    for object_ in _objecten(schema):
+        assert object_["type"] == "object"
+        assert object_["additionalProperties"] is False
+        assert object_["required"] == list(object_["properties"])
 
 
-#: P2 (Codex-review 07-10): `ground` volgt exact de koppeling veld → ref van
-#: `_controleer_grondvorm`: scalaire velden ref null, contextvelden ref integer,
-#: bron ref tekst. In promptvolgorde: scalair, context, bron.
-_NUL_OF_TEKST = {"anyOf": [{"type": "string"}, {"type": "null"}]}
-VERWACHTE_GROND = {
-    "anyOf": [
-        {
-            "type": "object",
-            "properties": {
-                "field": {"type": "string", "enum": sorted(velden)},
-                "ref": ref,
-                "quote": _NUL_OF_TEKST,
-            },
-            "required": ["field", "ref", "quote"],
-            "additionalProperties": False,
-        }
-        for velden, ref in (
-            (("kern", "begrip", "bedoeling"), {"type": "null"}),
-            (
-                ("organisatorische_context", "juridische_context", "wettelijke_basis"),
-                {"type": "integer"},
-            ),
-            (("bron",), {"type": "string"}),
-        )
-    ]
-}
-
-
-def test_ground_is_een_unie_van_gesloten_varianten_volgens_het_contract():
-    grond = _schema()["properties"]["passages"]["items"]["properties"]["ground"]
-    assert grond == VERWACHTE_GROND
-    # Dezelfde indeling als de code: scalaire en contextvelden uit het contract.
-    [scalair, context, bron] = _grondvarianten()
-    assert set(scalair["properties"]["field"]["enum"]) == set(
-        contract._SCALAIRE_GRONDEN
-    )
-    assert set(context["properties"]["field"]["enum"]) == set(contract._CONTEXTVELDEN)
-    assert bron["properties"]["field"]["enum"] == ["bron"]
-
-
-def test_nullables_via_anyof():
-    schema = _schema()
-    top = schema["properties"]
-    assert top["reason"] == {"type": "string"}
-    assert top["question"] == _NUL_OF_TEKST
-    assert top["scope_reason"] == _NUL_OF_TEKST
-    for variant in _grondvarianten():
-        assert variant["properties"]["quote"] == _NUL_OF_TEKST
-    passage = top["passages"]["items"]["properties"]
-    assert passage["quote"] == {"type": "string"}
-
-
-def _grond(field: str, ref: Any, quote: Any = None) -> dict[str, Any]:
-    data = _geldig()
-    data["passages"][0]["ground"] = {"field": field, "ref": ref, "quote": quote}
-    return data
-
-
-@pytest.mark.parametrize(
-    ("field", "ref"),
-    [("kern", "willekeurig"), ("bron", None), ("juridische_context", None)],
-)
-def test_bevestigde_review_combinaties_zijn_niet_schema_conform(field, ref):
-    afwijkend = _grond(field, ref)
-    assert not voldoet(afwijkend, _schema())
-    with pytest.raises(contract._AfwijzingError):
-        contract._controleer_structuur(afwijkend)
-
-
-@pytest.mark.parametrize(
-    ("field", "ref"),
-    [
-        ("kern", None),
-        ("begrip", None),
-        ("bedoeling", None),
-        ("organisatorische_context", 0),
-        ("juridische_context", 2),
-        ("wettelijke_basis", 1),
-        ("bron", "B1"),
-    ],
-)
-@pytest.mark.parametrize("quote", [None, "letterlijk citaat"])
-def test_elke_grondvariant_heeft_een_geldig_conform_voorbeeld(field, ref, quote):
-    geldig = _grond(field, ref, quote)
-    assert voldoet(geldig, _schema())
-    contract._controleer_structuur(geldig)  # ook de code accepteert de vorm
-
-
-def _alleen_in_code(field: str, ref: Any) -> bool:
-    """Gedocumenteerde, toegestane afwijkingen: schema-conform, code weigert (veilig).
-
-    - een lege of alleen-witruimte bron-ID (`_gevuld`);
-    - een context-index als getal zonder breukdeel van het type float (`0.0`,
-      `1.0`): volgens JSON Schema een `integer`, maar `_is_int` eist een
-      Python-int.
-    Bereik van de index, bestaan van de bron en letterlijkheid/uniciteit van
-    citaten toetst de code ná de vorm. Typebewust: `0.0 == 0` in Python.
-    """
-    if field == "bron":
-        return isinstance(ref, str) and not ref.strip()
-    if field in contract._CONTEXTVELDEN:
-        return isinstance(ref, float) and ref.is_integer()
-    return False
-
-
-def test_schema_en_contractvorm_zijn_gelijk_over_de_hele_grondmatrix():
-    for field in sorted(GRONDVELDEN):
-        for ref in (None, 0, 3, -1, 0.0, 1.0, "B1", "", " ", True, 1.5, [], {}):
-            for quote in (None, "x", 1):
-                data = _grond(field, ref, quote)
-                schema_ok = voldoet(data, _schema())
-                try:
-                    contract._controleer_structuur(data)
-                    code_ok = True
-                except contract._AfwijzingError:
-                    code_ok = False
-                if _alleen_in_code(field, ref) and quote != 1:
-                    assert (schema_ok, code_ok) == (True, False), (field, ref)
-                else:
-                    assert schema_ok == code_ok, (field, ref, quote)
+def test_bronfuncties_zijn_de_functies_van_drie_plus_not_a_criterion_en_zwijgen():
+    verwacht = contract.FUNCTIES | {"not_a_criterion", "not_addressed"}
+    assert verwacht == contract.BRONFUNCTIES
+    assert len(contract.KERNVORMEN) == 5
 
 
 def test_schema_blijft_binnen_de_grenzen_van_structured_outputs():
@@ -453,14 +378,14 @@ def test_schema_blijft_binnen_de_grenzen_van_structured_outputs():
     )
     assert optioneel <= 24
     assert unies <= 16
-    # Unies: question, scope_reason, ground (3 varianten) en per variant quote.
-    assert (optioneel, unies) == (0, 6)
+    # Unies: question, scope_reason en bronfuncties[].quote.
+    assert (optioneel, unies) == (0, 3)
 
 
 def test_schemahash_is_gepind_en_volgordegevoelig():
     schema = _schema()
     assert response_schema_sha256(schema) == _pin() == SCHEMA_SHA256
-    assert SCHEMA_SHA256 != VORIGE_SCHEMA_SHA256  # P2 wijzigt het schema
+    assert SCHEMA_SHA256 not in VORIGE_SCHEMA_SHA256  # /4 is een ander schema
     omgekeerd = deepcopy(schema)
     omgekeerd["properties"] = dict(reversed(list(schema["properties"].items())))
     assert omgekeerd == schema  # dict-gelijk, maar
@@ -472,7 +397,7 @@ _SUBPROCES = (
     "from domain.int02 import contract as c; "
     "from services.ai.base_client import response_schema_sha256 as h; "
     "print(json.dumps({'hash': h(c.ANTWOORDSCHEMA), "
-    "'pin': c.ANTWOORDSCHEMA_SHA256, 'rauw': list(c.FUNCTIES)}))"
+    "'pin': c.ANTWOORDSCHEMA_SHA256, 'rauw': list(c.BRONFUNCTIES)}))"
 )
 
 
@@ -503,30 +428,89 @@ def test_schemahash_is_stabiel_in_subprocessen_met_andere_hashseed():
     assert len({tuple(u["rauw"]) for u in uitkomsten}) > 1
 
 
-# --- 2. voorbeelden tegen het schema ------------------------------------------------
+# --- 2. schema en code over een matrix ------------------------------------------------
 
 
-def test_alle_geldige_ontwerpvoorbeelden_voldoen_aan_het_schema():
-    responsen = _modelresponsen(FIXTURE)
-    assert len(responsen) >= 9
-    for respons in responsen:
-        # Vooraf: de bestaande contractcontrole accepteert de vorm.
-        contract._controleer_structuur(respons)
-        assert voldoet(respons, _schema()), respons
+def _bronfunctie(bron: Any, functie: Any, quote: Any) -> dict[str, Any]:
+    data = _geldig()
+    data["passages"][0]["bronfuncties"] = [
+        {"bron": bron, "function": functie, "quote": quote}
+    ]
+    return data
 
 
-def test_v6_respons_van_c105_met_passagereden_voldoet_niet():
+def test_schema_en_structuurcontrole_zijn_gelijk_over_de_bronfunctiematrix():
+    functies = sorted(contract.BRONFUNCTIES) + ["criterium", "", None, 1, True]
+    for bron in ("bron/B1", "bedoeling", "", " ", None, 1, True, ["bron/B1"]):
+        for functie in functies:
+            for quote in (None, "x", "", 1, True, ["x"]):
+                data = _bronfunctie(bron, functie, quote)
+                assert voldoet(data, _schema()) == _structuur(data), (
+                    bron,
+                    functie,
+                    quote,
+                )
+
+
+@pytest.mark.parametrize(
+    "kernvorm",
+    sorted(
+        {
+            "descriptive_act",
+            "discretion_form",
+            "instruction",
+            "no_act",
+            "obligation_form",
+        }
+    )
+    + ["imperative", "", None, 1, ["no_act"]],
+    ids=repr,
+)
+def test_schema_en_structuurcontrole_zijn_gelijk_over_de_kernvormen(kernvorm):
+    data = _geldig()
+    data["passages"][0]["kernvorm"] = kernvorm
+    assert voldoet(data, _schema()) == _structuur(data)
+
+
+def test_bronfunctieobject_zonder_veld_of_met_extra_veld_is_overal_ongeldig():
+    for wijziging in (
+        lambda bf: bf.pop("quote"),
+        lambda bf: bf.pop("bron"),
+        lambda bf: bf.pop("function"),
+        lambda bf: bf.update({"start": 0}),
+        lambda bf: bf.update({"reason": "x"}),
+    ):
+        data = _geldig()
+        wijziging(data["passages"][0]["bronfuncties"][0])
+        assert not voldoet(data, _schema())
+        assert not _structuur(data)
+
+
+def test_door_de_helper_gebouwde_uitvoer_voldoet_aan_schema_en_structuur():
+    invoeren = [
+        invoer
+        for geval in FIXTURE["gevallen"]
+        for invoer in (
+            [v["invoer"] for v in geval["versies"]]
+            if "versies" in geval
+            else [geval["invoer"]]
+        )
+        if invoer["kern"].strip() and invoer["organisatorische_context"]
+    ]
+    assert len(invoeren) >= 9
+    for invoer in invoeren:
+        for status in ("pass", "fail", "review_required"):
+            respons = respons_voor_status(invoer, status)
+            assert voldoet(respons, _schema()), (invoer["begrip"], status)
+            assert _structuur(respons), (invoer["begrip"], status)
+
+
+def test_v6_respons_van_c105_voldoet_niet_en_is_onder_het_contract_invalid_output():
     respons = json.loads(V6_C105_TEKST)
-    assert set(respons["passages"][0]) == {"quote", "function", "ground", "reason"}
     assert not voldoet(respons, _schema())
-    # Zonder het extra veld voldoet dezelfde inhoud wel: alleen dat veld is fout.
     zonder = deepcopy(respons)
     del zonder["passages"][0]["reason"]
-    assert voldoet(zonder, _schema())
-
-
-def test_v6_respons_van_c105_blijft_onder_het_contract_invalid_output():
-    """De contractcontrole is ongewijzigd: zonder schema bleef dit een error."""
+    assert not voldoet(zonder, _schema())  # /3-vorm past niet in /4
     geval = next(g for g in FIXTURE["gevallen"] if g["id"] == "C105")
     invoer = maak_invoer(**geval["invoer"])
     configuratie = Configuratie(
@@ -537,11 +521,9 @@ def test_v6_respons_van_c105_blijft_onder_het_contract_invalid_output():
         model="claude-opus-5",
     )
     uitvoering = Uitvoering(actor="ai", status="completed")
-    document = beoordeel(invoer, configuratie, json.loads(V6_C105_TEKST), uitvoering)
-    assert (document.status, document.foutcategorie) == ("error", "invalid_output")
-    zonder = json.loads(V6_C105_TEKST)
-    del zonder["passages"][0]["reason"]
-    assert beoordeel(invoer, configuratie, zonder, uitvoering).status == "fail"
+    for data in (respons, zonder):
+        document = beoordeel(invoer, configuratie, data, uitvoering)
+        assert (document.status, document.foutcategorie) == ("error", "invalid_output")
 
 
 def _met(pad: tuple, waarde: Any) -> dict[str, Any]:
@@ -562,16 +544,18 @@ def _met(pad: tuple, waarde: Any) -> dict[str, Any]:
         (("extra",), "x"),
         (("passages", 0, "reason"), "x"),
         (("passages", 0, "start"), 0),
-        (("passages", 0, "ground", "start"), 0),
+        (("passages", 0, "function"), "criterion"),
+        (("passages", 0, "bronfuncties", 0, "start"), 0),
         (("verdict",), ...),
         (("coverage",), ...),
-        (("passages", 0, "ground", "ref"), ...),
+        (("passages", 0, "kernvorm"), ...),
+        (("passages", 0, "bronfuncties"), ...),
         (("verdict",), "voldoet"),
         (("uncertainty",), None),
-        (("passages", 0, "function"), "criterium"),
-        (("passages", 0, "ground", "field"), "context"),
-        (("passages", 0, "ground", "ref"), True),
-        (("passages", 0, "ground", "ref"), 1.5),
+        (("passages", 0, "kernvorm"), "zin"),
+        (("passages", 0, "bronfuncties", 0, "function"), "criterium"),
+        (("passages", 0, "bronfuncties", 0, "bron"), 0),
+        (("passages", 0, "bronfuncties"), {}),
         (("question",), 1),
         (("passages",), {}),
         (("reason",), None),
@@ -581,9 +565,9 @@ def _met(pad: tuple, waarde: Any) -> dict[str, Any]:
 def test_schema_weigert_wat_de_gesloten_contractvorm_weigert(pad, waarde):
     afwijkend = _met(pad, waarde)
     assert voldoet(_geldig(), _schema())
+    assert _structuur(_geldig())
     assert not voldoet(afwijkend, _schema())
-    with pytest.raises(contract._AfwijzingError):
-        contract._controleer_structuur(afwijkend)
+    assert not _structuur(afwijkend)
 
 
 # --- 3. de dienst -------------------------------------------------------------------
@@ -607,21 +591,12 @@ def _invoer():
 
 
 def _fail() -> dict[str, Any]:
-    return {
-        "verdict": "fail",
-        "passages": [
-            {
-                "quote": PASSAGE,
-                "function": "actor_prescription",
-                "ground": {"field": "kern", "ref": None, "quote": None},
-            }
-        ],
-        "reason": "De passage schrijft de behandelaar een handeling voor.",
-        "question": None,
-        "uncertainty": "none",
-        "scope_reason": None,
-        "coverage": "complete",
-    }
+    """De kern neemt de plicht in moetvorm over en alle grondbronnen zwijgen."""
+    return uitvoer(
+        [passage(_invoer(), PASSAGE, "obligation_form")],
+        "fail",
+        reason="De passage schrijft de behandelaar een handeling voor.",
+    )
 
 
 def _profiel(provider=PROVIDER, model=MODEL) -> Modelprofiel:
@@ -710,15 +685,15 @@ def _dienst(ai, router=None, profiel=None) -> Int02AssessmentService:
     )
 
 
-def test_promptversie_vier_met_ongewijzigde_prompttekst():
-    assert dienstmodule.PROMPT_VERSION == "def835-int02-prompt/4"
-    # Dezelfde systeemprompt als onder /3: /4 = zelfde tekst + schemaroute.
-    # (De dienstregeltest bindt de prompt met zijn eigen invoer; de systeemprompt
-    # is invoeronafhankelijk.)
+def test_promptversie_vijf_met_gewijzigde_prompttekst():
+    """Besluit 16: /5 vraagt kernvorm en bronfuncties; de tekst van /3 en /4
+    is daarmee vervangen (de pin van /5 staat in de prompttest)."""
+    assert dienstmodule.PROMPT_VERSION == "def835-int02-prompt/5"
     systeem, _ = bouw_int02_prompt(_invoer(), laad_int02_norm())
-    assert hashlib.sha256(systeem.encode("utf-8")).hexdigest() == (
-        SYSTEEMPROMPT_V3_SHA256
-    )
+    digest = hashlib.sha256(systeem.encode("utf-8")).hexdigest()
+    assert digest != SYSTEEMPROMPT_V3_SHA256
+    # Herreview Codex P3: ook een exacte pin op de /5-systeemprompt.
+    assert digest == SYSTEEMPROMPT_V5_SHA256
 
 
 async def test_dienst_stuurt_het_vastgepinde_schema_mee():

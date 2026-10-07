@@ -240,3 +240,62 @@ Gelijk aan v6: gevallen, per geval de invoer, dataprompt en label, systeemprompt
 **Akkoord Chris: alleen fase 1** (`--fase regressie`, C105/C107/C112, maximaal 3 calls); deze run geldt ook als live-rooktest van het schema. Daarna stoppen en bespreken. Het akkoordbestand `kwalificatie-akkoord-v7.json` bevat net als bij v4–v6 het protocolkader (43 calls, US$12), omdat de runner dat veldformaat eist; de beperking tot fase 1 is deze procesafspraak. Besluit 13 (v6) is hiermee vervangen.
 
 **Sleutel.** Zoals bij v4–v6 wordt de API-sleutel bij de run door de shell uit de `.env` van de hoofdcheckout gelezen en niet getoond; er komt geen `.env` in de werkboom.
+
+## Besluit 16 — contract /4 met bronfuncties (07-10-2026)
+
+**Uitslag fase 2 van v7 (ontwikkeling).** Mechanisch niet geslaagd: 18/24 juist (criterium minimaal 21/24). Alle zes gevallen met label `review_required` waren fout (0/6): vijf werden `pass` (G042, G045, G060, G070, G076) en één `fail` (G047). Daarmee 5 onterechte passes; manifest v7 had voor ontwikkeling `max_false_pass: null`, zodat de runner ze niet als reden telde, terwijl de procesafspraak maximaal 0 was. Het model gaf nergens `insufficient_information`. Details: `goldset-voorbereiding/goldset-freeze-v1/kwalificatieproef-v7-ontwikkeling-uitslag-v1.md`.
+
+**Keuze Chris: optie A — contract /4 met gestructureerde bronfuncties**, volgens `goldset-voorbereiding/bronfuncties-ontwerp-v1.md`. Het model vult per passage een `kernvorm` in en per grondbron (bevestigde bedoeling, elk contextitem, elke bronpassage) een `function` met letterlijk citaat waar vereist, en als laatste zijn eigen `verdict`. De dienst leidt de uitkomst mechanisch af.
+
+**De zeven keuzes (alle zeven = het advies in het ontwerp):**
+
+1. **1B** — de bedoeling mag een bronconflict alleen naar gebrek (`fail`) beslechten, nooit naar `pass`.
+2. **2A** — de dienst beslist: de regel uit de bronfuncties is leidend. Een afwijking van het modeloordeel is zichtbaar in het document (omzettingsveld, en het modeloordeel blijft bewaard). Dit kan ook `fail` → `pass` opleveren als alle bronnen "kenmerk" zeggen.
+3. **3A** — één voorschrift-bron zonder tweede signaal → `review_required`.
+4. **4A** — bij een door de dienst afgeleide review een vaste vraag; bronnen en citaten staan in de reden.
+5. **5A** — alle bronnen zwijgen, beschrijvende kern (`descriptive_act`) en bedoeling onbekend → `review_required`.
+6. **6A** — een eigen bronfunctie `not_a_criterion`; die telt als tweede signaal en als conflict met `criterion`.
+7. **7A** — fase 1 en 2 van v8 zijn een consistentietoets (de regel is ontworpen met deze 27 gevallen in zicht); de hold-out, met een apart akkoord, is het enige onafhankelijke bewijs.
+
+**Runner.** In de kwalificatieprotocol-constanten van `scripts/analysis/def835_int02_modelproef.py` wordt voor ontwikkeling `max_false_pass` 0 (was `null`). Regressie en hold-out blijven 0.
+
+**Normatieve verschuivingen (expliciet aanvaard):**
+
+- **Besluit 1 wordt smaller voor bronnen.** Eén bronvoorschrift draagt een `fail` niet meer zelfstandig. Het draagt alleen als de kern het voorschrift in voorschrijvende vorm overneemt (`obligation_form` of `discretion_form`), een andere bron toont dat de inhoud geen kenmerk is (`not_a_criterion`), of de bevestigde bedoeling het voorschrift bevestigt. Anders volgt `review_required`. Een zelfstandig voorschrift in de kern zelf (`instruction`) blijft altijd `fail`.
+- **Afwijking van besluit 12 ("geen pass-pad").** Onder 2A kan de dienst een `fail` van het model omzetten naar `pass` als de bronnen eensluidend "kenmerk" zeggen en geen passage een gebrek of review oplevert. De dienstregel discretie zonder bedoeling gaat op in de laatste tak van de beslisregel (alle grondbronnen zwijgen).
+- **Vaste vraag.** Bij een door de dienst afgeleide review is de vraag vast en invoeronafhankelijk; een vraag van het model blijft alleen zichtbaar in het bewaarde oordeel.
+- **Strijdige betekenisgrond (T-tekst)** wordt mechanisch: een beschrijvende bron naast een voorschrijvende of `not_a_criterion`-bron bij dezelfde passage is een conflict. Het model kan dat conflict niet meer zelf "niet relevant" verklaren.
+
+**Uitvoering.** Contract `def835-int02-assessment/4`, prompt `def835-int02-prompt/5` (de promptbuilder wijzigt op deze opdracht), nieuw antwoordschema met nieuwe pin, runner `max_false_pass` 0 voor ontwikkeling. Bewaarde /1-, /2- en /3-documenten blijven volgens hun eigen versie controleerbaar en worden historisch. Verslag: `goldset-voorbereiding/bronfuncties-v1/uitvoeringsverslag-claude-v1.md`.
+
+**Vervolg:** onafhankelijke review van de diff, commit, offline manifest v8 (nieuwe contract-, prompt-, schema- en payloadhashes; ontwikkeling `max_false_pass` 0; gevallen ongewijzigd), akkoord v8 van Chris, daarna fase 1 en pas na een afzonderlijk akkoord fase 2. De hold-out vraagt opnieuw een eigen akkoord.
+
+## Besluit 17 — beslissende modelonzekerheid blokkeert een afgeleide pass (07-10-2026)
+
+**Aanleiding.** Open punt 1 uit het uitvoeringsverslag van contract /4. Onder 2A beslist de dienst. Daardoor werd een geval toch `pass` als het model `uncertainty: decisive` meldde maar alle bronnen "kenmerk" zeiden en de dekking volledig was. Bijvoorbeeld:
+- het model geeft `insufficient_information` en de dienst maakt er `pass` van ("review → pass");
+- het model geeft `fail` met beslissende twijfel en de dienst maakt er `pass` van.
+
+Dat botste met de T-tekst: bij twijfel volgt review. De Codex-review (read-only, eindoordeel "nog niet commitbaar") legde dit punt aan Chris voor.
+
+**Keuze Chris: optie A.** Meldt het model beslissende onzekerheid (`uncertainty = decisive`) en zou de dienst anders `pass` afleiden, dan wordt de uitkomst `review_required` / `insufficient_information`. Daarbij geldt:
+- **Vaste vraag** (analoog aan 4A): `VRAAG_FUNCTIE`. De reden noemt de dragende kenmerkpassage en haar grond.
+- **Modeloordeel zichtbaar:** het eigen verdict, de onzekerheid en de eigen vraag van het model blijven ongewijzigd in het bewaarde oordeel.
+- **Eigen afleidingscode** `model_beslissend_onzeker`. Wijkt de status af van het modelverdict (een model-`fail` met twijfel en een kenmerkgrond), dan is dit ook de `omzetting`.
+- **Gebrek gaat voor:** een afgeleide `fail` blijft `fail`. Een eigen reviewgrond (conflict, bronvoorschrift, open bron, onvolledige dekking) houdt haar eigen code.
+- **Plaats:** vlak vóór de laatste pass-tak van de beslisregel.
+- **Schema:** ongewijzigd. `uncertainty` zat er al in, dus de pin blijft `d3ad029e…`.
+
+**Gevolg (bevinding Codex).**
+- Het verandert de paper test niet (27/27 met 6/6 review) en ook de v7-passes niet.
+- Het kan tot **13 passes** raken als het model twijfel meldt: C112, G007, G011, G015, G019, G021, G027, G030, G037, G039, G041, G046 en G055.
+- Dat is de bewust aanvaarde prijs van "bij twijfel review": een onterechte review is goedkoper dan een onterechte pass, en dat past bij `max_false_pass` 0.
+
+**Normatieve verschuiving.** Besluit 17 begrenst de fail → pass-omzetting van 2A. Een model-review kan onder /4 nooit meer `pass` worden, want `insufficient_information` vereist altijd `decisive`.
+
+**Uitvoering.**
+- Contract `def835-int02-assessment/4` (zelfde versie, nog ongecommit) in `src/domain/int02/contract.py`, in `_leid_af`.
+- Contractdocument `docs/architectuur/contracts/int02_assessment_contract_v4.md`.
+- Tests in `tests/unit/domain/test_def835_int02_bronfuncties.py`, sectie H.
+- De mutant `onzekerheid_genegeerd_17` in de mutatiecontrole.
+- Verslag: `goldset-voorbereiding/bronfuncties-v1/uitvoeringsverslag-claude-v2.md`.

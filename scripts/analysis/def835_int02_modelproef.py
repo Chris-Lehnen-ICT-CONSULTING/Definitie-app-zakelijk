@@ -51,6 +51,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import collections
 import contextlib
 import fcntl
 import hashlib
@@ -308,7 +309,8 @@ FASECRITERIA: dict[str, dict[str, Any]] = {
         "aantal": 24,
         "min_juist": 21,
         "min_juist_per_label": {},
-        "max_false_pass": None,
+        # Besluit 16 (07-10-2026): 0, was null (procesafspraak processtatus v14).
+        "max_false_pass": 0,
         "verdeling": None,
         "max_p95_ms": None,
     },
@@ -1139,7 +1141,7 @@ def _ketenidentiteit(
     """Limieten, prijzen, router, transport, norm/T, bronhashes en versies."""
     import anthropic
 
-    from domain.int02.contract import ANTWOORDSCHEMA
+    from domain.int02.contract import ANTWOORDSCHEMA, CONTRACTVERSIE
     from services.ai.base_client import response_schema_sha256
     from services.validation.int02_assessment_service import (
         T_TEKST,
@@ -1174,6 +1176,9 @@ def _ketenidentiteit(
             "authenticatie": "x-api-key",
             "headernamen": sorted(waarnemer.headernamen),
         },
+        # Codex-review P2a: expliciet, niet alleen via de bestandshash van het
+        # contract; samen met profiel.promptversie en de schemahash hierboven.
+        "contractversie": CONTRACTVERSIE,
         "normhash": norm.normhash,
         "t_tekst_sha256": _sha(T_TEKST.encode("utf-8")),
         "bestanden": {pad: _sha((REPO / pad).read_bytes()) for pad in KETENBESTANDEN},
@@ -1729,6 +1734,13 @@ def _evalueer(verwacht: str, beoordeling: Any) -> dict[str, Any]:
     status = beoordeling.status
     fout = status == "error"
     citaat = fout and beoordeling.document.foutcategorie == FOUT_CITAAT
+    # Ontwerp §4.4 (contract /4): de beslissende afleidingsregel en, bij een
+    # afwijking van het eigen modelverdict, de omzetting en haar richting.
+    oordeel = None if fout else beoordeling.document.oordeel
+    dienst = oordeel.get("dienst") if isinstance(oordeel, dict) else None
+    afleiding = dienst.get("afleiding") if isinstance(dienst, dict) else None
+    modelstatus = dienst.get("modelstatus") if isinstance(dienst, dict) else None
+    omzetting = None if fout else beoordeling.document.omzetting
     return {
         "verwacht": verwacht,
         "waargenomen": status,
@@ -1736,6 +1748,46 @@ def _evalueer(verwacht: str, beoordeling: Any) -> dict[str, Any]:
         "technische_fout": bool(beoordeling.gecachet) or (fout and not citaat),
         "citaatfout": citaat,
         "kritieke_false_pass": verwacht == "fail" and status == "pass",
+        "afleiding": afleiding,
+        "modelstatus": modelstatus,
+        "omzetting": omzetting,
+        "omzettingsrichting": f"{modelstatus}→{status}" if omzetting else None,
+    }
+
+
+#: Besluit 16, keuze 7A: wat een fase-uitslag bewijst.
+BEWIJSSTATUS = {
+    "regressie": "consistentietoets_7a",
+    "ontwikkeling": "consistentietoets_7a",
+    "holdout": "onafhankelijk_bewijs",
+}
+BEWIJSTOELICHTING = {
+    "consistentietoets_7a": (
+        "Fase 1 en 2 (regressie, ontwikkeling) zijn onder v8 een "
+        "consistentietoets (keuze 7A): contract /4 is op deze gevallen "
+        "afgestemd; een geslaagde fase is geen onafhankelijk bewijs."
+    ),
+    "onafhankelijk_bewijs": (
+        "De hold-out (apart akkoord) is het enige onafhankelijke bewijs."
+    ),
+}
+
+
+def _telling(waarden: list[Any]) -> dict[str, int]:
+    """Telling per waarde (None telt niet), gesorteerd op sleutel."""
+    teller = collections.Counter(w for w in waarden if w is not None)
+    return dict(sorted(teller.items()))
+
+
+def _afleidingen(uitkomsten: list[dict[str, Any]]) -> dict[str, Any]:
+    omgezet = [u for u in uitkomsten if u.get("omzetting")]
+    return {
+        "afleidingen": _telling([u.get("afleiding") for u in uitkomsten]),
+        "omzettingen": {
+            "totaal": len(omgezet),
+            "per_richting": _telling([u.get("omzettingsrichting") for u in omgezet]),
+            "per_regel": _telling([u.get("omzetting") for u in omgezet]),
+        },
     }
 
 
@@ -1826,7 +1878,10 @@ def _beoordeel_fase(
         "mechanisch_geslaagd": not redenen,
         "redenen": redenen,
         "tellers": tellers,
+        **_afleidingen(uitkomsten),
         "criteria": criteria,
+        "bewijsstatus": BEWIJSSTATUS[fase],
+        "bewijstoelichting": BEWIJSTOELICHTING[BEWIJSSTATUS[fase]],
     }
 
 
@@ -2200,11 +2255,14 @@ def _main_kwalificatie(
     )
     geslaagd = data["evaluatie"]["mechanisch_geslaagd"]
     logger.info(
-        "fase %s: stopreden %s; mechanisch geslaagd %s; cumulatief %s",
+        "fase %s: stopreden %s; mechanisch geslaagd %s; cumulatief %s; "
+        "bewijsstatus %s; omzettingen %s",
         data["fase"],
         data["stopreden"],
         geslaagd,
         data["cumulatief"],
+        data["evaluatie"]["bewijsstatus"],
+        data["evaluatie"]["omzettingen"],
     )
     return 0 if geslaagd else 3
 

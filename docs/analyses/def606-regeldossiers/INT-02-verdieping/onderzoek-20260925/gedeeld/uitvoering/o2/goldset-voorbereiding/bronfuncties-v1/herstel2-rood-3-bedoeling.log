@@ -1,0 +1,35 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1481: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1481: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1481: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1481: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1481: AssertionError: assert 'pass' == 'review_required'
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[-\u2013\u2014]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[.]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[\u2014]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[...]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[?!]

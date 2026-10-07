@@ -1,0 +1,154 @@
+..F.....F..........F.....F...........F.....................F...F........ [ 19%]
+F............F.................F.F...F................F..F..F..F........ [ 39%]
+.......F...F........................................F................... [ 59%]
+.........F....F.................F.........F.................F........... [ 79%]
+.F.......F..............F.F............................................. [ 98%]
+F...                                                                     [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert ('pass', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1187: AssertionError: assert ('pass', None) == ('review_requ..._information')
+E   AssertionError: assert 'review_required' == 'error'
+      
+      - error
+      + review_required
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1364: AssertionError: assert 'review_required' == 'error'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1391: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert 'bronnen_beschrijvend' == 'model_beslissend_onzeker'
+      
+      - model_beslissend_onzeker
+      + bronnen_beschrijvend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1315: AssertionError: assert 'bronnen_beschrijvend' == 'model_beslissend_onzeker'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1364: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert ('error', 'in... 'niet_uniek') == ('error', 'in...tion', 'leeg')
+      
+      At index 2 diff: 'niet_uniek' != 'leeg'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1391: AssertionError: assert ('error', 'in... 'niet_uniek') == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert 'review_required' == 'error'
+      
+      - error
+      + review_required
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1364: AssertionError: assert 'review_required' == 'error'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1224: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1344: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1391: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert 'review_required' == 'error'
+      
+      - error
+      + review_required
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1364: AssertionError: assert 'review_required' == 'error'
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1364: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'review_required' == 'error'
+      
+      - error
+      + review_required
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1364: AssertionError: assert 'review_required' == 'error'
+E   AssertionError: assert 'review_required' == 'error'
+      
+      - error
+      + review_required
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1364: AssertionError: assert 'review_required' == 'error'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1224: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'review_required' == 'error'
+      
+      - error
+      + review_required
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1364: AssertionError: assert 'review_required' == 'error'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1224: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'review_required' == 'error'
+      
+      - error
+      + review_required
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1364: AssertionError: assert 'review_required' == 'error'
+E   KeyError: 'bewijsstatus'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1897: KeyError: 'bewijsstatus'
+E   KeyError: 'afleidingen'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1860: KeyError: 'afleidingen'
+E   KeyError: 'bewijsstatus'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1920: KeyError: 'bewijsstatus'
+E   KeyError: 'afleiding'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1841: KeyError: 'afleiding'
+E   KeyError: 'bewijsstatus'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1897: KeyError: 'bewijsstatus'
+E   KeyError: 'afleidingen'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1881: KeyError: 'afleidingen'
+E   AssertionError: assert {'bestanden',...r_token', ...} == {'bestanden',...ormhash', ...}
+      
+      Extra items in the right set:
+      'contractversie'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1340: AssertionError: assert {'bestanden',...r_token', ...} == {'bestanden',...ormhash', ...}
+E   KeyError: 'contractversie'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1782: KeyError: 'contractversie'
+E   KeyError: 'bewijsstatus'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1897: KeyError: 'bewijsstatus'
+E   KeyError: 'afleiding'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1819: KeyError: 'afleiding'
+E   KeyError: 'contractversie'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1765: KeyError: 'contractversie'
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_17_review_naar_pass_wordt_review_met_vaste_vraag
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_lege_bron_draagt_geen_enkele_functie[unclear- ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_citaat_van_alleen_witruimte_is_leeg_ook_in_een_gevulde_bron[\t]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_17_omgezet_document_is_bij_hercontrole_herleidbaar_en_manipulatie_error
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_lege_bron_draagt_geen_enkele_functie[criterion- ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_citaat_van_alleen_witruimte_is_leeg_ook_in_een_gevulde_bron[ ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_lege_bron_draagt_geen_enkele_functie[not_a_criterion- ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_17_fail_met_beslissende_onzekerheid_en_kenmerkgrond_wordt_review[alleen-kern]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_witruimtebron_als_kenmerkgrond_is_niet_herleidbaar
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_citaat_van_alleen_witruimte_is_leeg_ook_in_een_gevulde_bron[  ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_lege_bron_draagt_geen_enkele_functie[unclear-]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_lege_bron_draagt_geen_enkele_functie[criterion-\t\n ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_lege_bron_draagt_geen_enkele_functie[actor_prescription- ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_lege_bron_draagt_geen_enkele_functie[unclear-\t\n ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_17_fail_met_beslissende_onzekerheid_en_kenmerkgrond_wordt_review[alle-bronnen-kenmerk]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_lege_bron_draagt_geen_enkele_functie[not_a_criterion-\t\n ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_17_fail_met_beslissende_onzekerheid_en_kenmerkgrond_wordt_review[kenmerkbron]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_lege_bron_draagt_geen_enkele_functie[actor_prescription-\t\n ]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_uitslag_benoemt_fase_1_en_2_als_consistentietoets[holdout-onafhankelijk_bewijs]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_fase_telt_per_afleidingsregel_en_per_omzettingsrichting
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_kwal_resultaat_telt_omzettingen_van_de_echte_keten
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_evaluatie_van_een_foutdocument_heeft_geen_afleiding
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_uitslag_benoemt_fase_1_en_2_als_consistentietoets[ontwikkeling-consistentietoets_7a]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_fase_zonder_dienstafleiding_telt_leeg
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_driecasusmodus_identiteitsvorm_ongewijzigd
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_identiteit_volgt_de_actieve_contractversie
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_uitslag_benoemt_fase_1_en_2_als_consistentietoets[regressie-consistentietoets_7a]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_evaluatie_legt_afleiding_modelstatus_en_omzettingsrichting_vast
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_identiteit_bindt_contract_vier_prompt_vijf_en_schemahash
+29 failed, 335 passed in 36.50s

@@ -66,6 +66,7 @@ from services.validation.int02_assessment_service import (
     bouw_int02_prompt,
     laad_int02_norm,
 )
+from tests.fixtures.def835_int02_v4 import bronfuncties
 from utils.async_api import RateLimitConfig
 
 pytestmark = [pytest.mark.unit]
@@ -120,43 +121,65 @@ def _invoer(**over):
     return maak_invoer(**velden)
 
 
-def _grond(**over):
-    grond = {"field": "kern", "ref": None, "quote": None}
-    grond.update(over)
-    return grond
-
-
 def _fail_uitvoer(quote: str = PASSAGE, **over):
-    """Modeluitvoer volgens contract /2: geen posities (die leidt WP1 af)."""
+    """Modeluitvoer volgens contract /4: geen posities (die leidt WP1 af).
+
+    De kern neemt de plicht in moetvorm over (`obligation_form`) en alle
+    grondbronnen zwijgen: de dienst leidt `fail` af. Zonder `bronfuncties`
+    vult `FakeAI` ze aan uit de grondbronnen van het verzoek.
+    """
     uitvoer = {
-        "verdict": "fail",
-        "passages": [
-            {
-                "quote": quote,
-                "function": "actor_prescription",
-                "ground": _grond(),
-            }
-        ],
+        "passages": [{"quote": quote, "kernvorm": "obligation_form"}],
         "reason": "De passage schrijft de behandelaar een handeling voor.",
         "question": None,
         "uncertainty": "none",
-        "scope_reason": None,
         "coverage": "complete",
+        "scope_reason": None,
+        "verdict": "fail",
     }
     uitvoer.update(over)
     return uitvoer
 
 
 def _onvoldoende_uitvoer():
+    """Bron B1 laat de functie open (`unclear`): de dienst leidt review af."""
     return {
-        "verdict": "insufficient_information",
-        "passages": [],
+        "passages": [
+            {
+                "quote": PASSAGE,
+                "kernvorm": "descriptive_act",
+                "bronfuncties": bronfuncties(_invoer(), {"bron/B1": ("unclear", None)}),
+            }
+        ],
         "reason": "De bedoelde betekenis van de bijlage ontbreekt.",
         "question": "Welke bijlage is bedoeld?",
         "uncertainty": "decisive",
-        "scope_reason": None,
         "coverage": "partial",
+        "scope_reason": None,
+        "verdict": "insufficient_information",
     }
+
+
+def _volledig(uitvoer, invoer=None):
+    """De uitvoer met alle grondbronnen van `invoer` (standaard `_invoer()`)."""
+    sleutels = list(int02_contract.grondbronnen(invoer or _invoer()))
+    return _met_grondbronnen(uitvoer, json.dumps({"grondbronnen": sleutels}))
+
+
+def _met_grondbronnen(uitkomst, prompt):
+    """Vul ontbrekende `bronfuncties` aan met de grondbronnen uit het verzoek
+    (alle zwijgend), zodat één uitvoer bij elke testinvoer past."""
+    if not isinstance(uitkomst, dict) or not isinstance(uitkomst.get("passages"), list):
+        return uitkomst
+    sleutels = json.loads(prompt)["grondbronnen"]
+    uitkomst = copy.deepcopy(uitkomst)
+    for passage in uitkomst["passages"]:
+        if isinstance(passage, dict) and "bronfuncties" not in passage:
+            passage["bronfuncties"] = [
+                {"bron": sleutel, "function": "not_addressed", "quote": None}
+                for sleutel in sleutels
+            ]
+    return uitkomst
 
 
 class FakeRouter:
@@ -230,7 +253,7 @@ class FakeAI:
         tekst = (
             uitkomst
             if isinstance(uitkomst, str) or uitkomst is None
-            else json.dumps(uitkomst, ensure_ascii=False)
+            else json.dumps(_met_grondbronnen(uitkomst, prompt), ensure_ascii=False)
         )
         metadata = {"tokens_estimated": True}
         if self.stop_reason is not None:
@@ -682,11 +705,11 @@ async def test_misvormd_antwoord_is_error(tekst):
 @pytest.mark.parametrize(
     "tekst",
     [
-        '{"verdict": "pass", ' + json.dumps(_fail_uitvoer())[1:],
-        json.dumps(_fail_uitvoer())[:-1] + ', "reason": "tweede reden"}',
-        json.dumps(_fail_uitvoer()).replace(
-            '"function": "actor_prescription"',
-            '"function": "criterion", "function": "actor_prescription"',
+        '{"verdict": "pass", ' + json.dumps(_volledig(_fail_uitvoer()))[1:],
+        json.dumps(_volledig(_fail_uitvoer()))[:-1] + ', "reason": "tweede reden"}',
+        json.dumps(_volledig(_fail_uitvoer())).replace(
+            '"kernvorm": "obligation_form"',
+            '"kernvorm": "no_act", "kernvorm": "obligation_form"',
         ),
     ],
     ids=["verdict-eerst", "reason-laatst", "genest"],
@@ -711,7 +734,7 @@ async def test_antwoord_boven_de_tekengrens_is_error():
 
 
 async def test_markdown_codeblok_rond_een_object_wordt_aanvaard():
-    ai = FakeAI("```json\n" + json.dumps(_fail_uitvoer()) + "\n```")
+    ai = FakeAI("```json\n" + json.dumps(_volledig(_fail_uitvoer())) + "\n```")
     resultaat = await _dienst(ai).assess(_invoer())
     assert resultaat.status == "fail"
 
@@ -770,10 +793,35 @@ async def test_geldig_fail_oordeel_met_volledige_binding_en_eerlijke_metadata():
     doc = resultaat.document
     assert resultaat.status == "fail"
     assert resultaat.melding.startswith(f"INT-02 — Voldoet niet. '{PASSAGE}'")
-    verwacht = _fail_uitvoer()  # plus de door WP1 afgeleide posities
+    # De modeluitvoer plus de door WP1 afgeleide posities en de afleiding.
+    verwacht = _met_grondbronnen(_fail_uitvoer(), bouw_int02_prompt(invoer, norm)[1])
     verwacht["passages"][0].update({"start": 13, "end": 69})
-    verwacht["passages"][0]["ground"].update({"start": None, "end": None})
+    for bf in verwacht["passages"][0]["bronfuncties"]:
+        bf.update({"start": None, "end": None})
+    kerngrond = {
+        "field": "kern",
+        "ref": None,
+        "quote": None,
+        "start": None,
+        "end": None,
+    }
+    verwacht["dienst"] = {
+        "afleiding": "voorschrift_in_kern",
+        "modelstatus": "fail",
+        "passages": [
+            {
+                "quote": PASSAGE,
+                "start": 13,
+                "end": 69,
+                "function": "actor_prescription",
+                "ground": kerngrond,
+                "uitkomst": "gebrek",
+                "regel": "voorschrift_in_kern",
+            }
+        ],
+    }
     assert doc.oordeel == verwacht
+    assert doc.omzetting is None
     assert doc.invoer == invoer
     assert resultaat.reden is None
     assert resultaat.gecachet is False
@@ -811,7 +859,9 @@ async def test_onvoldoende_informatie_wordt_review_required_met_een_vraag():
     resultaat = await _dienst(FakeAI(_onvoldoende_uitvoer())).assess(_invoer())
     assert resultaat.status == "review_required"
     assert resultaat.document.reden == "insufficient_information"
-    assert resultaat.document.vraag == "Welke bijlage is bedoeld?"
+    # Besluit 16 (4A): de vaste vraag; de modelvraag blijft in het oordeel.
+    assert resultaat.document.vraag == int02_contract.VRAAG_FUNCTIE
+    assert resultaat.document.oordeel["question"] == "Welke bijlage is bedoeld?"
 
 
 async def test_offsets_zijn_python_unicode_codepoints():
@@ -1080,7 +1130,7 @@ def _echte_ai(provider: _Provider) -> AIServiceV2:
 
 
 async def test_echte_ai_laag_een_aanroep_met_sdk_retries_nul_en_exacte_berichten():
-    provider = _Provider(_fail_uitvoer())
+    provider = _Provider(_volledig(_fail_uitvoer()))
     invoer = _invoer()
     resultaat = await _dienst(_echte_ai(provider)).assess(invoer)
     assert resultaat.status == "fail"
@@ -1111,7 +1161,7 @@ async def test_echte_ai_laag_verbindingsfout_geeft_een_poging_ondanks_retryconfi
 
 
 async def test_echte_ai_laag_geen_ruwe_cache_ondanks_use_cache_true():
-    provider = _Provider(_fail_uitvoer(), _fail_uitvoer())
+    provider = _Provider(_volledig(_fail_uitvoer()), _volledig(_fail_uitvoer()))
     dienst = _dienst(_echte_ai(provider), cache_size=0)
     await dienst.assess(_invoer())
     await dienst.assess(_invoer())
@@ -1119,7 +1169,7 @@ async def test_echte_ai_laag_geen_ruwe_cache_ondanks_use_cache_true():
 
 
 async def test_echte_ai_laag_afgekapt_antwoord_is_truncated_response():
-    provider = _Provider(_fail_uitvoer(), stop_reason="max_tokens")
+    provider = _Provider(_volledig(_fail_uitvoer()), stop_reason="max_tokens")
     resultaat = await _dienst(_echte_ai(provider)).assess(_invoer())
     assert resultaat.status == "error"
     assert resultaat.reden == "truncated_response"
@@ -1127,7 +1177,7 @@ async def test_echte_ai_laag_afgekapt_antwoord_is_truncated_response():
 
 async def test_echte_ai_laag_meldt_geen_providerversie_dus_modelversie_unknown():
     provider = _Provider(
-        _fail_uitvoer(), gerapporteerd_model="fake-int02-model-20260927"
+        _volledig(_fail_uitvoer()), gerapporteerd_model="fake-int02-model-20260927"
     )
     resultaat = await _dienst(_echte_ai(provider)).assess(_invoer())
     assert resultaat.status == "fail"
@@ -1492,32 +1542,29 @@ def test_f2_snapshot_is_een_onveranderlijke_losse_kopie():
 # --- besluit 9: citaatposities door de dienst (contract /2, prompt /3) -----------
 
 
-def _uitvoer_zonder_posities(kern_citaat: str = PASSAGE, grondcitaat=None) -> dict:
-    """Modeluitvoer volgens contract /2: alleen citaat en veld, geen posities."""
-    return {
-        "verdict": "fail",
-        "passages": [
-            {
-                "quote": kern_citaat,
-                "function": "actor_prescription",
-                "ground": {"field": "kern", "ref": None, "quote": grondcitaat},
-            }
-        ],
-        "reason": "De passage schrijft de behandelaar een handeling voor.",
-        "question": None,
-        "uncertainty": "none",
-        "scope_reason": None,
-        "coverage": "complete",
-    }
+def _uitvoer_zonder_posities(kern_citaat: str = PASSAGE, broncitaat=None) -> dict:
+    """Modeluitvoer volgens contract /4: alleen citaten, geen posities.
+
+    Een zelfstandig voorschrift in de kern (`instruction`) geeft `fail`; met
+    `broncitaat` laat bron B1 de functie open (`unclear`) met dat citaat.
+    """
+    passage: dict = {"quote": kern_citaat, "kernvorm": "instruction"}
+    if broncitaat is not None:
+        passage["bronfuncties"] = bronfuncties(
+            _invoer(), {"bron/B1": ("unclear", broncitaat)}
+        )
+    return _fail_uitvoer(passages=[passage])
 
 
 async def test_dienst_leidt_posities_af_uit_een_uniek_citaat():
-    uitvoer = _uitvoer_zonder_posities(grondcitaat="moet afwijzen")
+    # "Een aanvraag is een " = 20 codepunten; "verzoek om een besluit" = 22.
+    uitvoer = _uitvoer_zonder_posities(broncitaat="verzoek om een besluit")
     resultaat = await _dienst(FakeAI(uitvoer)).assess(_invoer())
     assert (resultaat.status, resultaat.reden) == ("fail", None)
     passage = resultaat.document.oordeel["passages"][0]
     assert (passage["start"], passage["end"]) == (13, 69)
-    assert (passage["ground"]["start"], passage["ground"]["end"]) == (28, 41)
+    (b1,) = [b for b in passage["bronfuncties"] if b["bron"] == "bron/B1"]
+    assert (b1["start"], b1["end"]) == (20, 42)
     actueel = toets_actualiteit(
         resultaat.document, _invoer(), resultaat.document.binding.configuratie()
     )

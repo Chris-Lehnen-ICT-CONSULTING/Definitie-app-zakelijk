@@ -1,5 +1,7 @@
 # INT-02 — intern beoordelingscontract `def835-int02-assessment/2`
 
+> **Historisch.** Opgevolgd door /3 (`int02_assessment_contract_v3.md`) en /4 (`int02_assessment_contract_v4.md`). Dit document beschrijft /2 ongewijzigd; `src/domain/int02/contract.py` implementeert nu /4 en toetst /2-documenten alleen nog als historisch.
+
 Status: intern domeincontract (DEF-835 WP1, akkoord 26-09-2026; versie /2 na besluit 9 van Chris, 07-10-2026, optie A). Norm: `def771-int02/2` (INT-02, N-breed, besluiten B1–B6). Implementatie: `src/domain/int02/contract.py`. Tests: `tests/unit/domain/test_def835_int02_contract.py` en `tests/unit/domain/test_def835_int02_citaatposities.py`. Ontwikkelgevallen: `tests/fixtures/def835_int02_ontwerpgevallen.json`. Vorige versie: `int02_assessment_contract_v1.md` (historisch, ongewijzigd).
 
 ## Wijziging ten opzichte van /1

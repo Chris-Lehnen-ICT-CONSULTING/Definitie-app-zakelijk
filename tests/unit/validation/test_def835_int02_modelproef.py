@@ -37,6 +37,7 @@ from services.validation.int02_assessment_service import (
     bouw_int02_prompt,
     laad_int02_norm,
 )
+from tests.fixtures.def835_int02_v4 import respons_voor_status
 
 pytestmark = [pytest.mark.unit]
 
@@ -44,8 +45,11 @@ pytestmark = [pytest.mark.unit]
 #: (rood), dan maakt een lege plaatshouder de schematests zichtbaar rood.
 SCHEMA = getattr(int02_contract, "ANTWOORDSCHEMA", {"ontbreekt": True})
 OUTPUT_CONFIG = {"format": {"type": "json_schema", "schema": SCHEMA}}
-#: Schemahash na de Codex-review (P2: `ground` als unie van gesloten varianten).
+#: Schemahash na de Codex-review (P2: `ground` als unie van gesloten varianten);
+#: het schema van contract /3, prompt /4.
 SCHEMA_SHA256_P2 = "72adfe7428b67bf0fd999520581f0fc2cbe801101e1e8e6df300179405511f17"
+#: Besluit 16: het schema van contract /4 (kernvorm en bronfuncties), prompt /5.
+SCHEMA_SHA256_V4 = "d3ad029e24b6b96242f4730686d3a4ebfebd9f46993607e41016761bc7fce715"
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "scripts" / "analysis" / "def835_int02_modelproef.py"
@@ -124,9 +128,14 @@ def _bericht(tekst, *, stop="end_turn", usage=None, zonder_usage=False):
     return bericht
 
 
+def _fixturerespons(geval_id) -> dict:
+    """Geldige /4-uitvoer waaruit de dienst de verwachte status afleidt."""
+    return respons_voor_status(GEVALLEN[geval_id]["invoer"], VERWACHT[geval_id])
+
+
 def _fixtureantwoord(geval_id):
     """Nep-modeltekst: alleen de nep-provider kent dit, nooit het verzoek."""
-    return json.dumps(GEVALLEN[geval_id]["modelrespons"], ensure_ascii=False)
+    return json.dumps(_fixturerespons(geval_id), ensure_ascii=False)
 
 
 class NepProvider:
@@ -270,9 +279,12 @@ async def test_payload_bevat_alleen_invoer_en_geen_cache_tools_of_labels(
         assert "cache_control" not in vast["payload"]
         [bericht] = body["messages"]
         invoer = GEVALLEN[geval["id"]]["invoer"]
-        assert json.loads(bericht["content"]) == {"invoer": invoer}
+        assert json.loads(bericht["content"]) == {
+            "invoer": invoer,
+            "grondbronnen": list(int02_contract.grondbronnen(m.lees_invoer(invoer))),
+        }
         assert body["system"] == bouw_int02_prompt(m.lees_invoer(invoer), norm)[0]
-        respons = GEVALLEN[geval["id"]]["modelrespons"]
+        respons = _fixturerespons(geval["id"])
         assert respons["reason"] not in vast["payload"]
         assert "verwacht" not in vast["payload"]
 
@@ -429,24 +441,9 @@ async def test_live_keten_drie_tellingen_drie_inferenties_en_exacte_usage(
 
 
 def _ander_oordeel(geval_id):
-    """Geldig volgens WP1, maar een ander verdict dan de referentie."""
-    kern = GEVALLEN[geval_id]["invoer"]["kern"]
-    verdict, functie = (
-        ("fail", "actor_prescription") if geval_id == "C112" else ("pass", "criterion")
-    )
-    grond = {"field": "kern", "ref": None, "quote": None}
-    passage = {"quote": kern, "function": functie, "ground": grond}
-    return json.dumps(
-        {
-            "verdict": verdict,
-            "passages": [passage],
-            "reason": "Offline nep-oordeel.",
-            "question": None,
-            "uncertainty": "none",
-            "scope_reason": None,
-            "coverage": "complete",
-        }
-    )
+    """Geldig volgens WP1, maar een andere afgeleide status dan de referentie."""
+    status = "fail" if geval_id == "C112" else "pass"
+    return json.dumps(respons_voor_status(GEVALLEN[geval_id]["invoer"], status))
 
 
 async def test_semantisch_ander_oordeel_is_bevinding_zonder_herhaling(
@@ -463,9 +460,8 @@ async def test_semantisch_ander_oordeel_is_bevinding_zonder_herhaling(
 
 def _met_fout_citaat():
     # Contract /2: een citaat dat niet letterlijk in de kern staat.
-    respons = dict(GEVALLEN["C105"]["modelrespons"])
-    passage = respons["passages"][0]
-    respons["passages"] = [dict(passage, quote=passage["quote"] + " (verzonnen)")]
+    respons = _fixturerespons("C105")
+    respons["passages"][0]["quote"] += " (verzonnen)"
     return json.dumps(respons)
 
 
@@ -968,6 +964,8 @@ OUDE_IDENTITEITSVELDEN = {
     "bestanden",
     "versies",
     "gevallen",
+    # Codex-review P2a: de contractversie staat expliciet in de identiteit.
+    "contractversie",
 }
 
 
@@ -982,38 +980,14 @@ def test_kwalificatiefixture_is_zichtbaar_geen_goldset():
 
 
 def _oordeel(invoer: dict, soort: str) -> str:
-    """Geldig WP1-antwoord met het gevraagde verdict (of een citaatfout)."""
-    if soort == "review_required":
-        return json.dumps(
-            {
-                "verdict": "insufficient_information",
-                "passages": [],
-                "reason": "Offline: betekenisgrond ontbreekt.",
-                "question": "Welke bedoeling geldt?",
-                "uncertainty": "decisive",
-                "scope_reason": None,
-                "coverage": "partial",
-            }
-        )
-    kern = invoer["kern"]
-    grond = {"field": "kern", "ref": None, "quote": None}
-    passage = {
-        # Contract /2: een citaatfout is een citaat dat niet in de kern staat.
-        "quote": kern + " (verzonnen)" if soort == "citaatfout" else kern,
-        "function": "actor_prescription" if soort == "fail" else "criterion",
-        "ground": grond,
-    }
-    return json.dumps(
-        {
-            "verdict": "fail" if soort == "fail" else "pass",
-            "passages": [passage],
-            "reason": "Offline nep-oordeel.",
-            "question": None,
-            "uncertainty": "none",
-            "scope_reason": None,
-            "coverage": "complete",
-        }
-    )
+    """Geldig /4-antwoord waaruit de dienst de gevraagde status afleidt (of een
+    citaatfout: een passagecitaat dat niet in de kern staat)."""
+    if soort in ("fail", "review_required"):
+        return json.dumps(respons_voor_status(invoer, soort))
+    respons = respons_voor_status(invoer, "pass")
+    if soort == "citaatfout":
+        respons["passages"][0]["quote"] = invoer["kern"] + " (verzonnen)"
+    return json.dumps(respons)
 
 
 class KwalProvider:
@@ -1230,8 +1204,10 @@ async def test_kwal_labels_raken_payload_niet_maar_wel_de_identiteit(tmp_path):
     for vast in payloads:
         body = json.loads(vast["payload"])
         [bericht] = body["messages"]
+        invoer = KWAL_PER_ID[vast["id"]]["invoer"]
         assert json.loads(bericht["content"]) == {
-            "invoer": KWAL_PER_ID[vast["id"]]["invoer"]
+            "invoer": invoer,
+            "grondbronnen": list(int02_contract.grondbronnen(m.lees_invoer(invoer))),
         }
         assert "TECHNISCH-TESTLABEL" not in vast["payload"]
         assert "normgrond" not in vast["payload"]
@@ -1718,17 +1694,29 @@ async def test_kwal_fout_of_kritieke_false_pass_stopt_direct(
 
 
 @pytest.mark.parametrize(
-    ("afwijkend", "geslaagd"),
+    ("afwijkend", "geslaagd", "redenen", "false_pass"),
     [
-        ({"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass"}, True),
+        ({"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "fail"}, True, [], 0),
         (
-            {"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass", "TQ-O05": "fail"},
+            {"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "fail", "TQ-O05": "fail"},
             False,
+            ["te_weinig_juist"],
+            0,
+        ),
+        (
+            {"TQ-O01": "fail", "TQ-O02": "fail", "TQ-O04": "pass"},
+            False,
+            ["onterechte_goedkeuring"],
+            1,
         ),
     ],
-    ids=["21-van-24", "20-van-24"],
+    ids=["21-van-24", "20-van-24", "21-van-24-met-false-pass"],
 )
-async def test_kwal_ontwikkelcriterium_21_van_24(tmp_path, afwijkend, geslaagd):
+async def test_kwal_ontwikkelcriterium_21_van_24_zonder_false_pass(
+    tmp_path, afwijkend, geslaagd, redenen, false_pass
+):
+    """Besluit 16: ontwikkeling `max_false_pass` 0 (was null); één onterechte
+    pass op een review-geval laat de fase ook bij 21/24 juist mislukken."""
     k = await _kwal(tmp_path)
     await _tot_en_met(k, "regressie")
     provider = KwalProvider(afwijkend)
@@ -1736,10 +1724,200 @@ async def test_kwal_ontwikkelcriterium_21_van_24(tmp_path, afwijkend, geslaagd):
     assert len(provider.inferenties()) == 24  # alle gevallen gerapporteerd
     assert data["stopreden"] is None
     assert data["evaluatie"]["mechanisch_geslaagd"] is geslaagd
+    assert data["evaluatie"]["redenen"] == redenen
     tellers = data["evaluatie"]["tellers"]
     assert tellers["juist"]["noemer"] == 24
-    assert tellers["false_pass"]["teller"] == 1  # onterechte pass op review_required
+    assert tellers["false_pass"]["teller"] == false_pass
     assert tellers["kritieke_false_pass"]["teller"] == 0
+
+
+def test_max_false_pass_is_nul_in_elke_fase():
+    """Besluit 16: ontwikkeling 0 (was null); regressie en hold-out ongewijzigd 0."""
+    assert {f: m.FASECRITERIA[f]["max_false_pass"] for f in m.FASEN} == {
+        "regressie": 0,
+        "ontwikkeling": 0,
+        "holdout": 0,
+    }
+
+
+def test_een_onterechte_pass_in_ontwikkeling_is_een_reden():
+    evaluaties = _goede_evaluaties("ontwikkeling")
+    (index,) = [
+        i for i, e in enumerate(evaluaties) if e["verwacht"] == "review_required"
+    ][:1]
+    evaluaties[index] = {**evaluaties[index], "waargenomen": "pass", "juist": False}
+    uitkomst = m._beoordeel_fase("ontwikkeling", evaluaties, None, True, [])
+    assert uitkomst["mechanisch_geslaagd"] is False
+    assert uitkomst["redenen"] == ["onterechte_goedkeuring"]
+    assert uitkomst["criteria"]["max_false_pass"] == 0
+
+
+# --- Codex-review P2a/P2b: contractversie in de identiteit; afleiding en omzetting --
+
+
+async def test_identiteit_bindt_contract_vier_prompt_vijf_en_schemahash(tmp_path):
+    """P2a: de volledige combinatie staat expliciet in beide identiteiten."""
+    drie = (await m.voorbereid(tmp_path / "manifest.json"))["identiteit"]
+    k = await _kwal(tmp_path)
+    kwal = json.loads(k.manifest.read_text("utf-8"))["identiteit"]
+    for identiteit in (drie, kwal):
+        assert (
+            identiteit["contractversie"],
+            identiteit["profiel"]["promptversie"],
+            identiteit["router"]["antwoordschema_sha256"],
+        ) == (
+            "def835-int02-assessment/4",
+            "def835-int02-prompt/5",
+            SCHEMA_SHA256_V4,
+        )
+        assert identiteit["contractversie"] == int02_contract.CONTRACTVERSIE
+
+
+async def test_identiteit_volgt_de_actieve_contractversie(tmp_path, monkeypatch):
+    """P2a: niet alleen via de bestandshash; een andere versie geeft een andere
+    identiteit (en dus een ander manifest)."""
+    voor = (await m.voorbereid(tmp_path / "a.json"))["identiteit"]
+    monkeypatch.setattr(int02_contract, "CONTRACTVERSIE", "def835-int02-assessment/x")
+    na = (await m.voorbereid(tmp_path / "b.json"))["identiteit"]
+    assert na["contractversie"] == "def835-int02-assessment/x"
+    assert m.hash_json(na) != m.hash_json(voor)
+
+
+_SYNTH = int02_contract.maak_invoer(
+    begrip="proefbegrip",
+    kern="Geheel getal dat zonder rest door twee deelbaar is.",
+    bedoeling=None,
+    organisatorische_context=["Synthetische context"],
+    juridische_context=[],
+    wettelijke_basis=[],
+    bronnen=[],
+)
+_SYNTH_CONFIG = int02_contract.Configuratie(
+    normhash="a" * 64,
+    promptversie="def835-int02-prompt/5",
+    routeringshash="b" * 64,
+    provider="fakeprovider",
+    model="fake-model",
+)
+
+
+def _synth_beoordeling(status: str, verdict: str, **over):
+    respons = respons_voor_status(_SYNTH, status, verdict=verdict)
+    respons.update(over)
+    document = int02_contract.beoordeel(
+        _SYNTH,
+        _SYNTH_CONFIG,
+        respons,
+        int02_contract.Uitvoering(actor="ai", status="completed"),
+    )
+    return SimpleNamespace(status=document.status, gecachet=False, document=document)
+
+
+def test_evaluatie_legt_afleiding_modelstatus_en_omzettingsrichting_vast():
+    omgezet = m._evalueer("pass", _synth_beoordeling("pass", "fail"))
+    assert omgezet["waargenomen"] == "pass"
+    assert omgezet["afleiding"] == "alleen_kern"
+    assert omgezet["modelstatus"] == "fail"
+    assert omgezet["omzetting"] == "alleen_kern"
+    assert omgezet["omzettingsrichting"] == "fail→pass"
+    gelijk = m._evalueer("fail", _synth_beoordeling("fail", "fail"))
+    assert (gelijk["afleiding"], gelijk["omzetting"], gelijk["omzettingsrichting"]) == (
+        "voorschrift_in_kern",
+        None,
+        None,
+    )
+
+
+def test_evaluatie_van_een_foutdocument_heeft_geen_afleiding():
+    kapot = int02_contract.beoordeel(
+        _SYNTH,
+        _SYNTH_CONFIG,
+        {"onzin": True},
+        int02_contract.Uitvoering(actor="ai", status="completed"),
+    )
+    beoordeling = SimpleNamespace(status="error", gecachet=False, document=kapot)
+    uitkomst = m._evalueer("pass", beoordeling)
+    assert (uitkomst["afleiding"], uitkomst["modelstatus"]) == (None, None)
+    assert (uitkomst["omzetting"], uitkomst["omzettingsrichting"]) == (None, None)
+
+
+def test_fase_telt_per_afleidingsregel_en_per_omzettingsrichting():
+    """Ontwerp §4.4: `omzetting` en `afleiding` per geval tellen (incl. besluit 17)."""
+    evaluaties = [
+        m._evalueer("pass", _synth_beoordeling("pass", "fail")),
+        m._evalueer("pass", _synth_beoordeling("pass", "pass")),
+        m._evalueer("review_required", _synth_beoordeling("review_required", "fail")),
+        m._evalueer(
+            "review_required",
+            _synth_beoordeling("pass", "fail", uncertainty="decisive"),
+        ),
+        m._evalueer("fail", _synth_beoordeling("fail", "fail")),
+    ]
+    uitkomst = m._beoordeel_fase("regressie", evaluaties, None, True, [])
+    assert uitkomst["afleidingen"] == {
+        "alleen_kern": 2,
+        "bronnen_open": 1,
+        "model_beslissend_onzeker": 1,
+        "voorschrift_in_kern": 1,
+    }
+    assert uitkomst["omzettingen"] == {
+        "totaal": 3,
+        "per_richting": {"fail→pass": 1, "fail→review_required": 2},
+        "per_regel": {
+            "alleen_kern": 1,
+            "bronnen_open": 1,
+            "model_beslissend_onzeker": 1,
+        },
+    }
+
+
+def test_fase_zonder_dienstafleiding_telt_leeg():
+    uitkomst = m._beoordeel_fase(
+        "ontwikkeling", _goede_evaluaties("ontwikkeling"), None, True, []
+    )
+    assert uitkomst["afleidingen"] == {}
+    assert uitkomst["omzettingen"] == {"totaal": 0, "per_richting": {}, "per_regel": {}}
+
+
+@pytest.mark.parametrize(
+    ("fase", "bewijs"),
+    [
+        ("regressie", "consistentietoets_7a"),
+        ("ontwikkeling", "consistentietoets_7a"),
+        ("holdout", "onafhankelijk_bewijs"),
+    ],
+)
+def test_uitslag_benoemt_fase_1_en_2_als_consistentietoets(fase, bewijs):
+    """Besluit 16, keuze 7A: fase 1+2 van v8 toetsen consistentie; alleen de
+    hold-out is onafhankelijk bewijs."""
+    uitkomst = m._beoordeel_fase(fase, _goede_evaluaties(fase), None, True, [])
+    assert uitkomst["bewijsstatus"] == bewijs
+    assert uitkomst["bewijstoelichting"] == m.BEWIJSTOELICHTING[bewijs]
+    assert "7A" in m.BEWIJSTOELICHTING["consistentietoets_7a"]
+
+
+async def test_kwal_resultaat_telt_omzettingen_van_de_echte_keten(tmp_path):
+    """Integraal: een omgezet pass-geval landt in de faseuitslag."""
+    k = await _kwal(tmp_path)
+    await _tot_en_met(k, "regressie")
+    passgeval = next(
+        i
+        for i in FASE_IDS["ontwikkeling"]
+        if KWAL_PER_ID[i]["label"]["status"] == "pass"
+    )
+
+    def model_zegt_fail(request):
+        invoer = json.loads(json.loads(request.content)["messages"][0]["content"])
+        respons = respons_voor_status(invoer["invoer"], "pass", verdict="fail")
+        return httpx.Response(200, json=_bericht(json.dumps(respons)))
+
+    data = await _fase(k, "ontwikkeling", KwalProvider({passgeval: model_zegt_fail}))
+    evaluatie = data["evaluatie"]
+    assert evaluatie["mechanisch_geslaagd"] is True
+    assert evaluatie["bewijsstatus"] == "consistentietoets_7a"
+    assert evaluatie["omzettingen"]["totaal"] == 1
+    assert evaluatie["omzettingen"]["per_richting"] == {"fail→pass": 1}
+    assert sum(evaluatie["afleidingen"].values()) == 24
 
 
 H_PASS = [i for i in FASE_IDS["holdout"] if KWAL_PER_ID[i]["label"]["status"] == "pass"]
@@ -2430,11 +2608,12 @@ async def test_schemaroute_identiteit_bindt_schemahash_en_capability(manifest):
     router = identiteit["router"]
     assert router["supports_structured_outputs"] is True
     assert router["antwoordschema_sha256"] == int02_contract.ANTWOORDSCHEMA_SHA256
-    # Na de Codex-review (P2, grondvarianten): de nieuwe pin, niet de eerste.
-    assert router["antwoordschema_sha256"] == SCHEMA_SHA256_P2
+    # Besluit 16: het /4-schema; de runner volgt de pin uit het contract.
+    assert router["antwoordschema_sha256"] == SCHEMA_SHA256_V4
+    assert router["antwoordschema_sha256"] != SCHEMA_SHA256_P2
     # Geen beta-header: de headernamen blijven exact de SDK-standaard.
     assert identiteit["transport"]["headernamen"] == STANDAARDHEADERNAMEN
-    assert identiteit["profiel"]["promptversie"] == "def835-int02-prompt/4"
+    assert identiteit["profiel"]["promptversie"] == "def835-int02-prompt/5"
 
 
 async def test_schemaroute_zonder_capability_geen_payload_en_geen_manifest(
