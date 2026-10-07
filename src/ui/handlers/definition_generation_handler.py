@@ -75,15 +75,18 @@ def foutmelding_generatie(fout: BaseException, budget_s: float) -> str:
 
     Een ``TimeoutError`` (ook ``asyncio``/``concurrent.futures``) heeft geen
     tekst; ``str(fout)`` gaf daardoor een lege melding. Nooit meer leeg: bij
-    een fout zonder tekst noemt de melding het type.
+    een fout zonder tekst noemt de melding het type. Een TimeoutError mét
+    tekst komt van een interne tijdslimiet (niet het UI-budget) en toont die.
     """
+    tekst = str(fout).strip()
     if isinstance(fout, TimeoutError):
+        if tekst:
+            return f"❌ Generatie afgebroken door een tijdslimiet: {tekst}"
         return (
             f"❌ Generatie duurde langer dan {budget_s:g} s en is afgebroken. "
             "Probeer het opnieuw; blijft dit gebeuren, selecteer dan minder "
             "bronnen of documenten."
         )
-    tekst = str(fout).strip()
     if not tekst:
         tekst = f"onverwachte fout ({type(fout).__name__}) zonder verdere toelichting"
     return f"❌ Fout bij generatie: {tekst}"

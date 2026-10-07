@@ -60,9 +60,10 @@ DEFAULT_EXAMPLE_COUNTS = {
     "toelichting": 1,
 }
 
-# DEF-840: bovengrens voor gelijktijdige voorbeeldtypen. Zes = alle typen tegelijk;
-# blijft onder `rate_limit_max_concurrent` (standaard 10) van AIServiceV2, dat de
-# provider-limiet per proces bewaakt.
+# DEF-840: bovengrens voor gelijktijdige voorbeeldtypen binnen één generatie.
+# Zes = alle typen tegelijk; blijft onder `rate_limit_max_concurrent` (standaard
+# 10) van de AsyncRateLimiter in utils/async_api.py. Die limiter is niet
+# thread-safe over Streamlit-sessies heen; zie de restrisico's in DEF-840.
 MAX_GELIJKTIJDIGE_VOORBEELDTYPEN = 6
 
 
@@ -1158,37 +1159,30 @@ async def genereer_alle_voorbeelden_async(
         async with limiet:
             return await generator._generate_resilient(req)
 
-    try:
-        # return_exceptions=True: één mislukt type breekt de andere niet af; de
-        # volgorde van de resultaten volgt die van `requests`.
-        all_results: list[list[str] | BaseException] = await asyncio.gather(
-            *(_begrensd(req) for req in requests), return_exceptions=True
-        )
+    # return_exceptions=True: één mislukt type breekt de andere niet af; de
+    # volgorde van de resultaten volgt die van `requests`. Annulering van
+    # buitenaf (budget verlopen) annuleert de kindtaken en propageert.
+    all_results: list[list[str] | BaseException] = await asyncio.gather(
+        *(_begrensd(req) for req in requests), return_exceptions=True
+    )
 
-        concurrent_duration = time.time() - start_time
-        logger.info(
-            f"Concurrent voorbeelden generation completed in {concurrent_duration:.2f}s "
-            f"for '{begrip}' ({len(requests)} types)"
-        )
-    except Exception as e:
-        logger.error(f"Concurrent generation failed catastrophically: {e}")
-        # Return empty results on catastrophic failure
-        return {
-            "voorbeeldzinnen": [],
-            "praktijkvoorbeelden": [],
-            "tegenvoorbeelden": [],
-            "synoniemen": [],
-            "antoniemen": [],
-            "toelichting": "",
-        }
+    concurrent_duration = time.time() - start_time
+    logger.info(
+        f"Concurrent voorbeelden generation completed in {concurrent_duration:.2f}s "
+        f"for '{begrip}' ({len(requests)} types)"
+    )
 
     # Process results, handling individual failures gracefully
     results: dict[str, list[str] | str] = {}
-    for example_type, raw_result in zip(example_types, all_results, strict=False):
+    for example_type, raw_result in zip(example_types, all_results, strict=True):
         # Check if this individual call failed
         # BaseException: gather levert een geannuleerde taak als CancelledError op.
         if isinstance(raw_result, BaseException):
-            logger.error(f"Failed to generate {example_type.value}: {raw_result}")
+            # Typenaam erbij: een TimeoutError heeft geen tekst (DEF-840).
+            logger.error(
+                f"Failed to generate {example_type.value}: "
+                f"{type(raw_result).__name__}: {raw_result}"
+            )
             # Voor toelichting een lege string, voor andere een lege lijst
             if example_type == ExampleType.TOELICHTING:
                 results[example_type.value] = ""

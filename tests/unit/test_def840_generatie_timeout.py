@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
 import time
 from types import SimpleNamespace
@@ -62,6 +63,14 @@ def test_echte_bridge_timeout_geeft_geen_lege_melding():
     assert str(info.value) == ""  # de oorzaak van de lege melding
     melding = foutmelding_generatie(info.value, 0.01)
     assert "langer dan 0.01 s" in melding
+
+
+def test_interne_timeout_met_tekst_noemt_die_tekst_niet_het_budget():
+    melding = foutmelding_generatie(
+        TimeoutError("Rate limit timeout for examples_generation_counter"), 120.0
+    )
+    assert "Rate limit timeout for examples_generation_counter" in melding
+    assert "120" not in melding
 
 
 @pytest.mark.parametrize("fout", [RuntimeError(), ValueError("   "), KeyError()])
@@ -136,15 +145,26 @@ def test_handler_toont_timeoutmelding_en_gebruikt_het_configbudget():
 
 # ------------------------------------------- (b) gelijktijdige voorbeelden
 
-_VERTRAGING_S = 0.3
+_VERTRAGING_S = 0.5
 
 
 class _NepProvider:
-    """Nep-AIServiceV2: vaste vertraging per aanroep, telt gelijktijdigheid."""
+    """Nep-AIServiceV2: vaste vertraging per aanroep, telt gelijktijdigheid.
 
-    def __init__(self, vertraging_s: float = _VERTRAGING_S, faal_op: str = "") -> None:
+    Het antwoord bevat een kenmerk van de prompt, zodat ook twee typen met
+    dezelfde task_type (voorbeeldzinnen/praktijkvoorbeelden) onderscheidbaar
+    zijn bij een verwisseling.
+    """
+
+    def __init__(
+        self,
+        vertraging_s: float = _VERTRAGING_S,
+        faal_op: str = "",
+        fout: type[BaseException] = RuntimeError,
+    ) -> None:
         self.vertraging_s = vertraging_s
         self.faal_op = faal_op
+        self.fout = fout
         self.actief = 0
         self.max_actief = 0
         self.task_types: list[str] = []
@@ -158,8 +178,9 @@ class _NepProvider:
         finally:
             self.actief -= 1
         if task_type == self.faal_op:
-            raise RuntimeError("nep-providerfout")
-        regels = "\n".join(f"{i}. {task_type} item {i}" for i in range(1, 6))
+            raise self.fout("nep-providerfout")
+        kenmerk = hashlib.sha256(prompt.encode()).hexdigest()[:8]
+        regels = "\n".join(f"{i}. {task_type} {kenmerk} item {i}" for i in range(1, 6))
         return SimpleNamespace(text=regels)
 
 
@@ -236,11 +257,13 @@ def test_resultaat_en_volgorde_gelijk_aan_sequentieel(nep_generator):
 
     assert uitkomst == referentie
     assert list(uitkomst) == [t.value for t in ExampleType]
+    # Zelfde task_type, andere prompt: een verwisseling zou hier opvallen.
+    assert uitkomst["voorbeeldzinnen"] != uitkomst["praktijkvoorbeelden"]
 
 
 def test_gelijktijdigheid_is_begrensd(nep_generator, monkeypatch):
     monkeypatch.setattr(uv, "MAX_GELIJKTIJDIGE_VOORBEELDTYPEN", 2)
-    provider = _NepProvider(vertraging_s=0.05)
+    provider = _NepProvider(vertraging_s=0.3)
     nep_generator.ai_service = provider
 
     _gelijktijdig(nep_generator)
@@ -249,8 +272,12 @@ def test_gelijktijdigheid_is_begrensd(nep_generator, monkeypatch):
     assert len(provider.task_types) == len(ExampleType)
 
 
-def test_een_mislukt_type_breekt_de_rest_niet_af(nep_generator, caplog):
-    nep_generator.ai_service = _NepProvider(vertraging_s=0.01, faal_op="synonyms")
+@pytest.mark.parametrize("fout", [RuntimeError, asyncio.CancelledError])
+def test_een_mislukt_type_breekt_de_rest_niet_af(nep_generator, caplog, fout):
+    """Ook een intern geannuleerd type (CancelledError) wordt een leeg veld."""
+    nep_generator.ai_service = _NepProvider(
+        vertraging_s=0.01, faal_op="synonyms", fout=fout
+    )
 
     with caplog.at_level(logging.ERROR):
         uitkomst, _ = _gelijktijdig(nep_generator)
@@ -259,6 +286,31 @@ def test_een_mislukt_type_breekt_de_rest_niet_af(nep_generator, caplog):
     for t in ExampleType:
         if t != ExampleType.SYNONIEMEN:
             assert uitkomst[t.value], t.value
+    assert f"Failed to generate synoniemen: {fout.__name__}" in caplog.text
+
+
+def test_verlopen_budget_annuleert_alle_lopende_typen(nep_generator):
+    provider = _NepProvider(vertraging_s=5.0)
+    nep_generator.ai_service = provider
+
+    async def _run():
+        start = time.perf_counter()
+        with pytest.raises(TimeoutError):
+            await asyncio.wait_for(
+                genereer_alle_voorbeelden_async(
+                    begrip="verdachte", definitie="Een verdachte is …", context_dict={}
+                ),
+                timeout=0.5,
+            )
+        duur = time.perf_counter() - start
+        await cleanup_integrated_system()
+        return duur
+
+    duur = asyncio.run(_run())
+
+    assert duur < 2.0
+    assert provider.max_actief == len(ExampleType)
+    assert provider.actief == 0  # geen aanroep loopt na de annulering door
 
 
 # ----------------------------------------------- (c) task_type-routering
