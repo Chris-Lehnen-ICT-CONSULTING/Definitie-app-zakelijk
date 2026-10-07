@@ -60,6 +60,44 @@ _STATUS_WEERGAVE = {
 }
 
 
+def generatie_budget_s() -> float:
+    """DEF-840: tijdsbudget (s) van de volledige generatieketen vanuit de UI.
+
+    Eén bron: ``definition_generation`` in ``config/rate_limit_config.py``.
+    """
+    from config.rate_limit_config import get_endpoint_timeout
+
+    return get_endpoint_timeout("definition_generation")
+
+
+def foutmelding_generatie(fout: BaseException, budget_s: float) -> str:
+    """DEF-840: vaste, begrijpelijke UI-melding voor een mislukte generatie.
+
+    De exceptiontekst komt nooit in de melding: die kan geheimen, interne
+    paden of providerdetails bevatten en hoort alleen in de log. De melding
+    noemt hooguit het fouttype.
+
+    De time-out van de UI-bridge (``TimeoutError`` zonder tekst) noemt het
+    budget. Een ``TimeoutError`` mét tekst komt van een interne tijdslimiet,
+    niet van het UI-budget, en noemt dat budget dus niet.
+    """
+    if isinstance(fout, TimeoutError):
+        if not str(fout).strip():
+            return (
+                f"❌ Generatie duurde langer dan {budget_s:g} s en is afgebroken. "
+                "Probeer het opnieuw; blijft dit gebeuren, selecteer dan minder "
+                "bronnen of documenten."
+            )
+        return (
+            "❌ Generatie afgebroken door een interne tijdslimiet. "
+            "Probeer het opnieuw."
+        )
+    return (
+        f"❌ Generatie mislukt door een onverwachte fout ({type(fout).__name__}). "
+        "Probeer het opnieuw."
+    )
+
+
 def _kanaaltekst(md: dict[str, Any], kanaal: str, statussleutel: str) -> str:
     """'3 gevonden, 0 in prompt' uit de kwitantie; anders de status in woorden."""
     kanalen = md.get("bronkanalen")
@@ -494,7 +532,7 @@ class DefinitionGenerationHandler:
                             else {}
                         ),
                     ),
-                    timeout=120,
+                    timeout=generatie_budget_s(),
                 )
                 # DEF-451: serialiseer het getypeerde response naar de canonieke UI-dict
                 service_result = self.definition_service.to_ui_response(_response)
@@ -747,8 +785,10 @@ class DefinitionGenerationHandler:
                     )
 
         except Exception as e:
-            st.error(f"❌ Fout bij generatie: {e!s}")
-            logger.error(f"Global generation failed: {e}", exc_info=True)
+            st.error(foutmelding_generatie(e, generatie_budget_s()))
+            logger.error(
+                "Global generation failed (%s): %s", type(e).__name__, e, exc_info=True
+            )
         finally:
             # DEF-622 (besluit 5): de force-keuze is eenmalig en mag niet
             # plakken — ook niet na een mislukte generatie. Anders sloeg de

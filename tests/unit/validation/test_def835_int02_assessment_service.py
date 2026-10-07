@@ -1358,7 +1358,8 @@ async def test_f2_onbekend_beleid_blokkeert_zonder_verzonnen_default(router, cap
 async def test_f3_wachten_op_capaciteit_geeft_nul_providercalls_en_geen_verzonnen_poging():
     provider = _Provider()
     ai = _echte_ai(provider)
-    ai._get_client().rate_limiter.semaphore = asyncio.Semaphore(0)
+    # DEF-840: de semaphore bestaat per event loop en wordt lui aangemaakt.
+    ai._get_client().rate_limiter.config.max_concurrent = 0
     resultaat = await _dienst(ai, budget=_budget(deadline_seconden=0.03)).assess(
         _invoer()
     )
