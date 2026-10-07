@@ -60,6 +60,11 @@ DEFAULT_EXAMPLE_COUNTS = {
     "toelichting": 1,
 }
 
+# DEF-840: bovengrens voor gelijktijdige voorbeeldtypen. Zes = alle typen tegelijk;
+# blijft onder `rate_limit_max_concurrent` (standaard 10) van AIServiceV2, dat de
+# provider-limiet per proces bewaakt.
+MAX_GELIJKTIJDIGE_VOORBEELDTYPEN = 6
+
 
 class ExampleType(Enum):
     """Types van voorbeelden die gegenereerd kunnen worden."""
@@ -125,9 +130,6 @@ class UnifiedExamplesGenerator:
         self.error_count = 0
         self.cache_hits = 0
         self._ai_service_override: AIServiceV2 | None = None
-        # Semaphore to limit concurrent API calls (OpenAI typically allows 8-10 concurrent)
-        # Set to 6 to safely handle all 6 example types without overwhelming the API
-        self._concurrent_limit = asyncio.Semaphore(6)
 
     @property
     def ai_service(self) -> AIServiceV2:
@@ -1105,11 +1107,15 @@ async def genereer_alle_voorbeelden_async(
     begrip: str, definitie: str, context_dict: dict[str, list[str]]
 ) -> dict[str, list[str] | str]:
     """
-    Generate all types of examples sequentially to avoid rate limiter contention.
+    Generate all types of examples concurrently, bounded by a semaphore.
 
-    PERFORMANCE: Changed from parallel to sequential processing (DEF-108 follow-up).
-    Sequential prevents rate limiter timeouts when 6 parallel requests compete for tokens.
-    Trade-off: Slower total time (~30-60s) but reliable completion without timeouts.
+    DEF-840: terug van sequentieel naar gelijktijdig. De sequentiële keten
+    (DEF-108 follow-up, commit 253ba4092) was een omweg voor een niet-blokkerende
+    ``TokenBucket.acquire()`` die in dezelfde commit is gerepareerd. Elk
+    voorbeeldtype heeft een eigen endpoint en dus een eigen rate limiter
+    (``examples_generation_*`` in ``config/rate_limit_config.py``), zodat de
+    typen niet om dezelfde tokens concurreren. Sequentieel kostte 72s voor
+    "verdachte" en liet de generatie het UI-budget van 120s overschrijden.
 
     Args:
         begrip: Term to generate examples for
@@ -1140,31 +1146,32 @@ async def genereer_alle_voorbeelden_async(
         example_types.append(example_type)
 
     logger.info(
-        f"Starting sequential generation of {len(requests)} example types for '{begrip}'"
+        f"Starting concurrent generation of {len(requests)} example types for '{begrip}'"
     )
 
-    try:
-        # Execute requests sequentially to avoid rate limiter contention
-        # Each request gets full rate limiter bandwidth without competition
-        all_results: list[list[str] | Exception] = []
-        for i, req in enumerate(requests, 1):
-            logger.info(
-                f"Generating {req.example_type.value} ({i}/{len(requests)}) for '{begrip}'"
-            )
-            try:
-                result = await generator._generate_resilient(req)
-                all_results.append(result)
-            except Exception as e:
-                logger.error(f"Failed to generate {req.example_type.value}: {e}")
-                all_results.append(e)  # Store exception for processing below
+    # DEF-840: semaphore per aanroep, niet op de generator-singleton — een
+    # asyncio-primitief bindt aan de loop waarin hij wacht, en de UI-bridge
+    # draait elke aanroep in een eigen loop.
+    limiet = asyncio.Semaphore(MAX_GELIJKTIJDIGE_VOORBEELDTYPEN)
 
-        sequential_duration = time.time() - start_time
+    async def _begrensd(req: ExampleRequest) -> list[str]:
+        async with limiet:
+            return await generator._generate_resilient(req)
+
+    try:
+        # return_exceptions=True: één mislukt type breekt de andere niet af; de
+        # volgorde van de resultaten volgt die van `requests`.
+        all_results: list[list[str] | BaseException] = await asyncio.gather(
+            *(_begrensd(req) for req in requests), return_exceptions=True
+        )
+
+        concurrent_duration = time.time() - start_time
         logger.info(
-            f"Sequential voorbeelden generation completed in {sequential_duration:.2f}s "
+            f"Concurrent voorbeelden generation completed in {concurrent_duration:.2f}s "
             f"for '{begrip}' ({len(requests)} types)"
         )
     except Exception as e:
-        logger.error(f"Sequential generation failed catastrophically: {e}")
+        logger.error(f"Concurrent generation failed catastrophically: {e}")
         # Return empty results on catastrophic failure
         return {
             "voorbeeldzinnen": [],
@@ -1179,7 +1186,8 @@ async def genereer_alle_voorbeelden_async(
     results: dict[str, list[str] | str] = {}
     for example_type, raw_result in zip(example_types, all_results, strict=False):
         # Check if this individual call failed
-        if isinstance(raw_result, Exception):
+        # BaseException: gather levert een geannuleerde taak als CancelledError op.
+        if isinstance(raw_result, BaseException):
             logger.error(f"Failed to generate {example_type.value}: {raw_result}")
             # Voor toelichting een lege string, voor andere een lege lijst
             if example_type == ExampleType.TOELICHTING:

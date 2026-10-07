@@ -50,6 +50,9 @@ class ModelRouter:
                 "definition_core",
                 "explanation",
                 "examples",
+                # DEF-840: tegenvoorbeelden (unified_voorbeelden) — ontbrak, viel
+                # met een waarschuwing per generatie op de fallback 'critical'.
+                "counter_examples",
                 "validation",
             ],
             "standard": ["synonyms", "antonyms"],

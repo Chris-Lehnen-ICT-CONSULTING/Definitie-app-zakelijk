@@ -60,6 +60,35 @@ _STATUS_WEERGAVE = {
 }
 
 
+def generatie_budget_s() -> float:
+    """DEF-840: tijdsbudget (s) van de volledige generatieketen vanuit de UI.
+
+    Eén bron: ``definition_generation`` in ``config/rate_limit_config.py``.
+    """
+    from config.rate_limit_config import get_endpoint_timeout
+
+    return get_endpoint_timeout("definition_generation")
+
+
+def foutmelding_generatie(fout: BaseException, budget_s: float) -> str:
+    """DEF-840: begrijpelijke UI-melding voor een mislukte generatie.
+
+    Een ``TimeoutError`` (ook ``asyncio``/``concurrent.futures``) heeft geen
+    tekst; ``str(fout)`` gaf daardoor een lege melding. Nooit meer leeg: bij
+    een fout zonder tekst noemt de melding het type.
+    """
+    if isinstance(fout, TimeoutError):
+        return (
+            f"❌ Generatie duurde langer dan {budget_s:g} s en is afgebroken. "
+            "Probeer het opnieuw; blijft dit gebeuren, selecteer dan minder "
+            "bronnen of documenten."
+        )
+    tekst = str(fout).strip()
+    if not tekst:
+        tekst = f"onverwachte fout ({type(fout).__name__}) zonder verdere toelichting"
+    return f"❌ Fout bij generatie: {tekst}"
+
+
 def _kanaaltekst(md: dict[str, Any], kanaal: str, statussleutel: str) -> str:
     """'3 gevonden, 0 in prompt' uit de kwitantie; anders de status in woorden."""
     kanalen = md.get("bronkanalen")
@@ -494,7 +523,7 @@ class DefinitionGenerationHandler:
                             else {}
                         ),
                     ),
-                    timeout=120,
+                    timeout=generatie_budget_s(),
                 )
                 # DEF-451: serialiseer het getypeerde response naar de canonieke UI-dict
                 service_result = self.definition_service.to_ui_response(_response)
@@ -747,8 +776,10 @@ class DefinitionGenerationHandler:
                     )
 
         except Exception as e:
-            st.error(f"❌ Fout bij generatie: {e!s}")
-            logger.error(f"Global generation failed: {e}", exc_info=True)
+            st.error(foutmelding_generatie(e, generatie_budget_s()))
+            logger.error(
+                "Global generation failed (%s): %s", type(e).__name__, e, exc_info=True
+            )
         finally:
             # DEF-622 (besluit 5): de force-keuze is eenmalig en mag niet
             # plakken — ook niet na een mislukte generatie. Anders sloeg de
