@@ -83,9 +83,14 @@ VORIGE_SCHEMA_SHA256 = (
 SYSTEEMPROMPT_V3_SHA256 = (
     "da4a4112b580da2924b5940ac2723ef5e177ad48ef15890b66d8d91f285a7ca6"
 )
-#: SHA-256 van de systeemprompt van def835-int02-prompt/5 (besluit 16).
+#: SHA-256 van de systeemprompt van def835-int02-prompt/5 (besluit 16);
+#: historische controle sinds /6.
 SYSTEEMPROMPT_V5_SHA256 = (
     "3047bb1a34f878e77bd434d668d870f0dfcfb92e3e948ac0caee77af9c2d2b70"
+)
+#: SHA-256 van de systeemprompt van def835-int02-prompt/6 (besluit 19).
+SYSTEEMPROMPT_V6_SHA256 = (
+    "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7"
 )
 #: Toegestane sleutelwoorden (subset die structured outputs ondersteunt).
 SLEUTELWOORDEN = {
@@ -685,15 +690,17 @@ def _dienst(ai, router=None, profiel=None) -> Int02AssessmentService:
     )
 
 
-def test_promptversie_vijf_met_gewijzigde_prompttekst():
-    """Besluit 16: /5 vraagt kernvorm en bronfuncties; de tekst van /3 en /4
-    is daarmee vervangen (de pin van /5 staat in de prompttest)."""
-    assert dienstmodule.PROMPT_VERSION == "def835-int02-prompt/5"
+def test_promptversie_zes_met_gewijzigde_prompttekst():
+    """Besluit 16: /5 vraagt kernvorm en bronfuncties; besluit 19: /6 voegt de
+    herhalingsregel toe. Het schema blijft gelijk (pin hieronder)."""
+    assert dienstmodule.PROMPT_VERSION == "def835-int02-prompt/6"
     systeem, _ = bouw_int02_prompt(_invoer(), laad_int02_norm())
     digest = hashlib.sha256(systeem.encode("utf-8")).hexdigest()
     assert digest != SYSTEEMPROMPT_V3_SHA256
-    # Herreview Codex P3: ook een exacte pin op de /5-systeemprompt.
-    assert digest == SYSTEEMPROMPT_V5_SHA256
+    assert digest != SYSTEEMPROMPT_V5_SHA256
+    # Exacte pin op de /6-systeemprompt.
+    assert digest == SYSTEEMPROMPT_V6_SHA256
+    assert response_schema_sha256(_schema()) == SCHEMA_SHA256
 
 
 async def test_dienst_stuurt_het_vastgepinde_schema_mee():

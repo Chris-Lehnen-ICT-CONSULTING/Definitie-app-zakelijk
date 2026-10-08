@@ -5,14 +5,15 @@ Status: intern domeincontract.
 - Versie /2 na besluit 9 van Chris (07-10-2026, optie A).
 - Versie /3 na besluit 12 (07-10-2026, optie A).
 - Versie /4 na besluit 16 (07-10-2026; keuzes 1B, 2A, 3A, 4A, 5A, 6A en 7A) en besluit 17 (07-10-2026, optie A).
+- Aanvulling binnen /4 na besluit 19 (08-10-2026, keuze 1A): een kaal bron-ID geldt als zijn canonieke sleutel (zie "Besluit 19").
 
 Norm: `def771-int02/2` (INT-02, N-breed, besluiten B1–B6).
 
-Implementatie: `src/domain/int02/contract.py`. Prompt: `def835-int02-prompt/5` in `src/services/validation/int02_assessment_service.py`.
+Implementatie: `src/domain/int02/contract.py`. Prompt: `def835-int02-prompt/6` in `src/services/validation/int02_assessment_service.py` (besluit 19, keuze 2A; kwalificatieproef v8 liep nog onder `/5`).
 
 Tests:
-- `tests/unit/domain/test_def835_int02_bronfuncties.py`: /4, besluit 17 en Codex-review P1;
-- `tests/unit/domain/test_def835_int02_papertest.py`: de paper test van het ontwerp;
+- `tests/unit/domain/test_def835_int02_bronfuncties.py`: /4, besluit 17, Codex-review P1 en besluit 19 (sectie K);
+- `tests/unit/domain/test_def835_int02_papertest.py`: de paper test van het ontwerp, met G060 met kale bron-ID's als variant;
 - `tests/unit/validation/test_def835_int02_schemaroute.py`: schema en pin;
 - de /3-regels blijven getoetst in `test_def835_int02_{contract,citaatposities,dienstregel,migratie}.py`.
 
@@ -95,9 +96,22 @@ De eis geldt op vier plaatsen:
 
 De invoerconstructors en de routes /1–/3 houden de witruimtetoets.
 
+### Besluit 19: kaal bron-ID (aliasregel)
+
+In kwalificatieproef v8 (G060) schreef het model `"B1"` en `"B2"` in plaats van `"bron/B1"` en `"bron/B2"`. De citaten klopten; alleen de sleutel faalde (`grond_niet_herleidbaar`). Sinds besluit 19 (keuze 1A) leest de dienst onder /4 een sleutel als `bron/<id>` (`_canonieke_sleutel`) als alle drie gelden:
+1. de sleutel is zelf geen grondbronsleutel van deze invoer;
+2. de sleutel heeft geen **gereserveerde vorm**: `bedoeling`, `organisatorische_context/…`, `juridische_context/…`, `wettelijke_basis/…` of `bron/…`;
+3. precies één bron heeft exact dat ID (hoofdlettergevoelig, zonder normalisatie van witruimte of leestekens). Omdat bron-ID's uniek moeten zijn, is er hooguit één treffer.
+
+Elke andere afwijkende sleutel blijft `invalid_citation` / `grond_niet_herleidbaar`: een onbekend ID (`"B9"`), een andere schrijfwijze (`"b1"`, `" B1"`, `"Bron/B1"`, `"bron:B1"`), een deel of achtervoegsel (`"1"`, `"/B1"`, `"bedoeling/B1"`) en een gereserveerde vorm, ook als een bron toevallig zo heet. Een kaal ID naast zijn canonieke sleutel in dezelfde passage telt als dubbele grondbron (`invalid_output`).
+
+Het bewaarde oordeel bevat altijd de canonieke sleutel. Een bewaard oordeel met een kale sleutel kan de dienst dus niet hebben gemaakt; bij replay is het niet-herleidbaar (`error`). De alias staat niet in de prompt: het model wordt nog steeds gevraagd de sleutel letterlijk over te nemen.
+
+**Waarom de contractversie /4 blijft.** De regel verruimt alleen wat geldige invoer is. Op een canonieke sleutel is de normalisatie de identiteit. Elk eerder geldig /4-document bevat alleen canonieke sleutels en leidt bij replay dus exact hetzelfde af. Een eerder /4-document met een kale sleutel was een foutdocument (`error`); `toets_actualiteit` geeft dat zonder replay terug als `error`. Geen bestaand /4-document wordt dus anders beoordeeld. Een nieuw document onderscheidt zich wel via de promptversie (`/6`) in de binding. Let op: een **offline herbeoordeling** van een ruwe v8-modelrespons (zoals die van G060) geeft nu een ander resultaat dan in v8. Dat is een nieuwe beoordeling, geen replay van een bewaard document.
+
 ### Schema
 
-`ANTWOORDSCHEMA` is nieuw, met pin `d3ad029e24b6b96242f4730686d3a4ebfebd9f46993607e41016761bc7fce715`. Besluit 17 en P1 veranderen het schema niet: `uncertainty` stond er al in.
+`ANTWOORDSCHEMA` is nieuw, met pin `d3ad029e24b6b96242f4730686d3a4ebfebd9f46993607e41016761bc7fce715`. Besluit 17, P1 en besluit 19 veranderen het schema niet: `uncertainty` stond er al in, en `bron` is een vrije tekst in het schema.
 
 ### Ongewijzigd
 
@@ -182,7 +196,7 @@ De uitvoer is een JSON-object met precies deze velden, in deze schemavolgorde:
 1. De structuur, gesloten en met enums (`invalid_output`).
 2. Per passage het passagecitaat (`invalid_citation`). Een citaat zonder zichtbare letter geeft `leeg` (P1-rest, herreview 2). Daarna volgt de positie: niet gevonden of niet uniek.
 3. Per bronfunctie:
-   1. Een onbekende sleutel geeft `invalid_citation` / `grond_niet_herleidbaar`. Dat geldt ook voor `bedoeling` als de bedoeling onbekend is.
+   1. Eerst wordt een kaal bron-ID de canonieke sleutel `bron/<id>` (besluit 19, zie hierboven). Een sleutel die daarna onbekend is, geeft `invalid_citation` / `grond_niet_herleidbaar`. Dat geldt ook voor `bedoeling` als de bedoeling onbekend is.
    2. Een andere functie dan `not_addressed` op een bron zonder zichtbare letter geeft `invalid_citation` / `grond_niet_herleidbaar` (P1, P1-rest, herreview 2). Voorbeelden van zo'n bron: leeg, alleen witruimte, "...", een Hangul-filler of alleen cijfers.
    3. Een citaatplicht die niet is nagekomen, geeft `invalid_output`.
    4. Een citaat zonder zichtbare letter geeft `invalid_citation` / `leeg` (P1, P1-rest, herreview 2). Een citaat dat niet voorkomt of niet uniek is, geeft `niet_gevonden` / `niet_uniek`.
@@ -281,7 +295,7 @@ Als onder /3 (NE, E, nog niet beoordeeld, historisch en NA). Voor geldige /4-uit
 
 ## Bewaard oordeel en replay
 
-`oordeel_json` is de geaccepteerde modeluitvoer met de afgeleide `start`/`end`, per passage en per bronfunctie met citaat. Daarnaast bevat het een blok `dienst`:
+`oordeel_json` is de geaccepteerde modeluitvoer met de afgeleide `start`/`end`, per passage en per bronfunctie met citaat. Elke `bron` staat er in canonieke vorm in (besluit 19). Daarnaast bevat het een blok `dienst`:
 - `afleiding`: de beslissende regel;
 - `modelstatus`: de status van het eigen modelverdict;
 - `passages`: per passage de afgeleide functie en grond in /3-vorm, met `uitkomst` (gebrek, review of beschrijvend) en `regel`.
@@ -291,7 +305,8 @@ Als onder /3 (NE, E, nog niet beoordeeld, historisch en NA). Voor geldige /4-uit
 **Replay.** `toets_actualiteit` leidt een /4-document opnieuw af uit de bewaarde modelvorm: zonder `dienst` en zonder posities. Daarna vergelijkt het die afleiding met wat er bewaard is. Het document wordt niet-herleidbaar (`error`) bij:
 - een gewijzigde of ontbrekende `omzetting`, status, vraag, melding, afleiding, modelstatus of dienstfunctie;
 - een ontbrekend dienstblok;
-- een modelvorm die de controles van /4 niet meer doorstaat, bijvoorbeeld een citaat zonder zichtbare letter (P1-rest, herreview 2).
+- een modelvorm die de controles van /4 niet meer doorstaat, bijvoorbeeld een citaat zonder zichtbare letter (P1-rest, herreview 2);
+- een kale bronsleutel in het bewaarde oordeel (besluit 19): de afleiding normaliseert hem, dus het opnieuw afgeleide oordeel wijkt af.
 
 **Replay toetst samenhang, niet echtheid.** Replay controleert of het bewaarde document past bij de bewaarde modelvorm. Of die modelvorm het echte antwoord van het model is, controleert replay niet; dat hoort bij de opslaglaag (DEF-626).
 
@@ -330,6 +345,6 @@ Fase 1 en 2 van v8 (regressie en ontwikkeling) zijn een **consistentietoets** (k
 
 - **Geen semantische modelkwaliteit.** De paper test (27/27 op de regressie- en ontwikkelgevallen, met gesynthetiseerde modeluitvoer) toetst de beslisregel, niet het model. Hij is per constructie op die gevallen afgestemd.
 - **Besluit 17 raakt mogelijke passes.** Codex-review, 07-10-2026: het 27/27-resultaat en de v7-passes veranderen niet. De regel kan wel tot 13 passes raken als het model twijfel meldt: C112, G007, G011, G015, G019, G021, G027, G030, G037, G039, G041, G046 en G055. Dat is de bedoelde prijs van "bij twijfel review".
-- **Restrisico G045.** Een volledig verkeerde invulling in één richting (B1 als `criterion`) blijft een onterechte pass. De regel kan geen grond verzinnen die het model niet geeft.
+- **Restrisico G045.** Een volledig verkeerde invulling in één richting (B1 als `criterion`) blijft een onterechte pass. De regel kan geen grond verzinnen die het model niet geeft. In v8 gebeurde dit precies zo. Besluit 19 (keuze 2A) pakt het aan in de prompt (`/6`): een grondbron die alleen dezelfde formulering als de passage herhaalt, is geen bewijs voor `criterion`. De beslisregel zelf is daarvoor niet gewijzigd; of de prompt helpt, blijkt pas in een nieuwe run.
 - **Niet geactiveerd** en **geen persistentie**: zoals onder /3.
 - **Mechanische vraagcontrole.** "Precies één vraag" is een vormcontrole.

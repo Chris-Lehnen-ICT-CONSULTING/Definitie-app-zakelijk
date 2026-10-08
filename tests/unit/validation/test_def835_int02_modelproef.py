@@ -1755,7 +1755,7 @@ def test_een_onterechte_pass_in_ontwikkeling_is_een_reden():
 # --- Codex-review P2a/P2b: contractversie in de identiteit; afleiding en omzetting --
 
 
-async def test_identiteit_bindt_contract_vier_prompt_vijf_en_schemahash(tmp_path):
+async def test_identiteit_bindt_contract_vier_prompt_zes_en_schemahash(tmp_path):
     """P2a: de volledige combinatie staat expliciet in beide identiteiten."""
     drie = (await m.voorbereid(tmp_path / "manifest.json"))["identiteit"]
     k = await _kwal(tmp_path)
@@ -1767,7 +1767,7 @@ async def test_identiteit_bindt_contract_vier_prompt_vijf_en_schemahash(tmp_path
             identiteit["router"]["antwoordschema_sha256"],
         ) == (
             "def835-int02-assessment/4",
-            "def835-int02-prompt/5",
+            "def835-int02-prompt/6",
             SCHEMA_SHA256_V4,
         )
         assert identiteit["contractversie"] == int02_contract.CONTRACTVERSIE
@@ -2613,7 +2613,7 @@ async def test_schemaroute_identiteit_bindt_schemahash_en_capability(manifest):
     assert router["antwoordschema_sha256"] != SCHEMA_SHA256_P2
     # Geen beta-header: de headernamen blijven exact de SDK-standaard.
     assert identiteit["transport"]["headernamen"] == STANDAARDHEADERNAMEN
-    assert identiteit["profiel"]["promptversie"] == "def835-int02-prompt/5"
+    assert identiteit["profiel"]["promptversie"] == "def835-int02-prompt/6"
 
 
 async def test_schemaroute_zonder_capability_geen_payload_en_geen_manifest(

@@ -155,8 +155,10 @@ __all__ = [
 #: het vastgepinde `ANTWOORDSCHEMA` reist als native JSON-schema-uitvoer mee.
 #: /5: kernvorm per passage en een functie per grondbron, het eigen verdict
 #: als laatste (besluit 16, contract /4); de dataprompt noemt de grondbronnen.
+#: /6: /5 plus één zin: herhaling is geen bewijs voor "criterion" (besluit 19,
+#: keuze 2A); verder ongewijzigd.
 #: Wordt bij elke aanroep uit de module gelezen en bindt zo elk document.
-PROMPT_VERSION = "def835-int02-prompt/5"
+PROMPT_VERSION = "def835-int02-prompt/6"
 #: Bestaande routertaak; er komt geen nieuwe (onbekende) taaknaam bij.
 TASK_TYPE = "validation"
 
@@ -436,6 +438,14 @@ _BRONFUNCTIEBETEKENIS: tuple[tuple[str, str], ...] = (
         ),
     ),
 )
+#: /6 (besluit 19, keuze 2A): een grondbron die de passage alleen herhaalt,
+#: draagt geen `criterion`. Algemeen en casusvrij.
+_HERHALINGSREGEL = (
+    "Herhaalt een grondbron alleen dezelfde formulering als de passage, zonder "
+    "te laten zien of die inhoud bepaalt wat tot het begrip behoort of een "
+    'handeling voorschrijft, dan is die herhaling geen bewijs voor "criterion"; '
+    'kies dan "unclear".'
+)
 
 
 def _betekenis(paren: tuple[tuple[str, str], ...]) -> str:
@@ -538,7 +548,7 @@ def _systeemprompt(norm: Int02Norm) -> str:
                 f'  "function": {_enum(BRONFUNCTIES)}: de functie die deze '
                 "grondbron geeft aan de inhoud van deze passage, niet wat de "
                 "grondbron in het algemeen regelt. Betekenis: "
-                f"{_betekenis(_BRONFUNCTIEBETEKENIS)}."
+                f"{_betekenis(_BRONFUNCTIEBETEKENIS)}. {_HERHALINGSREGEL}"
             ),
             (
                 '  "quote": een letterlijk citaat uit de tekst van die grondbron dat '

@@ -312,6 +312,30 @@ def test_5a_beschermt_c107_bij_een_beschrijvend_ingevulde_kernvorm():
     assert document.oordeel["dienst"]["afleiding"] == "geen_grond_zonder_bedoeling"
 
 
+@pytest.mark.parametrize("modelverdict", ["label", "pass", "fail"])
+def test_g060_met_kale_bron_ids_volgt_het_label_via_conflict(modelverdict):
+    """Besluit 19 (keuze 1A), uitslag v8: het model schreef "B1" en "B2" in
+    plaats van "bron/B1" en "bron/B2". De dienst leest ze als die sleutels;
+    het bewaarde oordeel is canoniek en gelijk aan dat van de juiste sleutels."""
+    label = GEVALLEN["G060"]["label"]
+    verdict = LABELVERDICT[label] if modelverdict == "label" else modelverdict
+    canoniek = _modeluitvoer("G060", verdict)
+    kaal = json.loads(json.dumps(canoniek))
+    for bf in kaal["passages"][0]["bronfuncties"]:
+        if bf["bron"] in ("bron/B1", "bron/B2"):
+            bf["bron"] = bf["bron"].removeprefix("bron/")
+    assert {bf["bron"] for bf in kaal["passages"][0]["bronfuncties"]} >= {"B1", "B2"}
+    invoer = GEVALLEN["G060"]["invoer"]
+    uitvoering = Uitvoering(actor="ai", status="completed")
+    document = beoordeel(invoer, _configuratie(), kaal, uitvoering)
+    assert document.status == label == "review_required", (
+        document.foutcategorie,
+        document.foutdetail,
+    )
+    assert document.oordeel["dienst"]["afleiding"] == "conflict"
+    assert document == beoordeel(invoer, _configuratie(), canoniek, uitvoering)
+
+
 def test_g045_blijft_een_false_pass_als_het_model_b1_als_criterium_invult():
     """Bekend restrisico (ontwerp §3.3, §4.3): de regel verzint geen grond."""
     document = _met("G045", 0, "bron/B1", "criterion")

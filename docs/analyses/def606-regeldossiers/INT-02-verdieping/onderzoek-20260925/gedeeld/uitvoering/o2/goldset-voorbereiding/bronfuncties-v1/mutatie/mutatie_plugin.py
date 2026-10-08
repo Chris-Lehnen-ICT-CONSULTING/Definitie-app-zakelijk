@@ -127,6 +127,23 @@ MUTANTEN: dict[str, tuple[str, str, str]] = {
         'startswith("L") and teken not in ONZICHTBARE_LETTERS',
         'startswith("L")',
     ),
+    # Besluit 19 (08-10-2026), keuze 1A: kaal bron-ID als canonieke sleutel.
+    "alias_weg_b19": (
+        "Besluit 19: een kaal bron-ID wordt bron/<id>",
+        '            sleutel = _canonieke_sleutel(bronfunctie["bron"], invoer, bronnen)',
+        '            sleutel = bronfunctie["bron"]',
+    ),
+    "alias_te_ruim_b19": (
+        "Besluit 19: alleen een exact gelijk ID (geen deel of achtervoegsel)",
+        "    treffers = [bron.id for bron in invoer.bronnen if bron.id == sleutel]",
+        "    treffers = [bron.id for bron in invoer.bronnen"
+        ' if bron.id.endswith(sleutel.rsplit("/", 1)[-1])]',
+    ),
+    "alias_zonder_reservering_b19": (
+        "Besluit 19: een gereserveerde sleutelvorm wordt nooit als bron gelezen",
+        "    if sleutel in bronnen or _gereserveerd(sleutel):",
+        "    if sleutel in bronnen:",
+    ),
 }
 
 

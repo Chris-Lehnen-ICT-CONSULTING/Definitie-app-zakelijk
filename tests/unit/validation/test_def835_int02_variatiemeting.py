@@ -252,7 +252,7 @@ async def test_herkomst_bindt_script_contract_dienst_en_systeemprompt(tmp_path):
     assert len(herkomst["git_head"] or "") == 40
     assert herkomst["model"] == "claude-opus-5"
     assert herkomst["profiel_id"] == "def835-kwalificatieproef-opus5-v1"
-    assert herkomst["promptversie"] == "def835-int02-prompt/5"
+    assert herkomst["promptversie"] == "def835-int02-prompt/6"
     # Het script legt de actieve contractversie vast. De live-meting van
     # 07-10-2026 liep onder /2 (live-v1/herkomst.json); sinds besluit 16 is het /4.
     assert herkomst["contractversie"] == "def835-int02-assessment/4"
@@ -360,7 +360,7 @@ async def test_live_vijf_runs_alleen_c107_zonder_sleutel_in_uitvoer(tmp_path, ca
     assert eerste["passages"][0]["function"] is None
     assert eerste["usage"] == {"input_tokens": 3574, "output_tokens": 418}
     assert eerste["gerapporteerd_model"] == "claude-opus-5"
-    assert eerste["promptversie"] == "def835-int02-prompt/5"
+    assert eerste["promptversie"] == "def835-int02-prompt/6"
     assert eerste["contractversie"] == "def835-int02-assessment/4"
     for bestand in uitvoer.iterdir():
         assert SLEUTEL not in bestand.read_text()

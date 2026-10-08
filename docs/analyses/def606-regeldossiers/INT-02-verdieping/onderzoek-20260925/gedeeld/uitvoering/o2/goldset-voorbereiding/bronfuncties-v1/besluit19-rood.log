@@ -1,0 +1,178 @@
+..........F............................................................. [  7%]
+........................................................................ [ 14%]
+F....................................................................... [ 22%]
+........................................................................ [ 29%]
+........................................................................ [ 36%]
+..................F...F..............................................F.. [ 44%]
+..........F..................................................F.....F.... [ 51%]
+...F........F........................F..........................F....... [ 59%]
+..........F............................................................. [ 66%]
+................F........F................F.......F..............F...F.. [ 73%]
+........................................................................ [ 81%]
+............................F...............F........................... [ 88%]
+..................................................................F..... [ 96%]
+...................F..................                                   [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert ('def835-int0...761bc7fce715') == ('def835-int0...761bc7fce715')
+      
+      At index 1 diff: 'def835-int02-prompt/5' != 'def835-int02-prompt/6'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1764: AssertionError: assert ('def835-int0...761bc7fce715') == ('def835-int0...761bc7fce715')
+E   AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+      
+      - def835-int02-prompt/6
+      ?                     ^
+      + def835-int02-prompt/5
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:2616: AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+E   AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+    assert 'error' == 'review_required'
+      
+      - review_required
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_papertest.py:331: AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+E   AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+    assert 'error' == 'review_required'
+      
+      - review_required
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_papertest.py:331: AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+E   AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+    assert 'error' == 'review_required'
+      
+      - review_required
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_papertest.py:331: AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+E   AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+      
+      - def835-int02-prompt/6
+      ?                     ^
+      + def835-int02-prompt/5
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:696: AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+E   AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+      
+      - def835-int02-prompt/6
+      ?                     ^
+      + def835-int02-prompt/5
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting.py:255: AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+E   AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+      
+      - def835-int02-prompt/6
+      ?                     ^
+      + def835-int02-prompt/5
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting.py:363: AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+E   assert 'Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.' != 'Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:499: assert 'Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.' != 'Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.'
+E   assert 0 == 1
+     +  where 0 = <built-in method count of str object at 0xb6edb4000>('Herhaalt een grondbron alleen dezelfde formulering als de passage, zonder te laten zien of die inhoud bepaalt wat tot het begrip behoort of een handeling voorschrijft, dan is die herhaling geen bewijs voor "criterion"; kies dan "unclear".')
+     +    where <built-in method count of str object at 0xb6edb4000> = 'Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.'.count
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:488: assert 0 == 1
+E   AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+      
+      - def835-int02-prompt/6
+      ?                     ^
+      + def835-int02-prompt/5
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:245: AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+E   AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+      
+      - def835-int02-prompt/6
+      ?                     ^
+      + def835-int02-prompt/5
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:467: AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+E   AssertionError: ('error', 'invalid_citation')
+    assert None is not None
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:141: AssertionError: ('error', 'invalid_citation')
+E   AssertionError: assert ('invalid_cit..._herleidbaar') == ('invalid_output', None)
+      
+      At index 0 diff: 'invalid_citation' != 'invalid_output'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1905: AssertionError: assert ('invalid_cit..._herleidbaar') == ('invalid_output', None)
+E   AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+    assert 'error' == 'review_required'
+      
+      - review_required
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1834: AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+E   AssertionError: assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1996: AssertionError: assert 'error' == 'pass'
+E   AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+    assert 'error' == 'review_required'
+      
+      - review_required
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1834: AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+E   AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...ongewijzigd.')
+      
+      At index 0 diff: 'error' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1960: AssertionError: assert ('error', Non...ongewijzigd.') == ('review_requ...ongewijzigd.')
+E   AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+    assert 'error' == 'review_required'
+      
+      - review_required
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1834: AssertionError: ('invalid_citation', 'grond_niet_herleidbaar')
+E   AssertionError: assert Beoordelingsd...mzetting=None) == Beoordelingsd...mzetting=None)
+      
+      Omitting 5 identical items, use -vv to show
+      Differing attributes:
+      ['status',
+       'reden',
+       'melding',
+       'vraag',...
+      
+      ...Full output truncated (28 lines hidden), use '-vv' to show
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1948: AssertionError: assert Beoordelingsd...mzetting=None) == Beoordelingsd...mzetting=None)
+E   AssertionError: assert 'error' == 'review_required'
+      
+      - review_required
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1976: AssertionError: assert 'error' == 'review_required'
+E   AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+      
+      - def835-int02-prompt/6
+      ?                     ^
+      + def835-int02-prompt/5
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:764: AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+E   AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+      
+      - def835-int02-prompt/6
+      ?                     ^
+      + def835-int02-prompt/5
+      ?                     ^
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:1045 INT-02: beoordeling mislukt (invalid_output; -)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:799: AssertionError: assert 'def835-int02-prompt/5' == 'def835-int02-prompt/6'
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_identiteit_bindt_contract_vier_prompt_zes_en_schemahash
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_schemaroute_identiteit_bindt_schemahash_en_capability
+FAILED tests/unit/domain/test_def835_int02_papertest.py::test_g060_met_kale_bron_ids_volgt_het_label_via_conflict[pass]
+FAILED tests/unit/domain/test_def835_int02_papertest.py::test_g060_met_kale_bron_ids_volgt_het_label_via_conflict[fail]
+FAILED tests/unit/domain/test_def835_int02_papertest.py::test_g060_met_kale_bron_ids_volgt_het_label_via_conflict[label]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_promptversie_zes_met_gewijzigde_prompttekst
+FAILED tests/unit/validation/test_def835_int02_variatiemeting.py::test_herkomst_bindt_script_contract_dienst_en_systeemprompt
+FAILED tests/unit/validation/test_def835_int02_variatiemeting.py::test_live_vijf_runs_alleen_c107_zonder_sleutel_in_uitvoer
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_zes_wijzigt_alleen_de_herhalingsregel_ten_opzichte_van_vijf
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_herhalingsregel_staat_eenmaal_direct_na_de_bronfunctiebetekenis
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_promptversie_is_eigen_en_verschilt_van_contract_en_norm
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_promptversie_is_zes_na_de_herhalingsregel
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_19_alle_bron_ids_kaal_en_meer_passages
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_19_kaal_id_en_canonieke_sleutel_samen_is_een_dubbele_grondbron
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_19_g060_tegenhanger_met_kale_ids_is_review_conflict[insufficient_information]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_19_sleutels_van_bedoeling_en_context_blijven_ongewijzigd
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_19_g060_tegenhanger_met_kale_ids_is_review_conflict[fail]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_19_hercontrole_van_het_genormaliseerde_document_is_het_bewaarde_oordeel
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_19_g060_tegenhanger_met_kale_ids_is_review_conflict[pass]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_19_alias_is_exact_en_hoofdlettergevoelig_zonder_verwarring
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_19_bewaard_oordeel_met_kale_sleutel_is_error_bij_hercontrole
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_prompt_zes_vervangt_de_systeemprompt_van_drie_tot_vijf
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_dienst_weigert_de_ruwe_v5_tekst_onder_contract_vier

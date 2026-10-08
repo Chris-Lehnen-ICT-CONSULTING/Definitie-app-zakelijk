@@ -1780,3 +1780,222 @@ def test_drie_document_dat_als_vier_wordt_opgegeven_is_error():
         binding=bereken_binding(invoer, _configuratie()),
     )
     assert toets_actualiteit(vals, invoer, _configuratie()).status == "error"
+
+
+# --- K. besluit 19 (keuze 1A): een kaal bron-ID wordt de canonieke sleutel ---------------
+#
+# Uitslag v8, G060: het model schreef "B1" en "B2" in plaats van "bron/B1" en
+# "bron/B2". Onder /4 leest de dienst een kaal ID als "bron/<id>" als de
+# sleutel zelf geen grondbron is, geen gereserveerde vorm heeft ("bedoeling",
+# "<contextveld>/…", "bron/…") en precies één bron dat ID heeft. Het bewaarde
+# oordeel bevat alleen canonieke sleutels.
+
+
+def _kaal(respons, ids=("B1", "B2", "B3")) -> dict[str, Any]:
+    """Dezelfde uitvoer met kale bron-ID's ("B1" in plaats van "bron/B1")."""
+    kopie = json.loads(json.dumps(respons))
+    for p in kopie["passages"]:
+        for bf in p["bronfuncties"]:
+            if bf["bron"].startswith("bron/") and bf["bron"][len("bron/") :] in ids:
+                bf["bron"] = bf["bron"][len("bron/") :]
+    return kopie
+
+
+def _g060_tegenhanger(invoer) -> list[dict[str, Any]]:
+    """Synthetisch, naar het patroon van G060: beschrijvende kern; B1 stelt het
+    handelen als plicht, B2 gebruikt het als kenmerk (stap 2, conflict)."""
+    return [_p(invoer, "descriptive_act", {"bron/B1": "A", "bron/B2": "C"})]
+
+
+def _ruw(invoer, respons):
+    return beoordeel(
+        invoer, _configuratie(), respons, Uitvoering(actor="ai", status="completed")
+    )
+
+
+def _sleutels(document) -> list[list[str]]:
+    return [
+        [bf["bron"] for bf in p["bronfuncties"]] for p in document.oordeel["passages"]
+    ]
+
+
+@pytest.mark.parametrize("verdict", ["insufficient_information", "pass", "fail"])
+def test_19_g060_tegenhanger_met_kale_ids_is_review_conflict(verdict):
+    invoer = _invoer()
+    canoniek = uitvoer(_g060_tegenhanger(invoer), verdict)
+    kaal = _kaal(canoniek, ("B1", "B2"))
+    assert [bf["bron"] for bf in kaal["passages"][0]["bronfuncties"]] == [
+        "organisatorische_context/0",
+        "B1",
+        "B2",
+        "bron/B3",
+    ]
+    document = _ruw(invoer, kaal)
+    assert document.status == "review_required", (
+        document.foutcategorie,
+        document.foutdetail,
+    )
+    assert _afleiding(document) == "conflict"
+    assert document.reden == "insufficient_information"
+    assert document.vraag == _vraag("VRAAG_FUNCTIE")
+    assert f"bronpassage B1 ('{B1}')" in document.melding
+    assert f"bronpassage B2 ('{B2}')" in document.melding
+    # Het bewaarde oordeel is canoniek en gelijk aan dat van de juiste sleutels.
+    assert _sleutels(document) == [list(contract.grondbronnen(invoer))]
+    assert document == _ruw(invoer, canoniek)
+
+
+def test_19_alle_bron_ids_kaal_en_meer_passages():
+    invoer = _invoer()
+    canoniek = uitvoer(
+        [
+            _p(invoer, "no_act", {"bron/B2": "C"}, quote=P_KOP),
+            _p(invoer, "descriptive_act", {"bron/B2": "C", "bron/B3": "C"}),
+        ],
+        "pass",
+    )
+    document = _ruw(invoer, _kaal(canoniek))
+    assert (document.status, _afleiding(document)) == ("pass", "bronnen_beschrijvend")
+    assert _sleutels(document) == [list(contract.grondbronnen(invoer))] * 2
+    assert document == _ruw(invoer, canoniek)
+
+
+@pytest.mark.parametrize(
+    "sleutel",
+    [
+        "B9",
+        "b1",
+        " B1",
+        "B1 ",
+        "B11",
+        "B",
+        "1",
+        "bron/b1",
+        "Bron/B1",
+        "bron B1",
+        "bron:B1",
+        "/B1",
+        "bron//B1",
+        "bron/bron/B1",
+        "bedoeling/B1",
+        "organisatorische_context/B1",
+        "bron/B9",
+    ],
+)
+def test_19_onbekend_id_en_elke_andere_afwijkende_sleutel_blijft_niet_herleidbaar(
+    sleutel,
+):
+    invoer = _invoer()
+    respons = uitvoer(_g060_tegenhanger(invoer), "insufficient_information")
+    (b1,) = [
+        bf for bf in respons["passages"][0]["bronfuncties"] if bf["bron"] == "bron/B1"
+    ]
+    b1["bron"] = sleutel
+    assert _fout(respons, invoer) == ("invalid_citation", "grond_niet_herleidbaar")
+
+
+def test_19_kaal_id_en_canonieke_sleutel_samen_is_een_dubbele_grondbron():
+    """Geen dubbelzinnige mapping: "B1" naast "bron/B1" telt als dubbel."""
+    invoer = _invoer()
+    respons = uitvoer(_g060_tegenhanger(invoer), "insufficient_information")
+    (b2,) = [
+        bf for bf in respons["passages"][0]["bronfuncties"] if bf["bron"] == "bron/B2"
+    ]
+    # Zwijgend, zodat alleen de sleutel telt (geen citaat uit B2 in B1).
+    b2.update(bron="B1", function="not_addressed", quote=None)
+    assert _fout(respons, invoer) == ("invalid_output", None)
+
+
+@pytest.mark.parametrize(
+    ("bron_id", "sleutel"),
+    [
+        ("bedoeling", "bedoeling"),
+        ("juridische_context/0", "juridische_context/0"),
+        ("wettelijke_basis/1", "wettelijke_basis/1"),
+        ("bron/B1", "bron/B1"),
+    ],
+    ids=["bedoeling", "contextvorm", "basisvorm", "bronvorm"],
+)
+def test_19_gereserveerde_sleutelvorm_wordt_nooit_als_bron_gelezen(bron_id, sleutel):
+    """Een bron-ID met de vorm van een andere grondbronsleutel: het model kan
+    met die sleutel iets anders bedoelen. Geen alias; de juiste sleutel
+    `bron/<id>` werkt wel. De bedoeling is onbekend en de contextlijsten zijn
+    leeg, dus de sleutel is zelf geen grondbron."""
+    invoer = _invoer(bedoeling=None, bronnen=((bron_id, B1), ("B2", B2)))
+    assert sleutel not in contract.grondbronnen(invoer)
+    juist = uitvoer(
+        [_p(invoer, "descriptive_act", {f"bron/{bron_id}": "A", "bron/B2": "C"})],
+        "insufficient_information",
+    )
+    assert _ruw(invoer, juist).status == "review_required"
+    for bf in juist["passages"][0]["bronfuncties"]:
+        if bf["bron"] == f"bron/{bron_id}":
+            bf["bron"] = sleutel
+    assert _fout(juist, invoer) == ("invalid_citation", "grond_niet_herleidbaar")
+
+
+def test_19_alias_is_exact_en_hoofdlettergevoelig_zonder_verwarring():
+    """Bronnen "B1" en "b1" naast elkaar: elk kaal ID gaat naar zijn eigen bron.
+    Dubbele ID's kan de invoer niet bevatten, dus er is hooguit één treffer."""
+    with pytest.raises(contract.Int02ContractError):
+        _invoer(bronnen=(("B1", B1), ("B1", B2)))
+    invoer = _invoer(bronnen=(("B1", B1), ("b1", B2)))
+    canoniek = uitvoer(
+        [_p(invoer, "descriptive_act", {"bron/B1": "A", "bron/b1": "C"})],
+        "insufficient_information",
+    )
+    kaal = _kaal(canoniek, ("B1", "b1"))
+    document = _ruw(invoer, kaal)
+    assert document == _ruw(invoer, canoniek)
+    assert _sleutels(document) == [["organisatorische_context/0", "bron/B1", "bron/b1"]]
+    assert _afleiding(document) == "conflict"
+
+
+def test_19_hercontrole_van_het_genormaliseerde_document_is_het_bewaarde_oordeel():
+    invoer = _invoer()
+    for verdict in ("insufficient_information", "fail"):
+        document = _ruw(
+            invoer, _kaal(uitvoer(_g060_tegenhanger(invoer), verdict), ("B1", "B2"))
+        )
+        actueel = toets_actualiteit(document, invoer, _configuratie())
+        assert (actueel.status, actueel.reden, actueel.melding) == (
+            "review_required",
+            "insufficient_information",
+            document.melding,
+        )
+        assert document.omzetting == (None if verdict != "fail" else "conflict")
+
+
+def test_19_bewaard_oordeel_met_kale_sleutel_is_error_bij_hercontrole():
+    """Het bewaarde oordeel is altijd canoniek; een kale sleutel erin kan de
+    dienst niet hebben gemaakt (manipulatie) en is niet herleidbaar."""
+    invoer = _invoer()
+    document = _ruw(
+        invoer,
+        _kaal(uitvoer(_g060_tegenhanger(invoer), "insufficient_information")),
+    )
+    assert document.status == "review_required"
+
+    def kaal_in_oordeel(o):
+        for p in o["passages"]:
+            for bf in p["bronfuncties"]:
+                if bf["bron"] == "bron/B1":
+                    bf["bron"] = "B1"
+
+    vals = _gemanipuleerd(
+        document, oordeel_json=_oordeel_met(document, kaal_in_oordeel)
+    )
+    assert toets_actualiteit(vals, invoer, _configuratie()).status == "error"
+
+
+def test_19_sleutels_van_bedoeling_en_context_blijven_ongewijzigd():
+    """De alias raakt alleen bron-ID's; bedoeling en contextitems houden hun
+    eigen sleutel, ook naast kale bron-ID's."""
+    invoer = _invoer(bedoeling=BED_KENMERK)
+    canoniek = uitvoer(
+        [_p(invoer, "descriptive_act", {"bedoeling": "C", "bron/B2": "C"})], "pass"
+    )
+    document = _ruw(invoer, _kaal(canoniek))
+    assert document.status == "pass"
+    assert _sleutels(document) == [list(contract.grondbronnen(invoer))]
+    assert document == _ruw(invoer, canoniek)

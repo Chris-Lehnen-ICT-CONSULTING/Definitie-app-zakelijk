@@ -45,8 +45,10 @@ Wat deze code mechanisch controleert:
   JSON-schema in `ANTWOORDSCHEMA` (besluit 14, optie A: schema via de API);
   dat schema vervangt geen enkele controle hieronder;
 - **grondbronnen**: per passage komt elke sleutel uit `grondbronnen` precies
-  één keer voor; een onbekende sleutel (ook `bedoeling` bij een onbekende
-  bedoeling) is `invalid_citation` / `grond_niet_herleidbaar`, een
+  één keer voor; een kaal bron-ID ("B1") geldt als `bron/B1` als precies één
+  bron dat ID heeft en de sleutel zelf geen grondbron of gereserveerde vorm is,
+  en wordt zo bewaard (besluit 19); een onbekende sleutel (ook `bedoeling` bij
+  een onbekende bedoeling) is `invalid_citation` / `grond_niet_herleidbaar`, een
   ontbrekende of dubbele `invalid_output`. Alleen een betekenisdragende
   grondbron (minstens één zichtbare letter) draagt een functie; een bron als
   "..." of alleen witruimte mag alleen zwijgen (anders
@@ -369,7 +371,8 @@ ANTWOORDSCHEMA: dict[str, Any] = {
 #: Gepinde, eigenschapsvolgorde-gevoelige SHA-256 van `ANTWOORDSCHEMA`
 #: (`services.ai.base_client.response_schema_sha256`: compacte JSON zonder
 #: sort_keys, de functie waarmee de AI-laag het verzonden schema bevestigt).
-#: Hoort bij promptversie def835-int02-prompt/5; een ander schema vraagt een
+#: Hoort bij promptversie def835-int02-prompt/5 en /6 (besluit 19 laat het
+#: schema ongemoeid); een ander schema vraagt een
 #: nieuwe promptversie. Vorige pin (/3, prompt /4): `72adfe74…511f17`.
 ANTWOORDSCHEMA_SHA256 = (
     "d3ad029e24b6b96242f4730686d3a4ebfebd9f46993607e41016761bc7fce715"
@@ -601,6 +604,29 @@ def _grondbronmap(invoer: Int02Invoer) -> dict[str, tuple[str, Any, str]]:
     for bron in invoer.bronnen:
         bronnen[f"bron/{bron.id}"] = ("bron", bron.id, bron.tekst)
     return bronnen
+
+
+def _gereserveerd(sleutel: str) -> bool:
+    """Heeft de sleutel de vorm van een andere grondbronsleutel (besluit 19)?"""
+    return sleutel == "bedoeling" or sleutel.startswith(
+        tuple(f"{veld}/" for veld in (*_CONTEXTVELDEN, "bron"))
+    )
+
+
+def _canonieke_sleutel(
+    sleutel: str, invoer: Int02Invoer, bronnen: Mapping[str, Any]
+) -> str:
+    """De grondbronsleutel; een kaal bron-ID wordt `bron/<id>` (besluit 19, 1A).
+
+    Alleen als de sleutel zelf geen grondbron is, geen gereserveerde vorm heeft
+    (`bedoeling`, `<contextveld>/…`, `bron/…`) en precies één bron exact dat
+    ID heeft. Elke andere sleutel blijft ongewijzigd (en is dan, als hij geen
+    grondbron is, `grond_niet_herleidbaar`).
+    """
+    if sleutel in bronnen or _gereserveerd(sleutel):
+        return sleutel
+    treffers = [bron.id for bron in invoer.bronnen if bron.id == sleutel]
+    return f"bron/{treffers[0]}" if len(treffers) == 1 else sleutel
 
 
 def grondbronnen(invoer: Int02Invoer) -> tuple[str, ...]:
@@ -1104,7 +1130,8 @@ def _met_posities_v4(uitvoer: dict[str, Any], invoer: Int02Invoer) -> dict[str, 
     """Nieuwe kopie met afgeleide posities; grondbronnen volledig en herleidbaar.
 
     Per passage: het citaat is betekenisdragend (anders `leeg`) en staat
-    precies één keer in de kern; elke grondbronsleutel bestaat (anders
+    precies één keer in de kern; een kaal bron-ID wordt `bron/<id>`
+    (`_canonieke_sleutel`, besluit 19); elke grondbronsleutel bestaat (anders
     `grond_niet_herleidbaar`) en komt precies één keer voor (anders
     `invalid_output`); alleen een betekenisdragende grondbron draagt een
     functie (anders `grond_niet_herleidbaar`); de citaatplicht volgt de
@@ -1119,11 +1146,10 @@ def _met_posities_v4(uitvoer: dict[str, Any], invoer: Int02Invoer) -> dict[str, 
         start, end = _positie(invoer.kern, passage["quote"])
         bronfuncties = []
         for bronfunctie in passage["bronfuncties"]:
-            sleutel, functie, citaat = (
-                bronfunctie["bron"],
-                bronfunctie["function"],
-                bronfunctie["quote"],
-            )
+            # Besluit 19: een kaal bron-ID wordt de canonieke sleutel, ook in
+            # het bewaarde oordeel.
+            sleutel = _canonieke_sleutel(bronfunctie["bron"], invoer, bronnen)
+            functie, citaat = bronfunctie["function"], bronfunctie["quote"]
             _citaat(sleutel in bronnen, GROND_NIET_HERLEIDBAAR)
             # Codex-review P1 en P1-rest: een bron zonder zichtbare letter kan
             # zwijgen, maar geen functie dragen.
@@ -1139,7 +1165,11 @@ def _met_posities_v4(uitvoer: dict[str, Any], invoer: Int02Invoer) -> dict[str, 
                 _citaat(_betekenisdragend(citaat), CITAAT_LEEG)
                 positie = _positie(bronnen[sleutel][2], citaat)
             bronfuncties.append(
-                {**bronfunctie, **dict(zip(_POSITIEVELDEN, positie, strict=True))}
+                {
+                    **bronfunctie,
+                    "bron": sleutel,
+                    **dict(zip(_POSITIEVELDEN, positie, strict=True)),
+                }
             )
         sleutels = [b["bron"] for b in bronfuncties]
         _vorm(len(sleutels) == len(set(sleutels)) and set(sleutels) == set(bronnen))

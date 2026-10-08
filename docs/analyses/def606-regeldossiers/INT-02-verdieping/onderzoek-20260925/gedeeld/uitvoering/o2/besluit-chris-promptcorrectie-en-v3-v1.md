@@ -321,3 +321,37 @@ Gelijk aan v7: gevallen en fasen, gevallenmanifest, model, SDK-versies, limieten
 
 **Sleutel.** Zoals bij v4–v7 leest de shell de API-sleutel bij de run uit de `.env` van de hoofdcheckout, zonder hem te tonen; er komt geen `.env` in de werkboom.
 
+## Besluit 19 — kaal bron-ID en prompt /6 (08-10-2026)
+
+**Uitslag v8 (consistentietoets 7A, geen onafhankelijk bewijs).**
+- Fase 1: 3/3 juist, US$0,11.
+- Fase 2: gestopt na 22 van de 24 gevallen (stopreden `invalid_citation` bij G060; G070 en G076 niet gedraaid). 19/22 juist, 1 onterechte pass (G045) en 1 citaatfout (G060). Pass 12/12, fail 5/6, review 2/4. Ter vergelijking v7: 18/24, 5 onterechte passes, review 0/6.
+- Cumulatief US$1,07 (conservatief, 25 calls).
+- Details: `goldset-voorbereiding/goldset-freeze-v1/kwalificatieproef-v8-uitslag-v1.md`.
+
+**Diagnose (Codex, offline replay, bevestigd).**
+- **G060:** het model gebruikte de sleutels "B1" en "B2" in plaats van "bron/B1" en "bron/B2". De citaten waren exact, uniek en betekenisdragend. Met de juiste sleutels volgt `review_required` via `conflict`: het juiste label.
+- **G045:** onterechte pass. Het model las B1, die alleen dezelfde dubbelzinnige "is te"-zin herhaalt, als `criterion`. Het ontwerp verwacht `unclear`, met `review_required` / `bronnen_open` als gevolg.
+- **G050:** label fail, uitkomst `review_required` door een bronconflict. Dat is de veilige richting; er wordt niets aan gedaan.
+
+**Keuze 1 (G060): optie A — de dienst accepteert een kaal bron-ID.**
+- Alleen in de /4-route; /1–/3 blijven ongemoeid.
+- Een bronfunctie met `bron` "B1" geldt als "bron/B1" als precies één bron het ID B1 heeft en "B1" zelf geen geldige sleutel is. De uitvoering sluit daarnaast gereserveerde sleutelvormen uit (`bedoeling`, `<contextveld>/…`, `bron/…`), zodat een bron-ID met zo'n vorm nooit dubbelzinnig wordt gelezen.
+- Het opgeslagen document bevat de canonieke sleutel; de hercontrole blijft consistent.
+- Een onbekend ID ("B9") en elke andere afwijkende sleutel blijven `grond_niet_herleidbaar`.
+- De alias komt niet in de prompt.
+- De contractversie blijft `def835-int02-assessment/4`: de regel verruimt alleen wat geldige invoer is, en geen bestaand /4-document wordt anders beoordeeld (onderbouwing in het contractdocument v4, "Besluit 19").
+
+**Keuze 2 (G045): optie A — de prompt wordt verduidelijkt.**
+- Nieuwe promptversie `def835-int02-prompt/6`.
+- Eén algemene, casusvrije zin bij de betekenis van de bronfuncties: herhaalt een grondbron alleen dezelfde formulering als de passage, zonder te laten zien of die inhoud bepaalt wat tot het begrip behoort of een handeling voorschrijft, dan is die herhaling geen bewijs voor `criterion`; kies dan `unclear`.
+- Verder wijzigt de prompt niet. Het schema blijft ongewijzigd (`d3ad029e…e715`).
+
+**Uitvoering.** Contract en prompt in `src/domain/int02/contract.py` en `src/services/validation/int02_assessment_service.py`; contractdocument `docs/architectuur/contracts/int02_assessment_contract_v4.md`. Verslag met testuitkomsten en hashes: `goldset-voorbereiding/bronfuncties-v1/uitvoeringsverslag-claude-v3.md`.
+
+**Vervolg.**
+1. Onafhankelijke review van de diff.
+2. Commit, na akkoord.
+3. Offline manifest v9: promptversie `/6`, nieuwe systeemprompt-, payload- en bestandshashes; contractversie /4 en schema ongewijzigd; gevallen ongewijzigd.
+4. Daarna opnieuw fase 1 en 2, met een apart akkoord van Chris op v9. Ook dat blijft een consistentietoets (7A). De hold-out vraagt opnieuw een eigen akkoord.
+

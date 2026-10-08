@@ -240,8 +240,9 @@ def test_systeemprompt_legt_citaatregels_scoreverbod_en_gegevensrol_vast():
 
 
 def test_promptversie_is_eigen_en_verschilt_van_contract_en_norm():
-    # /5 (besluit 16): kernvorm en bronfuncties bij contract /4.
-    assert PROMPT_VERSION == "def835-int02-prompt/5"
+    # /5 (besluit 16): kernvorm en bronfuncties bij contract /4; /6 (besluit
+    # 19): herhaling is geen bewijs voor "criterion".
+    assert PROMPT_VERSION == "def835-int02-prompt/6"
     assert PROMPT_VERSION not in (CONTRACTVERSIE, NORMVERSIE)
 
 
@@ -460,10 +461,50 @@ AANWIJZING_CITAAT_2 = (
 )
 
 
-def test_promptversie_is_vijf_na_de_bronfuncties():
+def test_promptversie_is_zes_na_de_herhalingsregel():
     # /3 na de positiecorrectie; /4 (besluit 14) de schemaroute; /5 (besluit
-    # 16) kernvorm en bronfuncties.
-    assert PROMPT_VERSION == "def835-int02-prompt/5"
+    # 16) kernvorm en bronfuncties; /6 (besluit 19) de herhalingsregel.
+    assert PROMPT_VERSION == "def835-int02-prompt/6"
+
+
+# --- promptversie /6: herhaling is geen bewijs voor "criterion" (besluit 19, 2A) ----
+
+#: SHA-256 van de systeemprompt van /5 (uitvoeringsverslag-claude-v2, manifest v8).
+SYSTEEMPROMPT_V5_SHA256 = (
+    "3047bb1a34f878e77bd434d668d870f0dfcfb92e3e948ac0caee77af9c2d2b70"
+)
+#: Besluit 19 (keuze 2A, uitslag v8 G045): één algemene, casusvrije zin bij de
+#: betekenis van de bronfuncties.
+HERHALINGSREGEL = (
+    "Herhaalt een grondbron alleen dezelfde formulering als de passage, zonder "
+    "te laten zien of die inhoud bepaalt wat tot het begrip behoort of een "
+    'handeling voorschrijft, dan is die herhaling geen bewijs voor "criterion"; '
+    'kies dan "unclear".'
+)
+
+
+def test_herhalingsregel_staat_eenmaal_direct_na_de_bronfunctiebetekenis():
+    systeem, _ = bouw_int02_prompt(_invoer(), _norm())
+    assert systeem.count(HERHALINGSREGEL) == 1
+    (regel,) = [r for r in systeem.splitlines() if HERHALINGSREGEL in r]
+    assert regel.startswith('  "function": ')
+    laatste = f'"not_addressed" = {BRONFUNCTIEBETEKENIS["not_addressed"]}'
+    assert regel.endswith(f"{laatste}. {HERHALINGSREGEL}")
+
+
+def test_zes_wijzigt_alleen_de_herhalingsregel_ten_opzichte_van_vijf():
+    """Zonder de nieuwe zin is de systeemprompt bytegelijk aan /5."""
+    systeem, _ = bouw_int02_prompt(_invoer(), _norm())
+    zonder = systeem.replace(f" {HERHALINGSREGEL}", "", 1)
+    assert zonder != systeem
+    assert hashlib.sha256(zonder.encode("utf-8")).hexdigest() == (
+        SYSTEEMPROMPT_V5_SHA256
+    )
+
+
+def test_herhalingsregel_is_casusvrij_en_noemt_geen_alias():
+    for fragment in ("G045", "G060", "is te", "B1", "bron/", "alias"):
+        assert fragment not in HERHALINGSREGEL, fragment
 
 
 AANWIJZINGEN = [AANWIJZING_FAIL, AANWIJZING_CITAAT, AANWIJZING_BRONNEN]
