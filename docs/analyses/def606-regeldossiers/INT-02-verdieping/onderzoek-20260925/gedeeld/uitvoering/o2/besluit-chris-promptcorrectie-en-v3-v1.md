@@ -445,3 +445,9 @@ De ene die overblijft is G045 in v8 (B1 `criterion`, B2 zwijgt), die sinds promp
 
 **Gitleaks-uitzondering 21.** Zelfde bevinding als 18–20 (r113, SHA-256 `src/utils/async_api.py`) in manifest v11; blok 21 mechanisch afgeleid van blok 20.
 
+## Besluit 25 — onderdeel afgerond, hold-out uitgesteld (08-10-2026)
+
+Chris: "Het is goed zo voor nu." De iteratie op O2 is afgerond met de uitslag van v11 (fase 1 en 2 mechanisch geslaagd; fase 2 23/24, 0 onterechte passes, review 6/6; consistentietoets 7A). De hold-out wordt nu niet gedraaid en blijft ongelezen en onafhankelijk beschikbaar; draaien alleen met apart akkoord, eenmalig, zonder aanpassingen achteraf.
+
+Gevolg: O2 is **niet** onafhankelijk gekwalificeerd en wordt niet geactiveerd in de app. O1 (reviewroute) blijft de werkende route op main. De branch `feature/DEF-835-int02-o2` blijft staan (geen PR/merge zonder akkoord Chris).
+
