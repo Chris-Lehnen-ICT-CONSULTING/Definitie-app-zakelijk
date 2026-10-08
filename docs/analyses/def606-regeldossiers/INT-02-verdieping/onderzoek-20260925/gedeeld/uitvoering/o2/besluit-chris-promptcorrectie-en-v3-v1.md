@@ -425,3 +425,13 @@ De ene die overblijft is G045 in v8 (B1 `criterion`, B2 zwijgt), die sinds promp
 
 **Uitvoering.** `src/domain/int02/contract.py`; contractdocument `docs/architectuur/contracts/int02_assessment_contract_v5.md` (v4 blijft ongewijzigd als historische versie). Verslag met testuitkomsten, wat-als-replay en hashes: `goldset-voorbereiding/bronfuncties-v1/uitvoeringsverslag-claude-v4.md`.
 
+## Besluit 23 — manifest v10, laatste run van dit onderdeel (08-10-2026)
+
+**Manifest v10.** Offline aangemaakt op HEAD `7b7a6262b` (besluit 22: R1+R2, contract /5). Verschil met v9 uitsluitend: `contractversie` `/4` → `def835-int02-assessment/5`, bestandshash `contract.py` (`195cb777…`), `proefmap` (`kwalificatieproef-v10`), `identiteit_sha256` (`843d9126970bf9569f2448d50f12eb553d109c44e1784402d9c5df51a98fd350`) en `aangemaakt`. Prompt /6, schema `d3ad029e…`, payloads, gevallen, criteria en protocol byte-gelijk aan v9.
+- `kwalificatie-manifest-v10.json`: `e45f97ff213a0585e47aba10406b2a076fc8f22e2fb219af0cf4dea2af6050ae`
+- `kwalificatie-payloads-v10.json`: `7116930645b82bab9ce5717756ec9d235c9e0272b7f8bd093024449c84d7274e`
+
+**Akkoord Chris: fase 1 en, als die slaagt, fase 2** (consistentietoets 7A, hold-out dicht). **Stopafspraak:** dit is de laatste run van dit onderdeel; daarna wordt de uitslag vastgelegd en stopt de iteratie op O2, ongeacht de uitkomst. Vervolgkeuze daarna: hold-out (apart akkoord) of O2 parkeren.
+
+**Gitleaks-uitzondering 20.** Zelfde bevinding als 18/19 (r113, SHA-256 `src/utils/async_api.py`), nu in manifest v10; blok 20 mechanisch afgeleid van blok 19; hook daarna 0 bevindingen. Kopie oude staat: `backups/def835-werk/gitleaks.toml.voor-uitzondering-20` (niet in git).
+
