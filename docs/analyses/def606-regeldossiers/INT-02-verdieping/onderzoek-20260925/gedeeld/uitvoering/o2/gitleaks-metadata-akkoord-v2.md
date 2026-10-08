@@ -143,3 +143,13 @@ Bij het stagen van manifest v10 (`besluit-chris-promptcorrectie-en-v3-v1.md`, be
 | 20 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v10.json` | r113 | SHA-256 van de huidige `src/utils/async_api.py`; geen sleutel |
 
 Blok 20 is mechanisch afgeleid van blok 19 (alleen nummer, besluit en `v9` → `v10` in pad en beschrijving). Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. Kopteksten "van 19" → "van 20"; blokken 1–19 ongewijzigd. Kopie van de oude staat: `backups/def835-werk/gitleaks.toml.voor-uitzondering-20` (niet in git).
+
+## Aanvulling: uitzondering 21 (besluit 24, 08-10-2026)
+
+Manifest v11 is de technische herstart van v10 na een netwerkstoring (besluit 24). Dezelfde bevinding als 18–20: r113, de SHA-256 van `src/utils/async_api.py` (ongewijzigd).
+
+| Nr | Pad | Regel | Waarom false positive |
+|---|---|---|---|
+| 21 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v11.json` | r113 | SHA-256 van de huidige `src/utils/async_api.py`; geen sleutel |
+
+Blok 21 is mechanisch afgeleid van blok 20. Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. Kopteksten "van 20" → "van 21"; blokken 1–20 ongewijzigd. Kopie oude staat: `backups/def835-werk/gitleaks.toml.voor-uitzondering-21` (niet in git).

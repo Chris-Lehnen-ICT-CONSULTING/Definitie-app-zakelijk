@@ -3,13 +3,14 @@
 # See: https://github.com/gitleaks/gitleaks
 #
 # DEF-522: de vier brede globale allowlists en de brede rule-scoped allowlist
-# zijn vervallen. Er zijn nog precies twintig uitzonderingen, hieronder, en alle
-# twintig gelden alleen voor exact vastgelegde paden in combinatie met exacte
+# zijn vervallen. Er zijn nog precies eenentwintig uitzonderingen, hieronder, en alle
+# eenentwintig gelden alleen voor exact vastgelegde paden in combinatie met exacte
 # inhoud. Uitzondering 4 tot en met 13 komen uit DEF-835 (besluit 07-10-2026),
 # uitzondering 14 uit DEF-835 besluit 8, uitzondering 15 uit DEF-835 besluit 10,
 # uitzondering 16 uit DEF-835 besluit 13, uitzondering 17 uit DEF-835 besluit 15
 # (alle 07-10-2026), uitzondering 18 uit DEF-835 besluit 18 en uitzondering 19
-# uit DEF-835 besluit 20 en uitzondering 20 uit DEF-835 besluit 23 (alle 08-10-2026).
+# uit DEF-835 besluit 20 uitzondering 20 uit DEF-835 besluit 23
+# en uitzondering 21 uit DEF-835 besluit 24 (alle 08-10-2026).
 
 title = "DefinitieAgent Secret Detection Configuration"
 
@@ -18,7 +19,7 @@ title = "DefinitieAgent Secret Detection Configuration"
 [extend]
 useDefault = true
 
-# Uitzondering 1 van 20: de synthetische AWS-fixture. `condition = "AND"` betekent
+# Uitzondering 1 van 21: de synthetische AWS-fixture. `condition = "AND"` betekent
 # dat pad én waarde beide moeten matchen: een uitzondering die naar een ander pad
 # verhuist of waarvan de inhoud verandert, geldt niet meer. Geen prefix, geen
 # sleuteltype, geen map.
@@ -54,7 +55,7 @@ paths = ['''^tests/fixtures/def522_synthetic_aws\.txt$''']
 regexTarget = "secret"
 regexes = ['''^AK[I]A3QK7XZ2MJ5R6W4TB$''']
 
-# Uitzondering 2 van 20: vier historische metadataregels in `.gitleaksignore`.
+# Uitzondering 2 van 21: vier historische metadataregels in `.gitleaksignore`.
 # Dezelfde constructie als hierboven — `condition = "AND"` plus `targetRules` —
 # zodat pad én inhoud beide moeten matchen en het pad alleen geen vrijbrief is.
 #
@@ -92,7 +93,7 @@ regexes = [
   '''^\n?docs/portal/rendered/architectuur/structured-logging-architecture\.html:generic-api-key:[5]f02ab5a2c28c2df8ac9fd9c85a48e6eb78a517a$''',
 ]
 
-# Uitzondering 3 van 20: één bronhashregel in twee DEF-835-modelproefmanifesten.
+# Uitzondering 3 van 21: één bronhashregel in twee DEF-835-modelproefmanifesten.
 # Dezelfde constructie als uitzondering 2 — `condition = "AND"`, `targetRules`,
 # `regexTarget = "line"` en `^\n?` — zodat een van beide paden én de volledige
 # regel moeten matchen.
@@ -150,7 +151,7 @@ regexes = [
 # Eigenaar: Chris Lehnen (DEF-835, besluit 07-10-2026, optie A). Herbeoordelen op
 # 2027-01-07, of eerder als een regel of pad wijzigt.
 
-# Uitzondering 4 van 20: gitleaks-coordinator-v1.json (r5).
+# Uitzondering 4 van 21: gitleaks-coordinator-v1.json (r5).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit Chris 07-10-2026 (optie A), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 gitleaks-coordinator-v1.json onder het o2-dossier in combinatie met één exacte, volledige regel (r5): \
@@ -164,7 +165,7 @@ regexes = [
   '''^\n?    "docs/technisch/def522-secret-scan-runbook\.md": "[c]d485f28bebcbe705623fa856a77a5c8e2af20be9e672cf61e11608376e1067b",$''',
 ]
 
-# Uitzondering 5 van 20: gitleaks-correctie-coordinator-v1.json (r5, r7).
+# Uitzondering 5 van 21: gitleaks-correctie-coordinator-v1.json (r5, r7).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit Chris 07-10-2026 (optie A), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 gitleaks-correctie-coordinator-v1.json onder het o2-dossier in combinatie met 2 exacte, volledige regels (r5, r7): \
@@ -179,7 +180,7 @@ regexes = [
   '''^\n?    "scripts/ci/test_secret_scan_metadata\.py": "[f]277d92320cf9579c5f08b87c86ba57437a19ec8d712f7594bb67c4832aa3516"$''',
 ]
 
-# Uitzondering 6 van 20: gitleaks-commit-index-v1.json (r51, r53).
+# Uitzondering 6 van 21: gitleaks-commit-index-v1.json (r51, r53).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit Chris 07-10-2026 (optie A), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 gitleaks-commit-index-v1.json onder het o2-dossier in combinatie met 2 exacte, volledige regels (r51, r53): \
@@ -194,7 +195,7 @@ regexes = [
   '''^\n?    "scripts/ci/test_secret_scan_metadata\.py": "[f]277d92320cf9579c5f08b87c86ba57437a19ec8d712f7594bb67c4832aa3516"$''',
 ]
 
-# Uitzondering 7 van 20: gitleaks-reviewmanifest-v1.json (r6).
+# Uitzondering 7 van 21: gitleaks-reviewmanifest-v1.json (r6).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit Chris 07-10-2026 (optie A), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 gitleaks-reviewmanifest-v1.json onder het o2-dossier in combinatie met één exacte, volledige regel (r6): \
@@ -208,7 +209,7 @@ regexes = [
   '''^\n?    "docs/technisch/def522-secret-scan-runbook\.md": "[c]d485f28bebcbe705623fa856a77a5c8e2af20be9e672cf61e11608376e1067b",$''',
 ]
 
-# Uitzondering 8 van 20: gitleaks-reviewmanifest-v2.json (r6, r8).
+# Uitzondering 8 van 21: gitleaks-reviewmanifest-v2.json (r6, r8).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit Chris 07-10-2026 (optie A), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 gitleaks-reviewmanifest-v2.json onder het o2-dossier in combinatie met 2 exacte, volledige regels (r6, r8): \
@@ -223,7 +224,7 @@ regexes = [
   '''^\n?    "scripts/ci/test_secret_scan_metadata\.py": "[f]277d92320cf9579c5f08b87c86ba57437a19ec8d712f7594bb67c4832aa3516"$''',
 ]
 
-# Uitzondering 9 van 20: kwalificatie-manifest-v1.json (r110).
+# Uitzondering 9 van 21: kwalificatie-manifest-v1.json (r110).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit Chris 07-10-2026 (optie A), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 kwalificatie-manifest-v1.json onder het o2-dossier in combinatie met één exacte, volledige regel (r110): \
@@ -237,7 +238,7 @@ regexes = [
   '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',
 ]
 
-# Uitzondering 10 van 20: kwalificatie-manifest-v2.json (r110).
+# Uitzondering 10 van 21: kwalificatie-manifest-v2.json (r110).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit Chris 07-10-2026 (optie A), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 kwalificatie-manifest-v2.json onder het o2-dossier in combinatie met één exacte, volledige regel (r110): \
@@ -251,7 +252,7 @@ regexes = [
   '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',
 ]
 
-# Uitzondering 11 van 20: kwalificatie-manifest-v3.json (r110).
+# Uitzondering 11 van 21: kwalificatie-manifest-v3.json (r110).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit Chris 07-10-2026 (optie A), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 kwalificatie-manifest-v3.json onder het o2-dossier in combinatie met één exacte, volledige regel (r110): \
@@ -265,7 +266,7 @@ regexes = [
   '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',
 ]
 
-# Uitzondering 12 van 20: gitleaks-metadata-uitzondering-voorstel-v1.md (r17).
+# Uitzondering 12 van 21: gitleaks-metadata-uitzondering-voorstel-v1.md (r17).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit Chris 07-10-2026 (optie A), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 gitleaks-metadata-uitzondering-voorstel-v1.md onder het o2-dossier in combinatie met één exacte, volledige regel (r17): \
@@ -279,7 +280,7 @@ regexes = [
   '''^\n?      "src/utils/async_api\.py": "[f]014876b16b76f889cf92faff1d89c3753b4ef0734624e8c45bcb6092841ff93",$''',
 ]
 
-# Uitzondering 13 van 20: gitleaks-codex-stream-v1.jsonl (r25, r26).
+# Uitzondering 13 van 21: gitleaks-codex-stream-v1.jsonl (r25, r26).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit Chris 07-10-2026 (optie A), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 gitleaks-codex-stream-v1.jsonl onder het o2-dossier in combinatie met 2 exacte, volledige regels (r25, r26): \
@@ -294,7 +295,7 @@ regexes = [
   '''^\n?\{"type":"item\.completed","item":\{"id":"item_13","type":"command_execution","command":"/bin/zsh -lc \\"/Users/chrislehnen/Projecten/Definitie-app/\.venv/bin/python - <<\x27PY\x27\\nfrom pathlib import Path\\nimport hashlib\\np=Path\(\x27/Users/chrislehnen/Projecten/Definitie-app/\.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs\x27\)\\nfor n in \[\x27gitleaks-groen-v2\.log\x27,\x27gitleaks-make-test-secret-scan-v3\.log\x27,\x27gitleaks-mutatieproef-v3\.py\x27,\x27gitleaks-mutatieproef-v3\.log\x27,\x27gitleaks-lint-v4\.log\x27\]:\\n b=\(p/n\)\.read_bytes\(\); print\(\x27\\\\\\\\nFILE\x27,n,\x27sha256\x27,hashlib\.sha256\(b\)\.hexdigest\(\)\);print\(b\.decode\(\)\)\\nPY\\"","aggregated_output":"\\nFILE gitleaks-groen-v2\.log sha256 [a]22434c6be63f6441ed725dec904088704214aa33994db9099b9d136b7e35e0b\\n# GREEN v2 \(definitieve module\) — \.gitleaks\.toml [8]bb3a2799b485b7798f88bd6c96848f7e1075a99723e3832a7be3c53e821d812, testmodule [7]7d803cca30840e51cef895374c5c07230e0781453e46e97c9105d2eabb29aaa\\n# commando: DEF522_GITLEAKS_BINARY=<gepind> DEF522_FIXTURE_ROOT=<mktemp> PYTEST_ADDOPTS= PYTEST_PLUGINS= \.venv/bin/python -m pytest -q -p no:cacheprovider -rA scripts/ci/test_secret_scan_def835_metadata\.py\\n\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.                                                   \[100%\]\\n==================================== PASSES ====================================\\n=========================== short test summary info ============================\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-tekst-voor\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-extra-spatie-voor\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_naast_bronhashregel_blokkeert\[v2\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_gestagede_credential_naast_bronhashregel_blokkeert\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_naast_bronhashregel_blokkeert\[v1\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-tekst-na\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_gewijzigde_hash_blokkeert\[v1\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_ander_pad_blokkeert\[andere-map\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_gestagede_manifesten_passeren\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_gewijzigde_hash_blokkeert\[v2\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_op_manifestpad_blokkeert\[v2\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_projectconfig_blokkeert_zichzelf_niet\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_op_manifestpad_blokkeert\[v1\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-tekst-voor\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_ander_pad_blokkeert\[achtervoegsel\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-extra-spatie-voor\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_exact_pad_passeert\[v1-na-regeleinde\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_exact_pad_passeert\[v2-eerste-regel\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-tekst-na\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_exact_pad_passeert\[v1-eerste-regel\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_ander_pad_blokkeert\[volgende-versie\]\\nPASSED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_exact_pad_passeert\[v2-na-regeleinde\]\\n# exit 0\\n\\n\\nFILE gitleaks-make-test-secret-scan-v3\.log sha256 [4]61a405cb80c2c3912a1250e200802ac770af4720eeac1c4495328b6b0414116\\n# make test-secret-scan v3 \(definitieve code\) — \.gitleaks\.toml [8]bb3a2799b485b7798f88bd6c96848f7e1075a99723e3832a7be3c53e821d812, Makefile [1]083b45bcf7ba358862e887771418cbe3619d966f9132f140c151d4dd35fae49, testmodule [7]7d803cca30840e51cef895374c5c07230e0781453e46e97c9105d2eabb29aaa\\n# commando: DEF522_GITLEAKS_BINARY=<gepind> DEF522_FIXTURE_ROOT=<mktemp> PATH=<project-venv>/bin:\$PATH make test-secret-scan\\n\[test-secret-scan\] Verplichte echte canary-, gate-, entry- en ketentests\\n\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\. \[ 68%\]\\n\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.                                        \[100%\]\\n# exit 0\\n\\n\\nFILE gitleaks-mutatieproef-v3\.py sha256 [7]16a31d17ed61fac24aa305955da6d2cae910a66ee364a04a9e2d772d5f079b8\\n\\"\\"\\"DEF-835 — mutatieproef voor de derde gitleaks-uitzondering \(v3: v2 plus twee\\nzelfscanmutaties, zie _mutaties\)\.\\n\\nBouwt per mutatie een tijdelijke kopie van de actuele `\.gitleaks\.toml` waarin\\nalleen de DEF-835-allowlist naïef is verzwakt, en draait daartegen\\n`scripts/ci/test_secret_scan_def835_metadata\.py`\. De repo-config wordt niet\\ngewijzigd: de module krijgt de kopie via een pytest-plugin die `_PROJECT_CONFIG`\\nna collectie vervangt\. Uitvoer: alleen mutatienaam, exit en testnamen\.\\n\\nGebruik \(vanuit de werkroot, met DEF522_GITLEAKS_BINARY/DEF522_FIXTURE_ROOT\):\\n    \.venv/bin/python <dit bestand>\\n\\"\\"\\"\\n\\nfrom __future__ import annotations\\n\\nimport os\\nimport subprocess\\nimport sys\\nimport tempfile\\nfrom pathlib import Path\\n\\nWERKROOT = Path\.cwd\(\)\\nCONFIG = WERKROOT / \\"\.gitleaks\.toml\\"\\nMODULE = \\"scripts/ci/test_secret_scan_def835_metadata\.py\\"\\nKOP = \\"# Uitzondering 3 van 3\\"\\n\\n\\ndef _splits\(\) -> tuple\[str, str\]:\\n    tekst = CONFIG\.read_text\(encoding=\\"utf-8\\"\)\\n    begin = tekst\.index\(KOP\)\\n    einde = tekst\.index\(\\"# Custom rules\\", begin\)\\n    return tekst\[:begin\] \+ \\"\\\\x00\\" \+ tekst\[einde:\], tekst\[begin:einde\]\\n\\n\\ndef _vervang\(blok: str, oud: str, nieuw: str\) -> str:\\n    assert oud in blok, f\\"mutatieanker ontbreekt: \{oud\[:30\]!r\}\\"\\n    return blok\.replace\(oud, nieuw, 1\)\\n\\n\\ndef _mutaties\(\) -> dict\[str, str\]:\\n    kader, blok = _splits\(\)\\n    # v2: zoek pas vanaf de tabelkop; het commentaar erboven noemt dezelfde\\n    # sleutels en liet v1 midden in de commentaarregels knippen \(ongeldige TOML\)\.\\n    tabel = blok\.index\(\\"\[\[allowlists\]\]\\"\)\\n    paden_begin = blok\.index\(\\"\\\\npaths = \[\\", tabel\) \+ 1\\n    paden_einde = blok\.index\(\\"\]\\\\n\\", paden_begin\) \+ 2\\n    regex_begin = blok\.index\(\x27\\\\nregexTarget = \\"line\\"\x27, tabel\) \+ 1\\n    regex_einde = blok\.index\(\\"\]\\\\n\\", regex_begin\) \+ 2\\n    varianten = \{\\n        \\"zonder-uitzondering\\": \\"\\",\\n        \\"alleen-pad\\": blok\[:regex_begin\] \+ blok\[regex_einde:\],\\n        \\"alleen-regel\\": blok\[:paden_begin\] \+ blok\[paden_einde:\],\\n        \\"zonder-targetRules\\": _vervang\(blok, \x27targetRules = \[\\"generic-api-key\\"\]\\\\n\x27, \\"\\"\),\\n        \\"zonder-eindanker\\": _vervang\(blok, \\"\\\\\\",\$\x27\x27\x27\\", \\"\\\\\\",\x27\x27\x27\\"\),\\n        \\"zonder-beginanker\\": _vervang\(blok, \\"\x27\x27\x27\^\\\\\\\\n\?      \\\\\\"src\\", \\"\x27\x27\x27      \\\\\\"src\\"\),\\n        # v3: alleen de tekenklasse weg; de escape blijft staan\.\\n        \\"zonder-tekenklasse\\": _vervang\(blok, \x27\\"\[f\]014876b\x27, \x27\\"f014876b\x27\),\\n        # v3: escape én tekenklasse weg — de regel staat dan aaneengesloten\.\\n        \\"zonder-escape-en-tekenklasse\\": _vervang\(\\n            _vervang\(blok, \\"async_api\\\\\\\\\.py\\", \\"async_api\.py\\"\), \x27\\"\[f\]014876b\x27, \x27\\"f014876b\x27\\n        \),\\n    \}\\n    return \{naam: kader\.replace\(\\"\\\\x00\\", variant\) for naam, variant in varianten\.items\(\)\}\\n\\n\\nclass _Plugin:\\n    def __init__\(self, config: Path\) -> None:\\n        self\.config = config\\n\\n    def pytest_collection_modifyitems\(self, session, config, items\) -> None:\\n        for item in items:\\n            item\.module\._PROJECT_CONFIG = self\.config\\n\\n\\ndef _toml_geldig\(tekst: str\) -> str:\\n    import tomllib\\n\\n    try:\\n        tomllib\.loads\(tekst\)\\n    except tomllib\.TOMLDecodeError:\\n        return \\"ongeldig\\"\\n    return \\"geldig\\"\\n\\n\\ndef _een\(config: Path\) -> int:\\n    import pytest\\n\\n    return int\(\\n        pytest\.main\(\\n            \[\\"-q\\", \\"-p\\", \\"no:cacheprovider\\", \\"--tb=no\\", \\"-rf\\", MODULE\],\\n            plugins=\[_Plugin\(config\)\],\\n        \)\\n    \)\\n\\n\\ndef main\(\) -> int:\\n    if len\(sys\.argv\) == 3 and sys\.argv\[1\] == \\"--een\\":\\n        return _een\(Path\(sys\.argv\[2\]\)\)\\n    basis = Path\(tempfile\.mkdtemp\(prefix=\\"def835-mutatie-\\"\)\)\\n    omgeving = dict\(os\.environ, PYTEST_ADDOPTS=\\"\\", PYTEST_PLUGINS=\\"\\"\)\\n    for naam, tekst in _mutaties\(\)\.items\(\):\\n        pad = basis / f\\"\{naam\}\.toml\\"\\n        pad\.write_text\(tekst, encoding=\\"utf-8\\"\)\\n        sys\.stdout\.write\(f\\"\\\\n=== mutatie \{naam\} \(toml \{_toml_geldig\(tekst\)\}\) ===\\\\n\\"\)\\n        sys\.stdout\.flush\(\)\\n        voltooid = subprocess\.run\(\\n            \[sys\.executable, __file__, \\"--een\\", str\(pad\)\],\\n            cwd=str\(WERKROOT\),\\n            env=omgeving,\\n            check=False,\\n        \)\\n        sys\.stdout\.write\(f\\"=== exit \{voltooid\.returncode\} ===\\\\n\\"\)\\n        sys\.stdout\.flush\(\)\\n    return 0\\n\\n\\nif __name__ == \\"__main__\\":\\n    raise SystemExit\(main\(\)\)\\n\\n\\nFILE gitleaks-mutatieproef-v3\.log sha256 [e]62ebae0bffc556951c932daceaabfde54ccbf0adf15b2811c6726305bc784fb\\n# Mutatieproef v3 — testmodule [7]7d803cca30840e51cef895374c5c07230e0781453e46e97c9105d2eabb29aaa, repo-config [8]bb3a2799b485b7798f88bd6c96848f7e1075a99723e3832a7be3c53e821d812, script [7]16a31d17ed61fac24aa305955da6d2cae910a66ee364a04a9e2d772d5f079b8\\n# commando: DEF522_GITLEAKS_BINARY=<gepind> DEF522_FIXTURE_ROOT=<mktemp> \.venv/bin/python docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/gitleaks-mutatieproef-v3\.py\\n\\n=== mutatie zonder-uitzondering \(toml geldig\) ===\\n\.F\.\.\.\.\.FF\.F\.F\.F\.FF\.\.\.\.                                                   \[100%\]\\n=========================== short test summary info ============================\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_gestagede_credential_naast_bronhashregel_blokkeert\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_naast_bronhashregel_blokkeert\[v1\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_exact_pad_passeert\[v2-na-regeleinde\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_gestagede_manifesten_passeren\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_exact_pad_passeert\[v2-eerste-regel\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_naast_bronhashregel_blokkeert\[v2\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_exact_pad_passeert\[v1-eerste-regel\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_exact_pad_passeert\[v1-na-regeleinde\]\\n=== exit 1 ===\\n\\n=== mutatie alleen-pad \(toml geldig\) ===\\nFF\.F\.F\.\.FF\.\.\.\.FFFFFF\.F                                                   \[100%\]\\n=========================== short test summary info ============================\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_naast_bronhashregel_blokkeert\[v1\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-tekst-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-extra-spatie-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_naast_bronhashregel_blokkeert\[v2\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_gestagede_credential_naast_bronhashregel_blokkeert\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-tekst-na\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-extra-spatie-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-tekst-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_gewijzigde_hash_blokkeert\[v1\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_op_manifestpad_blokkeert\[v1\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-tekst-na\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_op_manifestpad_blokkeert\[v2\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_gewijzigde_hash_blokkeert\[v2\]\\n=== exit 1 ===\\n\\n=== mutatie alleen-regel \(toml geldig\) ===\\n\.\.\.\.\.\.F\.\.\.\.\.\.\.\.F\.\.\.\.\.F                                                   \[100%\]\\n=========================== short test summary info ============================\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_ander_pad_blokkeert\[andere-map\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_ander_pad_blokkeert\[volgende-versie\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_bronhashregel_op_ander_pad_blokkeert\[achtervoegsel\]\\n=== exit 1 ===\\n\\n=== mutatie zonder-targetRules \(toml geldig\) ===\\n\.\.F\.\.F\.\.\.FFFFFFF\.FF\.F\.                                                   \[100%\]\\n=========================== short test summary info ============================\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-tekst-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-tekst-na\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_gewijzigde_hash_blokkeert\[v2\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_op_manifestpad_blokkeert\[v2\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_gewijzigde_hash_blokkeert\[v1\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-extra-spatie-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_op_manifestpad_blokkeert\[v1\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-tekst-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-tekst-na\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_naast_bronhashregel_blokkeert\[v2\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-extra-spatie-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_credential_naast_bronhashregel_blokkeert\[v1\]\\n=== exit 1 ===\\n\\n=== mutatie zonder-eindanker \(toml geldig\) ===\\n\.\.F\.\.\.\.\.\.\.\.\.\.\.\.\.F\.\.\.\.\.                                                   \[100%\]\\n=========================== short test summary info ============================\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-tekst-na\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-tekst-na\]\\n=== exit 1 ===\\n\\n=== mutatie zonder-beginanker \(toml geldig\) ===\\n\.FF\.\.\.\.\.\.\.\.\.F\.F\.\.\.\.\.\.\.                                                   \[100%\]\\n=========================== short test summary info ============================\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-extra-spatie-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-tekst-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v2-extra-spatie-voor\]\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_extra_tekst_op_de_regel_blokkeert\[v1-tekst-voor\]\\n=== exit 1 ===\\n\\n=== mutatie zonder-tekenklasse \(toml geldig\) ===\\n\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.                                                   \[100%\]\\n=== exit 0 ===\\n\\n=== mutatie zonder-escape-en-tekenklasse \(toml geldig\) ===\\n\.\.\.\.\.\.\.\.\.\.\.\.\.\.\.F\.\.\.\.\.\.                                                   \[100%\]\\n=========================== short test summary info ============================\\nFAILED scripts/ci/test_secret_scan_def835_metadata\.py::test_projectconfig_blokkeert_zichzelf_niet\\n=== exit 1 ===\\n# exit 0\\n\\n\\nFILE gitleaks-lint-v4\.log sha256 [e]bdc03116a87f68d982b4275c457fd5f4b5c563e01cf9c9559d18a1ba72d1d37\\n# lint \+ collect v4 \(na neutraal-pad-correctie\) — testmodule [7]7d803cca30840e51cef895374c5c07230e0781453e46e97c9105d2eabb29aaa, mutatiescript v3 [7]16a31d17ed61fac24aa305955da6d2cae910a66ee364a04a9e2d772d5f079b8\\n## ruff check 0\.16\.5 \(hookversie\)\\nRUF100 \[\*\] Unused `noqa` directive \(non-enabled: `E402`\)\\n  --> docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/gitleaks-diagnosescan-v1\.py:26:21\\n   \|\\n24 \| sys\.path\.insert\(0, str\(WERKROOT / \\"scripts\\" / \\"ci\\"\)\)\\n25 \|\\n26 \| import secret_scan  # noqa: E402\\n   \|                     \^\^\^\^\^\^\^\^\^\^\^\^\\nhelp: Remove unused `noqa` directive\\n   \|\\n25 \|\\n   - import secret_scan  # noqa: E402\\n26 \+ import secret_scan\\n27 \|\\n   \|\\n\\nFound 1 error\.\\n\[\*\] 1 fixable with the `--fix` option\.\\nexit 1\\n## black 26\.5\.1 --check\\nwould reformat docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/gitleaks-diagnosescan-v1\.py\\n\\nOh no! 💥 💔 💥\\n1 file would be reformatted, 2 files would be left unchanged\.\\nexit 1\\n## collect-only van de acht Makefile-suites\\nscripts/ci/test_secret_scan_canary\.py: 6\\nscripts/ci/test_secret_scan_def835_metadata\.py: 22\\nscripts/ci/test_secret_scan_exceptions\.py: 19\\nscripts/ci/test_secret_scan_gate\.py: 22\\nscripts/ci/test_secret_scan_gate_errors\.py: 6\\nscripts/ci/test_secret_scan_metadata\.py: 13\\nscripts/ci/test_secret_scan_precommit\.py: 10\\nscripts/ci/test_secret_scan_workflow\.py: 7\\n\\n","exit_code":0,"status":"completed"\}\}$''',
 ]
 
-# Uitzondering 14 van 20: kwalificatie-manifest-v4.json (r110).
+# Uitzondering 14 van 21: kwalificatie-manifest-v4.json (r110).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit 8 van Chris 07-10-2026 (manifest v4), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 kwalificatie-manifest-v4.json onder het o2-dossier in combinatie met één exacte, volledige regel (r110): \
@@ -308,7 +309,7 @@ regexes = [
   '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',
 ]
 
-# Uitzondering 15 van 20: kwalificatie-manifest-v5.json (r110).
+# Uitzondering 15 van 21: kwalificatie-manifest-v5.json (r110).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit 10 van Chris 07-10-2026 (manifest v5), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 kwalificatie-manifest-v5.json onder het o2-dossier in combinatie met één exacte, volledige regel (r110): \
@@ -322,7 +323,7 @@ regexes = [
   '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',
 ]
 
-# Uitzondering 16 van 20: kwalificatie-manifest-v6.json (r110).
+# Uitzondering 16 van 21: kwalificatie-manifest-v6.json (r110).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit 13 van Chris 07-10-2026 (manifest v6), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 kwalificatie-manifest-v6.json onder het o2-dossier in combinatie met één exacte, volledige regel (r110): \
@@ -336,7 +337,7 @@ regexes = [
   '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',
 ]
 
-# Uitzondering 17 van 20: kwalificatie-manifest-v7.json (r112).
+# Uitzondering 17 van 21: kwalificatie-manifest-v7.json (r112).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit 15 van Chris 07-10-2026 (manifest v7), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 kwalificatie-manifest-v7.json onder het o2-dossier in combinatie met één exacte, volledige regel (r112): \
@@ -350,7 +351,7 @@ regexes = [
   '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',
 ]
 
-# Uitzondering 18 van 20: kwalificatie-manifest-v8.json (r113).
+# Uitzondering 18 van 21: kwalificatie-manifest-v8.json (r113).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit 18 van Chris 08-10-2026 (manifest v8), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 kwalificatie-manifest-v8.json onder het o2-dossier in combinatie met één exacte, volledige regel (r113): \
@@ -364,7 +365,7 @@ regexes = [
   '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',
 ]
 
-# Uitzondering 19 van 20: kwalificatie-manifest-v9.json (r113).
+# Uitzondering 19 van 21: kwalificatie-manifest-v9.json (r113).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit 20 van Chris 08-10-2026 (manifest v9), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 kwalificatie-manifest-v9.json onder het o2-dossier in combinatie met één exacte, volledige regel (r113): \
@@ -378,7 +379,7 @@ regexes = [
   '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',
 ]
 
-# Uitzondering 20 van 20: kwalificatie-manifest-v10.json (r113).
+# Uitzondering 20 van 21: kwalificatie-manifest-v10.json (r113).
 [[allowlists]]
 description = """DEF-835 gitleaks-metadata, besluit 23 van Chris 08-10-2026 (manifest v10), eigenaar Chris Lehnen: uitsluitend het exacte pad \
 kwalificatie-manifest-v10.json onder het o2-dossier in combinatie met één exacte, volledige regel (r113): \
@@ -387,6 +388,20 @@ herbeoordelen op 2027-01-07 of eerder bij wijziging van inhoud of pad."""
 condition = "AND"
 targetRules = ["generic-api-key"]
 paths = ['''^docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v10\.json$''']
+regexTarget = "line"
+regexes = [
+  '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',
+]
+
+# Uitzondering 21 van 21: kwalificatie-manifest-v11.json (r113).
+[[allowlists]]
+description = """DEF-835 gitleaks-metadata, besluit 24 van Chris 08-10-2026 (manifest v11), eigenaar Chris Lehnen: uitsluitend het exacte pad \
+kwalificatie-manifest-v11.json onder het o2-dossier in combinatie met één exacte, volledige regel (r113): \
+de SHA-256 van src/utils/async_api.py; geen sleutel. Zie o2/gitleaks-metadata-akkoord-v2.md; \
+herbeoordelen op 2027-01-07 of eerder bij wijziging van inhoud of pad."""
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''^docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v11\.json$''']
 regexTarget = "line"
 regexes = [
   '''^\n?      "src/utils/async_api\.py": "[4]0b87e38b95bffa5630f277d84e630e7c8c6c2e5b3d13af165c6dc56d1e5dcf0",$''',

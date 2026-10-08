@@ -435,3 +435,13 @@ De ene die overblijft is G045 in v8 (B1 `criterion`, B2 zwijgt), die sinds promp
 
 **Gitleaks-uitzondering 20.** Zelfde bevinding als 18/19 (r113, SHA-256 `src/utils/async_api.py`), nu in manifest v10; blok 20 mechanisch afgeleid van blok 19; hook daarna 0 bevindingen. Kopie oude staat: `backups/def835-werk/gitleaks.toml.voor-uitzondering-20` (niet in git).
 
+## Besluit 24 — technische herstart van de laatste run (v11, 08-10-2026)
+
+**Aanleiding.** Fase 1 van v10 slaagde (3/3, US$0,113). Fase 2 van v10 stopte na 6 gevallen op `timeout` bij G039 (15:22 UTC), precies toen de Mac de verbinding verloor: een infrastructuurstoring, geen modeluitkomst. Uitkomsten tot dan: G011, G015, G019, G027 juist (pass); G030 pass → review_required (conflict, veilige richting); G039 error (timeout). Kosten v10 ±US$0,56 (conservatief, cumulatief). Zie `kwalificatieproef-v10-uitslag-v1.md`.
+
+**Keuze Chris: A — eenmalig herstarten.** Manifest v11 is identiek aan v10 op `proefmap`, `identiteit_sha256` en `aangemaakt` na (mechanisch gecontroleerd); geen codewijziging. Run fase 1 en fase 2 met `caffeinate` zodat de Mac niet slaapt. Dit telt als dezelfde laatste run (stopafspraak besluit 23), geen nieuwe iteratie.
+- `kwalificatie-manifest-v11.json`: `bd8047f08d29e2cc7aca311587fafe6cf25672d33284f2b810a8dee01823187b` (identiteit `3ae2702c933815ea229d7bfa3b53eabbd2abd759c2d971728be2573a26b5cc64`)
+- `kwalificatie-payloads-v11.json`: `d8f8e9225f1c4b0e4288ac2344bec4423a30bd8e9429d64e92eb5c3018e33d9d`
+
+**Gitleaks-uitzondering 21.** Zelfde bevinding als 18–20 (r113, SHA-256 `src/utils/async_api.py`) in manifest v11; blok 21 mechanisch afgeleid van blok 20.
+
