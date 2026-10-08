@@ -113,3 +113,13 @@ Bij het stagen van manifest v7 (`besluit-chris-promptcorrectie-en-v3-v1.md`, bes
 | 17 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v7.json` | r112 | SHA-256 van de huidige `src/utils/async_api.py` (gelijk bevonden, werkboom en HEAD `2081899ea`); de bronnaam bevat `api` |
 
 Zelfde constructie als 16: exact pad én exacte volledige regel, `condition = "AND"`, alleen `generic-api-key`. Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. De hookuitvoer geeft alleen het aantal; dat de bevinding precies r112 was, blijkt uit de herhaalde hookrun: met alleen dit exacte blok erbij daalde de telling van 1 naar 0. `kwalificatie-payloads-v7.json`, `kwalificatie-akkoord-v7.json`, de bijgewerkte besluitnotitie, `kwalificatieproef-v6-uitslag-v1.md` en de bestanden in `kwalificatieproef-v6/` gaven dus geen bevindingen. De kopteksten in `.gitleaks.toml` zijn van "van 16" naar "van 17" gezet; de blokken 1–16 zelf zijn ongewijzigd. De regex van 17 is gelijk aan die van 9–11 en 14–16; voor 17 is geen eigen mutatieproef gedraaid.
+
+## Aanvulling: uitzondering 18 (besluit 18, 08-10-2026)
+
+Bij het stagen van manifest v8 (`besluit-chris-promptcorrectie-en-v3-v1.md`, besluit 18) meldde de gitleaks-hook 1 bevinding. Het is dezelfde soort als uitzondering 9–11 en 14–17: r113 van manifest v8 is byte-gelijk aan r112 van manifest v7. De regel schoof één positie op doordat de identiteit in v8 het veld `contractversie` heeft.
+
+| Nr | Pad | Regel | Waarom false positive |
+|---|---|---|---|
+| 18 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v8.json` | r113 | SHA-256 van de huidige `src/utils/async_api.py` (ongewijzigd sinds v4); de bronnaam bevat `api` |
+
+Zelfde constructie als 17: exact pad én exacte volledige regel, `condition = "AND"`, alleen `generic-api-key`. Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. De kopteksten in `.gitleaks.toml` zijn van "van 17" naar "van 18" gezet; de blokken 1–17 zelf zijn ongewijzigd. De regex van 18 is gelijk aan die van 9–11 en 14–17; voor 18 is geen eigen mutatieproef gedraaid. Kopie van de oude staat: `backups/def835-werk/gitleaks.toml.voor-uitzondering-18` (niet in git).

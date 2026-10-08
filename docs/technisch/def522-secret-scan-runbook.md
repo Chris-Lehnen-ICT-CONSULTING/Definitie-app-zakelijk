@@ -98,9 +98,9 @@ Gebruik voor triage het bestaande incidentproces, met alleen geautoriseerd
 materiaal en zonder ruwe secretinhoud te publiceren. Persoonlijke of operationele
 gegevens (UI-sessies, `.env`, de database) horen daar niet bij.
 
-## De zeventien uitzonderingen in `.gitleaks.toml`
+## De achttien uitzonderingen in `.gitleaks.toml`
 
-Alle zeventien gebruiken dezelfde constructie: `targetRules`, `condition = "AND"`, een
+Alle achttien gebruiken dezelfde constructie: `targetRules`, `condition = "AND"`, een
 exact pad **én** exacte inhoud, plus rationale, eigenaar (Chris Lehnen) en
 reviewdatum.
 
@@ -122,11 +122,12 @@ reviewdatum.
    voorafgaand regeleinde als bij 2. Eigenaar Chris Lehnen (DEF-835);
    herbeoordelen op 2026-12-28, of eerder als de bronhash of de manifestroute
    wijzigt.
-4. **Uitzondering 4–17 (DEF-835)** — exacte pad+regel-uitzonderingen
+4. **Uitzondering 4–18 (DEF-835)** — exacte pad+regel-uitzonderingen
    (`generic-api-key`) voor SHA-256-metadata en twee Codex-streamregels. Besluit
    Chris 07-10-2026 (uitzondering 14: besluit 8, manifest v4; uitzondering 15:
    besluit 10, manifest v5; uitzondering 16: besluit 13, manifest v6;
-   uitzondering 17: besluit 15, manifest v7), eigenaar Chris Lehnen,
+   uitzondering 17: besluit 15, manifest v7; uitzondering 18: besluit 18 van
+   08-10-2026, manifest v8), eigenaar Chris Lehnen,
    herbeoordelen op 2027-01-07.
    Toelichting:
    `docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/gitleaks-metadata-akkoord-v2.md`.

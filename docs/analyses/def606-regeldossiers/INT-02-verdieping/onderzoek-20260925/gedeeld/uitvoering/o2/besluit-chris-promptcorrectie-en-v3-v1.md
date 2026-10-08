@@ -299,3 +299,25 @@ Dat botste met de T-tekst: bij twijfel volgt review. De Codex-review (read-only,
 - Tests in `tests/unit/domain/test_def835_int02_bronfuncties.py`, sectie H.
 - De mutant `onzekerheid_genegeerd_17` in de mutatiecontrole.
 - Verslag: `goldset-voorbereiding/bronfuncties-v1/uitvoeringsverslag-claude-v2.md`.
+
+## Besluit 18 — manifest v8, fase 1 en 2 als consistentietoets (08-10-2026)
+
+**Manifest v8.** Offline aangemaakt (geen API-call, geen sleutel) op HEAD `ca32b4f74` (contract /4, besluit 16 en 17, na drie Codex-reviewrondes met eindoordeel commitbaar). Verschil met v7:
+- `contractversie` `def835-int02-assessment/4` (nieuw veld in de identiteit);
+- `promptversie` `def835-int02-prompt/4` → `def835-int02-prompt/5`; daardoor per geval nieuwe systeemprompt-, dataprompt- en payloadhashes;
+- `router.antwoordschema_sha256` `72adfe74…` → `d3ad029e24b6b96242f4730686d3a4ebfebd9f46993607e41016761bc7fce715`;
+- `criteria.ontwikkeling.max_false_pass` `null` → `0`;
+- bestandshashes van `contract.py`, `int02_assessment_service.py`, `runtime_contract.py` en de runner;
+- `proefmap` (`kwalificatieproef-v8`), `identiteit_sha256` (`86daaad9b746d8ce1a1d34a0dbe9bce7fa8746e19076a81b45e747cf8281b2f7`) en `aangemaakt`.
+
+Gelijk aan v7: gevallen en fasen, gevallenmanifest, model, SDK-versies, limieten, prijzen, protocol en norm.
+- `kwalificatie-manifest-v8.json`: `d5a4de426cbea46f9e7547e749a40e448bdf57232f0d053e21388de6ac1bf8fa`
+- `kwalificatie-payloads-v8.json`: `52ccd4ab7a93d7a1f4c20e42115034a310813dcc8a4247dba91625d12a57d934`
+- `kwalificatie-gevallen-v1.json` ongewijzigd: `af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953`
+
+**Akkoord Chris: fase 1 en, als die slaagt, fase 2.** Fase 1 (`--fase regressie`, 3 calls, ± US$0,15), daarna fase 2 (`--fase ontwikkeling`, 24 calls, ± US$1,20, `max_false_pass` 0). Beide gelden als consistentietoets (keuze 7A): de bronfuncties en de papieren toets zijn op deze zichtbare gevallen ontworpen. De hold-out blijft dicht en vraagt een eigen akkoord. Het akkoordbestand `kwalificatie-akkoord-v8.json` bevat net als bij v4–v7 het protocolkader (43 calls, US$12).
+
+**Gitleaks-uitzondering 18.** Net als bij v7 meldde de hook 1 bevinding: r113 van manifest v8, de SHA-256 van `src/utils/async_api.py` (byte-gelijk aan r112 van v7). Uitzondering 18 volgt exact de constructie van 17 (pad én volledige regel, alleen `generic-api-key`); toelichting in `gitleaks-metadata-akkoord-v2.md`. Daarna gaf de hook 0 bevindingen; `make test-secret-scan` met de gepinde gitleaks 8.29.1 is groen. Kopie van de oude staat: `backups/def835-werk/gitleaks.toml.voor-uitzondering-18` (niet in git).
+
+**Sleutel.** Zoals bij v4–v7 leest de shell de API-sleutel bij de run uit de `.env` van de hoofdcheckout, zonder hem te tonen; er komt geen `.env` in de werkboom.
+
