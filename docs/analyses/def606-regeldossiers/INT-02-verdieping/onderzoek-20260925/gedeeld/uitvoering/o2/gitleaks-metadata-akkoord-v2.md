@@ -123,3 +123,13 @@ Bij het stagen van manifest v8 (`besluit-chris-promptcorrectie-en-v3-v1.md`, bes
 | 18 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v8.json` | r113 | SHA-256 van de huidige `src/utils/async_api.py` (ongewijzigd sinds v4); de bronnaam bevat `api` |
 
 Zelfde constructie als 17: exact pad én exacte volledige regel, `condition = "AND"`, alleen `generic-api-key`. Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. De kopteksten in `.gitleaks.toml` zijn van "van 17" naar "van 18" gezet; de blokken 1–17 zelf zijn ongewijzigd. De regex van 18 is gelijk aan die van 9–11 en 14–17; voor 18 is geen eigen mutatieproef gedraaid. Kopie van de oude staat: `backups/def835-werk/gitleaks.toml.voor-uitzondering-18` (niet in git).
+
+## Aanvulling: uitzondering 19 (besluit 20, 08-10-2026)
+
+Bij het stagen van manifest v9 (`besluit-chris-promptcorrectie-en-v3-v1.md`, besluit 20) meldde de gitleaks-hook 1 bevinding, dezelfde soort als 18: r113 van manifest v9 is byte-gelijk aan r113 van manifest v8 (SHA-256 van `src/utils/async_api.py`, ongewijzigd; de bronnaam bevat `api`).
+
+| Nr | Pad | Regel | Waarom false positive |
+|---|---|---|---|
+| 19 | `goldset-voorbereiding/goldset-freeze-v1/kwalificatie-manifest-v9.json` | r113 | SHA-256 van de huidige `src/utils/async_api.py`; geen sleutel |
+
+Blok 19 is mechanisch afgeleid van blok 18 (alleen nummer, besluit en `v8` → `v9` in pad en beschrijving). Eigenaar Chris Lehnen, herbeoordelen op 2027-01-07. Kopteksten "van 18" → "van 19"; blokken 1–18 ongewijzigd. Kopie van de oude staat: `backups/def835-werk/gitleaks.toml.voor-uitzondering-19` (niet in git).

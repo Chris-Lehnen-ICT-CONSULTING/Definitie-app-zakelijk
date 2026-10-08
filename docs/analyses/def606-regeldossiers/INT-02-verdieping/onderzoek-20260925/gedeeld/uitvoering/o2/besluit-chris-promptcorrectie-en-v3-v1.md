@@ -355,3 +355,13 @@ Gelijk aan v7: gevallen en fasen, gevallenmanifest, model, SDK-versies, limieten
 3. Offline manifest v9: promptversie `/6`, nieuwe systeemprompt-, payload- en bestandshashes; contractversie /4 en schema ongewijzigd; gevallen ongewijzigd.
 4. Daarna opnieuw fase 1 en 2, met een apart akkoord van Chris op v9. Ook dat blijft een consistentietoets (7A). De hold-out vraagt opnieuw een eigen akkoord.
 
+## Besluit 20 — manifest v9, fase 1 en 2 opnieuw (08-10-2026)
+
+**Manifest v9.** Offline aangemaakt op HEAD `10c19e21a` (besluit 19: kaal bron-ID als alias, prompt /6). Verschil met v8: `promptversie` `/5` → `def835-int02-prompt/6` (daardoor per geval nieuwe systeemprompt- en payloadhashes), bestandshashes van `contract.py` en `int02_assessment_service.py`, `proefmap` (`kwalificatieproef-v9`), `identiteit_sha256` (`757bc2a1c1ebce80307289a95d4d33d419f5d94b021f61920b74af3f8c4b6456`) en `aangemaakt`. Gelijk aan v8: contractversie /4, antwoordschema `d3ad029e…`, gevallen en fasen, model, SDK, limieten, criteria (`max_false_pass` 0 voor ontwikkeling), protocol en norm.
+- `kwalificatie-manifest-v9.json`: `30129863ebf6a379fd5eb4d667ccb22720e7e35129f5683acf8437437e98d09d`
+- `kwalificatie-payloads-v9.json`: `c189daa7dfce7dd34a9c904f58e881aab00421c1ef8aef860eae15b685ca7007`
+
+**Akkoord Chris: fase 1 en, als die slaagt, fase 2** (consistentietoets 7A, hold-out dicht). Akkoordbestand `kwalificatie-akkoord-v9.json` met hetzelfde protocolkader als v4–v8.
+
+**Gitleaks-uitzondering 19.** Zelfde bevinding als 18 (r113, SHA-256 van `src/utils/async_api.py`), nu in manifest v9; blok 19 is mechanisch afgeleid van blok 18. Hook daarna 0 bevindingen; `make test-secret-scan` met de gepinde gitleaks groen. Kopie oude staat: `backups/def835-werk/gitleaks.toml.voor-uitzondering-19` (niet in git).
+
