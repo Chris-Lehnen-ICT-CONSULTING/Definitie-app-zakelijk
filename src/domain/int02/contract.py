@@ -1,4 +1,4 @@
-"""INT-02 — beoordelingscontract def835-int02-assessment/4 (norm def771-int02/2).
+"""INT-02 — beoordelingscontract def835-int02-assessment/5 (norm def771-int02/2).
 
 Zuiver domein (DEF-835 WP1, plan-v1 §Ontwerpvoorstel): geen AI-client,
 database of Streamlit.
@@ -24,9 +24,13 @@ elke passage en de status mechanisch af (`_beoordeel_passage`):
    besluit 12.
 
 Over passages gaat gebrek vóór review vóór beschrijvend (SC-C-03); `pass`
-vraagt volledige dekking en geen beslissende onzekerheid van de beoordelaar
-(besluit 17: anders review, `model_beslissend_onzeker`, vaste vraag; een
-afgeleid gebrek blijft fail). Voor een model (actor `ai`) beslist de dienst (2A):
+vraagt volledige dekking, onder /5 (besluit 22) geen passage met kernvorm
+`discretion_form` (R1, `discretie_nooit_pass`) en geen passage met een
+`unclear`-grondbron naast een kenmerkbron (R2, `onduidelijk_naast_kenmerk`),
+en geen beslissende onzekerheid van de beoordelaar (besluit 17,
+`model_beslissend_onzeker`); anders review met een vaste vraag. Een afgeleid
+gebrek blijft fail. /5 is verder gelijk aan /4; een bewaard /4-document wordt
+volgens /4 hercontroleerd. Voor een model (actor `ai`) beslist de dienst (2A):
 wijkt de status af van het eigen modelverdict, dan staat de beslissende regel
 in `Beoordelingsdocument.omzetting` en blijft het modelverdict in het oordeel.
 Bij een afgeleide review is de vraag vast (4A). Een menselijke beoordelaar
@@ -71,7 +75,7 @@ Het bewaarde oordeel is de geaccepteerde modeluitvoer mét de afgeleide
 posities, plus onder `dienst` de afleiding: de beslissende regel
 (`afleiding`), de status van het eigen modelverdict (`modelstatus`) en per
 passage de afgeleide functie en grond in de vorm van /3 (`passages`). Een
-bewaard /1-, /2- of /3-document wordt bij replay nog volgens de regels van
+bewaard /1-, /2-, /3- of /4-document wordt bij replay nog volgens de regels van
 zijn eigen versie op integriteit getoetst en is daarna historisch (niet
 `error`); de dienstregel discretie zonder bedoeling van /3 (besluit 12) blijft
 daarvoor bestaan. Ongeldige uitvoer wordt nooit gerepareerd en geeft `error`,
@@ -117,19 +121,24 @@ __all__ = [
 #: /1: posities door de beoordelaar. /2: posities door deze code afgeleid
 #: (besluit 9, optie A). /3: plus de dienstregel discretie zonder bedoeling
 #: (besluit 12, optie A). /4: kernvorm en bronfuncties; de dienst leidt de
-#: status af (besluit 16). Documenten onder /1–/3 zijn daardoor historisch.
-_CONTRACTVERSIE_V4 = "def835-int02-assessment/4"
-CONTRACTVERSIE = _CONTRACTVERSIE_V4
-#: Vorige versies. Een bewaard /1-, /2- of /3-document wordt volgens de
+#: status af (besluit 16). /5: als /4, plus R1/R2 van besluit 22 (een
+#: discretievorm of een open bron naast een kenmerkbron is nooit pass).
+#: Documenten onder /1–/4 zijn daardoor historisch.
+_CONTRACTVERSIE_V5 = "def835-int02-assessment/5"
+CONTRACTVERSIE = _CONTRACTVERSIE_V5
+#: Vorige versies. Een bewaard /1-, /2-, /3- of /4-document wordt volgens de
 #: regels van zijn eigen versie op integriteit getoetst (`_herleidbaar`) en is
 #: daarna historisch, geen error. De regels hangen aan de vaste versienaam,
 #: niet aan `CONTRACTVERSIE`: die bepaalt alleen welke versie actueel is.
 _CONTRACTVERSIE_V1 = "def835-int02-assessment/1"
 _CONTRACTVERSIE_V2 = "def835-int02-assessment/2"
 _CONTRACTVERSIE_V3 = "def835-int02-assessment/3"
+_CONTRACTVERSIE_V4 = "def835-int02-assessment/4"
+#: Versies met de route van bronfuncties en beslisregel (besluit 16).
+_BRONFUNCTIEVERSIES = frozenset({_CONTRACTVERSIE_V4, _CONTRACTVERSIE_V5})
 #: Versies waarvan een bewaard document herleidbaar kan zijn; andere → error.
 _BEKENDE_CONTRACTVERSIES = frozenset(
-    {_CONTRACTVERSIE_V1, _CONTRACTVERSIE_V2, _CONTRACTVERSIE_V3, _CONTRACTVERSIE_V4}
+    {_CONTRACTVERSIE_V1, _CONTRACTVERSIE_V2, _CONTRACTVERSIE_V3} | _BRONFUNCTIEVERSIES
 )
 NORMVERSIE = "def771-int02/2"
 #: Expliciete waarde voor een niet-gerapporteerde meting; nooit 0 of None.
@@ -218,6 +227,10 @@ REGEL_NIET_VAN_TOEPASSING = "niet_van_toepassing"
 REGEL_OORDEEL_MENS = "oordeel_mens"
 #: Besluit 17: het model meldt beslissende onzekerheid; geen afgeleide pass.
 REGEL_MODEL_BESLISSEND_ONZEKER = "model_beslissend_onzeker"
+#: Besluit 22 (/5), R1: een passage met kernvorm `discretion_form`; nooit pass.
+REGEL_DISCRETIE_NOOIT_PASS = "discretie_nooit_pass"
+#: Besluit 22 (/5), R2: een open grondbron naast een kenmerkbron; geen pass.
+REGEL_ONDUIDELIJK_NAAST_KENMERK = "onduidelijk_naast_kenmerk"
 #: Keuze 4A: vaste, invoeronafhankelijke vraag bij een afgeleide review.
 VRAAG_FUNCTIE = (
     "Bepaalt deze passage wat tot het begrip behoort, of schrijft zij een actor "
@@ -235,6 +248,8 @@ _VRAAG_BIJ_REGEL = {
     REGEL_DISCRETIE_ZONDER_BEDOELING: VRAAG_DISCRETIE_ZONDER_BEDOELING,
     REGEL_ONVOLLEDIGE_DEKKING: VRAAG_DEKKING,
     REGEL_MODEL_BESLISSEND_ONZEKER: VRAAG_FUNCTIE,
+    REGEL_DISCRETIE_NOOIT_PASS: VRAAG_DISCRETIE_ZONDER_BEDOELING,
+    REGEL_ONDUIDELIJK_NAAST_KENMERK: VRAAG_FUNCTIE,
 }
 #: Keuze 4A: de betekenisgrond in de O-melding noemt bronnen en citaten.
 #: `{voor}`, `{tegen}` en `{open}` zijn grondweergaven ("bronpassage B1 ('…')").
@@ -261,6 +276,17 @@ REDEN_MODEL_BESLISSEND_ONZEKER = (
     "Volgens {grond} is '{passage}' een kenmerk van het begrip, maar de "
     "beoordelaar meldt beslissende onzekerheid; dat volstaat niet voor een "
     "goedkeuring"
+)
+#: Besluit 22: `{grond}` is de dragende kenmerkgrond; bij R2 is `{open}` de
+#: eerste grondbron die de functie openlaat.
+REDEN_DISCRETIE_NOOIT_PASS = (
+    "Volgens {grond} is '{passage}' een kenmerk van het begrip, maar de passage "
+    "laat de uitkomst afhangen van een oordeel of afweging van een actor; dat "
+    "volstaat niet voor een goedkeuring"
+)
+REDEN_ONDUIDELIJK_NAAST_KENMERK = (
+    "Volgens {grond} is '{passage}' een kenmerk van het begrip, maar {open} laat "
+    "de functie open; dat volstaat niet voor een goedkeuring"
 )
 _ROL = {
     "G": "stelt de inhoud als plicht of afweging van een actor",
@@ -1352,17 +1378,60 @@ def _o_melding(reden: str, vraag: str) -> str:
     )
 
 
+def _geen_pass_besluit22(
+    oordeel: dict[str, Any], dienst: list[dict[str, Any]], invoer: Int02Invoer
+) -> tuple[str, str] | None:
+    """(regel, reden) als R1 of R2 van besluit 22 een afgeleide pass blokkeert.
+
+    R1: een passage heeft kernvorm `discretion_form`. R2: een passage heeft
+    een grondbron `unclear` naast een grondbron `criterion`/`derivation`.
+    R1 gaat vóór R2; binnen een regel beslist de eerste passage in de kern.
+    Alleen aangeroepen als alle passages beschrijvend zijn, dus `ground` is
+    de dragende kenmerkgrond.
+    """
+    volgorde = sorted(
+        range(len(dienst)), key=lambda i: (dienst[i]["start"], dienst[i]["end"])
+    )
+    for i in volgorde:
+        if oordeel["passages"][i]["kernvorm"] == "discretion_form":
+            p = dienst[i]
+            waarden = {"{grond}": _grondtekst(p["ground"]), "{passage}": p["quote"]}
+            return REGEL_DISCRETIE_NOOIT_PASS, _vul(REDEN_DISCRETIE_NOOIT_PASS, waarden)
+    for i in volgorde:
+        passage = oordeel["passages"][i]
+        functie = {bf["bron"]: bf["function"] for bf in passage["bronfuncties"]}
+        stem = [(k, _RICHTING.get(functie[k])) for k in grondbronnen(invoer)]
+        open_ = [k for k, r in stem if r == "O"]
+        if open_ and any(r == "B" for _, r in stem):
+            p = dienst[i]
+            waarden = {
+                "{grond}": _grondtekst(p["ground"]),
+                "{passage}": p["quote"],
+                "{open}": _grondtekst(_grond_v3(open_[0], passage, invoer)),
+            }
+            return (
+                REGEL_ONDUIDELIJK_NAAST_KENMERK,
+                _vul(REDEN_ONDUIDELIJK_NAAST_KENMERK, waarden),
+            )
+    return None
+
+
 def _leid_af(
-    oordeel: dict[str, Any], invoer: Int02Invoer, uitvoering: Uitvoering
+    oordeel: dict[str, Any],
+    invoer: Int02Invoer,
+    uitvoering: Uitvoering,
+    besluit22: bool,
 ) -> _Uitkomst:
     """Status uit de afgeleide passages: gebrek vóór review vóór beschrijvend.
 
-    Een afgeleide pass vraagt bovendien dat de beoordelaar geen beslissende
-    onzekerheid meldt; anders review met een vaste vraag (besluit 17). Een
-    afgeleid gebrek of een eigen reviewgrond gaat daaraan voor.
+    Een afgeleide pass vraagt bovendien (alleen /5, `besluit22`) dat geen
+    passage een discretievorm (R1) of een open bron naast een kenmerkbron (R2)
+    heeft, en daarna dat de beoordelaar geen beslissende onzekerheid meldt
+    (besluit 17); anders review met een vaste vraag. Een afgeleid gebrek, een
+    eigen reviewgrond en onvolledige dekking gaan daaraan voor.
     Actor `ai`: de dienst beslist (2A). Actor `human`: het eigen verdict blijft
     de status en moet met de afgeleide passages samenhangen (anders
-    `invalid_output`), zoals de samenhangseis van /3.
+    `invalid_output`), zoals de samenhangseis van /3; R1/R2 gelden dan niet.
     """
     verdict = oordeel["verdict"]
     if verdict == "not_applicable":
@@ -1446,6 +1515,21 @@ def _leid_af(
             regel,
             dienst,
         )
+    # Besluit 22 (/5): na gebrek, eigen reviewgrond en dekking; vóór besluit 17.
+    geblokkeerd = None
+    if besluit22 and uitvoering.actor == "ai":
+        geblokkeerd = _geen_pass_besluit22(oordeel, dienst, invoer)
+    if geblokkeerd is not None:
+        regel, reden = geblokkeerd
+        vraag = _VRAAG_BIJ_REGEL[regel]
+        return _Uitkomst(
+            "review_required",
+            "insufficient_information",
+            _o_melding(reden, vraag),
+            vraag,
+            regel,
+            dienst,
+        )
     p = dienst[cast(int, beschrijvend)]
     if oordeel["uncertainty"] == "decisive":  # besluit 17: geen pass bij twijfel
         reden = _vul(
@@ -1506,7 +1590,7 @@ class Beoordelingsdocument:
     door deze code afgeleide posities, of None als er geen geldig oordeel is.
     `foutdetail` onderscheidt bij `invalid_citation` niet gevonden, niet
     uniek, leeg citaat en niet-herleidbare grond; anders is het None.
-    `omzetting` is onder /4 de beslissende regel (`dienst.afleiding` in het
+    `omzetting` is onder /4 en /5 de beslissende regel (`dienst.afleiding` in het
     oordeel) als de afgeleide status afwijkt van het eigen modelverdict
     (keuze 2A; ook fail → pass); het oordeel houdt het modelverdict. Onder /3
     is zij `OMZETTING_DISCRETIE_ZONDER_BEDOELING` als de dienstregel een fail
@@ -1593,12 +1677,13 @@ def _beoordeel(
     uitvoering: Uitvoering,
     contractversie: str,
 ) -> Beoordelingsdocument:
-    """`beoordeel` volgens de regels van `contractversie` (/4, of /1–/3 voor replay).
+    """`beoordeel` volgens de regels van `contractversie` (/5, of /1–/4 voor replay).
 
     Onder /1 levert de beoordelaar de posities en is het oordeel de uitvoer
-    zelf; /1 kende geen `foutdetail`. Onder /2, /3 en /4 leidt deze code de
+    zelf; /1 kende geen `foutdetail`. Onder /2–/5 leidt deze code de
     posities af. Alleen /3 kent de losse dienstregel discretie zonder
-    bedoeling; onder /4 is die de laatste tak van de beslisregel.
+    bedoeling; onder /4 en /5 is die de laatste tak van de beslisregel. /5 is
+    /4 plus R1/R2 van besluit 22.
     """
     v1 = contractversie == _CONTRACTVERSIE_V1
     _eis(isinstance(uitvoering, Uitvoering), "uitvoering moet een Uitvoering zijn")
@@ -1643,13 +1728,14 @@ def _beoordeel(
         return document(
             "review_required", MELDING_NIET_BEOORDEELD, reden="not_assessed"
         )
-    if contractversie == _CONTRACTVERSIE_V4:
+    if contractversie in _BRONFUNCTIEVERSIES:
         try:
             _vorm(uitvoering.status == "completed")
             _controleer_structuur_v4(modeluitvoer)
             oordeel = _met_posities_v4(modeluitvoer, invoer)
             _controleer_samenhang_v4(oordeel)
-            uitkomst = _leid_af(oordeel, invoer, uitvoering)
+            besluit22 = contractversie == _CONTRACTVERSIE_V5
+            uitkomst = _leid_af(oordeel, invoer, uitvoering, besluit22)
         except _AfwijzingError as afwijzing:
             return document(
                 "error",
@@ -1738,14 +1824,15 @@ def _herleidbaar(document: Beoordelingsdocument) -> bool:
 
     De controle volgt de *originele* contractversie van het document (review
     Codex 07-10-2026): onder /2 en /3 worden de bewaarde posities weggelaten
-    en opnieuw afgeleid; onder /4 bovendien het blok `dienst`, dat opnieuw
-    wordt afgeleid; onder /1 gelden de /1-regels (opgeslagen posities,
-    `tekst[start:end] == quote` exact). Onder /3 en /4 hoort de omzetting
-    erbij: een ontbrekende, gewijzigde of onterechte `omzetting`, een
-    gewijzigd modelverdict of een gewijzigde afleiding maakt het document
-    niet-herleidbaar, net als een gewijzigde of ontbrekende positie of quote;
-    een onbekende contractversie is nooit herleidbaar. Een herleidbaar /1-,
-    /2- of /3-document is daarna via de bindingstoets historisch.
+    en opnieuw afgeleid; onder /4 en /5 bovendien het blok `dienst`, dat
+    opnieuw wordt afgeleid (/4 zonder, /5 met R1/R2 van besluit 22); onder /1
+    gelden de /1-regels (opgeslagen posities, `tekst[start:end] == quote`
+    exact). Onder /3–/5 hoort de omzetting erbij: een ontbrekende, gewijzigde
+    of onterechte `omzetting`, een gewijzigd modelverdict of een gewijzigde
+    afleiding maakt het document niet-herleidbaar, net als een gewijzigde of
+    ontbrekende positie of quote; een onbekende contractversie is nooit
+    herleidbaar. Een herleidbaar /1-, /2-, /3- of /4-document is daarna via
+    de bindingstoets historisch.
     """
     versie = document.contractversie
     if not _in(versie, _BEKENDE_CONTRACTVERSIES):
@@ -1768,7 +1855,7 @@ def _herleidbaar(document: Beoordelingsdocument) -> bool:
         # Niet te decoderen: ongeldige JSON (JSONDecodeError), een getal boven
         # de cijferlimiet van int of te diepe nesting (review WP1 P2-3).
         return False
-    if versie == _CONTRACTVERSIE_V4:
+    if versie in _BRONFUNCTIEVERSIES:
         oordeel = _zonder_afleiding_v4(oordeel)
     elif versie != _CONTRACTVERSIE_V1:
         oordeel = _zonder_posities(oordeel)

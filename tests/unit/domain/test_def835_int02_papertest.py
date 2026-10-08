@@ -81,7 +81,12 @@ SPEC: dict[str, tuple[list[tuple[Any, str, dict[str, str]]], str]] = {
     ),
     "G039": ([(0, "descriptive_act", {"bed": "C", "B1": "C"})], "bronnen_beschrijvend"),
     "G007": ([(0, "no_act", {"bed": "C", "B1": "C"})], "bronnen_beschrijvend"),
-    "G021": ([(0, "discretion_form", {"B1": "C"})], "bronnen_beschrijvend"),
+    # Ontwerp §3.2: "`discretion_form` of `descriptive_act`". Sinds besluit 22
+    # (R1) is een discretievorm nooit pass; de verwachte invulling is daarom
+    # `descriptive_act` (zo vulde het model G021 in beide calls van de
+    # variatiemeting v9 in).
+    # De discretievorm staat als variant hieronder.
+    "G021": ([(0, "descriptive_act", {"B1": "C"})], "bronnen_beschrijvend"),
     "G037": (
         [
             (0, "descriptive_act", {"bed": "C", "B1": "C"}),
@@ -337,7 +342,61 @@ def test_g060_met_kale_bron_ids_volgt_het_label_via_conflict(modelverdict):
 
 
 def test_g045_blijft_een_false_pass_als_het_model_b1_als_criterium_invult():
-    """Bekend restrisico (ontwerp §3.3, §4.3): de regel verzint geen grond."""
-    document = _met("G045", 0, "bron/B1", "criterion")
+    """Bekend restrisico (ontwerp §3.3, §4.3): de regel verzint geen grond.
+
+    Besluit 22 (R2): laat B2 de functie open, dan is het geen pass meer. Zwijgt
+    B2 (zoals in v8), dan blijft het een onterechte pass."""
+    met_open_b2 = _met("G045", 0, "bron/B1", "criterion")
+    assert met_open_b2.status == "review_required"
+    assert met_open_b2.oordeel["dienst"]["afleiding"] == "onduidelijk_naast_kenmerk"
+    respons = _modeluitvoer("G045", "pass")
+    for bf in respons["passages"][0]["bronfuncties"]:
+        if bf["bron"] == "bron/B1":
+            bf.update(
+                function="criterion",
+                quote=_brontekst(GEVALLEN["G045"]["invoer"], "bron/B1"),
+            )
+        elif bf["bron"] == "bron/B2":
+            bf.update(function="not_addressed", quote=None)
+    document = beoordeel(
+        GEVALLEN["G045"]["invoer"],
+        _configuratie(),
+        respons,
+        Uitvoering(actor="ai", status="completed"),
+    )
     assert document.status == "pass"
-    assert contract.CONTRACTVERSIE == "def835-int02-assessment/4"
+    assert contract.CONTRACTVERSIE == "def835-int02-assessment/5"
+
+
+# --- Besluit 22: de varianten uit v9 en de variatiemeting --------------------------------
+
+
+def test_22_g050_met_discretiepassage_als_kenmerk_is_review_r1():
+    """v9 en meting h1: P2 (`discretion_form`) met B1 als kenmerk gaf een
+    kritieke false pass; onder R1 is het review."""
+    document = _met("G050", 1, "bron/B1", "criterion")
+    assert document.status == "review_required"
+    assert document.oordeel["dienst"]["afleiding"] == "discretie_nooit_pass"
+    assert document.omzetting == "discretie_nooit_pass"
+
+
+def test_22_g060_met_b1_open_naast_b2_kenmerk_is_review_r2():
+    """Meting h1 en h2: B1 `unclear`, B2 `criterion` gaf pass; onder R2 review."""
+    document = _met("G060", 0, "bron/B1", "unclear")
+    assert document.status == "review_required" == GEVALLEN["G060"]["label"]
+    assert document.oordeel["dienst"]["afleiding"] == "onduidelijk_naast_kenmerk"
+
+
+def test_22_g021_als_discretievorm_ingevuld_wordt_review():
+    """De bekende prijs van R1 (ontwerp §3.2 liet beide kernvormen toe): vult
+    het model G021 als `discretion_form` in, dan volgt een onterechte review."""
+    respons = _modeluitvoer("G021", "pass")
+    respons["passages"][0]["kernvorm"] = "discretion_form"
+    document = beoordeel(
+        GEVALLEN["G021"]["invoer"],
+        _configuratie(),
+        respons,
+        Uitvoering(actor="ai", status="completed"),
+    )
+    assert document.status == "review_required"
+    assert document.oordeel["dienst"]["afleiding"] == "discretie_nooit_pass"

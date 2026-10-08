@@ -1,0 +1,57 @@
+DEF-835 — mutatiecontrole na besluit 22 (R1 + R2, contract /5)
+Datum: 2026-10-08 · branch feature/DEF-835-int02-o2 (ongecommit, HEAD 258d26d89)
+
+Werkwijze
+- Plugin: bronfuncties-v1/mutatie/mutatie_plugin.py, nu met 24 mutanten. Nieuw:
+  - `r1_weg_b22`: de R1-voorwaarde (kernvorm `discretion_form`) wordt `if False:`.
+  - `r2_weg_b22`: de R2-voorwaarde (`unclear` naast `criterion`/`derivation`) wordt `if False:`.
+  - `r12_ook_onder_v4_b22` (extra): R1/R2 ook onder /4 (`besluit22 = True`); toetst de
+    versiebewuste hercontrole.
+- Testset per run (gelijk aan besluit 19): test_def835_int02_bronfuncties.py,
+  test_def835_int02_papertest.py en test_def835_int02_assessment_service.py, met dezelfde
+  deselect (de cwd-afhankelijke containertest). Per run 610 tests (was 570; +40 door de
+  nieuwe tests van besluit 22).
+- Commando (vanuit bronfuncties-v1/mutatie, zonder env-prefix, elke mutant als los commando):
+    <python> -m pytest -p mutatie_plugin --def835-mutant <naam> -p no:cacheprovider \
+      --tb=no -q --rootdir=<werkboom> --deselect <containertest> \
+      --junitxml=resultaten/besluit22-<naam>.xml <drie absolute testpaden>
+- Interpreter: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python.
+- Alles in het geheugen; elk fragment staat precies 1x in contract.py (anders weigert de plugin).
+- Ruwe uitkomst: mutatie/resultaten/besluit22-<naam>.xml (tellingen uit <testsuite>).
+
+Uitkomst (gedood = minstens één test faalt)
+
+mutant                                   gefaald/610  oordeel
+---------------------------------------  -----------  -------
+nulmeting (geen mutant)                       0        groen
+r1_weg_b22 (NIEUW)                           13        gedood
+r2_weg_b22 (NIEUW)                           14        gedood
+r12_ook_onder_v4_b22 (NIEUW, extra)           4        gedood
+alias_weg_b19                                12        gedood
+alias_te_ruim_b19                             4        gedood
+alias_zonder_reservering_b19                  4        gedood
+isalnum_p1rest2                              70        gedood
+onzichtbaar_vergeten_p1rest2                 50        gedood
+betekenisdragend_weg_p1rest                 102        gedood
+passagecitaat_ongetoetst_p1rest              16        gedood
+inhoudsloze_bedoeling_bekend_p1rest          16        gedood
+onzekerheid_genegeerd_17                      5        gedood
+stap1_weg                                    18        gedood
+bedoeling_symmetrisch_1a                      3        gedood
+n_geen_conflict_6a                            5        gedood
+tweede_signaal_altijd_3a                     30        gedood
+n_geen_tweede_signaal_6a                      8        gedood
+alleen_o_zwijgt                              10        gedood
+beschrijvend_zonder_bedoeling_pass_5a        36        gedood
+discretie_zonder_bedoeling_weg_b12           21        gedood
+dekkingseis_weg                               3        gedood
+review_voor_gebrek                            1        gedood
+omzetting_nooit                              73        gedood
+modelverdict_beslist_2a                     120        gedood
+
+=> 24/24 gedood; nulmeting 610/610 groen.
+   Verschuivingen t.o.v. besluit 19 komen door de nieuwe tests (meer vangst) en één
+   keer omlaag: n_geen_conflict_6a 6 → 5. Vermoedelijke oorzaak (niet per test
+   nagelopen): onder die mutant botst N niet meer met B; bij een papertestgeval met
+   B, N en een open bron (G076: B1 C, B2 N, B3 O) vangt R2 de pass nu alsnog op.
+   Die mutant blijft gedood.

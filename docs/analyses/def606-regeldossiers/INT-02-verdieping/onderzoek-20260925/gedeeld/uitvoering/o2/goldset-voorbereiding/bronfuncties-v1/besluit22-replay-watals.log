@@ -1,0 +1,7 @@
+...                                                                      [100%]
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED hulp/replay_v8_besluit19_test.py::test_alleen_g060_verandert_en_wordt_review_conflict
+PASSED hulp/replay_besluit22_test.py::test_g045_uit_v8_blijft_de_bekende_false_pass
+PASSED hulp/replay_besluit22_test.py::test_precies_de_vier_wijzigingen_van_besluit_22
+3 passed in 0.15s

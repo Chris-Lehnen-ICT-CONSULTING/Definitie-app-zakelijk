@@ -1,0 +1,279 @@
+{
+  "soort": "def835-int02-variatiemeting-v9-herkomst/1",
+  "claim": "Variatiemeting op de 24 ontwikkelgevallen buiten het kwalificatieprotocol (besluit 21): dezelfde keten als kwalificatieproef v9 (prompt /6, schema d3ad029e…), N extra herhalingen. Geen kwalificatie, geen herhaling van een kwalificatiefase, geen DEF-815-claim; ontwikkelgevallen zijn een consistentietoets (7A). Kosten = gemelde usage x prijzen manifest v9; geen providerfactuur.",
+  "aangemaakt": "2026-10-08T08:40:26.208220+00:00",
+  "modus": "live",
+  "herhalingen": 2,
+  "git_head": "258d26d89f63347400395d67d8c4603fe0010293",
+  "ketenbestanden_lokaal_gewijzigd": [],
+  "script_sha256": "ca1e289782b53434882db3519e818cc9d6271a75c776e48112cbee13d604ef3a",
+  "manifest_v9_sha256": "30129863ebf6a379fd5eb4d667ccb22720e7e35129f5683acf8437437e98d09d",
+  "ontwikkelset_sha256": "51905799fb18731cbbb959acaef13accf17c3a338260e524ab5d8250f50d4b83",
+  "v9_resultaat_sha256": "6138352c6b07a433cea9824d62decf9f805853dd61bf100e7bb670002ec01606",
+  "profiel_id": "def835-kwalificatieproef-opus5-v1",
+  "provider": "anthropic",
+  "model": "claude-opus-5",
+  "promptversie": "def835-int02-prompt/6",
+  "contractversie": "def835-int02-assessment/4",
+  "schemahash": "d3ad029e24b6b96242f4730686d3a4ebfebd9f46993607e41016761bc7fce715",
+  "limieten_per_call": {
+    "max_inferentie": 1,
+    "max_telverzoeken": 1,
+    "max_uitvoertokens": 6000,
+    "max_geschatte_invoertokens": 16000,
+    "deadline_seconden": 120.0,
+    "totale_looptijd_seconden": 6000.0,
+    "budget_usd": 3.0
+  },
+  "kostenplafond_usd": 3.0,
+  "max_calls": 48,
+  "prijzen_per_token": {
+    "input": 5e-06,
+    "output": 2.5e-05
+  },
+  "raming": {
+    "calls": 48,
+    "verwacht_usd": 2.100974117647059,
+    "gemiddeld_per_call_v9_usd": 0.04377029411764706,
+    "gevallen_zonder_v9_meting": [
+      "G052",
+      "G042",
+      "G045",
+      "G047",
+      "G060",
+      "G070",
+      "G076"
+    ],
+    "reservering_per_call_usd": 0.22999999999999998,
+    "slechtste_geval_usd": 11.04,
+    "plafond_usd": 3.0,
+    "calls_binnen_plafond_bij_volle_reservering": 13
+  },
+  "gevallen": [
+    {
+      "id": "G011",
+      "invoer_sha256": "d4498fd4a44e846ea1f18cbddff4fb7fdf14256206e2ace73b15dcc68033a708",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "df884906af8293c4d7b03568e1f92fc066fe5db3ec7f36ff9b083dd8ff82d624",
+      "payload_sha256": "4f940f6054c07d5a319ccb2efcc62394a7de69c67c354c315c9b6c967684d0ea",
+      "payload_bytes": 12951,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G015",
+      "invoer_sha256": "00f3241eafef6c1a5a61fab429471a84124a50a93399232ea9c66f6baec9ad00",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "a5327d84e8ee7f641925ecf966899b34d6c224b529c9b08b603968715d130a5d",
+      "payload_sha256": "41d39246924f88be9ab29d7521ffe0154a2a497d9dd6a0c6fcb2b6bba923f2f0",
+      "payload_bytes": 13073,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G019",
+      "invoer_sha256": "4ff4f5d4472512a696efcfac60b0506818d9e330ec7a53a3feb5ead26fc6c942",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "0fa56e2dc129155bf4d61494b4b28dcb372733204110bfbb5f2e95c3527f17ad",
+      "payload_sha256": "70776bc6d06efd8870a4c4008c420cdfd914a203424ef6ef6ac6e097e31e83d1",
+      "payload_bytes": 12901,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G027",
+      "invoer_sha256": "b268b4390a2197837474721b7ad499a18570e3a1386a3bfc81fd6a87d837660f",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "a3c493b1894b3168de48e9b9a408c991b7a01369e525ed7b8ffab7be854f0380",
+      "payload_sha256": "94216d1d9f9c0a9a7a08119272bfd6190402664cbc9df19b8ea4db1f2c4b5c16",
+      "payload_bytes": 13019,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G030",
+      "invoer_sha256": "4a8678189efcad646e285bb5a3a83340634f0d9be7b691526947cfc688121a3f",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "298f663db9e00695852c390bb90de4880e792d62afea4964db52b4e6dee0420f",
+      "payload_sha256": "111073683b7202c4f483d59761b1c4883cce1e34a066d3c5b301f8d501bc1278",
+      "payload_bytes": 13851,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G039",
+      "invoer_sha256": "90680e3a984aeb3b2623cd204275d6ab1834e353c6231548e306381f5d670dd7",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "871c98a741208e4b23b04eb4fcd508d042a87ffe07b7c47ea7ce4aeddec9fb7e",
+      "payload_sha256": "e4bb6cb29411e823ca6e47d469ee286327d9dc87308424df40ea68adddf01825",
+      "payload_bytes": 13236,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G007",
+      "invoer_sha256": "df53b7e5042dc71db98c9748ecc98e9f8910059f381f5001e7078ce0e279edfd",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "84a473594baf246660e2c457d46e29a6ba4bc822b69fa48496f09e8e6c7d4e31",
+      "payload_sha256": "136b22171bae30a1f38166207134d9f15088b0d99539fc40ca7e192957eaef22",
+      "payload_bytes": 12946,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G021",
+      "invoer_sha256": "611b257e08b3745ab9d2ef9f8cf8eab7fc6440c95ecd6b7569e78860d68fe099",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "6b4b4eb246015c49f3627bf019a6dcd57d5e085b4352334ee22ca6cc20b79ceb",
+      "payload_sha256": "bcd64ab86c2f71591bb7674ebadf4ed36f1157be7ed590f0b598cb4dbec4461c",
+      "payload_bytes": 13377,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G037",
+      "invoer_sha256": "7f408a3fff02cadf9282be906faad21e27b1f5291a4c500a3012f3b169f4f6bb",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "69b138bd3fe8871dabafbcfdff29317b67cd5d4da65e838d67ca25d793e05bdb",
+      "payload_sha256": "dba3c676840b8bd86fb1e0f6fc0172ffdb54a29d9e4b1417caadb4ee7bd3eaf9",
+      "payload_bytes": 13092,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G041",
+      "invoer_sha256": "51d8a568dc7bcdeb68d423d9faf90c44f024d11210575df309f68ded44bf996f",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "0d6424e726f037e6dbac2ff2d6b3be2b6a6c5a4133e8caee203f81b9d8bf10cb",
+      "payload_sha256": "08969afa2da8b95b1fdf1087ea3f0861d097da1320abaf89de9666f9566dfd64",
+      "payload_bytes": 13596,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G046",
+      "invoer_sha256": "99645c8b5315863dc74bb7d76f6d3dfa7b79f46729bfe33b34722b381c538238",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "945f8c09dc09e666aa1d84ca70fc3c1ab8cc6fe3943d17682c93e71d5bb7c7ff",
+      "payload_sha256": "dc3eb4518570a91dde897b37b2a107c580d1fd7de14b904d7b3e22bc15e4fde9",
+      "payload_bytes": 13483,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G055",
+      "invoer_sha256": "9f2c27f54eccda7ba4b8eb033cb514ec3d542583f92ec50b42a8fdca39070c3a",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "05e1d0fe8c523330c5101ef4984f9927435df201f2dcbae44662aaff058c289d",
+      "payload_sha256": "e2f900d131d63c4fd6f881b61206a952a32d7d3d492733abed8b1a72de6ddc63",
+      "payload_bytes": 13489,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G008",
+      "invoer_sha256": "67b29bac0a9064247fb68ecda99b4ffba56656ecd65a8f043ecd1de9bddf212d",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "e494c710e237d993cd58b3ea780676466e4d226cbb517a836667a11d05699d7a",
+      "payload_sha256": "369d9f826ce9e1a1620396ffa638a55f73dbaafe2c7baa3c03b253888041700f",
+      "payload_bytes": 13014,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G012",
+      "invoer_sha256": "d80f9ad8ba56ad4fd476df74cad60c29d2ea683333379bf2a0b36a19a11a6af1",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "6f714beca4d000c0bc8678b3135dc5143a019190afaa58572163fe0c3c275cfb",
+      "payload_sha256": "c1dee324e6175ece8e42d2d43f2e2e44126ea88f795020a836212aef149e1d0c",
+      "payload_bytes": 13023,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G036",
+      "invoer_sha256": "3a1305c04f4f17dc72be63375075a310a7470fbdd937f8c42a5df59122802f26",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "8a21fe5f39ec68a42d43fb2ddab7f4d2ed8e9eb7aae1c571dc2c898721e8f567",
+      "payload_sha256": "e171661f504dc8cbb2d1629522604676b7214b79216a1cf7fd44a4bf2c69ef9c",
+      "payload_bytes": 13054,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G048",
+      "invoer_sha256": "73c6627df1a5dce1f58bfcaba0a4ed659c4627b320b6673b7ed4edfecb660247",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "8bbeab0f4d020092e47dbd21d02bdd4d37fa3c8e509ee05cfb75878887631747",
+      "payload_sha256": "1f6034d4ade494c46da597d0d098ddc2e7c2f7b76a2776ba97490ce6b88df309",
+      "payload_bytes": 13673,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G050",
+      "invoer_sha256": "d996b86156dc1c2d51643dfe1a3c873c532c763f2f63d944fd0d6bcfd4fb45c3",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "8f4f809529e0ba8bf6756e37546f3c7e38c58a69bc90d3a4b13d992bc3fad568",
+      "payload_sha256": "fd3f27cd5336a46cf767d4403fef4f34f84a0deb678e0c005189f8adc3fbe15b",
+      "payload_bytes": 13567,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G052",
+      "invoer_sha256": "ffdbdcebccf9b9536397b1463f60c5c53d9c0cdb29af4ac62d107fbd9df606d1",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "fddb343963757c6bceafac26b2e6ac62f8e03df4cdb243a061304872c239c1e4",
+      "payload_sha256": "b84f70377f4b0032a38a1bd712ec1ff4d04d03d1aead8709a2791d51ee15b19a",
+      "payload_bytes": 13483,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G042",
+      "invoer_sha256": "dbf1ee8cf50c7237bdce195d3db00ca87b69eeeaa10872be9989d75dbd7c7370",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "f1494bb9d24145d58e0e9e53a5076b9cdcc2822fad21bf1d9bf7e7fded132c52",
+      "payload_sha256": "ef0b298adc531a9ce98d44f00173a6ba6b917c14ee239252d1423ab3b4eebb8f",
+      "payload_bytes": 13443,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G045",
+      "invoer_sha256": "b6f4cc3f78b25bfec0e59caa19710c62edf254625cace4c5d41f9483f932c30d",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "b84ae55bc1e8a5fc9f52b4dd84baca3d2081223330b04d90fdb985cf9df049be",
+      "payload_sha256": "2a7308a509b1dd492f792a8ce4d996d495a6c89b8bf9a30f331b4030872c6e4e",
+      "payload_bytes": 13356,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G047",
+      "invoer_sha256": "4abb0d6be101c13df82023c08b430e2f4c653037c674af32d7a4e2e44482adfc",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "5105d7cc781436e4d3164383bdc50ae40e09cad65c9a6a668db4a9e423689bb3",
+      "payload_sha256": "6443129aae4f3ca8cb5a4a1b41a7c1fffd62f452268e310bc5889f0157c660ba",
+      "payload_bytes": 13353,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G060",
+      "invoer_sha256": "708e92676d34657a1c02fa542d72bbaa66ff4004089edb273aa053ccfc806807",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "f1d682f69164de588c884342af341b1a03e9a4bfd55b89e2834729ecd9e11d8c",
+      "payload_sha256": "ce9f146f906640095ca55f8ccda65e1ad11becec6afd3069187fba84f368a0e7",
+      "payload_bytes": 13555,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G070",
+      "invoer_sha256": "bfd8c5a6cd82786e1d25ae970e4b62ebc23887c40954b2c7f1cf317da276c45b",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "1c7f4ba5287eb4daece9aa415679fe697e480427dedb4c6289f2434b82e81292",
+      "payload_sha256": "12c9ea89d88cccc35b1be02a32f94d748a8fac6eaf8e290d72cf2a52ad6edead",
+      "payload_bytes": 14225,
+      "fase": "ontwikkeling"
+    },
+    {
+      "id": "G076",
+      "invoer_sha256": "28dad389a6636cecc6c921ff8a6b2731bbfb51335abde229a6a15280fb54a117",
+      "systeemprompt_sha256": "a8f701ac3ec262f44efa3415d34e4931f4b637eb4d430b33aa8694d77e89d8e7",
+      "dataprompt_sha256": "fd7463ceef40ad5b7a81d75c5a8ef9f721277caf9fd0233b3e41953f0d1366a9",
+      "payload_sha256": "74f6d18d454305fa592d372fcfafc1de51268bd8f00ee11181ae6909ae3defcd",
+      "payload_bytes": 14246,
+      "fase": "ontwikkeling"
+    }
+  ],
+  "versies": {
+    "anthropic": "0.116.0",
+    "httpx": "0.28.1",
+    "manifest_v9": {
+      "python": "3.13.15",
+      "anthropic": "0.116.0",
+      "httpx": "0.28.1"
+    }
+  }
+}

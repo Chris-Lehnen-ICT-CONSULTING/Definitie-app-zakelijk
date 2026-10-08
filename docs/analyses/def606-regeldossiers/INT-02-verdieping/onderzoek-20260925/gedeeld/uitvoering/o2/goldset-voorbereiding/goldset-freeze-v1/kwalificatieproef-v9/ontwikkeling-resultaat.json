@@ -1,0 +1,3181 @@
+{
+  "soort": "def835-int02-kwalificatie-resultaat/1",
+  "claim": "Kwalificatieproef van het bestaande INT-02-profiel volgens kwalificatieprotocol-v1: mechanische vergelijking van de hoofdstatus met vooraf bevroren labels. Inhoudelijke passagegronden beoordeelt Chris; geen DEF-815-kwalificatie of activering. Kosten = gemelde usage x routerprijzen, een onzekere call telt voor de volle reservering; geen providerfactuurplafond.",
+  "fase": "ontwikkeling",
+  "manifest_sha256": "30129863ebf6a379fd5eb4d667ccb22720e7e35129f5683acf8437437e98d09d",
+  "akkoord_sha256": "7ef15723dd9f4600b55462099da9661cd1dd9d51f529a02bb48255c6e1209c7e",
+  "identiteit_sha256": "757bc2a1c1ebce80307289a95d4d33d419f5d94b021f61920b74af3f8c4b6456",
+  "gevallenmanifest_sha256": "af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953",
+  "technische_testfixture": false,
+  "afronding": "Opgesteld vóór fase_einde. Het grootboek is leidend: zonder fase_einde met bewijs_opgeslagen=true geldt de fase niet als geslaagd.",
+  "gestart": "2026-10-08T08:06:01.063873+00:00",
+  "beeindigd": "2026-10-08T08:08:31.382354+00:00",
+  "looptijd_seconden": 150.319,
+  "stopreden": "kritieke_false_pass",
+  "tellingen": {
+    "inferenties": 17,
+    "telverzoeken": 17
+  },
+  "cumulatief": {
+    "inferenties": 20,
+    "telverzoeken": 20,
+    "kosten_usd_conservatief": 0.8584050000000001,
+    "onzekere_calls": [],
+    "looptijd_seconden": 173.683
+  },
+  "kosten_onzeker": [],
+  "evaluatie": {
+    "mechanisch_geslaagd": false,
+    "redenen": [
+      "niet_volledig_uitgevoerd",
+      "kritieke_false_pass",
+      "onterechte_goedkeuring",
+      "te_weinig_juist"
+    ],
+    "tellers": {
+      "juist": {
+        "teller": 15,
+        "noemer": 17
+      },
+      "false_pass": {
+        "teller": 1,
+        "noemer": 5
+      },
+      "kritieke_false_pass": {
+        "teller": 1,
+        "noemer": 5
+      },
+      "false_fail": {
+        "teller": 0,
+        "noemer": 12
+      },
+      "gemiste_overtreding": {
+        "teller": 1,
+        "noemer": 5
+      },
+      "gepaste_onthouding": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "onterechte_onthouding": {
+        "teller": 1,
+        "noemer": 17
+      },
+      "onzekerheid": {
+        "teller": 1,
+        "noemer": 17
+      },
+      "juist_fail": {
+        "teller": 4,
+        "noemer": 5
+      },
+      "juist_pass": {
+        "teller": 11,
+        "noemer": 12
+      },
+      "juist_review_required": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "technische_fout": {
+        "teller": 0,
+        "noemer": 17
+      },
+      "citaatfout": {
+        "teller": 0,
+        "noemer": 17
+      }
+    },
+    "afleidingen": {
+      "bronnen_beschrijvend": 12,
+      "conflict": 1,
+      "voorschrift_bevestigd": 2,
+      "voorschrift_in_kern": 2
+    },
+    "omzettingen": {
+      "totaal": 1,
+      "per_richting": {
+        "pass→review_required": 1
+      },
+      "per_regel": {
+        "conflict": 1
+      }
+    },
+    "criteria": {
+      "aantal": 24,
+      "min_juist": 21,
+      "min_juist_per_label": {},
+      "max_false_pass": 0,
+      "verdeling": null,
+      "max_p95_ms": null
+    },
+    "bewijsstatus": "consistentietoets_7a",
+    "bewijstoelichting": "Fase 1 en 2 (regressie, ontwikkeling) zijn onder v8 een consistentietoets (keuze 7A): contract /4 is op deze gevallen afgestemd; een geslaagde fase is geen onafhankelijk bewijs."
+  },
+  "inhoudelijke_beoordeling": {
+    "status": "open",
+    "beoordelaar": "Chris (acceptatie-eigenaar)",
+    "toelichting": "Passagegronden, normgrond en relevantie van de vraag zijn niet mechanisch vastgesteld; de runner vult hier geen akkoord in."
+  },
+  "latentie": {
+    "max_ms": 16373,
+    "p95_ms": 16373
+  },
+  "gevallen": [
+    {
+      "id": "G011",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "ec02f6b472d572def400203c93c5353bf264b99a78cc222f0fa42ca49ff0a49a",
+      "antwoord_sha256": "93858176d070e186186b965793d7223ee3cddfbeee1d51a3e203e13cb3ca4d1b",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "4f940f6054c07d5a319ccb2efcc62394a7de69c67c354c315c9b6c967684d0ea",
+        "telpayload_sha256": "e74770f9b5f4621025d41d88acdd296a8b3c0a71bf7004a01d523347ab3b11e0",
+        "geschatte_invoertokens": 5778,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.039215,
+        "duur_ms": 5523,
+        "http_status": 200,
+        "request_id": "req_011CfpRcEYuMTAS6wSCAUghb",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5778,
+          "output_tokens": 413
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "overdrachtsvenster",
+          "kern": "Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.",
+          "bedoeling": "De term benoemt een afgebakend interval in een waarnemingsmodel.",
+          "organisatorische_context": [
+            "Transportproef Wilg (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Ontvangst en bevestiging zijn gelogde gebeurtenissen. Het venster wordt met die twee tijdstippen beschreven."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "5ce954ff5728108ea8e80c21811df9d7d87b365865dce315ea9fb6b21249f6ee",
+          "kern_hash": "3c630d020a0a8b45107d39ac1fb4c7494fc0ef27cd5a37eda612d43598ca25ff",
+          "bedoeling_hash": "bb6cbfb5855af832556f7f69e6871b7cc08e077c719644861e6084595f1b8037",
+          "context_hash": "52c81151f98cb28a8b1642645f01ddcf4105bf7d631a6b0d7829dc219ab9fa09",
+          "bronnen_hash": "d5867d8e0bb1cc6bf64093f5138530dc1b170f52a448ed7b5782115b4c73dd76"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:06:01.939087+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 6002,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.' beschrijft een criterium; grond: de bevestigde bedoeling ('De term benoemt een afgebakend interval in een waarnemingsmodel.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 111,
+                "function": "criterion",
+                "ground": {
+                  "end": 64,
+                  "field": "bedoeling",
+                  "quote": "De term benoemt een afgebakend interval in een waarnemingsmodel.",
+                  "ref": null,
+                  "start": 0
+                },
+                "quote": "Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 64,
+                  "function": "criterion",
+                  "quote": "De term benoemt een afgebakend interval in een waarnemingsmodel.",
+                  "start": 0
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 108,
+                  "function": "derivation",
+                  "quote": "Het venster wordt met die twee tijdstippen beschreven.",
+                  "start": 54
+                }
+              ],
+              "end": 111,
+              "kernvorm": "no_act",
+              "quote": "Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern beschrijft een tijdsinterval dat deterministisch wordt afgebakend door twee gelogde gebeurtenissen (ontvangst en bevestiging). Er wordt geen handeling aan een actor voorgeschreven en geen afweging of oordeel gelaten; de bedoeling en bron B1 bevestigen de beschrijvende/afleidende functie.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G015",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "26db6c1fe82204622723bd278bd052ebcaae99afa8d4fff8b0798f95547c823f",
+      "antwoord_sha256": "89c1db03131a07c5f04af124ea8abc0d1f502ff5ea07f25de4f7ecc0ea0e58e7",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "41d39246924f88be9ab29d7521ffe0154a2a497d9dd6a0c6fcb2b6bba923f2f0",
+        "telpayload_sha256": "4e229736153f727b80fb3ee534e0f56c1c07386333790068f99deca84c0166b5",
+        "geschatte_invoertokens": 5824,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.04202,
+        "duur_ms": 7096,
+        "http_status": 200,
+        "request_id": "req_011CfpRcfSs8gVpxkCWuS7Cq",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5824,
+          "output_tokens": 516
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "ondertekende herstelkopie",
+          "kern": "Herstelkopie waarvan de inhoud overeenkomt met het origineel en waarvan de controlesom is ondertekend door de archiefdienst.",
+          "bedoeling": "Het begrip duidt een digitaal object aan; ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister.",
+          "organisatorische_context": [
+            "Atlasarchief (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "In de inventaris wordt een herstelkopie ondertekend genoemd als haar inhoud gelijk is aan het origineel en de archiefdienst haar controlesom heeft ondertekend."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "1fbc7563c77051048f1414c0db3928813df23d76400bb95cfa8bf6072f63d93e",
+          "kern_hash": "8131a6ce385442aeafa37d4a69b34bef5b8490442664475749d59ecf69ee87e0",
+          "bedoeling_hash": "1d39a0ce6a6b0dc58734f0b86c6465b4cbdc3f53aa4d9557f91080eba8cadbaa",
+          "context_hash": "a5049de91399b3c8b13fe9479e86d7bdada09fce13fa6f19309bf6784fa7f599",
+          "bronnen_hash": "d7ebba6f422cb6cc313e3013d2e0c2dcc990715d48dc290d13b41e9ca0ed4569"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:06:07.941896+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 7367,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Herstelkopie waarvan de inhoud overeenkomt met het origineel en waarvan de controlesom is ondertekend door de archiefdienst.' beschrijft een criterium; grond: de bevestigde bedoeling ('ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 124,
+                "function": "criterion",
+                "ground": {
+                  "end": 121,
+                  "field": "bedoeling",
+                  "quote": "ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister",
+                  "ref": null,
+                  "start": 42
+                },
+                "quote": "Herstelkopie waarvan de inhoud overeenkomt met het origineel en waarvan de controlesom is ondertekend door de archiefdienst.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 121,
+                  "function": "criterion",
+                  "quote": "ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister",
+                  "start": 42
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 159,
+                  "function": "criterion",
+                  "quote": "In de inventaris wordt een herstelkopie ondertekend genoemd als haar inhoud gelijk is aan het origineel en de archiefdienst haar controlesom heeft ondertekend.",
+                  "start": 0
+                }
+              ],
+              "end": 124,
+              "kernvorm": "descriptive_act",
+              "quote": "Herstelkopie waarvan de inhoud overeenkomt met het origineel en waarvan de controlesom is ondertekend door de archiefdienst.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern is een genus-kenmerkbeschrijving: een herstelkopie met twee kenmerken (inhoudsgelijkheid en een door de archiefdienst ondertekende controlesom). De handeling van de archiefdienst staat in beschrijvende, voltooide vorm als kenmerk, niet als opdracht. Bedoeling en B1 bevestigen dat het om eigenschappen/criteria gaat die bepalen wanneer de term van toepassing is; geen discretionaire afweging.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G019",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "658a77b564299f8130527b498e303c383bc57c871219544ce2094de164b367e4",
+      "antwoord_sha256": "1a84e4f9f54a31adbf4e91b638d401a3b3687fd850c635e688e99999e16995c6",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "70776bc6d06efd8870a4c4008c420cdfd914a203424ef6ef6ac6e097e31e83d1",
+        "telpayload_sha256": "a13f6a97b0505d3c4e8f8966fce8be2becd9a2c41b28b8f9be20206068cdc2b7",
+        "geschatte_invoertokens": 5744,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.03932,
+        "duur_ms": 6143,
+        "http_status": 200,
+        "request_id": "req_011CfpRdCuTQ6BaTtpeKhRXL",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5744,
+          "output_tokens": 424
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "gepaarde registratie",
+          "kern": "Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.",
+          "bedoeling": "De term duidt een structuur in een logboek aan.",
+          "organisatorische_context": [
+            "Logboek Duin (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "4ea8c733b183619150ce76ff64c961bd61d46f2537304bb87ada640752a6bf51",
+          "kern_hash": "4aaa85b1c4dfc60c6611b6826a699545f09f6b57d2c4a73da53521ce53f0dbe9",
+          "bedoeling_hash": "65109725ba5f33a2a4142e5a7b58fa9f3dc23bcf73c302ea8ed42fd3abda025d",
+          "context_hash": "fcb45ade46320a26f6fbd3a7b3394dfb46d6224e0e0fbfd4993ad6818489f6c8",
+          "bronnen_hash": "70cb62e1e67ca72724d44c408b5dcef5c55c98bc8590ad29894905920dade0b0"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:06:15.309241+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 6411,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.' beschrijft een criterium; grond: bronpassage B1 ('Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 84,
+                "function": "criterion",
+                "ground": {
+                  "end": 103,
+                  "field": "bron",
+                  "quote": "Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties.",
+                  "ref": "B1",
+                  "start": 0
+                },
+                "quote": "Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 103,
+                  "function": "criterion",
+                  "quote": "Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties.",
+                  "start": 0
+                }
+              ],
+              "end": 84,
+              "kernvorm": "no_act",
+              "quote": "Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern is één beschrijvende genus-kenmerkzin zonder actor, handeling of afweging: een registratie wordt afgebakend met het kenmerk dat zij precies één heenverwijzing en de bijbehorende terugverwijzing bevat. B1 bevestigt dit als onderscheidend begripskenmerk (er bestaan ook ongepaarde registraties). Geen handelingsvoorschrift, procedure of discretionaire beslisregel.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G027",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "9329a49a5d45393342ec8e811f3e5bc484280be7ae33c16cdb72bab7a5754c2e",
+      "antwoord_sha256": "06bacbb94de90e222cc910c53370bcbbc8c97679de8214f6d166a8fc04f64312",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "94216d1d9f9c0a9a7a08119272bfd6190402664cbc9df19b8ea4db1f2c4b5c16",
+        "telpayload_sha256": "5a86f3ae0cc33bfa120da48e86218183a066be447bef00ec1a88afc892bf203e",
+        "geschatte_invoertokens": 5818,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.040365,
+        "duur_ms": 5365,
+        "http_status": 200,
+        "request_id": "req_011CfpRdhg6DPpYi32uNBiJw",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5818,
+          "output_tokens": 451
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "gewogen verblijfsduur",
+          "kern": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.",
+          "bedoeling": "Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.",
+          "organisatorische_context": [
+            "Procesmodel Berk (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Voor iedere deelpartij zijn hoeveelheid en verblijfsduur bekend. De gewogen verblijfsduur gebruikt de hoeveelheid als gewicht; de totale hoeveelheid is positief."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "0971c3f3932d30c5749dfafdbec703bda52cca8abdd92df0b5edd17cc64d8c56",
+          "kern_hash": "2c38b8619d69880d4022460153f42299a8b34c9c81a9ae537188afc7f4162cc2",
+          "bedoeling_hash": "bcc192acbcd1dab8a88879b7164e77ba8b61ef62feed7c8392be3174bbd46dd2",
+          "context_hash": "f88f08fee8fa4d5f6b803ae8f26492261a977766dab8ffd9079ad814b1fcc6d8",
+          "bronnen_hash": "bd06117f4561f1a5cd785bc4f31ce85140bd1c9e417af57909a2a5127df20eba"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:06:21.721029+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 5954,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.' beschrijft een afleiding; grond: de bevestigde bedoeling ('Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 100,
+                "function": "derivation",
+                "ground": {
+                  "end": 89,
+                  "field": "bedoeling",
+                  "quote": "Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.",
+                  "ref": null,
+                  "start": 0
+                },
+                "quote": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 89,
+                  "function": "derivation",
+                  "quote": "Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.",
+                  "start": 0
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 161,
+                  "function": "derivation",
+                  "quote": "De gewogen verblijfsduur gebruikt de hoeveelheid als gewicht; de totale hoeveelheid is positief.",
+                  "start": 65
+                }
+              ],
+              "end": 100,
+              "kernvorm": "no_act",
+              "quote": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern is een rekenkundige, deterministische afleiding (quotiënt van gewogen som en totale hoeveelheid) zonder actor, handeling of afweging. Bedoeling en bron B1 bevestigen het karakter van afgeleide meetgrootheid met hoeveelheid als gewicht. Geen handelingsvoorschrift, procedure of discretionaire beslisregel.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G030",
+      "status": "review_required",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "a99f732e46c633ed36c84f0ae3d8fe6a8e8daa506c7749a2a3d7e6e65038654e",
+      "antwoord_sha256": "4645ae6bf678990cb9a8730db211f75af965fe40638e7c6929379d1c092ba0d6",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "111073683b7202c4f483d59761b1c4883cce1e34a066d3c5b301f8d501bc1278",
+        "telpayload_sha256": "95255634cecd96ba801ab709adb04ac6384b890aff5d9907056489c179543104",
+        "geschatte_invoertokens": 6185,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.049600000000000005,
+        "duur_ms": 10035,
+        "http_status": 200,
+        "request_id": "req_011CfpRe7r8zjV4LhNcEGqZR",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 6185,
+          "output_tokens": 747
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "actieve aanbieding",
+          "kern": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+          "bedoeling": "De gebruiker wil de term opnemen in het begrippenregister van de proef. De zin staat letterlijk in de tabel met aanbiedingstypen en op de instructiekaart voor behandelaars; de gebruiker heeft beide stukken meegestuurd.",
+          "organisatorische_context": [
+            "Aanbiedingsproef Robinia (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Tabel aanbiedingstypen Robinia (fictief; geen geldend recht), rij 'actieve aanbieding', kolom omschrijving: 'Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Kolom registerstatus: 'open'. Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten)."
+            },
+            {
+              "id": "B2",
+              "tekst": "Instructiekaart behandelaars Robinia (fictief; geen geldend recht), kaart 3 'Voortzetting'. Kopregel van de kaart: 'Actieve aanbieding — Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Werkwijze op de kaart: 'Controleer per actieve aanbieding of er nog een belanghebbende beschikbaar is. Zet de aanbieding voort zolang dat het geval is.'"
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "4045681e4f7fa7cf6b053ab1f7dd20d34f4cd0add285a9d063528ec715dbd88a",
+          "kern_hash": "67e1842f7054e0dc9831b3306fb9ead75fad18f27a6d939ac75c39b04c5ab70f",
+          "bedoeling_hash": "961b926126b4988de99f569a4845dcb5fffe0527c318b64204fac475ae035c1e",
+          "context_hash": "0063a1e89ed19f6577cfd822a6682e25eac187ee348ee50868af2268b9e58b28",
+          "bronnen_hash": "fab1f48788c060dfcc82909a8cf0ba76a582a938d6a95e960178fd85a3ae30c0"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:06:27.675301+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 10304,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "review_required",
+        "reden": "insufficient_information",
+        "melding": "INT-02 — Onvoldoende informatie. Strijdige betekenisgrond voor 'Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.': bronpassage B1 ('Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten).') gebruikt de inhoud als kenmerk van het begrip; bronpassage B2 ('Controleer per actieve aanbieding of er nog een belanghebbende beschikbaar is. Zet de aanbieding voort zolang dat het geval is.') stelt de inhoud als plicht of afweging van een actor; de bevestigde bedoeling beslist dat niet. Vraag: Bepaalt deze passage wat tot het begrip behoort, of schrijft zij een actor een handeling of afweging voor?",
+        "vraag": "Bepaalt deze passage wat tot het begrip behoort, of schrijft zij een actor een handeling of afweging voor?",
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": "conflict",
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "conflict",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 84,
+                "function": "unclear",
+                "ground": {
+                  "end": 412,
+                  "field": "bron",
+                  "quote": "Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten).",
+                  "ref": "B1",
+                  "start": 225
+                },
+                "quote": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+                "regel": "conflict",
+                "start": 0,
+                "uitkomst": "review"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 412,
+                  "function": "criterion",
+                  "quote": "Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten).",
+                  "start": 225
+                },
+                {
+                  "bron": "bron/B2",
+                  "end": 374,
+                  "function": "actor_prescription",
+                  "quote": "Controleer per actieve aanbieding of er nog een belanghebbende beschikbaar is. Zet de aanbieding voort zolang dat het geval is.",
+                  "start": 247
+                }
+              ],
+              "end": 84,
+              "kernvorm": "descriptive_act",
+              "quote": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern is één beschrijvende zin (genus 'Aanbieding' met een betrekkelijke bijzin als kenmerk), geen gebiedende wijs of modale plicht. B1 plaatst de zin in een typologie waarin het kenmerk 'belanghebbende nog beschikbaar / voortzetting' onderscheidt van 'vervallen' en 'gegunde' aanbieding; daarmee functioneert de inhoud als begripsbepalend criterium. B2 bevat weliswaar hetzelfde handelen als werkinstructie voor behandelaars, maar daar is de zin de kopregel/omschrijving naast een afzonderlijke werkwijze; dat de instructiekaart het handelen elders voorschrijft maakt de definitiekern zelf niet tot handelingsvoorschrift. Geen discretionaire afweging: de voorzetting hangt af van een feitelijk kenmerk (beschikbaarheid van een belanghebbende). Geen beslissende onzekerheid.",
+          "scope_reason": null,
+          "uncertainty": "non_decisive",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "review_required",
+        "juist": false,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "conflict",
+        "modelstatus": "pass",
+        "omzetting": "conflict",
+        "omzettingsrichting": "pass→review_required"
+      }
+    },
+    {
+      "id": "G039",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "bd2914246db1b13d39f78bd851a60f0eec38bdc982a08d56f691b5ad11322e0c",
+      "antwoord_sha256": "4ef18316767267f2c5668986332cc1c6080e81d74b88ce1c9e0d055139c8298d",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "e4bb6cb29411e823ca6e47d469ee286327d9dc87308424df40ea68adddf01825",
+        "telpayload_sha256": "49e50eebe5ee3604f777815a8b7b8ee5255e9561f1d41f63826855977663cd02",
+        "geschatte_invoertokens": 5906,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.043355000000000005,
+        "duur_ms": 9632,
+        "http_status": 200,
+        "request_id": "req_011CfpResvmA2ViZhetmnGJM",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5906,
+          "output_tokens": 553
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "adviesprocedure",
+          "kern": "Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.",
+          "bedoeling": "De term wordt opgenomen in de procescatalogus van de organisatie. Die catalogus rubriceert processen naar hun eindresultaat.",
+          "organisatorische_context": [
+            "Procescatalogus Jeneverbes (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Procescatalogus Jeneverbes (fictief; geen geldend recht), rubriek Advisering: 'Het proces met als eindresultaat een gemotiveerd advies omvat drie fasen: ontvangst van de adviesvraag, onderzoek en beantwoording. Per afdeling staat in de werkinstructies W-12 tot en met W-15 wie een fase uitvoert en binnen welke termijn.'"
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "7dc88c78ca48ab19f3ea50b2e8ba246a2a009758cc492f500f13b4404762df5e",
+          "kern_hash": "d523dfedcf12eded7210d0af779608d7e8723e26dfde147eb7f726dc86149ae6",
+          "bedoeling_hash": "476a4c733c9e679d8f5c3448e34caf693893f6142308819ad1d43e5114506133",
+          "context_hash": "5baa01d5504579a53619ffb597441d36254f2d180e5ffe4d8df395c373602ec2",
+          "bronnen_hash": "15c908df8e8c1abb40e6492c9dec6e7053ccfef442f157466f23792f01b426bb"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:06:37.980083+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 9897,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.' beschrijft een criterium; grond: de bevestigde bedoeling ('Die catalogus rubriceert processen naar hun eindresultaat.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 120,
+                "function": "criterion",
+                "ground": {
+                  "end": 124,
+                  "field": "bedoeling",
+                  "quote": "Die catalogus rubriceert processen naar hun eindresultaat.",
+                  "ref": null,
+                  "start": 66
+                },
+                "quote": "Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 124,
+                  "function": "criterion",
+                  "quote": "Die catalogus rubriceert processen naar hun eindresultaat.",
+                  "start": 66
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 210,
+                  "function": "criterion",
+                  "quote": "Het proces met als eindresultaat een gemotiveerd advies omvat drie fasen: ontvangst van de adviesvraag, onderzoek en beantwoording.",
+                  "start": 79
+                }
+              ],
+              "end": 120,
+              "kernvorm": "descriptive_act",
+              "quote": "Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern beschrijft het begrip als een samenhang van activiteiten met een genus ('Samenhang van activiteiten') en kenmerken (ontvangst, onderzoek, gemotiveerd antwoord), in passieve beschrijvende vorm. Er wordt geen actor aangesproken, geen handeling voorgeschreven en geen afweging aan een actor gelaten; B1 bevestigt dat de drie fasen het proces typeren en dat wie uitvoert en binnen welke termijn juist elders (werkinstructies) is geregeld. De bedoeling bevestigt rubricering naar eindresultaat, dus kenmerkend gebruik.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G007",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "a1eacac817dd376f8949d42f731ac848c350c0187332f4f1236626ab1fedc51f",
+      "antwoord_sha256": "272ac84a9c9f6c8ebff56fa8b051ec23708011d81e2cfea3fab91ba952a6828b",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "136b22171bae30a1f38166207134d9f15088b0d99539fc40ca7e192957eaef22",
+        "telpayload_sha256": "9e80c2551d969c6d86bdaeca6f327b3a899d7382d3ea63ff2c83d07aada39d05",
+        "geschatte_invoertokens": 5779,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.040470000000000006,
+        "duur_ms": 6387,
+        "http_status": 200,
+        "request_id": "req_011CfpRfdhX7KeduYZocC7Lx",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5779,
+          "output_tokens": 463
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "meldingsverbod",
+          "kern": "Norm die het bekendmaken van een nog niet vrijgegeven proefresultaat uitsluit.",
+          "bedoeling": "Het begrip is een type norm binnen een fictief onderzoeksreglement.",
+          "organisatorische_context": [
+            "Proefreglement Acacia (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Het begrippenmodel onderscheidt verboden, geboden en bevoegdheden. Het meldingsverbod heeft betrekking op bekendmaking vóór vrijgave."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "2297afab3b9fa396a68fa6ec1a42df7b3c12992eb88bab51b3a1ac89d5798a91",
+          "kern_hash": "b4c6ab3d40e52e7c7e5f310e7c4b0246d23e8d84c9460b15d56021a8818fdbe4",
+          "bedoeling_hash": "63927e4fa5dc6b166ca7a6e629f581fa551b4002c76f4f4d94b0671a95e776bf",
+          "context_hash": "3a5930a27ca96e10d81c601e0cb0714a1c3f1bb26761026816f460e9aa970f9e",
+          "bronnen_hash": "b605a533daf45416164f5006768e024e726caf04791f6e70ec73a1492a54662a"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:06:47.877179+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 7022,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Norm die het bekendmaken van een nog niet vrijgegeven proefresultaat uitsluit.' beschrijft een criterium; grond: de bevestigde bedoeling ('Het begrip is een type norm binnen een fictief onderzoeksreglement.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 78,
+                "function": "criterion",
+                "ground": {
+                  "end": 67,
+                  "field": "bedoeling",
+                  "quote": "Het begrip is een type norm binnen een fictief onderzoeksreglement.",
+                  "ref": null,
+                  "start": 0
+                },
+                "quote": "Norm die het bekendmaken van een nog niet vrijgegeven proefresultaat uitsluit.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 67,
+                  "function": "criterion",
+                  "quote": "Het begrip is een type norm binnen een fictief onderzoeksreglement.",
+                  "start": 0
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 133,
+                  "function": "criterion",
+                  "quote": "Het meldingsverbod heeft betrekking op bekendmaking vóór vrijgave.",
+                  "start": 67
+                }
+              ],
+              "end": 78,
+              "kernvorm": "no_act",
+              "quote": "Norm die het bekendmaken van een nog niet vrijgegeven proefresultaat uitsluit.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern definieert het begrip als genus ('Norm') met kenmerk (het uitsluiten van bekendmaking van een nog niet vrijgegeven proefresultaat). Dit is een beschrijving van de inhoud van een norm, geen gebiedende wijs, geen plicht aan een actor en geen afweging. De bedoeling bevestigt dat het om een normtype gaat; B1 bevestigt het afbakenende kenmerk (bekendmaking vóór vrijgave). Geen INT-02-gebrek.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G021",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "dd355b38ba5ef92bc8bc3535c16e52865d34a1105859bff26321d8ad682c76ba",
+      "antwoord_sha256": "3cab848a28b3695ed78898d577d3cb7b4687a56aa9efb50a2fce89fd8709bcfb",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "bcd64ab86c2f71591bb7674ebadf4ed36f1157be7ed590f0b598cb4dbec4461c",
+        "telpayload_sha256": "c8e0c005edd855f5d2ee8654eadaf99873f3a70a31669baa5c99a0d44c6c589a",
+        "geschatte_invoertokens": 5944,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.04322,
+        "duur_ms": 6149,
+        "http_status": 200,
+        "request_id": "req_011CfpRg8jXLJrnCL2Z8cK1k",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5944,
+          "output_tokens": 540
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "drempelbeslissing",
+          "kern": "Beslissing waarin een commissie vastlegt of een project volgens haar gemotiveerde beoordeling voor een nadere verkenning in aanmerking komt.",
+          "bedoeling": "De term wordt in het projectmodel gebruikt voor het stuk dat na de eerste beoordeling van een projectvoorstel in het projectdossier komt.",
+          "organisatorische_context": [
+            "Projectmodel Hazelaar (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Projectmodel Hazelaar (fictief; geen geldend recht), §4.1: 'De eerste beoordeling van een projectvoorstel eindigt met een drempelbeslissing. De drempelbeslissing staat in het verslag van de commissievergadering en vermeldt met de motivering van de commissie of het project voor een nadere verkenning in aanmerking komt.' §4.2: 'De beoordelingscriteria en de werkwijze van de commissie staan in het beoordelingskader (bijlage 2).'"
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "f4cdb537f6ff8fbb2435aa950408c8aad3b2227dc7167daaee160364d6c0f47b",
+          "kern_hash": "0206840ae6e5904bc22f5e4e3a2261f04a2b39ad5a95707aafa67fc4b2fb1317",
+          "bedoeling_hash": "fae18b5fa9a7d8786b8a87bb0b7e5b319fad3c32a438a77945821765f1c1daa1",
+          "context_hash": "5f2365caa838f26a4f1d9f2e4eb366d4b56c1fb1765b9940a1a10b879d480753",
+          "bronnen_hash": "1095355e2d31d4b802bb3d4f020c73112aa2bf464654db4e6b6c1c12a43ef15c"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:06:54.899814+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 6552,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Beslissing waarin een commissie vastlegt of een project volgens haar gemotiveerde beoordeling voor een nadere verkenning in aanmerking komt.' beschrijft een criterium; grond: bronpassage B1 ('De drempelbeslissing staat in het verslag van de commissievergadering en vermeldt met de motivering van de commissie of het project voor een nadere verkenning in aanmerking komt.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 140,
+                "function": "criterion",
+                "ground": {
+                  "end": 319,
+                  "field": "bron",
+                  "quote": "De drempelbeslissing staat in het verslag van de commissievergadering en vermeldt met de motivering van de commissie of het project voor een nadere verkenning in aanmerking komt.",
+                  "ref": "B1",
+                  "start": 141
+                },
+                "quote": "Beslissing waarin een commissie vastlegt of een project volgens haar gemotiveerde beoordeling voor een nadere verkenning in aanmerking komt.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 319,
+                  "function": "criterion",
+                  "quote": "De drempelbeslissing staat in het verslag van de commissievergadering en vermeldt met de motivering van de commissie of het project voor een nadere verkenning in aanmerking komt.",
+                  "start": 141
+                }
+              ],
+              "end": 140,
+              "kernvorm": "descriptive_act",
+              "quote": "Beslissing waarin een commissie vastlegt of een project volgens haar gemotiveerde beoordeling voor een nadere verkenning in aanmerking komt.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern beschrijft het begrip als genus 'beslissing' met als kenmerk de inhoud ervan (vastleggen of het project voor nadere verkenning in aanmerking komt, met motivering van de commissie). Dit is een beschrijving van een beslissing als begripskenmerk, niet een voorschrift aan de commissie om zo te handelen of een discretionaire beslisregel die de afweging zelf uitvoert; de beoordelingscriteria en werkwijze staan blijkens B1 §4.2 elders. Bron B1 gebruikt dezelfde inhoud als kenmerk van de drempelbeslissing. Geen INT-02-gebrek.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G037",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "f5dd9625a3b7f627f3997d1a2df8e75cfd774fde0113d0366209c32dd60ef118",
+      "antwoord_sha256": "2d534626832a402a984f6e87fea2338d0e181f9d8be0c1fe47ef7da92d8b64a2",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "dba3c676840b8bd86fb1e0f6fc0172ffdb54a29d9e4b1417caadb4ee7bd3eaf9",
+        "telpayload_sha256": "341743df5f00bb12b21dce791349a1781d36d17ad27fc5fbbfe01302962f953b",
+        "geschatte_invoertokens": 5835,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.042575,
+        "duur_ms": 7922,
+        "http_status": 200,
+        "request_id": "req_011CfpRgc9351qtSf9Ykr1Lx",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5835,
+          "output_tokens": 536
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "leveringsgarantie",
+          "kern": "Toezegging van een leverancier dat vervanging zonder aanvullende vergoeding beschikbaar is wanneer het geleverde exemplaar binnen de overeengekomen periode uitvalt.",
+          "bedoeling": "De term benoemt de toezegging en haar bereik in een fictief afsprakenmodel.",
+          "organisatorische_context": [
+            "Werkplaats Ceder (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Het afsprakenmodel onderscheidt een leveringsgarantie van het feitelijk leveren van vervanging. De garantie omvat de genoemde uitvalsperiode en het ontbreken van een aanvullende vergoeding."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "d210b562d386dc66247d95700e00acbb57998472bd45222c7422ec5f882ad047",
+          "kern_hash": "ae57009156cab7b05597bf1d3c8b41311f5cc41d092b2e11aa56c734fb840b7e",
+          "bedoeling_hash": "2c3a559ac54a4fb668a552ba7390c4f30661a772c23a9338f47663a502e49819",
+          "context_hash": "1cd541167bba67f1de5b38647dc64e22c7fb73bc84a05e0da841b6e1e2a3b713",
+          "bronnen_hash": "350a5c6d13b42a6f575ce8f06aa51b4a7eac90a248dfb01878943ce68aada2fd"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:07:01.452418+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 8178,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Toezegging van een leverancier dat vervanging zonder aanvullende vergoeding beschikbaar is wanneer het geleverde exemplaar binnen de overeengekomen periode uitvalt.' beschrijft een criterium; grond: de bevestigde bedoeling ('De term benoemt de toezegging en haar bereik in een fictief afsprakenmodel.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 164,
+                "function": "criterion",
+                "ground": {
+                  "end": 75,
+                  "field": "bedoeling",
+                  "quote": "De term benoemt de toezegging en haar bereik in een fictief afsprakenmodel.",
+                  "ref": null,
+                  "start": 0
+                },
+                "quote": "Toezegging van een leverancier dat vervanging zonder aanvullende vergoeding beschikbaar is wanneer het geleverde exemplaar binnen de overeengekomen periode uitvalt.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 75,
+                  "function": "criterion",
+                  "quote": "De term benoemt de toezegging en haar bereik in een fictief afsprakenmodel.",
+                  "start": 0
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 189,
+                  "function": "criterion",
+                  "quote": "De garantie omvat de genoemde uitvalsperiode en het ontbreken van een aanvullende vergoeding.",
+                  "start": 96
+                }
+              ],
+              "end": 164,
+              "kernvorm": "no_act",
+              "quote": "Toezegging van een leverancier dat vervanging zonder aanvullende vergoeding beschikbaar is wanneer het geleverde exemplaar binnen de overeengekomen periode uitvalt.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern beschrijft het begrip als een toezegging met genus ('Toezegging van een leverancier') en afbakenende kenmerken (geen aanvullende vergoeding, uitval binnen de overeengekomen periode). De voorwaardelijke vorm 'wanneer ... uitvalt' bakent het bereik van de toezegging af en is geen handelingsvoorschrift; B1 bevestigt expliciet het onderscheid met het feitelijk leveren van vervanging en benoemt de kenmerken als onderdeel van de garantie. Geen afweging van een actor wordt voorgeschreven.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G041",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "d0b76793dcbd40c41cdc6d0a24f8e789085544f6b4689e52af62be0353fab84d",
+      "antwoord_sha256": "97288af82ac435d6d4f9cba7b24db76e23d25a0b03b89d927b538479a4cf220a",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "08969afa2da8b95b1fdf1087ea3f0861d097da1320abaf89de9666f9566dfd64",
+        "telpayload_sha256": "c5e4bf258adadbf43d4d5eca199c32d2d76eddc3df844b32d46b27f1311c7d74",
+        "geschatte_invoertokens": 6014,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.043945000000000005,
+        "duur_ms": 16373,
+        "http_status": 200,
+        "request_id": "req_011CfpRhDLNp2cKLxyLBKCzr",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 6014,
+          "output_tokens": 555
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "meldplichtige wijziging",
+          "kern": "Wijziging in de samenstelling van een product die de producent vóór de eerste levering van het gewijzigde product aan het productregister moet melden.",
+          "bedoeling": "De term wordt opgenomen in de begrippenlijst bij het productregister, naast de termen 'productwijziging' en 'melding'.",
+          "organisatorische_context": [
+            "Productregister Wegedoorn (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Registerreglement Wegedoorn (fictief; geen geldend recht), art. 8: 'Een producent meldt een wijziging in de samenstelling van een product aan het productregister vóór de eerste levering van het gewijzigde product. Dit reglement noemt zo'n wijziging een meldplichtige wijziging. Wijzigingen in verpakking of etiket zijn geen meldplichtige wijzigingen.'"
+            },
+            {
+              "id": "B2",
+              "tekst": "Registerreglement Wegedoorn (fictief; geen geldend recht), art. 9: 'Het productregister vermeldt bij iedere ontvangen melding de datum van ontvangst en de datum van eerste levering die de producent opgeeft.'"
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "25b515fb4d9bab0acd53b732b71a346e775bcdeae700f0179082ae34a0b4fab8",
+          "kern_hash": "911df6af21b6fa8c9ad811beb569fa8e45986f636e624fb610ff4e31052a5bc7",
+          "bedoeling_hash": "ca96c94b6142b2249bd1cd8bb173e477326cef1212ca294e00a9f77b7f70eaf3",
+          "context_hash": "032b478bfa71429e110a5d82774ac6c6715507966dc0190febef2c5d4637b80b",
+          "bronnen_hash": "f809c861dbf532c7a4c307cb0096ff5704a1121b9bfcec70ffefbceb96163758"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:07:09.630970+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 16669,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Wijziging in de samenstelling van een product die de producent vóór de eerste levering van het gewijzigde product aan het productregister moet melden.' beschrijft een criterium; grond: bronpassage B1 ('Dit reglement noemt zo'n wijziging een meldplichtige wijziging. Wijzigingen in verpakking of etiket zijn geen meldplichtige wijzigingen.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 150,
+                "function": "criterion",
+                "ground": {
+                  "end": 350,
+                  "field": "bron",
+                  "quote": "Dit reglement noemt zo'n wijziging een meldplichtige wijziging. Wijzigingen in verpakking of etiket zijn geen meldplichtige wijzigingen.",
+                  "ref": "B1",
+                  "start": 214
+                },
+                "quote": "Wijziging in de samenstelling van een product die de producent vóór de eerste levering van het gewijzigde product aan het productregister moet melden.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 350,
+                  "function": "criterion",
+                  "quote": "Dit reglement noemt zo'n wijziging een meldplichtige wijziging. Wijzigingen in verpakking of etiket zijn geen meldplichtige wijzigingen.",
+                  "start": 214
+                },
+                {
+                  "bron": "bron/B2",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                }
+              ],
+              "end": 150,
+              "kernvorm": "obligation_form",
+              "quote": "Wijziging in de samenstelling van een product die de producent vóór de eerste levering van het gewijzigde product aan het productregister moet melden.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern heeft een genus-kenmerkstructuur ('Wijziging in de samenstelling van een product die ...') waarin de meldplicht als onderscheidend kenmerk wordt beschreven, niet als zelfstandig handelingsvoorschrift aan de producent. B1 bevestigt dat juist dit kenmerk (samenstellingswijziging met meldplicht vóór eerste levering) bepaalt wat tot het begrip behoort en sluit verpakkings-/etiketwijzigingen uit. Het modale 'moet' binnen de relatieve bijzin is geen bewijs van een beslisregel; er is geen discretionaire afweging.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G046",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "5b23e3cf333fb016a6c00cbc0ed51671be3a99ac169df5238609f9d92e82fa39",
+      "antwoord_sha256": "01b7b7607c7ac42c0c176a53085d6e4fab853152cb3b519dfbebc684baf14a9c",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "dc3eb4518570a91dde897b37b2a107c580d1fd7de14b904d7b3e22bc15e4fde9",
+        "telpayload_sha256": "4c2de1cd2ea278ecece74998592755dec136650dd7c8b2bc8025b2149e5471d5",
+        "geschatte_invoertokens": 6018,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.04619,
+        "duur_ms": 16135,
+        "http_status": 200,
+        "request_id": "req_011CfpRiSQwtiGdqXFeyrbtJ",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 6018,
+          "output_tokens": 644
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "werkmandaat",
+          "kern": "Bevoegdheid die het bestuur schriftelijk aan een medewerker verleent en op ieder moment kan intrekken, om binnen een omschreven taak namens het bestuur besluiten te nemen.",
+          "bedoeling": "De term wordt opgenomen in het bevoegdhedenregister van de stichting.",
+          "organisatorische_context": [
+            "Stichting Vuilboom (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Stichtingsreglement Vuilboom (fictief; geen geldend recht), art. 20: 'Het bestuur kan een medewerker schriftelijk werkmandaat verlenen om binnen een omschreven taak namens het bestuur besluiten te nemen. Het bestuur kan een werkmandaat op ieder moment intrekken. Een besluit binnen het werkmandaat geldt als besluit van het bestuur.'"
+            },
+            {
+              "id": "B2",
+              "tekst": "Bevoegdhedenregister Vuilboom (fictief), regel 14: 'Werkmandaat; medewerker inkoop; taak: bestellingen tot 5.000 euro; verleend 3 februari 2026; niet ingetrokken.'"
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "08940ad4361edf0a2db898df7d618e3db1e3d40d13eebe69f6b567ad9713dc1d",
+          "kern_hash": "de4904179762d5190ecca0467de6553dd47c5d1fc2a21b2b0eb95ebb38bf628c",
+          "bedoeling_hash": "33ada80f2c3e585bac955352c5d427b773e50c90fbc12e939e0b1ed4dfbc838f",
+          "context_hash": "148e7facba619b16f386013652a56a9b04215e94c38f8a9a08be2980df1d6b68",
+          "bronnen_hash": "4e23675648ef8d2fc5f2a65dbc86086d33750a5310a8a03fe4dc8baca7f4269e"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:07:26.300926+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 16395,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Bevoegdheid die het bestuur schriftelijk aan een medewerker verleent en op ieder moment kan intrekken, om binnen een omschreven taak namens het bestuur besluiten te nemen.' beschrijft een criterium; grond: bronpassage B1 ('Het bestuur kan een medewerker schriftelijk werkmandaat verlenen om binnen een omschreven taak namens het bestuur besluiten te nemen. Het bestuur kan een werkmandaat op ieder moment intrekken.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 171,
+                "function": "criterion",
+                "ground": {
+                  "end": 262,
+                  "field": "bron",
+                  "quote": "Het bestuur kan een medewerker schriftelijk werkmandaat verlenen om binnen een omschreven taak namens het bestuur besluiten te nemen. Het bestuur kan een werkmandaat op ieder moment intrekken.",
+                  "ref": "B1",
+                  "start": 70
+                },
+                "quote": "Bevoegdheid die het bestuur schriftelijk aan een medewerker verleent en op ieder moment kan intrekken, om binnen een omschreven taak namens het bestuur besluiten te nemen.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 262,
+                  "function": "criterion",
+                  "quote": "Het bestuur kan een medewerker schriftelijk werkmandaat verlenen om binnen een omschreven taak namens het bestuur besluiten te nemen. Het bestuur kan een werkmandaat op ieder moment intrekken.",
+                  "start": 70
+                },
+                {
+                  "bron": "bron/B2",
+                  "end": 162,
+                  "function": "criterion",
+                  "quote": "Werkmandaat; medewerker inkoop; taak: bestellingen tot 5.000 euro; verleend 3 februari 2026; niet ingetrokken.",
+                  "start": 52
+                }
+              ],
+              "end": 171,
+              "kernvorm": "descriptive_act",
+              "quote": "Bevoegdheid die het bestuur schriftelijk aan een medewerker verleent en op ieder moment kan intrekken, om binnen een omschreven taak namens het bestuur besluiten te nemen.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern beschrijft het begrip met genus ('Bevoegdheid') en kenmerken: schriftelijke verlening door het bestuur aan een medewerker, intrekbaarheid op ieder moment, en de inhoud (binnen een omschreven taak namens het bestuur besluiten nemen). De verlening en intrekking worden in beschrijvende vorm als kenmerk genoemd, niet als opdracht aan het bestuur; B1 bevestigt deze elementen als begripskenmerken en B2 toont ze als registratiekenmerken. Geen discretionaire beslisregel die een afweging over handelen voorschrijft.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G055",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "27819f9bd30cac2dd2247c476002e82143c78e9d2ae84a2818db4018b948de96",
+      "antwoord_sha256": "152563b9d634b81b59aa297436f3da5085545112025b52d9bf9a718f0c3512b6",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "e2f900d131d63c4fd6f881b61206a952a32d7d3d492733abed8b1a72de6ddc63",
+        "telpayload_sha256": "592ee07ec7c8c6f9ddbf1962d8124430a15bf1dadc5ff2393fd23fbea9f3999d",
+        "geschatte_invoertokens": 6012,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.04388500000000001,
+        "duur_ms": 6889,
+        "http_status": 200,
+        "request_id": "req_011CfpRjeitzotAe2Apd3wzB",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 6012,
+          "output_tokens": 553
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "openbare vergadering",
+          "kern": "Vergadering van de ledenraad die de voorzitter niet vóór de aanvang besloten heeft verklaard.",
+          "bedoeling": "De term wordt gebruikt in de vergaderkalender van de coöperatie, die bij iedere vergadering van de ledenraad vermeldt of zij openbaar of besloten is.",
+          "organisatorische_context": [
+            "Coöperatie Vlier (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Reglement ledenraad Vlier (fictief; geen geldend recht), art. 8: 'De vergaderingen van de ledenraad zijn openbaar. De voorzitter kan een vergadering vóór de aanvang besloten verklaren wanneer de voorzitter dat ter bescherming van de persoonlijke levenssfeer van een lid nodig acht. Een besloten verklaring wordt in de vergaderkalender vermeld.'"
+            },
+            {
+              "id": "B2",
+              "tekst": "Vergaderkalender ledenraad Vlier 2026 (fictief): '12 februari: openbaar. 9 april: besloten (besloten verklaard op 2 april). 11 juni: openbaar.'"
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "4c9b1140e20162d995c64c8cfe6da25c20430cb6601f40e3b988d9c1fe6626b6",
+          "kern_hash": "f7089371391993c5ed593232e3050768690d2f45ce63dd09e0a791ac1e1d7553",
+          "bedoeling_hash": "3b9e8664c2343377b398216a875e78c062651f23edab1616bd1c0a72e8d1490d",
+          "context_hash": "4594d3953693780083448001508390f106ff4b3d79fd5ff4f3cff407874bb2ff",
+          "bronnen_hash": "ff812a3b22a5d3379d553bc8c666c8807bc36e47952dd181992f45395d23f0e2"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:07:42.696738+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 7196,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Vergadering van de ledenraad die de voorzitter niet vóór de aanvang besloten heeft verklaard.' beschrijft een criterium; grond: bronpassage B1 ('De vergaderingen van de ledenraad zijn openbaar. De voorzitter kan een vergadering vóór de aanvang besloten verklaren'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 93,
+                "function": "criterion",
+                "ground": {
+                  "end": 183,
+                  "field": "bron",
+                  "quote": "De vergaderingen van de ledenraad zijn openbaar. De voorzitter kan een vergadering vóór de aanvang besloten verklaren",
+                  "ref": "B1",
+                  "start": 66
+                },
+                "quote": "Vergadering van de ledenraad die de voorzitter niet vóór de aanvang besloten heeft verklaard.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 183,
+                  "function": "criterion",
+                  "quote": "De vergaderingen van de ledenraad zijn openbaar. De voorzitter kan een vergadering vóór de aanvang besloten verklaren",
+                  "start": 66
+                },
+                {
+                  "bron": "bron/B2",
+                  "end": 122,
+                  "function": "criterion",
+                  "quote": "9 april: besloten (besloten verklaard op 2 april)",
+                  "start": 73
+                }
+              ],
+              "end": 93,
+              "kernvorm": "descriptive_act",
+              "quote": "Vergadering van de ledenraad die de voorzitter niet vóór de aanvang besloten heeft verklaard.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern beschrijft het begrip met één onderscheidend kenmerk: het ontbreken van een besloten verklaring door de voorzitter vóór de aanvang. Dat is een beschrijvende verwijzing naar het bestaan/uitblijven van een beslissing, niet een voorschrift aan de voorzitter en ook geen afweging die de kern zelf uitvoert; de discretionaire afweging ('nodig acht') uit B1 is juist niet in de kern opgenomen. B1 bevestigt het kenmerk als afbakening (openbaar tenzij besloten verklaard) en B2 toont de toepassing ervan in de kalender.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G008",
+      "status": "fail",
+      "reden": null,
+      "verdict": "fail",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "f81131da9d4e7d8e85dd609ebed1fbc1087d7ef14fbf966c19d2313873cc1c46",
+      "antwoord_sha256": "71c6d13776592ea7d748d4b530ae5599aa84a20333d82f21f487548f3d163738",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "369d9f826ce9e1a1620396ffa638a55f73dbaafe2c7baa3c03b253888041700f",
+        "telpayload_sha256": "67aee416b279df7ef398fe0329c42d01b539a1c1b3eadb44dd28461a8ff616f9",
+        "geschatte_invoertokens": 5789,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.03962,
+        "duur_ms": 6806,
+        "http_status": 200,
+        "request_id": "req_011CfpRkBDhceoEMhncSEfdQ",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5789,
+          "output_tokens": 427
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "geblokkeerd transport",
+          "kern": "Zet een transport apart, registreer de reden en vraag de ploegchef om verdere aanwijzingen.",
+          "bedoeling": "Deze tekst staat in een definitieveld voor een transportstatus; zij komt letterlijk uit het fictieve handboek.",
+          "organisatorische_context": [
+            "Transporthandboek Palm (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "De geciteerde handboekregel richt zich tot de medewerker die een blokkering constateert. Het handboek is voor deze organisatie vastgesteld."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "168e0c6385058c0add21f4513f1ce2d52df22bfce1eb1d74f1ae5f590ef83f2f",
+          "kern_hash": "fb4e6ca7620b083496bf02922b67fc205fb3c8bcd4e5ee2475c9ce817ec46cab",
+          "bedoeling_hash": "23fef756eb7ce676f6aa56476bf934b1a075f7a27b42ce474d1521129e99b313",
+          "context_hash": "59d5d34d8996ff61eb187703df384f9c7a0d1dd2f2d5c20843b70cd960db54e2",
+          "bronnen_hash": "1977e2bee20392717da103435fbaa9076a8dc12406c4be25d52df73c44962318"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:07:49.894207+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 7062,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "fail",
+        "reden": null,
+        "melding": "INT-02 — Voldoet niet. 'Zet een transport apart, registreer de reden en vraag de ploegchef om verdere aanwijzingen.' schrijft een handeling voor in plaats van het begrip af te bakenen. Grond: bronpassage B1 ('De geciteerde handboekregel richt zich tot de medewerker die een blokkering constateert.'). De tekst is ongewijzigd.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "voorschrift_in_kern",
+            "modelstatus": "fail",
+            "passages": [
+              {
+                "end": 91,
+                "function": "actor_prescription",
+                "ground": {
+                  "end": 88,
+                  "field": "bron",
+                  "quote": "De geciteerde handboekregel richt zich tot de medewerker die een blokkering constateert.",
+                  "ref": "B1",
+                  "start": 0
+                },
+                "quote": "Zet een transport apart, registreer de reden en vraag de ploegchef om verdere aanwijzingen.",
+                "regel": "voorschrift_in_kern",
+                "start": 0,
+                "uitkomst": "gebrek"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 88,
+                  "function": "actor_prescription",
+                  "quote": "De geciteerde handboekregel richt zich tot de medewerker die een blokkering constateert.",
+                  "start": 0
+                }
+              ],
+              "end": 91,
+              "kernvorm": "instruction",
+              "quote": "Zet een transport apart, registreer de reden en vraag de ploegchef om verdere aanwijzingen.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern bestaat volledig uit gebiedende wijs gerichte handelingen (apart zetten, registreren, aanwijzingen vragen) zonder genus of kenmerk dat afbakent wat een geblokkeerd transport is. Bron B1 bevestigt zelfstandig dat de regel zich tot een medewerker richt als handelingsvoorschrift. De definitiekern functioneert daarmee als procedure/actorvoorschrift en niet als begripsafbakening.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "fail"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "fail",
+      "evaluatie": {
+        "verwacht": "fail",
+        "waargenomen": "fail",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "voorschrift_in_kern",
+        "modelstatus": "fail",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G012",
+      "status": "fail",
+      "reden": null,
+      "verdict": "fail",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "c1e655a96dd1bdee41979ffe25c8c0a56c7f1b8b7ab394dd2299126bdf8baf2d",
+      "antwoord_sha256": "dd3af1c047e916255bf63325f00ede10698ea470104c09a3cca24ec5f0eb44d5",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "c1dee324e6175ece8e42d2d43f2e2e44126ea88f795020a836212aef149e1d0c",
+        "telpayload_sha256": "4c29a848343ce04d335547e9d823f050d153df58e67810459eaa69114e0e14d1",
+        "geschatte_invoertokens": 5797,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.040885000000000005,
+        "duur_ms": 5580,
+        "http_status": 200,
+        "request_id": "req_011CfpRkmXTLNdG5W3mZUpaf",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5797,
+          "output_tokens": 476
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "storingsmelding",
+          "kern": "De meldkamer opent een incidentkaart en belt vervolgens de dienstdoende technicus.",
+          "bedoeling": "Deze tekst wordt aangeboden als definitie van storingsmelding in een begrippenlijst bij het operationele draaiboek.",
+          "organisatorische_context": [
+            "Draaiboek Plataan (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Onder de kop Storingsmelding staan achtereenvolgens de taken openen van een incidentkaart en bellen van de technicus; deze taken gelden bij iedere gemelde storing."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "89a9b9704af684c29c3fd4fb0b0c42e24a3cb43d555679388bdd5685abb1c02f",
+          "kern_hash": "1b0d31d6fb17f9a1506c1c0f520681d6d7931bfd644e15f6b5cebd2de9924c68",
+          "bedoeling_hash": "f1b93756b77f9412a1e785c0b3eef657d6e42f4fd865df2ac303422a7c72a2a8",
+          "context_hash": "b53eb02cad3f350f3ecee2e23ce40617adddd319287d2ef9436746ccd993fc5f",
+          "bronnen_hash": "06cde7881159e06335525ae99860c5f3e446a23f90376d41901d4556e1ec7f50"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:07:56.956629+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 6783,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "fail",
+        "reden": null,
+        "melding": "INT-02 — Voldoet niet. 'De meldkamer opent een incidentkaart en belt vervolgens de dienstdoende technicus.' schrijft een handeling voor in plaats van het begrip af te bakenen. Grond: bronpassage B1 ('Onder de kop Storingsmelding staan achtereenvolgens de taken openen van een incidentkaart en bellen van de technicus; deze taken gelden bij iedere gemelde storing.'). De tekst is ongewijzigd.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "voorschrift_in_kern",
+            "modelstatus": "fail",
+            "passages": [
+              {
+                "end": 82,
+                "function": "actor_prescription",
+                "ground": {
+                  "end": 163,
+                  "field": "bron",
+                  "quote": "Onder de kop Storingsmelding staan achtereenvolgens de taken openen van een incidentkaart en bellen van de technicus; deze taken gelden bij iedere gemelde storing.",
+                  "ref": "B1",
+                  "start": 0
+                },
+                "quote": "De meldkamer opent een incidentkaart en belt vervolgens de dienstdoende technicus.",
+                "regel": "voorschrift_in_kern",
+                "start": 0,
+                "uitkomst": "gebrek"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 163,
+                  "function": "actor_prescription",
+                  "quote": "Onder de kop Storingsmelding staan achtereenvolgens de taken openen van een incidentkaart en bellen van de technicus; deze taken gelden bij iedere gemelde storing.",
+                  "start": 0
+                }
+              ],
+              "end": 82,
+              "kernvorm": "instruction",
+              "quote": "De meldkamer opent een incidentkaart en belt vervolgens de dienstdoende technicus.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern bestaat volledig uit een hoofdzin met een actor (de meldkamer) als onderwerp en twee opeenvolgende handelingen als gezegde; er is geen genus met kenmerken die bepalen wat een storingsmelding is. Bron B1 bevestigt zelfstandig dat het om taken gaat die gelden bij iedere gemelde storing, dus om een procedure voor een actor en niet om begripsbepalende kenmerken. De definitie functioneert daarmee als handelingsvoorschrift/procedure.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "fail"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "fail",
+      "evaluatie": {
+        "verwacht": "fail",
+        "waargenomen": "fail",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "voorschrift_in_kern",
+        "modelstatus": "fail",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G036",
+      "status": "fail",
+      "reden": null,
+      "verdict": "fail",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "a837bee1580db7069a4bf9f5a690d48dfb273a11a6deab8e80b61712978fe043",
+      "antwoord_sha256": "fce0378a0d336d32a6c0190696a01c68e54966328c4353480c306ef25ed240bf",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "e171661f504dc8cbb2d1629522604676b7214b79216a1cf7fd44a4bf2c69ef9c",
+        "telpayload_sha256": "5b1d4c49ebd4566a0b12e7075adbf0320c028c3ad753491d749ddedbf125f78d",
+        "geschatte_invoertokens": 5829,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.04492,
+        "duur_ms": 7318,
+        "http_status": 200,
+        "request_id": "req_011CfpRmCmkYeB92RfQYbakZ",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5829,
+          "output_tokens": 631
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "herstelronde",
+          "kern": "Proces waarbij de medewerker alle afgekeurde exemplaren moet verzamelen en ze vóór sluiting opnieuw moet aanbieden.",
+          "bedoeling": "De term wordt in de procesoverzichten van de revisieproef gebruikt voor het proces waarin afgekeurde exemplaren opnieuw worden aangeboden.",
+          "organisatorische_context": [
+            "Revisieproef Ginkgo (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Voor iedere herstelronde gelden voor medewerkers de opdrachten verzamelen van afgekeurde exemplaren en opnieuw aanbieden vóór sluiting."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "0a520ba0ff516b6eca6721910b53e92921c2d6f87b42c5b1b5a7c3842a64cf87",
+          "kern_hash": "6a9391efcfb7eba40711f63b30559534803634a1f5d262dfb5a8cc16bd8373d2",
+          "bedoeling_hash": "52e3067fc114e589fa0b711931befdadedc1b924826a6dc970f3f4111648bfb0",
+          "context_hash": "4d36df260c150761064f3030a3d14df1d2c6e2c9d858386ae6215c6c27cb7463",
+          "bronnen_hash": "8a26807dec8b4547f3eb32aa41c89be83432de66aff33f83d70b3212f6c7e977"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:08:03.740986+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 7652,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "fail",
+        "reden": null,
+        "melding": "INT-02 — Voldoet niet. 'Proces waarbij de medewerker alle afgekeurde exemplaren moet verzamelen en ze vóór sluiting opnieuw moet aanbieden.' schrijft een handeling voor in plaats van het begrip af te bakenen. Grond: bronpassage B1 ('Voor iedere herstelronde gelden voor medewerkers de opdrachten verzamelen van afgekeurde exemplaren en opnieuw aanbieden vóór sluiting.'). De tekst is ongewijzigd.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "voorschrift_bevestigd",
+            "modelstatus": "fail",
+            "passages": [
+              {
+                "end": 115,
+                "function": "actor_prescription",
+                "ground": {
+                  "end": 135,
+                  "field": "bron",
+                  "quote": "Voor iedere herstelronde gelden voor medewerkers de opdrachten verzamelen van afgekeurde exemplaren en opnieuw aanbieden vóór sluiting.",
+                  "ref": "B1",
+                  "start": 0
+                },
+                "quote": "Proces waarbij de medewerker alle afgekeurde exemplaren moet verzamelen en ze vóór sluiting opnieuw moet aanbieden.",
+                "regel": "voorschrift_bevestigd",
+                "start": 0,
+                "uitkomst": "gebrek"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 137,
+                  "function": "unclear",
+                  "quote": "het proces waarin afgekeurde exemplaren opnieuw worden aangeboden",
+                  "start": 72
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 135,
+                  "function": "actor_prescription",
+                  "quote": "Voor iedere herstelronde gelden voor medewerkers de opdrachten verzamelen van afgekeurde exemplaren en opnieuw aanbieden vóór sluiting.",
+                  "start": 0
+                }
+              ],
+              "end": 115,
+              "kernvorm": "obligation_form",
+              "quote": "Proces waarbij de medewerker alle afgekeurde exemplaren moet verzamelen en ze vóór sluiting opnieuw moet aanbieden.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern formuleert binnen een genus-kenmerkstructuur ('Proces waarbij ...') twee verplichtingen aan een actor ('de medewerker moet ... verzamelen' en 'moet ... opnieuw aanbieden'). Bron B1 draagt deze functie zelfstandig: zij stelt juist deze handelingen als opdrachten voor medewerkers die gelden bij iedere herstelronde, dus als actorvoorschrift en niet als kenmerk dat bepaalt welke processen herstelronden zijn. De bedoeling beschrijft het proces slechts passief ('waarin afgekeurde exemplaren opnieuw worden aangeboden') en laat de functie open. Daarmee functioneert de definitiekern als handelingsvoorschrift voor een actor in plaats van als begripsafbakening.",
+          "scope_reason": null,
+          "uncertainty": "non_decisive",
+          "verdict": "fail"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "fail",
+      "evaluatie": {
+        "verwacht": "fail",
+        "waargenomen": "fail",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "voorschrift_bevestigd",
+        "modelstatus": "fail",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G048",
+      "status": "fail",
+      "reden": null,
+      "verdict": "fail",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "eec79f29f7bc95a277ba1579d1391fc0392ea0701577ab8c5ce1985eb35d6ca2",
+      "antwoord_sha256": "9a45712c244a6caaf284957265a566bf0b3b9a9a6f08b904e381117fbd96ab4f",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "1f6034d4ade494c46da597d0d098ddc2e7c2f7b76a2776ba97490ce6b88df309",
+        "telpayload_sha256": "531b8d519d5bb4270db54403a665c454c49d31aacdb5770c75033eac18c897e4",
+        "geschatte_invoertokens": 6106,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.053555000000000005,
+        "duur_ms": 10060,
+        "http_status": 200,
+        "request_id": "req_011CfpRmmJLuFTBA2gQsDPLj",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 6106,
+          "output_tokens": 921
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "tussentijdse meting",
+          "kern": "Meting van de grondwaterstand tussen twee reguliere meetmomenten, met dien verstande dat de meetploeg haar alleen na een alarmmelding uitvoert.",
+          "bedoeling": "De term wordt gebruikt in de kwartaalrapportage van het peilnet. Die rapportage telt reguliere en tussentijdse metingen afzonderlijk.",
+          "organisatorische_context": [
+            "Peilnet Wintergroen (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Meetplan peilnet Wintergroen (fictief; geen geldend recht), §5 'Meetfrequentie': 'De meetploeg meet de grondwaterstand op de reguliere meetmomenten, iedere eerste maandag van de maand. Tussen twee reguliere meetmomenten meet de meetploeg alleen na een alarmmelding van het peilsysteem.'"
+            },
+            {
+              "id": "B2",
+              "tekst": "Veldbeschrijving meetdatabase Wintergroen (fictief): 'Veld soort: regulier voor een meting op een regulier meetmoment, tussentijds voor iedere andere meting. Veld aanleiding, alleen bij tussentijdse metingen: alarm, klacht omwonende of kalibratiecontrole.' Kwartaaloverzicht eerste kwartaal 2026: 17 tussentijdse metingen, waarvan 6 met aanleiding alarm."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "92ed801b58ef1b3b438d7f7c035a68733b0f3e54c35169d0c50b76787dc754b3",
+          "kern_hash": "d4b24982fc23e01e6015dd7a44a47edf7fa6737122057adc1fe93f9e20fa7996",
+          "bedoeling_hash": "8f2af68bfced841729f39dcd737c2c3216543179d440ff782ff4e3268eef2a1e",
+          "context_hash": "5199adbe5390bb2a6148f58745e8ad7f3d58d99a1c9ca081c2bd720a7006d80c",
+          "bronnen_hash": "a5642f2e13ea4170a8d522e11d2ca2b1ee2f102ac4995f0b0f0a26683a5cab96"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:08:11.393744+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 10341,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "fail",
+        "reden": null,
+        "melding": "INT-02 — Voldoet niet. 'met dien verstande dat de meetploeg haar alleen na een alarmmelding uitvoert' schrijft een handeling voor in plaats van het begrip af te bakenen. Grond: bronpassage B1 ('De meetploeg meet de grondwaterstand op de reguliere meetmomenten, iedere eerste maandag van de maand.'). De tekst is ongewijzigd.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "voorschrift_bevestigd",
+            "modelstatus": "fail",
+            "passages": [
+              {
+                "end": 64,
+                "function": "criterion",
+                "ground": {
+                  "end": 157,
+                  "field": "bron",
+                  "quote": "Veld soort: regulier voor een meting op een regulier meetmoment, tussentijds voor iedere andere meting.",
+                  "ref": "B2",
+                  "start": 54
+                },
+                "quote": "Meting van de grondwaterstand tussen twee reguliere meetmomenten",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              },
+              {
+                "end": 142,
+                "function": "actor_prescription",
+                "ground": {
+                  "end": 184,
+                  "field": "bron",
+                  "quote": "De meetploeg meet de grondwaterstand op de reguliere meetmomenten, iedere eerste maandag van de maand.",
+                  "ref": "B1",
+                  "start": 82
+                },
+                "quote": "met dien verstande dat de meetploeg haar alleen na een alarmmelding uitvoert",
+                "regel": "voorschrift_bevestigd",
+                "start": 66,
+                "uitkomst": "gebrek"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 285,
+                  "function": "unclear",
+                  "quote": "Tussen twee reguliere meetmomenten meet de meetploeg alleen na een alarmmelding van het peilsysteem.",
+                  "start": 185
+                },
+                {
+                  "bron": "bron/B2",
+                  "end": 157,
+                  "function": "criterion",
+                  "quote": "Veld soort: regulier voor een meting op een regulier meetmoment, tussentijds voor iedere andere meting.",
+                  "start": 54
+                }
+              ],
+              "end": 64,
+              "kernvorm": "no_act",
+              "quote": "Meting van de grondwaterstand tussen twee reguliere meetmomenten",
+              "start": 0
+            },
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 184,
+                  "function": "actor_prescription",
+                  "quote": "De meetploeg meet de grondwaterstand op de reguliere meetmomenten, iedere eerste maandag van de maand.",
+                  "start": 82
+                },
+                {
+                  "bron": "bron/B2",
+                  "end": 255,
+                  "function": "not_a_criterion",
+                  "quote": "Veld aanleiding, alleen bij tussentijdse metingen: alarm, klacht omwonende of kalibratiecontrole.",
+                  "start": 158
+                }
+              ],
+              "end": 142,
+              "kernvorm": "descriptive_act",
+              "quote": "met dien verstande dat de meetploeg haar alleen na een alarmmelding uitvoert",
+              "start": 66
+            }
+          ],
+          "question": null,
+          "reason": "De eerste passage bakent het begrip af met een tijdscriterium (meting tussen twee reguliere meetmomenten), wat B2 bevestigt als begripskenmerk. De tweede passage voegt daar geen begripskenmerk aan toe maar neemt de gedragsregel uit het meetplan (§5 'Meetfrequentie') over: wanneer de meetploeg wel of niet mag meten. B1 stelt precies dit handelen als voorschrift voor de meetploeg, en B2 toont dat het geen begripskenmerk is: tussentijdse metingen kunnen ook de aanleiding klacht omwonende of kalibratiecontrole hebben (17 tussentijdse metingen, waarvan slechts 6 met aanleiding alarm). De definitiekern schrijft hiermee zelf het handelen van een actor voor in plaats van het begrip af te bakenen.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "fail"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "fail",
+      "evaluatie": {
+        "verwacht": "fail",
+        "waargenomen": "fail",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "voorschrift_bevestigd",
+        "modelstatus": "fail",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G050",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "2eac9f7d0871b50b41eb5898d6bb670236bc930b4a3bc9717c952a92565e5c57",
+      "antwoord_sha256": "7ccfe2dd492843b2d2da76f956ba8ba66a7e6eac52ee9d8953db2231779cbc5d",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "fd3f27cd5336a46cf767d4403fef4f34f84a0deb678e0c005189f8adc3fbe15b",
+        "telpayload_sha256": "b4a5b765f244f264e0bbfb8d0ccbb09ffed43a571dbf721885cb4e4c2ddc6643",
+        "geschatte_invoertokens": 6056,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.050955,
+        "duur_ms": 9393,
+        "http_status": 200,
+        "request_id": "req_011CfpRnXTfhrVQEYHoteZeP",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 6056,
+          "output_tokens": 827
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/4",
+        "invoer": {
+          "begrip": "servicetoeslag",
+          "kern": "Bedrag van vijf procent van de kale maandhuur, tenzij de huurcommissie een lager percentage passend vindt.",
+          "bedoeling": "De term wordt gebruikt op de jaarafrekening die leden van de wooncoöperatie ontvangen.",
+          "organisatorische_context": [
+            "Wooncoöperatie Egelantier (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Huisvestingsreglement Egelantier (fictief; geen geldend recht), art. 17: 'De servicetoeslag bedraagt vijf procent van de kale maandhuur. De huurcommissie kan voor een lid een lager percentage vaststellen als zij dat gelet op de inkomenssituatie van het lid passend vindt. Een lager percentage geldt tot het einde van het kalenderjaar waarin het is vastgesteld.'"
+            },
+            {
+              "id": "B2",
+              "tekst": "Jaarafrekening Egelantier 2025 (fictief), regel servicetoeslag: 'Servicetoeslag: 12 × 5% van € 640 = € 384.' Voorbeeldregel voor een lid met een door de huurcommissie vastgesteld percentage van 3%: 'Servicetoeslag: 12 × 3% van € 640 = € 230,40.'"
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/4",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "73a86db9c756da6e9bcd280c671620706d573bd59a16044aae2978d08cd853fe",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "57ce888a4cef49fe14b43802c8c04a7a5a44ab76d4676ddcb49b0d8364960e39",
+          "kern_hash": "5e48afe25673464218bf73ee0a02663d822e24920c8a04455ca77f8006af4012",
+          "bedoeling_hash": "0f9680ddddeeff2fe8699aa6fb700d67de0cd6c53897377fc112fadf12d1b978",
+          "context_hash": "98ad76c104fcd60f8eaf47821a3e9c46f51c8b6cbde79fef88d936539e63c095",
+          "bronnen_hash": "b149930778bbea02b8d296a36cd51bfab2b07163773bb6f0f3382854c9a22d37"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T08:08:21.735189+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 9647,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Bedrag van vijf procent van de kale maandhuur' beschrijft een afleiding; grond: bronpassage B1 ('De servicetoeslag bedraagt vijf procent van de kale maandhuur.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 45,
+                "function": "derivation",
+                "ground": {
+                  "end": 136,
+                  "field": "bron",
+                  "quote": "De servicetoeslag bedraagt vijf procent van de kale maandhuur.",
+                  "ref": "B1",
+                  "start": 74
+                },
+                "quote": "Bedrag van vijf procent van de kale maandhuur",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              },
+              {
+                "end": 105,
+                "function": "criterion",
+                "ground": {
+                  "end": 271,
+                  "field": "bron",
+                  "quote": "De huurcommissie kan voor een lid een lager percentage vaststellen als zij dat gelet op de inkomenssituatie van het lid passend vindt.",
+                  "ref": "B1",
+                  "start": 137
+                },
+                "quote": "tenzij de huurcommissie een lager percentage passend vindt",
+                "regel": "bronnen_beschrijvend",
+                "start": 47,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 136,
+                  "function": "derivation",
+                  "quote": "De servicetoeslag bedraagt vijf procent van de kale maandhuur.",
+                  "start": 74
+                },
+                {
+                  "bron": "bron/B2",
+                  "end": 107,
+                  "function": "derivation",
+                  "quote": "Servicetoeslag: 12 × 5% van € 640 = € 384.",
+                  "start": 65
+                }
+              ],
+              "end": 45,
+              "kernvorm": "no_act",
+              "quote": "Bedrag van vijf procent van de kale maandhuur",
+              "start": 0
+            },
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 271,
+                  "function": "criterion",
+                  "quote": "De huurcommissie kan voor een lid een lager percentage vaststellen als zij dat gelet op de inkomenssituatie van het lid passend vindt.",
+                  "start": 137
+                },
+                {
+                  "bron": "bron/B2",
+                  "end": 196,
+                  "function": "criterion",
+                  "quote": "Voorbeeldregel voor een lid met een door de huurcommissie vastgesteld percentage van 3%",
+                  "start": 109
+                }
+              ],
+              "end": 105,
+              "kernvorm": "discretion_form",
+              "quote": "tenzij de huurcommissie een lager percentage passend vindt",
+              "start": 47
+            }
+          ],
+          "question": null,
+          "reason": "De kern bakent het begrip af met een deterministische afleiding (vijf procent van de kale maandhuur) en een uitzondering. De tenzij-clausule verwijst naar een discretionaire bevoegdheid van de huurcommissie, maar de kern schrijft die afweging niet voor: B1 legt de bevoegdheid bij de huurcommissie en B2 laat zien dat het vastgestelde lagere percentage als uitkomst wordt gebruikt bij het bepalen van het bedrag. Het beschrijven van het bestaan en de uitkomst van zo'n beslissing als begripskenmerk is volgens INT-02 op zichzelf geen overtreding; de kern bevat geen handelingsvoorschrift of procedure voor een actor.",
+          "scope_reason": null,
+          "uncertainty": "non_decisive",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "fail",
+      "evaluatie": {
+        "verwacht": "fail",
+        "waargenomen": "pass",
+        "juist": false,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": true,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    }
+  ]
+}

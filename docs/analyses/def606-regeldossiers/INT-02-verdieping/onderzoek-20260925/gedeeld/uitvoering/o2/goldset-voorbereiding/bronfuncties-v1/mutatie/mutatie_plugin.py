@@ -144,6 +144,22 @@ MUTANTEN: dict[str, tuple[str, str, str]] = {
         "    if sleutel in bronnen or _gereserveerd(sleutel):",
         "    if sleutel in bronnen:",
     ),
+    # Besluit 22 (08-10-2026): R1 en R2 in contract /5.
+    "r1_weg_b22": (
+        "Besluit 22, R1: een discretievorm is nooit pass",
+        '        if oordeel["passages"][i]["kernvorm"] == "discretion_form":',
+        "        if False:",
+    ),
+    "r2_weg_b22": (
+        "Besluit 22, R2: een open bron naast een kenmerkbron is geen pass",
+        '        if open_ and any(r == "B" for _, r in stem):',
+        "        if False:",
+    ),
+    "r12_ook_onder_v4_b22": (
+        "Besluit 22: R1/R2 alleen onder /5; een /4-document volgt de /4-regels",
+        "            besluit22 = contractversie == _CONTRACTVERSIE_V5",
+        "            besluit22 = True",
+    ),
 }
 
 

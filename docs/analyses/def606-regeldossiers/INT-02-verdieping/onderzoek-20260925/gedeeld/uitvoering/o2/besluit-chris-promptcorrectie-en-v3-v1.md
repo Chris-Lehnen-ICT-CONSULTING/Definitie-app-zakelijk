@@ -365,3 +365,63 @@ Gelijk aan v7: gevallen en fasen, gevallenmanifest, model, SDK-versies, limieten
 
 **Gitleaks-uitzondering 19.** Zelfde bevinding als 18 (r113, SHA-256 van `src/utils/async_api.py`), nu in manifest v9; blok 19 is mechanisch afgeleid van blok 18. Hook daarna 0 bevindingen; `make test-secret-scan` met de gepinde gitleaks groen. Kopie oude staat: `backups/def835-werk/gitleaks.toml.voor-uitzondering-19` (niet in git).
 
+## Besluit 21 — eerst de variatie meten (08-10-2026)
+
+**Uitslag v9 (consistentietoets 7A, geen onafhankelijk bewijs).**
+- Fase 1: 3/3 juist, US$0,11.
+- Fase 2: gestopt na 17 van de 24 gevallen met stopreden `kritieke_false_pass`; 15/17 juist. G052 en de zes reviewgevallen (G042, G045, G047, G060, G070, G076) zijn niet gedraaid.
+  - **G050** (label fail) kreeg `pass`. Kernvorm `discretion_form`. Het model labelde B1 en B2 bij P1 als `derivation` en bij P2 als `criterion`; zonder voorschrijvende bron volgt `bronnen_beschrijvend`. In v8 zag het model bij dezelfde invoer (prompt /5) nog een conflict (B1 `discretionary_decision_rule`, B2 `criterion`).
+  - **G030** (label pass) kreeg `review_required` via `conflict`: B1 `criterion`, B2 `actor_prescription`. In v8 was B2 `criterion` en de uitkomst `pass`.
+- Cumulatief US$0,86 (conservatief, 20 calls).
+- Vergelijking onterechte passes: v7 5, v8 1 (G045), v9 1 (G050).
+- Details: `goldset-voorbereiding/goldset-freeze-v1/kwalificatieproef-v9-uitslag-v1.md`.
+
+**Lezing.** De kern is de modelvariatie in het labelen van bronnen. De 15 andere gevallen die in v8 én v9 draaiden, kregen dezelfde bronfuncties en uitkomst. G050 en G030 verschillen alleen doordat het model één bron anders labelde, en de mechanische regel volgt die bronfunctie. Elke run had één onterechte pass, steeds bij een ander geval. Of dat incidenteel of structureel is, laat één run per versie niet zien.
+
+**Keuze Chris: optie B — eerst de variatie meten.** De 24 ontwikkelgevallen draaien twee keer extra met v9 (prompt /6, schema `d3ad029e…`), voor ongeveer US$2. Er wordt niets gerepareerd: geen wijziging in contract, prompt, dienst of runner.
+
+**Afgewezen:**
+- A: O2 parkeren;
+- C: een veiligheidsregel voor `discretion_form`.
+
+**Buiten het kwalificatieprotocol.** De meting is geen kwalificatie en geen herhaling van een kwalificatiefase. Er komt geen nieuw manifest of akkoord, en het grootboek van v9 wordt niet gebruikt of aangevuld. Manifest v9 dient alleen als ijkpunt: het script controleert dat promptversie, schemahash, ketenbestanden en per geval de payload gelijk zijn aan v9. De hold-out blijft dicht en wordt niet gelezen. Het v9-bewijs blijft ongewijzigd.
+
+**Uitvoering.** Script `goldset-voorbereiding/variatiemeting-v9/variatiemeting_v9.py`, naar het patroon van de variatiemeting C107 (besluit 11). Kenmerken:
+- dezelfde keten als de runner;
+- standaard een droge run;
+- hard kostenplafond van US$3,00 en maximaal 48 calls;
+- per call een regel met bronfuncties en het ruwe antwoord;
+- een samenvatting per geval over v9-fase 2 en de herhalingen.
+
+Opzet en startcommando: `goldset-voorbereiding/variatiemeting-v9/opdracht-en-opzet-v1.md`. De coördinator start de live run met de sleutel uit de hoofdcheckout.
+
+## Besluit 22 — R1 en R2: discretievorm of open bron naast kenmerk is nooit pass (08-10-2026)
+
+**Uitslag variatiemeting v9** (48 calls, US$2,17 conservatief; buiten het kwalificatieprotocol, consistentietoets 7A). Details: `goldset-voorbereiding/variatiemeting-v9/uitslag-v1.md` en `live-v1/samenvatting.md`.
+- h1 21/24 juist, h2 22/24 juist; v9-fase 2 had 15/17.
+- Per run 1 à 2 onterechte passes: h1 G050 en G060, h2 G060 (v9-fase 2: G050). Kritieke false pass: h1 G050 (v9-fase 2 ook G050), h2 geen.
+- Stabiliteit: 20/24 stabiel (opgave Chris). `samenvatting.md` telt 22/24 gevallen met dezelfde status in alle runs (wisselend: G030 en G050); het verschil is niet uit de samenvatting te herleiden. Wisselende bronfuncties bij 7 gevallen.
+
+**Diagnose (wat-als van Codex, offline, 93 bewaarde antwoorden uit v8, v9 en de meting).** Onterechte passes ontstaan via twee combinaties:
+- **G050:** kernvorm `discretion_form` met bronnen die `derivation`/`criterion` zeggen → `bronnen_beschrijvend` → pass;
+- **G060 onder /6:** B1 `unclear` en B2 `criterion` → pass, omdat het ontwerp zegt "O naast B of G telt niet".
+
+| Variant | Onterechte passes | Kritiek | Terechte pass verloren |
+|---|---|---|---|
+| Nulmeting | 5 | 2 | 0 extra |
+| R1 + R2 | 1 | 0 | 0 extra |
+
+De ene die overblijft is G045 in v8 (B1 `criterion`, B2 zwijgt), die sinds prompt /6 goed gaat.
+
+**Keuze Chris: R1 + R2, alleen in de route van bronfuncties.**
+- **R1.** Bevat een passage kernvorm `discretion_form`, dan wordt de dienstuitkomst nooit pass: anders review met afleiding `discretie_nooit_pass` en de vaste vraag van besluit 12. Een afgeleide fail blijft fail.
+- **R2.** Heeft een passage een grondbron `unclear` naast een grondbron `criterion`/`derivation` en zou de uitkomst anders pass zijn, dan review met afleiding `onduidelijk_naast_kenmerk` en `VRAAG_FUNCTIE`. Een fail blijft fail.
+- **Volgorde:** gebrek → bestaande reviewgronden (afgeleide reviewpassage, onvolledige dekking) → R1 → R2 → besluit 17 → pass. Alleen actor `ai`.
+- **Omzetting zichtbaar:** was het modelverdict pass (of fail), dan staat de code in `omzetting`; het modeloordeel blijft bewaard.
+- **Contractversie /5** (`def835-int02-assessment/5`), met versiebewuste hercontrole: een bewaard /4-document wordt volgens /4 hercontroleerd en is daarna historisch. Reden: R1/R2 veranderen de afleiding; onder /4 zou een eerder geldig /4-pass-document met zo'n combinatie bij hercontrole als `error` uitvallen. Schema en prompt ongewijzigd.
+- **Ontwerp:** de regel "O naast B of G telt niet" vervalt voor de pass-richting (wijzigingsnotitie in `goldset-voorbereiding/bronfuncties-ontwerp-v1.md`).
+
+**Kanttekening.** Dit is een consistentietoets: R1 en R2 zijn mede op G050 en G060 gemaakt, en de wat-als gebruikt dezelfde zichtbare gevallen. Alleen de hold-out geeft onafhankelijk bewijs.
+
+**Uitvoering.** `src/domain/int02/contract.py`; contractdocument `docs/architectuur/contracts/int02_assessment_contract_v5.md` (v4 blijft ongewijzigd als historische versie). Verslag met testuitkomsten, wat-als-replay en hashes: `goldset-voorbereiding/bronfuncties-v1/uitvoeringsverslag-claude-v4.md`.
+

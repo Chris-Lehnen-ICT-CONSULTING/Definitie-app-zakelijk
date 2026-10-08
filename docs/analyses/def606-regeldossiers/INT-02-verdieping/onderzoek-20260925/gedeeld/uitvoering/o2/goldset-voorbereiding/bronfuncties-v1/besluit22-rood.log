@@ -1,0 +1,218 @@
+....F....................F..........F...........F.F....................F [  9%]
+...........F.........F..F..........F.................................... [ 19%]
+..................................FF..F...................F............F [ 29%]
+.................F...................F..........F..........F............ [ 39%]
+....................................................F.F............F.... [ 49%]
+.....F.F............................................F....F.............F [ 59%]
+........................................................................ [ 69%]
+...................................................F.................... [ 79%]
+.................................................................F...... [ 89%]
+F.................F...............F..................................... [ 99%]
+.......                                                                  [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert 'bronnen_beschrijvend' == 'discretie_nooit_pass'
+      
+      - discretie_nooit_pass
+      + bronnen_beschrijvend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2268: AssertionError: assert 'bronnen_beschrijvend' == 'discretie_nooit_pass'
+E   AssertionError: assert ('pass', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2195: AssertionError: assert ('pass', None) == ('review_requ..._information')
+E   AssertionError: assert ('pass', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2195: AssertionError: assert ('pass', None) == ('review_requ..._information')
+E   AssertionError: assert ('pass', None... beoordeeld.') == ('review_requ... beoordeeld.')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2386: AssertionError: assert ('pass', None... beoordeeld.') == ('review_requ... beoordeeld.')
+E   AssertionError: assert 'bronnen_beschrijvend' == 'onduidelijk_naast_kenmerk'
+      
+      - onduidelijk_naast_kenmerk
+      + bronnen_beschrijvend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2292: AssertionError: assert 'bronnen_beschrijvend' == 'onduidelijk_naast_kenmerk'
+E   AssertionError: assert ('pass', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2054: AssertionError: assert ('pass', None) == ('review_requ..._information')
+E   AssertionError: assert ('pass', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2054: AssertionError: assert ('pass', None) == ('review_requ..._information')
+E   AssertionError: assert ('pass', None... beoordeeld.') == ('review_requ... beoordeeld.')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2386: AssertionError: assert ('pass', None... beoordeeld.') == ('review_requ... beoordeeld.')
+E   assert None == 'historical'
+     +  where None = Actualiteit(status='pass', reden=None, melding="INT-02 — Voldoet. 'door de beheerder is vastgelegd in het register' be...npassage B2 ('Een melding telt mee als zij in het register staat.'). Andere toetsregels zijn hiermee niet beoordeeld.").reden
+     +    where Actualiteit(status='pass', reden=None, melding="INT-02 — Voldoet. 'door de beheerder is vastgelegd in het register' be...npassage B2 ('Een melding telt mee als zij in het register staat.'). Andere toetsregels zijn hiermee niet beoordeeld.") = toets_actualiteit(Beoordelingsdocument(contractversie='def835-int02-assessment/4', invoer=Int02Invoer(begrip='melding', kern='Melding di...sche onderbouwing.", "scope_reason": null, "uncertainty": "none", "verdict": "pass"}', foutdetail=None, omzetting=None), Int02Invoer(begrip='melding', kern='Melding die door de beheerder is vastgelegd in het register.', bedoeling=None, org...mee als zij in het register staat.'), Bronpassage(id='B3', tekst='Ook een mondelinge melding valt onder het begrip.'))), Configuratie(normhash='a9a9b86d200888dd92d1e19ab77ecf0f176fe8e3395269e95bca6df29172e26c', promptversie='def835-int02-p...f2e294cc5d308c1fc51468da667cf5938233102d', provider='fake-provider', model='fake-model-1', normversie='def771-int02/2'))
+     +      where Configuratie(normhash='a9a9b86d200888dd92d1e19ab77ecf0f176fe8e3395269e95bca6df29172e26c', promptversie='def835-int02-p...f2e294cc5d308c1fc51468da667cf5938233102d', provider='fake-provider', model='fake-model-1', normversie='def771-int02/2') = _configuratie()
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2350: assert None == 'historical'
+E   AssertionError: assert ('pass', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2195: AssertionError: assert ('pass', None) == ('review_requ..._information')
+E   AssertionError: assert ('pass', 'bro...beschrijvend') == ('review_requ...e_nooit_pass')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2080: AssertionError: assert ('pass', 'bro...beschrijvend') == ('review_requ...e_nooit_pass')
+E   AssertionError: assert ('pass', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2195: AssertionError: assert ('pass', None) == ('review_requ..._information')
+E   AssertionError: assert 'model_beslissend_onzeker' == 'onduidelijk_naast_kenmerk'
+      
+      - onduidelijk_naast_kenmerk
+      + model_beslissend_onzeker
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:635: AssertionError: assert 'model_beslissend_onzeker' == 'onduidelijk_naast_kenmerk'
+E   AssertionError: assert ('review_requ...send_onzeker') == ('review_requ...e_nooit_pass')
+      
+      At index 1 diff: 'model_beslissend_onzeker' != 'discretie_nooit_pass'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2137: AssertionError: assert ('review_requ...send_onzeker') == ('review_requ...e_nooit_pass')
+E   Failed: domain.int02.contract.REGEL_DISCRETIE_NOOIT_PASS ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:88: Failed: domain.int02.contract.REGEL_DISCRETIE_NOOIT_PASS ontbreekt
+E   AssertionError: assert ('pass', None... beoordeeld.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2333: AssertionError: assert ('pass', None... beoordeeld.') == ('review_requ...en is nodig.')
+E   AssertionError: assert ('pass', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2195: AssertionError: assert ('pass', None) == ('review_requ..._information')
+E   AssertionError: assert 'bronnen_beschrijvend' == 'discretie_nooit_pass'
+      
+      - discretie_nooit_pass
+      + bronnen_beschrijvend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2154: AssertionError: assert 'bronnen_beschrijvend' == 'discretie_nooit_pass'
+E   AssertionError: assert ('pass', None... beoordeeld.') == ('review_requ...en is nodig.')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2333: AssertionError: assert ('pass', None... beoordeeld.') == ('review_requ...en is nodig.')
+E   AssertionError: assert 'def835-int02-assessment/4' == 'def835-int02-assessment/5'
+      
+      - def835-int02-assessment/5
+      ?                         ^
+      + def835-int02-assessment/4
+      ?                         ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:183: AssertionError: assert 'def835-int02-assessment/4' == 'def835-int02-assessment/5'
+E   AssertionError: assert ('pass', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2195: AssertionError: assert ('pass', None) == ('review_requ..._information')
+E   AssertionError: assert ('pass', None) == ('review_requ..._information')
+      
+      At index 0 diff: 'pass' != 'review_required'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2054: AssertionError: assert ('pass', None) == ('review_requ..._information')
+E   AssertionError: assert 'def835-int02-assessment/4' == 'def835-int02-assessment/5'
+      
+      - def835-int02-assessment/5
+      ?                         ^
+      + def835-int02-assessment/4
+      ?                         ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1146: AssertionError: assert 'def835-int02-assessment/4' == 'def835-int02-assessment/5'
+E   AssertionError: assert ('review_requ...send_onzeker') == ('review_requ...e_nooit_pass')
+      
+      At index 1 diff: 'model_beslissend_onzeker' != 'discretie_nooit_pass'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:2080: AssertionError: assert ('review_requ...send_onzeker') == ('review_requ...e_nooit_pass')
+E   AssertionError: {'v8-ontwikkeling/G060': (('error', None, None), ('review_required', 'conflict', 'conflict'))}
+    assert {'v8-ontwikke... 'conflict'))} == {'meting-h1/c..., None)), ...}
+      
+      Differing items:
+      {'v8-ontwikkeling/G060': (('error', None, None), ('review_required', 'conflict', 'conflict'))} != {'v8-ontwikkeling/G060': (('error', None, None), ('review_required', 'conflict', None))}
+      Right contains 4 more items:
+      {'meting-h1/call17/G050': (('pass', 'bronnen_beschrijvend', None),
+                                 ('review_required',
+                                  'discretie_nooit_pass',...
+      
+      ...Full output truncated (14 lines hidden), use '-vv' to show
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/bronfuncties-v1/hulp/replay_besluit22_test.py:129: AssertionError: {'v8-ontwikkeling/G060': (('error', None, None), ('review_required', 'conflict', 'conflict'))}
+E   AssertionError: assert 'def835-int02-assessment/4' == 'def835-int02-assessment/5'
+      
+      - def835-int02-assessment/5
+      ?                         ^
+      + def835-int02-assessment/4
+      ?                         ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting.py:259: AssertionError: assert 'def835-int02-assessment/4' == 'def835-int02-assessment/5'
+E   AssertionError: assert 'def835-int02-assessment/4' == 'def835-int02-assessment/5'
+      
+      - def835-int02-assessment/5
+      ?                         ^
+      + def835-int02-assessment/4
+      ?                         ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting.py:365: AssertionError: assert 'def835-int02-assessment/4' == 'def835-int02-assessment/5'
+E   AssertionError: assert ('def835-int0...761bc7fce715') == ('def835-int0...761bc7fce715')
+      
+      At index 0 diff: 'def835-int02-assessment/4' != 'def835-int02-assessment/5'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:1766: AssertionError: assert ('def835-int0...761bc7fce715') == ('def835-int0...761bc7fce715')
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_papertest.py:374: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_papertest.py:382: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_papertest.py:349: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_papertest.py:397: AssertionError: assert 'pass' == 'review_required'
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r1_gaat_voor_r2_in_dezelfde_en_over_passages
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r2_onduidelijk_naast_kenmerk_is_review[O-C]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r2_onduidelijk_naast_kenmerk_is_review[context-O]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_vijf_document_is_bij_hercontrole_het_bewaarde_oordeel[R2]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r2_noemt_de_eerste_passage_in_de_kern
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r1_discretievorm_met_kenmerkbron_is_review[criterion]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r1_discretievorm_met_kenmerkbron_is_review[twee-kenmerkbronnen]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_vijf_document_is_bij_hercontrole_het_bewaarde_oordeel[R1]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_elk_bewaard_vier_document_is_historisch
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r2_onduidelijk_naast_kenmerk_is_review[O-D]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r1_omzetting_alleen_bij_afwijkend_modelverdict[model-fail-was-fail-naar-pass]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r2_onduidelijk_naast_kenmerk_is_review[C-dan-O]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_stap3_open_bron_naast_beschrijvende_bron_is_beschrijvend_maar_geen_pass
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r1_en_r2_gaan_voor_besluit_17
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_codes_zijn_regels_met_een_vaste_vraag
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_vier_document_met_de_combinatie_is_historisch_niet_error[R2]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r2_onduidelijk_naast_kenmerk_is_review[bedoeling-C]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r1_naast_een_kenmerkpassage_noemt_de_discretiepassage
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_vier_document_met_de_combinatie_is_historisch_niet_error[R1]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_contractversie_is_vijf_en_drie_en_vier_blijven_herleidbaar
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r2_onduidelijk_naast_kenmerk_is_review[O-met-citaat-C]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r1_discretievorm_met_kenmerkbron_is_review[derivation]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_document_bewaart_modeluitvoer_en_dienstafleiding_serialiseerbaar
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_22_r1_omzetting_alleen_bij_afwijkend_modelverdict[model-review-geen-omzetting]
+FAILED docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/bronfuncties-v1/hulp/replay_besluit22_test.py::test_precies_de_vier_wijzigingen_van_besluit_22
+FAILED tests/unit/validation/test_def835_int02_variatiemeting.py::test_herkomst_bindt_script_contract_dienst_en_systeemprompt
+FAILED tests/unit/validation/test_def835_int02_variatiemeting.py::test_live_vijf_runs_alleen_c107_zonder_sleutel_in_uitvoer
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_identiteit_bindt_contract_vijf_prompt_zes_en_schemahash
+FAILED tests/unit/domain/test_def835_int02_papertest.py::test_22_g050_met_discretiepassage_als_kenmerk_is_review_r1
+FAILED tests/unit/domain/test_def835_int02_papertest.py::test_22_g060_met_b1_open_naast_b2_kenmerk_is_review_r2
+FAILED tests/unit/domain/test_def835_int02_papertest.py::test_g045_blijft_een_false_pass_als_het_model_b1_als_criterium_invult
+FAILED tests/unit/domain/test_def835_int02_papertest.py::test_22_g021_als_discretievorm_ingevuld_wordt_review
+32 failed, 695 passed in 35.66s

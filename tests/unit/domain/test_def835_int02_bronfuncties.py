@@ -56,6 +56,8 @@ pytestmark = [pytest.mark.unit]
 
 V3 = "def835-int02-assessment/3"
 V4 = "def835-int02-assessment/4"
+#: Besluit 22: R1/R2 veranderen de afleiding; /4 blijft herleidbaar en historisch.
+V5 = "def835-int02-assessment/5"
 
 KERN = "Melding die door de beheerder is vastgelegd in het register."
 P = "door de beheerder is vastgelegd in het register"
@@ -177,11 +179,11 @@ def _zonder_omzetting(invoer, passages, status: str, **velden):
 # --- A. versie en grondbronnen -----------------------------------------------------
 
 
-def test_contractversie_is_vier_en_drie_blijft_herleidbaar():
-    assert contract.CONTRACTVERSIE == V4
-    assert V3 in contract._BEKENDE_CONTRACTVERSIES
+def test_contractversie_is_vijf_en_drie_en_vier_blijven_herleidbaar():
+    assert contract.CONTRACTVERSIE == V5
+    assert {V3, V4} <= contract._BEKENDE_CONTRACTVERSIES
     binding = bereken_binding(_invoer(), _configuratie())
-    assert binding.contractversie == V4
+    assert binding.contractversie == V5
 
 
 def test_grondbronnen_staan_in_vaste_volgorde():
@@ -255,7 +257,7 @@ def test_geldige_uitvoer_wordt_geaccepteerd():
         _geldig(),
         Uitvoering(actor="ai", status="completed"),
     )
-    assert (document.status, document.contractversie) == ("pass", V4)
+    assert (document.status, document.contractversie) == ("pass", V5)
 
 
 @pytest.mark.parametrize(
@@ -620,14 +622,17 @@ def test_stap3_afleiding_heet_een_afleiding_in_de_melding():
     assert "beschrijft een afleiding;" in document.melding
 
 
-def test_stap3_open_bron_naast_beschrijvende_bron_telt_niet():
+def test_stap3_open_bron_naast_beschrijvende_bron_is_beschrijvend_maar_geen_pass():
+    """Per passage blijft stap 3 beschrijvend; sinds besluit 22 (R2) wordt de
+    uitkomst wel review (was: "O naast B telt niet", ook voor de pass)."""
     invoer = _invoer()
     document = _zonder_omzetting(
         invoer,
         [_p(invoer, "descriptive_act", {"bron/B1": "O", "bron/B2": "C"})],
-        "pass",
+        "review_required",
     )
-    assert _afleiding(document) == "bronnen_beschrijvend"
+    assert _dienstpassage(document)["regel"] == "bronnen_beschrijvend"
+    assert _afleiding(document) == "onduidelijk_naast_kenmerk"
 
 
 def test_stap3_moetvorm_met_bron_die_haar_als_kenmerk_aanwijst_is_pass():
@@ -1138,7 +1143,7 @@ def test_manipulatie_van_niet_omgezet_document_is_error_bij_hercontrole(velden):
 def test_document_bewaart_modeluitvoer_en_dienstafleiding_serialiseerbaar():
     _, document = _omgezet()
     data = json.loads(json.dumps(document.als_dict(), ensure_ascii=False))
-    assert data["contractversie"] == V4
+    assert data["contractversie"] == V5
     assert data["omzetting"] == "bronvoorschrift_niet_overgenomen"
     oordeel = data["oordeel"]
     assert oordeel["verdict"] == "fail"
@@ -1999,3 +2004,425 @@ def test_19_sleutels_van_bedoeling_en_context_blijven_ongewijzigd():
     assert document.status == "pass"
     assert _sleutels(document) == [list(contract.grondbronnen(invoer))]
     assert document == _ruw(invoer, canoniek)
+
+
+# --- L. besluit 22: discretievorm of open bron naast kenmerk is nooit een pass ----------
+#
+# Chris (08-10-2026), na de variatiemeting v9. Zou de dienst anders pass
+# afleiden, dan review_required / insufficient_information met een vaste vraag
+# en een eigen afleidingscode:
+# - R1: een passage met kernvorm `discretion_form` (`discretie_nooit_pass`);
+# - R2: een passage met een `unclear`-grondbron naast een `criterion`- of
+#   `derivation`-grondbron (`onduidelijk_naast_kenmerk`).
+# Volgorde: gebrek → bestaande reviewgronden (incl. onvolledige dekking) → R1 →
+# R2 → besluit 17 → pass. Alleen actor `ai`. Contract /5; een bewaard
+# /4-document wordt volgens /4 hercontroleerd en is daarna historisch.
+
+R1 = "discretie_nooit_pass"
+R2 = "onduidelijk_naast_kenmerk"
+GROND_B2 = f"bronpassage B2 ('{B2}')"
+
+
+def _r1_reden(grond: str = GROND_B2, passage: str = P) -> str:
+    return _vul(
+        _vraag("REDEN_DISCRETIE_NOOIT_PASS"), {"{grond}": grond, "{passage}": passage}
+    )
+
+
+def _r2_reden(open_: str, grond: str = GROND_B2, passage: str = P) -> str:
+    return _vul(
+        _vraag("REDEN_ONDUIDELIJK_NAAST_KENMERK"),
+        {"{grond}": grond, "{open}": open_, "{passage}": passage},
+    )
+
+
+def test_22_codes_zijn_regels_met_een_vaste_vraag():
+    assert _vraag("REGEL_DISCRETIE_NOOIT_PASS") == R1
+    assert _vraag("REGEL_ONDUIDELIJK_NAAST_KENMERK") == R2
+    assert contract._VRAAG_BIJ_REGEL[R1] == _vraag("VRAAG_DISCRETIE_ZONDER_BEDOELING")
+    assert contract._VRAAG_BIJ_REGEL[R2] == _vraag("VRAAG_FUNCTIE")
+
+
+@pytest.mark.parametrize(
+    "codes",
+    [{"bron/B2": "C"}, {"bron/B2": "D"}, {"bron/B2": "C", "bron/B3": "D"}],
+    ids=["criterion", "derivation", "twee-kenmerkbronnen"],
+)
+def test_22_r1_discretievorm_met_kenmerkbron_is_review(codes):
+    invoer = _invoer()
+    document = _doc(invoer, [_p(invoer, "discretion_form", codes)], "pass")
+    assert (document.status, document.reden) == (
+        "review_required",
+        "insufficient_information",
+    )
+    assert _afleiding(document) == R1
+    vraag = _vraag("VRAAG_DISCRETIE_ZONDER_BEDOELING")
+    assert document.vraag == vraag
+    assert document.melding == _o(_r1_reden(), vraag)
+    # Omzetting zichtbaar; het modeloordeel en de passage-afleiding blijven.
+    assert document.omzetting == R1
+    assert document.oordeel["verdict"] == "pass"
+    assert document.oordeel["dienst"]["modelstatus"] == "pass"
+    assert (
+        _dienstpassage(document)["uitkomst"],
+        _dienstpassage(document)["regel"],
+    ) == (
+        "beschrijvend",
+        "bronnen_beschrijvend",
+    )
+
+
+@pytest.mark.parametrize(
+    ("verdict", "omzetting"),
+    [("insufficient_information", None), ("fail", R1)],
+    ids=["model-review-geen-omzetting", "model-fail-was-fail-naar-pass"],
+)
+def test_22_r1_omzetting_alleen_bij_afwijkend_modelverdict(verdict, omzetting):
+    invoer = _invoer()
+    document = _doc(invoer, [_p(invoer, "discretion_form", {"bron/B2": "C"})], verdict)
+    assert (document.status, _afleiding(document)) == ("review_required", R1)
+    assert document.omzetting == omzetting
+    assert document.oordeel["verdict"] == verdict
+
+
+@pytest.mark.parametrize(
+    ("bedoeling", "passages", "afleiding"),
+    [
+        (
+            None,
+            lambda i: [
+                _p(i, "discretion_form", {"bron/B2": "C"}),
+                _p(i, "instruction", quote=P_KOP),
+            ],
+            "voorschrift_in_kern",
+        ),
+        (
+            None,
+            lambda i: [_p(i, "discretion_form", {"bron/B1": "R"})],
+            "voorschrift_bevestigd",
+        ),
+        (
+            BED_OPDRACHT,
+            lambda i: [_p(i, "discretion_form", {"bedoeling": "A", "bron/B2": "C"})],
+            "bedoeling_beslist",
+        ),
+        (BED_ZWIJGT, lambda i: [_p(i, "discretion_form")], "voorschrift_in_kern"),
+    ],
+    ids=["met-gebrekpassage", "discretiebron", "bedoeling-beslist", "alleen-kern"],
+)
+def test_22_r1_met_gebrek_blijft_fail(bedoeling, passages, afleiding):
+    invoer = _invoer(bedoeling=bedoeling)
+    document = _doc(invoer, passages(invoer), "pass")
+    assert (document.status, _afleiding(document)) == ("fail", afleiding)
+
+
+@pytest.mark.parametrize(
+    ("bedoeling", "codes", "velden", "afleiding"),
+    [
+        (None, {"bron/B1": "A", "bron/B2": "C"}, {}, "conflict"),
+        (None, {}, {}, "discretie_zonder_bedoeling"),
+        (None, {"bron/B1": "O"}, {}, "bronnen_open"),
+        (None, {"bron/B2": "C"}, {"coverage": "partial"}, "onvolledige_dekking"),
+    ],
+    ids=["conflict", "besluit-12", "open", "dekking"],
+)
+def test_22_bestaande_reviewgrond_gaat_voor_r1(bedoeling, codes, velden, afleiding):
+    invoer = _invoer(bedoeling=bedoeling)
+    document = _doc(invoer, [_p(invoer, "discretion_form", codes)], "fail", **velden)
+    assert (document.status, _afleiding(document)) == ("review_required", afleiding)
+
+
+def test_22_r1_en_r2_gaan_voor_besluit_17():
+    invoer = _invoer()
+    for kernvorm, codes, regel in (
+        ("discretion_form", {"bron/B2": "C"}, R1),
+        ("descriptive_act", {"bron/B1": "O", "bron/B2": "C"}, R2),
+    ):
+        document = _doc(
+            invoer, [_p(invoer, kernvorm, codes)], "fail", uncertainty="decisive"
+        )
+        assert (document.status, _afleiding(document), document.omzetting) == (
+            "review_required",
+            regel,
+            regel,
+        )
+
+
+def test_22_r1_naast_een_kenmerkpassage_noemt_de_discretiepassage():
+    invoer = _invoer()
+    document = _doc(
+        invoer,
+        [
+            _p(invoer, "no_act", {"bron/B2": "C"}, quote=P_KOP),
+            _p(invoer, "discretion_form", {"bron/B2": "C"}),
+        ],
+        "pass",
+    )
+    assert _afleiding(document) == R1
+    assert document.melding == _o(_r1_reden(), document.vraag)
+
+
+def test_22_mens_houdt_zijn_eigen_pass():
+    """Zoals besluit 12 en 2A: de regels gelden voor actor `ai`."""
+    invoer = _invoer()
+    for kernvorm, codes in (
+        ("discretion_form", {"bron/B2": "C"}),
+        ("descriptive_act", {"bron/B1": "O", "bron/B2": "C"}),
+    ):
+        document = _doc(invoer, [_p(invoer, kernvorm, codes)], "pass", actor="human")
+        assert (document.status, document.omzetting) == ("pass", None)
+        assert _afleiding(document) == "bronnen_beschrijvend"
+
+
+@pytest.mark.parametrize(
+    ("bedoeling", "codes", "open_", "grond"),
+    [
+        (None, {"bron/B1": "O", "bron/B2": "C"}, "bronpassage B1", GROND_B2),
+        (None, {"bron/B1": "O+", "bron/B2": "C"}, f"bronpassage B1 ('{B1}')", GROND_B2),
+        (None, {"bron/B1": "O", "bron/B2": "D"}, "bronpassage B1", GROND_B2),
+        (None, {"bron/B2": "C", "bron/B3": "O"}, "bronpassage B3", GROND_B2),
+        (
+            None,
+            {"organisatorische_context/0": "O", "bron/B2": "C"},
+            "de organisatorische context",
+            GROND_B2,
+        ),
+        (
+            BED_KENMERK,
+            {"bedoeling": "C", "bron/B1": "O"},
+            "bronpassage B1",
+            f"de bevestigde bedoeling ('{BED_KENMERK}')",
+        ),
+    ],
+    ids=["O-C", "O-met-citaat-C", "O-D", "C-dan-O", "context-O", "bedoeling-C"],
+)
+def test_22_r2_onduidelijk_naast_kenmerk_is_review(bedoeling, codes, open_, grond):
+    invoer = _invoer(bedoeling=bedoeling)
+    document = _doc(invoer, [_p(invoer, "descriptive_act", codes)], "pass")
+    assert (document.status, document.reden) == (
+        "review_required",
+        "insufficient_information",
+    )
+    assert _afleiding(document) == R2
+    assert document.vraag == _vraag("VRAAG_FUNCTIE")
+    assert document.melding == _o(_r2_reden(open_, grond), document.vraag)
+    assert document.omzetting == R2
+    assert document.oordeel["verdict"] == "pass"
+
+
+def test_22_r2_alleen_onduidelijk_blijft_bronnen_open():
+    invoer = _invoer()
+    document = _doc(
+        invoer,
+        [_p(invoer, "descriptive_act", {"bron/B1": "O", "bron/B3": "O"})],
+        "pass",
+    )
+    assert (document.status, _afleiding(document)) == (
+        "review_required",
+        "bronnen_open",
+    )
+
+
+def test_22_r2_alleen_kenmerk_blijft_pass():
+    invoer = _invoer()
+    document = _zonder_omzetting(
+        invoer, [_p(invoer, "descriptive_act", {"bron/B2": "C"})], "pass"
+    )
+    assert _afleiding(document) == "bronnen_beschrijvend"
+
+
+@pytest.mark.parametrize(
+    ("bedoeling", "passages", "status", "afleiding"),
+    [
+        (
+            None,
+            lambda i: [
+                _p(i, "descriptive_act", {"bron/B1": "O", "bron/B2": "C"}),
+                _p(i, "instruction", quote=P_KOP),
+            ],
+            "fail",
+            "voorschrift_in_kern",
+        ),
+        (
+            BED_OPDRACHT,
+            lambda i: [
+                _p(
+                    i,
+                    "descriptive_act",
+                    {"bedoeling": "A", "bron/B1": "O", "bron/B2": "C"},
+                )
+            ],
+            "fail",
+            "bedoeling_beslist",
+        ),
+        (
+            None,
+            lambda i: [
+                _p(
+                    i,
+                    "descriptive_act",
+                    {"bron/B1": "A", "bron/B2": "C", "bron/B3": "O"},
+                )
+            ],
+            "review_required",
+            "conflict",
+        ),
+    ],
+    ids=["gebrekpassage", "bedoeling-beslist", "conflict-gaat-voor"],
+)
+def test_22_r2_fail_blijft_fail_en_eigen_reviewgrond_gaat_voor(
+    bedoeling, passages, status, afleiding
+):
+    invoer = _invoer(bedoeling=bedoeling)
+    document = _doc(invoer, passages(invoer), "pass")
+    assert (document.status, _afleiding(document)) == (status, afleiding)
+
+
+def test_22_r1_gaat_voor_r2_in_dezelfde_en_over_passages():
+    invoer = _invoer()
+    zelfde = _doc(
+        invoer,
+        [_p(invoer, "discretion_form", {"bron/B1": "O", "bron/B2": "C"})],
+        "pass",
+    )
+    assert _afleiding(zelfde) == R1
+    # De R2-passage staat eerder in de kern; R1 beslist toch.
+    over = _doc(
+        invoer,
+        [
+            _p(invoer, "no_act", {"bron/B1": "O", "bron/B2": "C"}, quote=P_KOP),
+            _p(invoer, "discretion_form", {"bron/B2": "C"}),
+        ],
+        "pass",
+    )
+    assert _afleiding(over) == R1
+    assert f"'{P}'" in over.melding
+
+
+def test_22_r2_noemt_de_eerste_passage_in_de_kern():
+    invoer = _invoer()
+    document = _doc(
+        invoer,
+        [
+            _p(invoer, "descriptive_act", {"bron/B1": "O", "bron/B2": "C"}),
+            _p(invoer, "no_act", {"bron/B3": "O", "bron/B2": "C"}, quote=P_KOP),
+        ],
+        "pass",
+    )
+    assert _afleiding(document) == R2
+    assert document.melding == _o(
+        _r2_reden("bronpassage B3", passage=P_KOP), document.vraag
+    )
+
+
+# Hercontrole: /5 consistent, /4 versiebewust (historisch, nooit stil anders).
+
+
+def _vier_document(invoer, passages, verdict="pass"):
+    document = contract._beoordeel(
+        invoer,
+        _configuratie(),
+        uitvoer(passages, verdict),
+        Uitvoering(actor="ai", status="completed"),
+        V4,
+    )
+    assert (document.contractversie, document.binding.contractversie) == (V4, V4)
+    return document
+
+
+R_COMBINATIES = [
+    ("discretion_form", {"bron/B2": "C"}, R1),
+    ("descriptive_act", {"bron/B1": "O", "bron/B2": "C"}, R2),
+]
+
+
+@pytest.mark.parametrize(
+    ("kernvorm", "codes", "regel"), R_COMBINATIES, ids=["R1", "R2"]
+)
+def test_22_vier_document_met_de_combinatie_is_historisch_niet_error(
+    kernvorm, codes, regel
+):
+    invoer = _invoer()
+    passages = [_p(invoer, kernvorm, codes)]
+    vier = _vier_document(invoer, passages)
+    # Onder /4 golden de regels niet: pass zonder omzetting.
+    assert (vier.status, vier.omzetting, _afleiding(vier)) == (
+        "pass",
+        None,
+        "bronnen_beschrijvend",
+    )
+    actueel = toets_actualiteit(vier, invoer, _configuratie())
+    assert (actueel.status, actueel.reden, actueel.melding) == (
+        "review_required",
+        "historical",
+        MELDING_HISTORISCH,
+    )
+    # Dezelfde modeluitvoer onder /5: review met de regel van besluit 22.
+    nieuw = _doc(invoer, passages, "pass")
+    assert (nieuw.contractversie, nieuw.status, nieuw.omzetting) == (
+        V5,
+        "review_required",
+        regel,
+    )
+
+
+def test_22_elk_bewaard_vier_document_is_historisch():
+    invoer = _invoer()
+    vier = _vier_document(invoer, [_p(invoer, "descriptive_act", {"bron/B2": "C"})])
+    assert toets_actualiteit(vier, invoer, _configuratie()).reden == "historical"
+
+
+@pytest.mark.parametrize(
+    ("kernvorm", "codes", "regel"), R_COMBINATIES, ids=["R1", "R2"]
+)
+def test_22_vier_document_met_vijf_afleiding_of_als_vijf_opgegeven_is_error(
+    kernvorm, codes, regel
+):
+    invoer = _invoer()
+    vier = _vier_document(invoer, [_p(invoer, kernvorm, codes)])
+    vijf = _doc(invoer, [_p(invoer, kernvorm, codes)], "pass")
+    vervalsingen = [
+        # /4 met de uitkomst van /5: niet herleidbaar onder de eigen regels.
+        _gemanipuleerd(
+            vier,
+            status="review_required",
+            reden="insufficient_information",
+            melding=vijf.melding,
+            vraag=vijf.vraag,
+            omzetting=regel,
+        ),
+        # /4-pass als /5 opgegeven: onder /5 volgt review, dus geen pass.
+        _gemanipuleerd(
+            vier, contractversie=V5, binding=bereken_binding(invoer, _configuratie())
+        ),
+    ]
+    for vals in vervalsingen:
+        assert toets_actualiteit(vals, invoer, _configuratie()).status == "error"
+
+
+@pytest.mark.parametrize(
+    ("kernvorm", "codes", "regel"), R_COMBINATIES, ids=["R1", "R2"]
+)
+def test_22_vijf_document_is_bij_hercontrole_het_bewaarde_oordeel(
+    kernvorm, codes, regel
+):
+    invoer = _invoer()
+    document = _doc(invoer, [_p(invoer, kernvorm, codes)], "pass")
+    actueel = toets_actualiteit(document, invoer, _configuratie())
+    assert (actueel.status, actueel.reden, actueel.melding) == (
+        "review_required",
+        "insufficient_information",
+        document.melding,
+    )
+    vervalsingen = [
+        _gemanipuleerd(document, omzetting=None),
+        _gemanipuleerd(document, status="pass", reden=None, vraag=None, omzetting=None),
+        _gemanipuleerd(
+            document,
+            oordeel_json=_oordeel_met(
+                document, _dienstveld("afleiding", "bronnen_beschrijvend")
+            ),
+        ),
+    ]
+    for vals in vervalsingen:
+        assert toets_actualiteit(vals, invoer, _configuratie()).status == "error"

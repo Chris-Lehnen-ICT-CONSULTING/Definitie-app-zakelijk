@@ -1,6 +1,17 @@
 # INT-02 O2 — ontwerp contract /4 met gestructureerde bronfuncties (v1)
 
-**Status: keuzes Chris 07-10 vastgelegd in besluit 16** (`../besluit-chris-promptcorrectie-en-v3-v1.md`; alle zeven keuzes volgens het advies: 1B, 2A, 3A, 4A, 5A, 6A, 7A).
+**Status: keuzes Chris 07-10 vastgelegd in besluit 16** (`../besluit-chris-promptcorrectie-en-v3-v1.md`; alle zeven keuzes volgens het advies: 1B, 2A, 3A, 4A, 5A, 6A, 7A). **Gewijzigd door besluit 22 (08-10-2026)**: zie de wijzigingsnotitie hieronder.
+
+> **Wijzigingsnotitie besluit 22 (08-10-2026, contract `def835-int02-assessment/5`).**
+> Na de variatiemeting v9 en een offline wat-als over 93 bewaarde antwoorden komen er twee regels bij, aan de dienstkant (prompt en schema ongewijzigd):
+> - **R1.** Heeft een passage kernvorm `discretion_form`, dan is de uitkomst nooit `pass`. Zou de afleiding anders pass geven, dan volgt `review_required` met afleiding `discretie_nooit_pass` en de vaste vraag van besluit 12. Een afgeleide fail blijft fail.
+> - **R2.** Heeft een passage een grondbron `unclear` naast een grondbron `criterion` of `derivation`, en zou de uitkomst anders pass zijn, dan volgt `review_required` met afleiding `onduidelijk_naast_kenmerk` en `VRAAG_FUNCTIE`. Een fail blijft fail.
+> - **Vervalt:** de regel "O naast B of G telt niet" (§2.3, stap 3) geldt niet meer voor de pass-richting. Per passage blijft de afleiding `bronnen_beschrijvend`; alleen de eindstatus kan geen pass meer zijn.
+> - **Volgorde** over het geheel: gebrek → afgeleide reviewpassage → onvolledige dekking → R1 → R2 → besluit 17 → pass. Alleen voor actor `ai`.
+> - **Paper test:** 27/27 blijft; de verwachte kernvorm van G021 is nu `descriptive_act` (§3.2 liet `discretion_form` of `descriptive_act` toe; met `discretion_form` volgt onder R1 een onterechte review).
+> - **Gevoeligheid (§3.3):** G045 met B1 C wordt bij B2 O nu review (R2); bij B2 zwijgend blijft het een false pass. G050 met B2 C bij P2 (§3.2) blijft review via conflict; G050 met P2 `discretion_form` en alleen kenmerkbronnen (v9) wordt review via R1.
+> - Dit is een consistentietoets: de regels zijn mede op G050 en G060 gemaakt. Alleen de hold-out geeft bewijs.
+> - Uitvoering en onderbouwing van de versiekeuze: `docs/architectuur/contracts/int02_assessment_contract_v5.md`.
 
 7 oktober 2026. Ontwerpstap na besluit 16 (optie A), opgesteld door Claude. Dit is een ontwerp, geen uitvoering: er is geen code gewijzigd, er zijn geen calls gedaan en `.env` is niet gelezen. Gelezen zijn alleen regressie- en ontwikkelgevallen (C105, C107, C112 en de 24 G-gevallen). De hold-out is niet ingezien: de gevallen zijn met een filter op `fase` uit `kwalificatie-gevallen-v1.json` gehaald.
 
@@ -153,6 +164,8 @@ def beoordeel_passage(p, invoer):
         return Review("conflict", beschrijvend=Bs[0], tegen=(Gs + Ns)[0])
 
     # Stap 3 — één richting (zwijgende bronnen tellen niet; O naast B of G telt niet).
+    # Besluit 22 (R2): O naast B blijft per passage beschrijvend, maar de eindstatus
+    # wordt dan nooit pass (review, `onduidelijk_naast_kenmerk`).
     if Bs:
         return Beschrijvend(grond=Bs[0], regel="bronnen_beschrijvend")
     if Gs or Ns:
@@ -195,6 +208,8 @@ def beoordeel(uitvoer, invoer):
         status = ("review_required", "insufficient_information")  # vaste vraag per reviewsoort (keuze 4)
     elif uitvoer.coverage != "complete":
         status = ("review_required", "insufficient_information")  # pass vereist volledige dekking, zoals /3
+    # Besluit 22 (/5): hier R1 (discretion_form) en daarna R2 (O naast B) → review;
+    # daarna besluit 17 (decisive) → review.
     else:
         status = "pass"
     afleiding = regel_van_de_dragende_passage(uitkomsten)
@@ -240,7 +255,7 @@ Afkortingen: C = `criterion`, D = `derivation`, A = `actor_prescription`, R = `d
 | G030 | pass | `descriptive_act`; bed –; B1 C (typetabel); B2 C (kopregel) | stap 3 | pass | ✓ | B2 A (werkwijzezin op dezelfde kaart) → conflict → review |
 | G039 | pass | `descriptive_act`; bed C; B1 C | stap 3 | pass | ✓ | robuust |
 | G007 | pass | `no_act`; bed C; B1 C | stap 3 | pass | ✓ | robuust |
-| G021 | pass | `discretion_form` of `descriptive_act`; bed – of C; B1 C | stap 3 | pass | ✓ | robuust voor de kernvorm |
+| G021 | pass | `discretion_form` of `descriptive_act`; bed – of C; B1 C (sinds besluit 22: `descriptive_act`) | stap 3 | pass | ✓ | robuust voor de kernvorm; sinds besluit 22: `discretion_form` → R1 → review |
 | G037 | pass | P1 `descriptive_act`, P2 `no_act`; bed C; B1 C (beide) | stap 3 | pass | ✓ | robuust |
 | G041 | pass | `obligation_form`; bed –; B1 C ("noemt zo'n wijziging…"); B2 – | stap 3 | pass | ✓ | B1 A ("Een producent meldt…") → `obligation_form` + G → **fail** |
 | G046 | pass | `descriptive_act`; bed –; B1 C; B2 C | stap 3 | pass | ✓ | B1 R ("kan … verlenen") → conflict → review |

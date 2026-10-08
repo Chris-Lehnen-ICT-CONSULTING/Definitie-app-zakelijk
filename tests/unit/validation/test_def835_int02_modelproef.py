@@ -1755,8 +1755,10 @@ def test_een_onterechte_pass_in_ontwikkeling_is_een_reden():
 # --- Codex-review P2a/P2b: contractversie in de identiteit; afleiding en omzetting --
 
 
-async def test_identiteit_bindt_contract_vier_prompt_zes_en_schemahash(tmp_path):
-    """P2a: de volledige combinatie staat expliciet in beide identiteiten."""
+async def test_identiteit_bindt_contract_vijf_prompt_zes_en_schemahash(tmp_path):
+    """P2a: de volledige combinatie staat expliciet in beide identiteiten.
+
+    Besluit 22: contract /5 (R1/R2), prompt en schema ongewijzigd."""
     drie = (await m.voorbereid(tmp_path / "manifest.json"))["identiteit"]
     k = await _kwal(tmp_path)
     kwal = json.loads(k.manifest.read_text("utf-8"))["identiteit"]
@@ -1766,7 +1768,7 @@ async def test_identiteit_bindt_contract_vier_prompt_zes_en_schemahash(tmp_path)
             identiteit["profiel"]["promptversie"],
             identiteit["router"]["antwoordschema_sha256"],
         ) == (
-            "def835-int02-assessment/4",
+            "def835-int02-assessment/5",
             "def835-int02-prompt/6",
             SCHEMA_SHA256_V4,
         )
