@@ -759,75 +759,120 @@ class Ess03AssessmentService:
             self._cache.popitem(last=False)
 
 
-#: De teller van de lopende aanroep in deze taak. Taken en werkthreads
-#: (`asyncio.to_thread`) die binnen de aanroep ontstaan erven hem; een
-#: gelijktijdige andere beoordeling (CON-02, ESS-03, INT-03) heeft haar eigen.
-_ACTIEVE_TELLER: ContextVar[_Pogingenteller | None] = ContextVar(
-    "ess03_actieve_pogingenteller", default=None
-)
-#: Gedeeld niveaubeheer over gelijktijdig actieve tellers (ook over threads):
-#: alleen de eerste verhoogt het niveau, alleen de laatste zet het terug.
-_NIVEAUSLOT = threading.Lock()
-_actieve_tellers = 0
-_oorspronkelijke_niveaus: dict[str, int] = {}
+#: Kenmerk van het pogingenfilter op de retry-loggers; herkend op naam, niet
+#: op klasse, zodat ook een herladen of tweede exemplaar van deze module het
+#: bestaande filter hergebruikt in plaats van er een tweede naast te hangen.
+_DISPATCHER_KENMERK = "_ess03_pogingendispatcher"
 
 
-class _Pogingenteller(logging.Filter):
-    """Telt werkelijk waargenomen herhaalde transportpogingen tijdens één aanroep.
+class _Pogingendispatcher(logging.Filter):
+    """Eén blijvend filter per retry-logger dat de actieve teller bijwerkt.
 
-    De onderliggende lagen (Anthropic/OpenAI-SDK, `AsyncGPTClient`) melden een
-    herhaling in hun log. Deze filter hangt tijdens de aanroep aan die loggers
-    en telt de meldingen; `attempts_observed` = 1 + waargenomen herhalingen.
-    Dit is een meting via de logs van die lagen, geen hardgecodeerde 0.
-    Alleen meldingen uit de eigen aanroep tellen (`_ACTIEVE_TELLER`), ook als
-    andere beoordelingen gelijktijdig op dezelfde loggers loggen.
+    Het wordt eenmalig geregistreerd en nooit verwijderd: `Logger.filter`
+    itereert direct over de filterlijst, zodat een filter dat per aanroep
+    wordt verwijderd een gelijktijdig record in een andere thread een filter
+    kan laten overslaan. Welke teller telt, bepaalt `actieve_teller`
+    (ContextVar): taken en werkthreads (`asyncio.to_thread`) binnen een
+    aanroep erven hem, een gelijktijdige andere beoordeling heeft haar eigen.
+    Buiten een actieve teller doet het niets; het laat elk record door.
+    Ook het niveaubeheer is gedeeld (vergrendeld, ook over threads): alleen
+    de eerste actieve teller verhoogt het niveau, alleen de laatste zet het
+    oorspronkelijke niveau terug.
     """
+
+    _ess03_pogingendispatcher = True
 
     def __init__(self) -> None:
         super().__init__()
+        self.actieve_teller: ContextVar[Any] = ContextVar(
+            "ess03_actieve_pogingenteller", default=None
+        )
+        self.slot = threading.Lock()
+        self.actief = 0
+        self.oorspronkelijke_niveaus: dict[str, int] = {}
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        teller = self.actieve_teller.get()
+        if teller is not None:
+            teller.tel(record)
+        return True
+
+    def registreer(self, loggers: list[logging.Logger]) -> None:
+        """Hang dit filter aan elke logger die het nog niet draagt (idempotent)."""
+        for log in loggers:
+            if not any(getattr(f, _DISPATCHER_KENMERK, False) for f in log.filters):
+                log.addFilter(self)
+
+
+def _pogingendispatcher() -> _Pogingendispatcher:
+    """Het al geregistreerde pogingenfilter, of een nieuw en geregistreerd."""
+    loggers = [logging.getLogger(naam) for naam in _RETRY_LOGGERS]
+    for log in loggers:
+        for f in log.filters:
+            if getattr(f, _DISPATCHER_KENMERK, False):
+                f.registreer(loggers)
+                return f  # type: ignore[no-any-return]
+    dispatcher = _Pogingendispatcher()
+    dispatcher.registreer(loggers)
+    return dispatcher
+
+
+_DISPATCHER = _pogingendispatcher()
+
+
+class _Pogingenteller:
+    """Telt werkelijk waargenomen herhaalde transportpogingen tijdens één aanroep.
+
+    De onderliggende lagen (Anthropic/OpenAI-SDK, `AsyncGPTClient`) melden een
+    herhaling in hun log. Tijdens de aanroep is deze teller de actieve teller
+    van `_Pogingendispatcher` en telt hij de meldingen;
+    `attempts_observed` = 1 + waargenomen herhalingen. Dit is een meting via
+    de logs van die lagen, geen hardgecodeerde 0. Alleen meldingen uit de
+    eigen aanroep tellen, ook als andere beoordelingen gelijktijdig op
+    dezelfde loggers loggen.
+    """
+
+    def __init__(self) -> None:
         self.herhalingen = 0
         self._loggers = [logging.getLogger(naam) for naam in _RETRY_LOGGERS]
         self._token: Any = None
 
-    def filter(self, record: logging.LogRecord) -> bool:
-        if _ACTIEVE_TELLER.get() is not self:
-            return True
+    def tel(self, record: logging.LogRecord) -> None:
         try:
             bericht = record.getMessage()
         except Exception:  # pragma: no cover - defensief
-            return True
+            return
         if any(marker in bericht for marker in _RETRY_MARKERS):
             self.herhalingen += 1
-        return True
 
     def __enter__(self) -> _Pogingenteller:
-        global _actieve_tellers
-        self._token = _ACTIEVE_TELLER.set(self)
-        with _NIVEAUSLOT:
-            if _actieve_tellers == 0:
+        dispatcher = _DISPATCHER
+        self._token = dispatcher.actieve_teller.set(self)
+        with dispatcher.slot:
+            # Toevoegen (nooit verwijderen) is veilig tijdens een iteratie.
+            dispatcher.registreer(self._loggers)
+            if dispatcher.actief == 0:
                 for log in self._loggers:
                     # De herhalingsmeldingen zijn INFO/WARNING; staat de logger
                     # hoger, dan ontstaat het record niet en valt er niets te
                     # tellen. Tijdelijk (zolang een teller actief is) op INFO;
                     # daarna hersteld.
-                    _oorspronkelijke_niveaus[log.name] = log.level
+                    dispatcher.oorspronkelijke_niveaus[log.name] = log.level
                     if log.getEffectiveLevel() > logging.INFO:
                         log.setLevel(logging.INFO)
-            _actieve_tellers += 1
-            for log in self._loggers:
-                log.addFilter(self)
+            dispatcher.actief += 1
         return self
 
     def __exit__(self, *exc: object) -> None:
-        global _actieve_tellers
-        with _NIVEAUSLOT:
-            for log in self._loggers:
-                log.removeFilter(self)
-            _actieve_tellers -= 1
-            if _actieve_tellers == 0:
+        dispatcher = _DISPATCHER
+        with dispatcher.slot:
+            dispatcher.actief -= 1
+            if dispatcher.actief == 0:
                 for log in self._loggers:
-                    log.setLevel(_oorspronkelijke_niveaus.pop(log.name, logging.NOTSET))
-        _ACTIEVE_TELLER.reset(self._token)
+                    log.setLevel(
+                        dispatcher.oorspronkelijke_niveaus.pop(log.name, logging.NOTSET)
+                    )
+        dispatcher.actieve_teller.reset(self._token)
 
     def attributie(self) -> dict[str, int]:
         return {

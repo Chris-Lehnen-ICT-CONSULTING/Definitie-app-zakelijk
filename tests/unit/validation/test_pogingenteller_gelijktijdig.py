@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import threading
 import time
 from copy import deepcopy
 from typing import Any
@@ -42,6 +43,7 @@ from tests.fixtures.def743_fakes import (
     FakeBronbeoordeling,
 )
 from tests.fixtures.def772_fakes import INT03_PROMPTMARKER, FakeModelgrens, FakeRouter
+from ui.helpers.async_bridge import run_async
 
 pytestmark = [pytest.mark.unit, pytest.mark.asyncio]
 
@@ -181,3 +183,116 @@ async def test_losse_teller_telt_alleen_binnen_zijn_eigen_taak(
     assert teller.attributie() == {"attempts_observed": 3, "retries_observed": 2}
     for naam, niveau in oorspronkelijke_niveaus.items():
         assert logging.getLogger(naam).level == niveau, naam
+
+
+async def test_tweede_module_exemplaar_hergebruikt_het_pogingenfilter(
+    oorspronkelijke_niveaus, monkeypatch
+):
+    """Herladen of een tweede exemplaar van de module hangt geen tweede
+    filter aan de loggers en telt via hetzelfde filter."""
+    import importlib.util
+    import sys
+
+    from services.validation import ess03_assessment_service as origineel
+
+    naam = "ess03_assessment_service_tweede_exemplaar"
+    spec = importlib.util.spec_from_file_location(naam, origineel.__file__)
+    assert spec is not None and spec.loader is not None
+    tweede = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, naam, tweede)
+    spec.loader.exec_module(tweede)
+
+    assert tweede._DISPATCHER is origineel._DISPATCHER
+    for lognaam in _RETRY_LOGGERS:
+        filters = logging.getLogger(lognaam).filters
+        assert [type(f).__name__ for f in filters].count("_Pogingendispatcher") == 1
+
+    teller = tweede._Pogingenteller()
+    with teller:
+        _meld_herhaling()
+    assert teller.attributie() == {"attempts_observed": 2, "retries_observed": 1}
+
+
+async def test_afsluitende_teller_in_andere_thread_laat_geen_melding_vallen(
+    oorspronkelijke_niveaus,
+):
+    """Twee validaties in twee `run_async`-werkthreads (de UI-brug).
+
+    Gecontroleerde interleaving: B logt een eigen herhaling en staat met dat
+    record midden in de filterketen van de logger precies op het moment dat
+    A zijn teller afsluit. Een filterlijst die tijdens die iteratie krimpt,
+    laat B's telling overslaan; die melding hoort toch bij B te tellen. B
+    logt daarna nog één herhaling via `asyncio.to_thread`: ook binnen de
+    werkthread van `run_async` reist de actieve teller mee naar de eigen
+    nabewerking. A ziet geen van beide.
+    """
+    sdk = logging.getLogger(SDK_LOGGER)
+    a_actief = threading.Event()
+    b_in_filterketen = threading.Event()
+    a_afgesloten = threading.Event()
+
+    class Sluis(logging.Filter):
+        """Houdt B's eerste record in de filterketen vast tot A is afgesloten."""
+
+        def filter(self, record: logging.LogRecord) -> bool:
+            if "[B]" in record.getMessage() and not b_in_filterketen.is_set():
+                b_in_filterketen.set()
+                a_afgesloten.wait(5)
+            return True
+
+    sluis = Sluis()
+
+    async def aanroep_a() -> dict[str, int]:
+        teller = _Pogingenteller()
+        with teller:
+            # De sluis komt ná wat A registreerde en vóór wat B registreert.
+            sdk.addFilter(sluis)
+            a_actief.set()
+            assert b_in_filterketen.wait(5)
+        a_afgesloten.set()
+        return teller.attributie()
+
+    async def aanroep_b() -> dict[str, int]:
+        assert a_actief.wait(5)
+        teller = _Pogingenteller()
+        with teller:
+            sdk.info(f"{HERHAALMELDING} [B]")
+            await asyncio.to_thread(_meld_herhaling)
+        return teller.attributie()
+
+    uitkomsten: dict[str, Any] = {}
+
+    def draai(naam: str, aanroep: Any) -> None:
+        try:
+            uitkomsten[naam] = run_async(aanroep(), timeout=10)
+        except BaseException as exc:  # zichtbaar maken in de assert hieronder
+            uitkomsten[naam] = exc
+
+    def beide() -> None:
+        threads = [
+            threading.Thread(target=draai, args=("A", aanroep_a)),
+            threading.Thread(target=draai, args=("B", aanroep_b)),
+        ]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(15)
+
+    try:
+        await asyncio.to_thread(beide)
+    finally:
+        sdk.removeFilter(sluis)
+
+    assert b_in_filterketen.is_set() and a_afgesloten.is_set()
+    assert uitkomsten == {
+        "A": {"attempts_observed": 1, "retries_observed": 0},
+        "B": {"attempts_observed": 3, "retries_observed": 2},
+    }
+    for naam, niveau in oorspronkelijke_niveaus.items():
+        log = logging.getLogger(naam)
+        assert log.level == niveau, naam
+        # Eén blijvend pogingenfilter per logger, geen per-aanroepfilters.
+        assert [type(f).__name__ for f in log.filters].count(
+            "_Pogingendispatcher"
+        ) == 1, naam
+        assert not [f for f in log.filters if isinstance(f, _Pogingenteller)], naam
