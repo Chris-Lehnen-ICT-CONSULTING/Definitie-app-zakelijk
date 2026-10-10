@@ -14,6 +14,7 @@ Key improvements:
 - Story 2.4: Uses ValidationOrchestratorInterface for clean separation of concerns
 """
 
+import asyncio
 import logging
 import time
 import uuid
@@ -475,6 +476,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 },
             )
 
+        voorbeelden_taak: asyncio.Task[dict[str, Any]] | None = None
         try:
             # Track generation start
             if self.monitoring:
@@ -631,8 +633,6 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     )
 
                     # Add timeout protection for web lookup
-                    import asyncio
-
                     web_results = await asyncio.wait_for(
                         self.web_lookup_service.lookup(lookup_request),
                         timeout=web_lookup_timeout,
@@ -744,8 +744,6 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
             if self.rag_service:
                 try:
-                    import asyncio
-
                     # DEF-366: Multi-collection support
                     rag_collection_ids = getattr(
                         sanitized_request, "rag_collection_ids", None
@@ -1125,97 +1123,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 5: Generate Voorbeelden (Examples)
             # =====================================
-            voorbeelden = {}
-            try:
-                from utils.voorbeelden_debug import DEBUG_ENABLED, debugger
-                from voorbeelden.unified_voorbeelden import (
-                    genereer_alle_voorbeelden_async,
+            # Gelijktijdig met opschoning en toetsing (fase 6): de voorbeelden
+            # krijgen de ruwe modeltekst en de requestcontext, de toetsing de
+            # opgeschoonde kandidaat; geen van beide leest de ander. Zo krijgt
+            # CON-02 de tijd die de voorbeelden kosten binnen het budget.
+            # Belasting: 6 voorbeeld- + 3 toetsaanroepen = 9, binnen
+            # `rate_limit_max_concurrent` (10 per event loop); bij een lagere
+            # grens of extra AI-regel wacht de toetsing op de voorbeelden.
+            voorbeelden_taak = asyncio.create_task(
+                self._genereer_voorbeelden(
+                    sanitized_request, generation_result, generation_id
                 )
-
-                # Build context_dict for voorbeelden generation (V2-only fields)
-                voorbeelden_context = {
-                    "organisatorisch": sanitized_request.organisatorische_context or [],
-                    "juridisch": sanitized_request.juridische_context or [],
-                    "wettelijk": sanitized_request.wettelijke_basis or [],
-                }
-
-                # Debug logging point C - Before voorbeelden generation
-                if DEBUG_ENABLED:
-                    debug_gen_id = debugger.start_generation(
-                        begrip=sanitized_request.begrip,
-                        definitie=(
-                            generation_result.text
-                            if hasattr(generation_result, "text")
-                            else str(generation_result)
-                        ),
-                    )
-                    debugger.log_point(
-                        "C",
-                        debug_gen_id,
-                        context_keys=list(voorbeelden_context.keys()),
-                        orchestrator="V2",
-                    )
-                    debugger.log_session_state(debug_gen_id, "C")
-
-                # Generate voorbeelden using async for better performance (US-052)
-                voorbeelden = await genereer_alle_voorbeelden_async(
-                    begrip=sanitized_request.begrip,
-                    definitie=(
-                        generation_result.text
-                        if hasattr(generation_result, "text")
-                        else str(generation_result)
-                    ),
-                    context_dict=voorbeelden_context,
-                )
-
-                # Debug: Log antoniemen count
-                if "antoniemen" in voorbeelden:
-                    logger.info(
-                        f"Orchestrator generated {len(voorbeelden['antoniemen'])} antoniemen for {sanitized_request.begrip}"
-                    )
-
-                # Debug logging point C2 - After voorbeelden generation
-                if DEBUG_ENABLED:
-                    debugger.log_point(
-                        "C2",
-                        debug_gen_id,
-                        voorbeelden_types=list(voorbeelden.keys()),
-                        voorbeelden_counts={
-                            k: len(v) if isinstance(v, list) else 1
-                            for k, v in voorbeelden.items()
-                        },
-                    )
-                    debugger.log_session_state(debug_gen_id, "C2")
-
-                # Debug logging point A - After voorbeelden generation in V2
-                if os.getenv("DEBUG_EXAMPLES"):
-                    logger.info(
-                        "[EXAMPLES-A] V2 generated | gen_id=%s | begrip=%s | keys=%s | counts=%s",
-                        generation_id,
-                        sanitized_request.begrip,
-                        (
-                            list(voorbeelden.keys())
-                            if isinstance(voorbeelden, dict)
-                            else "NOT_DICT"
-                        ),
-                        {
-                            k: len(v) if isinstance(v, list | str) else "INVALID"
-                            for k, v in (voorbeelden or {}).items()
-                        },
-                    )
-
-                logger.info(
-                    f"Generation {generation_id}: Voorbeelden generated ({len(voorbeelden)} types)"
-                )
-            except Exception as e:
-                # DEF-229: Add stack trace for debugging voorbeelden failures
-                logger.warning(
-                    f"Generation {generation_id}: Voorbeelden generation failed: {type(e).__name__}: {e}",
-                    exc_info=True,
-                )
-                if DEBUG_ENABLED and "debug_gen_id" in locals():
-                    debugger.log_error(debug_gen_id, "C", e)
-                # Continue without voorbeelden
+            )
 
             # =====================================
             # PHASE 6: Text Cleaning & Normalization
@@ -1314,6 +1233,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             logger.info(
                 f"Generation {generation_id}: Validation complete (valid: {safe_dict_get(validation_result, 'is_acceptable', False)})"
             )
+
+            # Fase 5 afronden vóór enhancement: vanaf hier is de volgorde als
+            # voorheen (voorbeelden, enhancement, object, opslag).
+            voorbeelden = await voorbeelden_taak
 
             # =====================================
             # PHASE 7: Enhancement (if validation failed and enabled)
@@ -1646,6 +1569,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "orchestrator_version": "v2.0",
                 },
             )
+        finally:
+            # Een fout of annulering (budget op) vóór het afwachten laat de
+            # voorbeeldentaak niet doorlopen of onafgewacht achter.
+            if voorbeelden_taak is not None and not voorbeelden_taak.done():
+                voorbeelden_taak.cancel()
+                await asyncio.gather(voorbeelden_taak, return_exceptions=True)
 
     # =====================================
     # LEGACY INTERFACE COMPATIBILITY
@@ -1679,6 +1608,112 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
     # =====================================
     # PRIVATE HELPER METHODS
     # =====================================
+
+    async def _genereer_voorbeelden(
+        self,
+        sanitized_request: GenerationRequest,
+        generation_result: Any,
+        generation_id: str,
+    ) -> dict[str, Any]:
+        """Fase 5: de voorbeelden bij de ruwe modeltekst; {} bij een fout.
+
+        Loopt als taak gelijktijdig met opschoning en toetsing (fase 6). Een
+        fout breekt de generatie niet af; annulering propageert.
+        """
+        import os
+
+        voorbeelden: dict[str, Any] = {}
+        try:
+            from utils.voorbeelden_debug import DEBUG_ENABLED, debugger
+            from voorbeelden.unified_voorbeelden import (
+                genereer_alle_voorbeelden_async,
+            )
+
+            # Build context_dict for voorbeelden generation (V2-only fields)
+            voorbeelden_context = {
+                "organisatorisch": sanitized_request.organisatorische_context or [],
+                "juridisch": sanitized_request.juridische_context or [],
+                "wettelijk": sanitized_request.wettelijke_basis or [],
+            }
+
+            # Debug logging point C - Before voorbeelden generation
+            if DEBUG_ENABLED:
+                debug_gen_id = debugger.start_generation(
+                    begrip=sanitized_request.begrip,
+                    definitie=(
+                        generation_result.text
+                        if hasattr(generation_result, "text")
+                        else str(generation_result)
+                    ),
+                )
+                debugger.log_point(
+                    "C",
+                    debug_gen_id,
+                    context_keys=list(voorbeelden_context.keys()),
+                    orchestrator="V2",
+                )
+                debugger.log_session_state(debug_gen_id, "C")
+
+            # Generate voorbeelden using async for better performance (US-052)
+            voorbeelden = await genereer_alle_voorbeelden_async(
+                begrip=sanitized_request.begrip,
+                definitie=(
+                    generation_result.text
+                    if hasattr(generation_result, "text")
+                    else str(generation_result)
+                ),
+                context_dict=voorbeelden_context,
+            )
+
+            # Debug: Log antoniemen count
+            if "antoniemen" in voorbeelden:
+                logger.info(
+                    f"Orchestrator generated {len(voorbeelden['antoniemen'])} antoniemen for {sanitized_request.begrip}"
+                )
+
+            # Debug logging point C2 - After voorbeelden generation
+            if DEBUG_ENABLED:
+                debugger.log_point(
+                    "C2",
+                    debug_gen_id,
+                    voorbeelden_types=list(voorbeelden.keys()),
+                    voorbeelden_counts={
+                        k: len(v) if isinstance(v, list) else 1
+                        for k, v in voorbeelden.items()
+                    },
+                )
+                debugger.log_session_state(debug_gen_id, "C2")
+
+            # Debug logging point A - After voorbeelden generation in V2
+            if os.getenv("DEBUG_EXAMPLES"):
+                logger.info(
+                    "[EXAMPLES-A] V2 generated | gen_id=%s | begrip=%s | keys=%s | counts=%s",
+                    generation_id,
+                    sanitized_request.begrip,
+                    (
+                        list(voorbeelden.keys())
+                        if isinstance(voorbeelden, dict)
+                        else "NOT_DICT"
+                    ),
+                    {
+                        k: len(v) if isinstance(v, list | str) else "INVALID"
+                        for k, v in (voorbeelden or {}).items()
+                    },
+                )
+
+            logger.info(
+                f"Generation {generation_id}: Voorbeelden generated ({len(voorbeelden)} types)"
+            )
+        except Exception as e:
+            # DEF-229: Add stack trace for debugging voorbeelden failures
+            logger.warning(
+                f"Generation {generation_id}: Voorbeelden generation failed: {type(e).__name__}: {e}",
+                exc_info=True,
+            )
+            if DEBUG_ENABLED and "debug_gen_id" in locals():
+                debugger.log_error(debug_gen_id, "C", e)
+            # Continue without voorbeelden
+        return voorbeelden
 
     async def _verwerk_modelantwoord(
         self,
