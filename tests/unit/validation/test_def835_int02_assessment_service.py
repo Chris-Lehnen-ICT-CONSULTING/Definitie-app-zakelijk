@@ -28,6 +28,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from domain.int02 import contract as int02_contract
 from domain.int02.contract import (
     MELDING_E,
     MELDING_NIET_BEOORDEELD,
@@ -40,7 +41,11 @@ from domain.int02.contract import (
     toets_actualiteit,
 )
 from services.ai.anthropic_client import AnthropicClient
-from services.ai.base_client import AIConnectionClientError, ChatResponse
+from services.ai.base_client import (
+    AIConnectionClientError,
+    ChatResponse,
+    response_schema_sha256,
+)
 from services.ai.model_router import ModelRouter
 from services.ai.openai_client import OpenAIClient
 from services.ai_service_v2 import AIServiceV2
@@ -61,6 +66,7 @@ from services.validation.int02_assessment_service import (
     bouw_int02_prompt,
     laad_int02_norm,
 )
+from tests.fixtures.def835_int02_v4 import bronfuncties
 from utils.async_api import RateLimitConfig
 
 pytestmark = [pytest.mark.unit]
@@ -115,45 +121,65 @@ def _invoer(**over):
     return maak_invoer(**velden)
 
 
-def _grond(**over):
-    grond = {"field": "kern", "ref": None, "quote": None, "start": None, "end": None}
-    grond.update(over)
-    return grond
+def _fail_uitvoer(quote: str = PASSAGE, **over):
+    """Modeluitvoer volgens contract /4: geen posities (die leidt WP1 af).
 
-
-def _fail_uitvoer(kern: str = KERN, quote: str = PASSAGE, **over):
-    start = kern.index(quote)
+    De kern neemt de plicht in moetvorm over (`obligation_form`) en alle
+    grondbronnen zwijgen: de dienst leidt `fail` af. Zonder `bronfuncties`
+    vult `FakeAI` ze aan uit de grondbronnen van het verzoek.
+    """
     uitvoer = {
-        "verdict": "fail",
-        "passages": [
-            {
-                "quote": quote,
-                "start": start,
-                "end": start + len(quote),
-                "function": "actor_prescription",
-                "ground": _grond(),
-            }
-        ],
+        "passages": [{"quote": quote, "kernvorm": "obligation_form"}],
         "reason": "De passage schrijft de behandelaar een handeling voor.",
         "question": None,
         "uncertainty": "none",
-        "scope_reason": None,
         "coverage": "complete",
+        "scope_reason": None,
+        "verdict": "fail",
     }
     uitvoer.update(over)
     return uitvoer
 
 
 def _onvoldoende_uitvoer():
+    """Bron B1 laat de functie open (`unclear`): de dienst leidt review af."""
     return {
-        "verdict": "insufficient_information",
-        "passages": [],
+        "passages": [
+            {
+                "quote": PASSAGE,
+                "kernvorm": "descriptive_act",
+                "bronfuncties": bronfuncties(_invoer(), {"bron/B1": ("unclear", None)}),
+            }
+        ],
         "reason": "De bedoelde betekenis van de bijlage ontbreekt.",
         "question": "Welke bijlage is bedoeld?",
         "uncertainty": "decisive",
-        "scope_reason": None,
         "coverage": "partial",
+        "scope_reason": None,
+        "verdict": "insufficient_information",
     }
+
+
+def _volledig(uitvoer, invoer=None):
+    """De uitvoer met alle grondbronnen van `invoer` (standaard `_invoer()`)."""
+    sleutels = list(int02_contract.grondbronnen(invoer or _invoer()))
+    return _met_grondbronnen(uitvoer, json.dumps({"grondbronnen": sleutels}))
+
+
+def _met_grondbronnen(uitkomst, prompt):
+    """Vul ontbrekende `bronfuncties` aan met de grondbronnen uit het verzoek
+    (alle zwijgend), zodat één uitvoer bij elke testinvoer past."""
+    if not isinstance(uitkomst, dict) or not isinstance(uitkomst.get("passages"), list):
+        return uitkomst
+    sleutels = json.loads(prompt)["grondbronnen"]
+    uitkomst = copy.deepcopy(uitkomst)
+    for passage in uitkomst["passages"]:
+        if isinstance(passage, dict) and "bronfuncties" not in passage:
+            passage["bronfuncties"] = [
+                {"bron": sleutel, "function": "not_addressed", "quote": None}
+                for sleutel in sleutels
+            ]
+    return uitkomst
 
 
 class FakeRouter:
@@ -227,11 +253,18 @@ class FakeAI:
         tekst = (
             uitkomst
             if isinstance(uitkomst, str) or uitkomst is None
-            else json.dumps(uitkomst, ensure_ascii=False)
+            else json.dumps(_met_grondbronnen(uitkomst, prompt), ensure_ascii=False)
         )
         metadata = {"tokens_estimated": True}
         if self.stop_reason is not None:
             metadata["stop_reason"] = self.stop_reason
+        if kwargs.get("response_schema") is not None:
+            # Besluit 14: zoals AIServiceV2 bevestigt de fake het verzonden
+            # schema (hash) en de responsvorm (één tekstblok).
+            metadata["response_schema_sha256"] = response_schema_sha256(
+                kwargs["response_schema"]
+            )
+            metadata["content_block_types"] = ["text"]
         return AIGenerationResult(
             text=tekst,
             model=self.model if self.model is not None else kwargs.get("model"),
@@ -526,6 +559,8 @@ async def test_aanroep_gebruikt_opt_ins_budget_en_routing():
     assert call["max_retries"] == 0
     assert call["token_estimate"] == "heuristic"
     assert call["offload_postprocessing"] is True
+    # Besluit 14: het vastgepinde antwoordschema reist mee.
+    assert call["response_schema"] == int02_contract.ANTWOORDSCHEMA
     assert set(router.calls) == {"validation"}
 
 
@@ -670,11 +705,11 @@ async def test_misvormd_antwoord_is_error(tekst):
 @pytest.mark.parametrize(
     "tekst",
     [
-        '{"verdict": "pass", ' + json.dumps(_fail_uitvoer())[1:],
-        json.dumps(_fail_uitvoer())[:-1] + ', "reason": "tweede reden"}',
-        json.dumps(_fail_uitvoer()).replace(
-            '"function": "actor_prescription"',
-            '"function": "criterion", "function": "actor_prescription"',
+        '{"verdict": "pass", ' + json.dumps(_volledig(_fail_uitvoer()))[1:],
+        json.dumps(_volledig(_fail_uitvoer()))[:-1] + ', "reason": "tweede reden"}',
+        json.dumps(_volledig(_fail_uitvoer())).replace(
+            '"kernvorm": "obligation_form"',
+            '"kernvorm": "no_act", "kernvorm": "obligation_form"',
         ),
     ],
     ids=["verdict-eerst", "reason-laatst", "genest"],
@@ -699,7 +734,7 @@ async def test_antwoord_boven_de_tekengrens_is_error():
 
 
 async def test_markdown_codeblok_rond_een_object_wordt_aanvaard():
-    ai = FakeAI("```json\n" + json.dumps(_fail_uitvoer()) + "\n```")
+    ai = FakeAI("```json\n" + json.dumps(_volledig(_fail_uitvoer())) + "\n```")
     resultaat = await _dienst(ai).assess(_invoer())
     assert resultaat.status == "fail"
 
@@ -707,9 +742,6 @@ async def test_markdown_codeblok_rond_een_object_wordt_aanvaard():
 async def test_c117_fictief_citaat_is_invalid_citation():
     uitvoer = _fail_uitvoer()
     uitvoer["passages"][0]["quote"] = "de behandelaar moet weigeren"
-    uitvoer["passages"][0]["end"] = uitvoer["passages"][0]["start"] + len(
-        "de behandelaar moet weigeren"
-    )
     ai = FakeAI(uitvoer)
     resultaat = await _dienst(ai).assess(_invoer())
     assert resultaat.status == "error"
@@ -718,12 +750,11 @@ async def test_c117_fictief_citaat_is_invalid_citation():
     assert resultaat.document.oordeel is None
 
 
-async def test_citaat_op_verkeerde_positie_is_invalid_citation():
-    uitvoer = _fail_uitvoer()
-    uitvoer["passages"][0]["start"] += 1
-    uitvoer["passages"][0]["end"] += 1
+async def test_citaat_met_afwijkende_witruimte_is_invalid_citation():
+    uitvoer = _fail_uitvoer(quote=PASSAGE.replace(" ", "  ", 1))
     resultaat = await _dienst(FakeAI(uitvoer)).assess(_invoer())
     assert resultaat.document.foutcategorie == "invalid_citation"
+    assert resultaat.document.foutdetail == "niet_gevonden"
 
 
 async def test_scoreveld_in_de_uitvoer_is_invalid_output():
@@ -762,7 +793,35 @@ async def test_geldig_fail_oordeel_met_volledige_binding_en_eerlijke_metadata():
     doc = resultaat.document
     assert resultaat.status == "fail"
     assert resultaat.melding.startswith(f"INT-02 — Voldoet niet. '{PASSAGE}'")
-    assert doc.oordeel == _fail_uitvoer()
+    # De modeluitvoer plus de door WP1 afgeleide posities en de afleiding.
+    verwacht = _met_grondbronnen(_fail_uitvoer(), bouw_int02_prompt(invoer, norm)[1])
+    verwacht["passages"][0].update({"start": 13, "end": 69})
+    for bf in verwacht["passages"][0]["bronfuncties"]:
+        bf.update({"start": None, "end": None})
+    kerngrond = {
+        "field": "kern",
+        "ref": None,
+        "quote": None,
+        "start": None,
+        "end": None,
+    }
+    verwacht["dienst"] = {
+        "afleiding": "voorschrift_in_kern",
+        "modelstatus": "fail",
+        "passages": [
+            {
+                "quote": PASSAGE,
+                "start": 13,
+                "end": 69,
+                "function": "actor_prescription",
+                "ground": kerngrond,
+                "uitkomst": "gebrek",
+                "regel": "voorschrift_in_kern",
+            }
+        ],
+    }
+    assert doc.oordeel == verwacht
+    assert doc.omzetting is None
     assert doc.invoer == invoer
     assert resultaat.reden is None
     assert resultaat.gecachet is False
@@ -800,22 +859,21 @@ async def test_onvoldoende_informatie_wordt_review_required_met_een_vraag():
     resultaat = await _dienst(FakeAI(_onvoldoende_uitvoer())).assess(_invoer())
     assert resultaat.status == "review_required"
     assert resultaat.document.reden == "insufficient_information"
-    assert resultaat.document.vraag == "Welke bijlage is bedoeld?"
+    # Besluit 16 (4A): de vaste vraag; de modelvraag blijft in het oordeel.
+    assert resultaat.document.vraag == int02_contract.VRAAG_FUNCTIE
+    assert resultaat.document.oordeel["question"] == "Welke bijlage is bedoeld?"
 
 
 async def test_offsets_zijn_python_unicode_codepoints():
     kern = "Ding 𝔸 met 😀 dat de behandelaar moet afwijzen."
     quote = "de behandelaar moet afwijzen"
-    goed = _fail_uitvoer(kern=kern, quote=quote)
-    resultaat = await _dienst(FakeAI(goed)).assess(_invoer(kern=kern))
+    resultaat = await _dienst(FakeAI(_fail_uitvoer(quote=quote))).assess(
+        _invoer(kern=kern)
+    )
     assert resultaat.status == "fail"
-    utf16 = _fail_uitvoer(kern=kern, quote=quote)
-    utf16["passages"][0][
-        "start"
-    ] += 2  # twee astrale tekens = twee extra UTF-16-eenheden
-    utf16["passages"][0]["end"] += 2
-    fout = await _dienst(FakeAI(utf16)).assess(_invoer(kern=kern))
-    assert fout.document.foutcategorie == "invalid_citation"
+    passage = resultaat.document.oordeel["passages"][0]
+    # Twee astrale tekens: in UTF-16-eenheden zou start 19 zijn, niet 17.
+    assert (passage["start"], passage["end"]) == (17, 45)
 
 
 # --- onveranderlijk resultaat ----------------------------------------------------
@@ -1046,10 +1104,18 @@ class _Provider:
         uitkomst = self.uitkomsten.pop(0) if self.uitkomsten else _fail_uitvoer()
         if isinstance(uitkomst, BaseException):
             raise uitkomst
+        metadata = {}
+        if kw.get("response_schema") is not None:
+            # Zoals de Anthropic-adapter: lokale schemabevestiging + bloktypen.
+            metadata = {
+                "response_schema_sha256": response_schema_sha256(kw["response_schema"]),
+                "content_block_types": ["text"],
+            }
         return ChatResponse(
             text=json.dumps(uitkomst, ensure_ascii=False),
             tokens_used=5,
             model=self.gerapporteerd_model or model,
+            metadata=metadata,
             stop_reason=self.stop_reason,
         )
 
@@ -1064,13 +1130,16 @@ def _echte_ai(provider: _Provider) -> AIServiceV2:
 
 
 async def test_echte_ai_laag_een_aanroep_met_sdk_retries_nul_en_exacte_berichten():
-    provider = _Provider(_fail_uitvoer())
+    provider = _Provider(_volledig(_fail_uitvoer()))
     invoer = _invoer()
     resultaat = await _dienst(_echte_ai(provider)).assess(invoer)
     assert resultaat.status == "fail"
     assert len(provider.calls) == 1
     call = provider.calls[0]
-    assert call["kw"] == {"max_retries": 0}
+    assert call["kw"] == {
+        "max_retries": 0,
+        "response_schema": int02_contract.ANTWOORDSCHEMA,
+    }
     assert call["model"] == MODEL
     assert call["max_tokens"] == 800
     systeem, data = bouw_int02_prompt(invoer, laad_int02_norm())
@@ -1092,7 +1161,7 @@ async def test_echte_ai_laag_verbindingsfout_geeft_een_poging_ondanks_retryconfi
 
 
 async def test_echte_ai_laag_geen_ruwe_cache_ondanks_use_cache_true():
-    provider = _Provider(_fail_uitvoer(), _fail_uitvoer())
+    provider = _Provider(_volledig(_fail_uitvoer()), _volledig(_fail_uitvoer()))
     dienst = _dienst(_echte_ai(provider), cache_size=0)
     await dienst.assess(_invoer())
     await dienst.assess(_invoer())
@@ -1100,7 +1169,7 @@ async def test_echte_ai_laag_geen_ruwe_cache_ondanks_use_cache_true():
 
 
 async def test_echte_ai_laag_afgekapt_antwoord_is_truncated_response():
-    provider = _Provider(_fail_uitvoer(), stop_reason="max_tokens")
+    provider = _Provider(_volledig(_fail_uitvoer()), stop_reason="max_tokens")
     resultaat = await _dienst(_echte_ai(provider)).assess(_invoer())
     assert resultaat.status == "error"
     assert resultaat.reden == "truncated_response"
@@ -1108,7 +1177,7 @@ async def test_echte_ai_laag_afgekapt_antwoord_is_truncated_response():
 
 async def test_echte_ai_laag_meldt_geen_providerversie_dus_modelversie_unknown():
     provider = _Provider(
-        _fail_uitvoer(), gerapporteerd_model="fake-int02-model-20260927"
+        _volledig(_fail_uitvoer()), gerapporteerd_model="fake-int02-model-20260927"
     )
     resultaat = await _dienst(_echte_ai(provider)).assess(_invoer())
     assert resultaat.status == "fail"
@@ -1130,9 +1199,8 @@ async def test_oneindigheid_in_het_antwoord_is_malformed(constante):
 
 
 async def test_getal_boven_de_cijferlimiet_is_malformed_en_geen_uitzondering():
-    uitvoer = _fail_uitvoer()
-    tekst = json.dumps(uitvoer).replace(
-        f'"start": {uitvoer["passages"][0]["start"]}', '"start": ' + "9" * 5000, 1
+    tekst = json.dumps(_fail_uitvoer()).replace(
+        '"question": null', '"question": ' + "9" * 5000, 1
     )
     budget = _budget(max_antwoordtekens=100000)
     resultaat = await _dienst(FakeAI(tekst), budget=budget).assess(_invoer())
@@ -1257,23 +1325,28 @@ def _openai_dienst(sdk: _OpenAISDK):
 
 
 async def test_f1_echte_openai_adapter_afgekapt_antwoord_is_geen_oordeel():
+    # Besluit 14: de OpenAI-adapter ondersteunt het antwoordschema niet en
+    # weigert vóór verzending; er komt dus nooit een (afgekapt) antwoord.
     sdk = _OpenAISDK("length")
     dienst = _openai_dienst(sdk)
     eerste = await dienst.assess(_invoer())
     tweede = await dienst.assess(_invoer())
-    assert eerste.status == "error"
     assert eerste.document.oordeel is None
-    # De adapter geeft finish_reason niet door: niet aantoonbaar afgerond.
-    assert eerste.reden == "unconfirmed_completion"
+    assert eerste.reden == "structured_output_unsupported"
+    assert eerste.document.uitvoering.status == "not_executed"
     assert tweede.gecachet is False
-    assert sdk.calls == 2
+    assert sdk.calls == 0
 
 
 async def test_f1_openai_route_blijft_geblokkeerd_zolang_de_stopreden_ontbreekt():
-    # Ook finish_reason "stop" bereikt de dienst niet: bewuste beperking.
-    resultaat = await _openai_dienst(_OpenAISDK("stop")).assess(_invoer())
-    assert resultaat.status == "error"
-    assert resultaat.reden == "unconfirmed_completion"
+    # Ook finish_reason "stop" bereikt de dienst niet: bewuste beperking; sinds
+    # besluit 14 al vóór verzending (geen schema-ondersteuning).
+    sdk = _OpenAISDK("stop")
+    resultaat = await _openai_dienst(sdk).assess(_invoer())
+    assert resultaat.status == "review_required"
+    assert resultaat.document.reden == "not_assessed"
+    assert resultaat.reden == "structured_output_unsupported"
+    assert sdk.calls == 0
 
 
 # F2: het effectieve capability-beleid van de router zit in de binding.
@@ -1465,3 +1538,64 @@ def test_f2_snapshot_is_een_onveranderlijke_losse_kopie():
     tweede = _snapshot(dienst)
     assert tweede != _snapshot(_dienst())
     assert eerste.routeringshash == _snapshot(_dienst()).routeringshash
+
+
+# --- besluit 9: citaatposities door de dienst (contract /2, prompt /3) -----------
+
+
+def _uitvoer_zonder_posities(kern_citaat: str = PASSAGE, broncitaat=None) -> dict:
+    """Modeluitvoer volgens contract /4: alleen citaten, geen posities.
+
+    Een zelfstandig voorschrift in de kern (`instruction`) geeft `fail`; met
+    `broncitaat` laat bron B1 de functie open (`unclear`) met dat citaat.
+    """
+    passage: dict = {"quote": kern_citaat, "kernvorm": "instruction"}
+    if broncitaat is not None:
+        passage["bronfuncties"] = bronfuncties(
+            _invoer(), {"bron/B1": ("unclear", broncitaat)}
+        )
+    return _fail_uitvoer(passages=[passage])
+
+
+async def test_dienst_leidt_posities_af_uit_een_uniek_citaat():
+    # "Een aanvraag is een " = 20 codepunten; "verzoek om een besluit" = 22.
+    uitvoer = _uitvoer_zonder_posities(broncitaat="verzoek om een besluit")
+    resultaat = await _dienst(FakeAI(uitvoer)).assess(_invoer())
+    assert (resultaat.status, resultaat.reden) == ("fail", None)
+    passage = resultaat.document.oordeel["passages"][0]
+    assert (passage["start"], passage["end"]) == (13, 69)
+    (b1,) = [b for b in passage["bronfuncties"] if b["bron"] == "bron/B1"]
+    assert (b1["start"], b1["end"]) == (20, 42)
+    actueel = toets_actualiteit(
+        resultaat.document, _invoer(), resultaat.document.binding.configuratie()
+    )
+    assert actueel.status == "fail"
+
+
+@pytest.mark.parametrize(
+    ("citaat", "detail"),
+    [
+        ("de behandelaar moet weigeren", "niet_gevonden"),
+        ("e", "niet_uniek"),
+        ("", "leeg"),
+    ],
+    ids=["niet-gevonden", "niet-uniek", "leeg"],
+)
+async def test_dienst_meldt_citaatfout_met_onderscheidbaar_detail(citaat, detail):
+    resultaat = await _dienst(FakeAI(_uitvoer_zonder_posities(citaat))).assess(
+        _invoer()
+    )
+    assert resultaat.status == "error"
+    assert resultaat.reden == "invalid_citation"
+    assert resultaat.document.foutcategorie == "invalid_citation"
+    assert resultaat.document.foutdetail == detail
+    assert resultaat.document.oordeel is None
+
+
+async def test_dienst_weigert_modelposities_als_onbekend_veld():
+    uitvoer = _uitvoer_zonder_posities()
+    uitvoer["passages"][0].update({"start": 13, "end": 69})  # zelfs juist
+    resultaat = await _dienst(FakeAI(uitvoer)).assess(_invoer())
+    assert resultaat.status == "error"
+    assert resultaat.reden == "invalid_output"
+    assert resultaat.document.foutcategorie == "invalid_output"

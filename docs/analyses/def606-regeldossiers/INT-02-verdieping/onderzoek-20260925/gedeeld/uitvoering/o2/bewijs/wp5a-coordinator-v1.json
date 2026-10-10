@@ -1,0 +1,67 @@
+{
+  "before": {
+    "src/services/container.py": "32a5ae789a0f131a036e4f1aa66d98cd05e4ea99ca1e77545529592de781e42a",
+    "src/services/orchestrators/definition_orchestrator_v2.py": "db1093e54c6c917fb6b37f49b153cdd1f2465274da94fb1bb74bfe1ef724d4ca",
+    "src/services/orchestrators/validation_orchestrator_v2.py": "7faf7380ca1d4a332d0110ddfac53ced9c094223ef533199a87c6229f125f419",
+    "src/services/validation/modular_validation_service.py": "737b86326580d58e0ee86554f2cf42db20c3ac0cf390a237055deb9e7afb9829",
+    "tests/unit/services/orchestrators/test_def835_int02_wrappers.py": "c75f36bd6f6093b15c4753339c8fe25a858a8a21cbc1dfc8ac72747c686e886b",
+    "tests/unit/validation/test_def835_int02_modular.py": "f8e83149f8bebe82fd3f1238b7da1496eebb9396a3b4ea4b902c1450d55b1810",
+    "tests/unit/services/test_def835_int02_container.py": "5048a1c4bf68fe58d8315a85129269e3eff27737e0b833b6bef177e2c3f69ae9"
+  },
+  "after": {
+    "src/services/container.py": "32a5ae789a0f131a036e4f1aa66d98cd05e4ea99ca1e77545529592de781e42a",
+    "src/services/orchestrators/definition_orchestrator_v2.py": "db1093e54c6c917fb6b37f49b153cdd1f2465274da94fb1bb74bfe1ef724d4ca",
+    "src/services/orchestrators/validation_orchestrator_v2.py": "7faf7380ca1d4a332d0110ddfac53ced9c094223ef533199a87c6229f125f419",
+    "src/services/validation/modular_validation_service.py": "737b86326580d58e0ee86554f2cf42db20c3ac0cf390a237055deb9e7afb9829",
+    "tests/unit/services/orchestrators/test_def835_int02_wrappers.py": "c75f36bd6f6093b15c4753339c8fe25a858a8a21cbc1dfc8ac72747c686e886b",
+    "tests/unit/validation/test_def835_int02_modular.py": "f8e83149f8bebe82fd3f1238b7da1496eebb9396a3b4ea4b902c1450d55b1810",
+    "tests/unit/services/test_def835_int02_container.py": "5048a1c4bf68fe58d8315a85129269e3eff27737e0b833b6bef177e2c3f69ae9"
+  },
+  "stable": true,
+  "results": [
+    {
+      "command": [
+        "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/services/orchestrators/test_def835_int02_wrappers.py",
+        "tests/unit/validation/test_def835_int02_modular.py",
+        "tests/unit/services/test_def835_int02_container.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/services/container.py",
+        "src/services/orchestrators/definition_orchestrator_v2.py",
+        "src/services/orchestrators/validation_orchestrator_v2.py",
+        "src/services/validation/modular_validation_service.py",
+        "tests/unit/services/orchestrators/test_def835_int02_wrappers.py",
+        "tests/unit/validation/test_def835_int02_modular.py",
+        "tests/unit/services/test_def835_int02_container.py"
+      ],
+      "exit": 0
+    },
+    {
+      "command": [
+        "/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python",
+        "-m",
+        "black",
+        "--check",
+        "src/services/container.py",
+        "src/services/orchestrators/definition_orchestrator_v2.py",
+        "src/services/orchestrators/validation_orchestrator_v2.py",
+        "src/services/validation/modular_validation_service.py",
+        "tests/unit/services/orchestrators/test_def835_int02_wrappers.py",
+        "tests/unit/validation/test_def835_int02_modular.py",
+        "tests/unit/services/test_def835_int02_container.py"
+      ],
+      "exit": 0
+    }
+  ]
+}

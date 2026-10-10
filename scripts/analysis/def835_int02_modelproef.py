@@ -8,9 +8,11 @@ DEF-815-kwaliteitsclaim. Acceptatiecriteria: technische-modelproef-voorstel-v1.
 Keten (ongewijzigd): Int02AssessmentService → AIServiceV2 → AsyncGPTClient →
 AnthropicClient → Anthropic-SDK → httpx. De runner voegt alleen een
 `Waarnemer` toe als httpx-transport van de SDK-client: die ziet het exacte
-verzoek, begrenst de payload (geen tools, cache, stream, beta of retry), telt
-elke verzending (ook mislukte), vraagt vooraf de provider-tokenmeting op
-dezelfde inhoud en boekt de door de provider gemelde usage.
+verzoek, begrenst de payload (geen tools, cache, stream, beta of retry; sinds
+prompt /4 verplicht exact het vastgepinde antwoordschema in `output_config`,
+besluit 14), telt elke verzending (ook mislukte), vraagt vooraf de
+provider-tokenmeting op dezelfde inhoud (inclusief het schema) en boekt de
+door de provider gemelde usage.
 
 Standaard: voorbereiding zonder netwerk en zonder sleutel. De keten draait
 met een dry-run-transport dat elk verzoek opvangt en niets verstuurt; het
@@ -49,6 +51,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import collections
 import contextlib
 import fcntl
 import hashlib
@@ -132,10 +135,14 @@ DIENSTBUDGET = {
 API_HOST = "api.anthropic.com"
 BERICHTEN = "/v1/messages"
 TELLEN = "/v1/messages/count_tokens"
+#: Besluit 14 (prompt /4): `output_config` is verplicht en moet exact het
+#: vastgepinde INT-02-antwoordschema dragen (`_exact_uitvoerschema`).
 TOEGESTANE_VELDEN = frozenset(
     {"model", "max_tokens", "messages", "system", "thinking", "temperature"}
+    | {"output_config"}
 )
-TELVELDEN = ("model", "system", "messages", "thinking")
+#: De tokenmeting telt het schema mee: het hoort bij de invoer van de call.
+TELVELDEN = ("model", "system", "messages", "thinking", "output_config")
 #: Goedgekeurde API-versie en authenticatie: de SDK-default, zonder envopties.
 API_VERSIE = "2023-06-01"
 BASIS_URL = f"https://{API_HOST}"
@@ -302,7 +309,8 @@ FASECRITERIA: dict[str, dict[str, Any]] = {
         "aantal": 24,
         "min_juist": 21,
         "min_juist_per_label": {},
-        "max_false_pass": None,
+        # Besluit 16 (07-10-2026): 0, was null (procesafspraak processtatus v14).
+        "max_false_pass": 0,
         "verdeling": None,
         "max_p95_ms": None,
     },
@@ -382,6 +390,24 @@ def _json(inhoud: bytes) -> Any:
         return json.loads(inhoud)
     except ValueError:
         return None
+
+
+def _exact_uitvoerschema(output_config: Any) -> bool:
+    """Besluit 14: precies het vastgepinde INT-02-schema, ook in sleutelvolgorde.
+
+    De dict-vergelijking dekt vorm en inhoud; de volgordegevoelige hash
+    (dezelfde functie als de AI-laag) dekt wat Python-gelijkheid mist:
+    eigenschapsvolgorde en `0`/`1` tegenover `false`/`true`.
+    """
+    from domain.int02.contract import ANTWOORDSCHEMA, ANTWOORDSCHEMA_SHA256
+    from services.ai.base_client import response_schema_sha256
+
+    verwacht = {"format": {"type": "json_schema", "schema": ANTWOORDSCHEMA}}
+    return (
+        output_config == verwacht
+        and response_schema_sha256(output_config["format"]["schema"])
+        == ANTWOORDSCHEMA_SHA256
+    )
 
 
 def _fouttype(data: Any) -> str:
@@ -709,6 +735,7 @@ class Waarnemer(httpx.AsyncBaseTransport):
             and berichten[0].get("role") == "user"
             and isinstance(berichten[0].get("content"), str)
             and not _bevat_sleutel(payload, "cache_control")
+            and _exact_uitvoerschema(payload.get("output_config"))
         )
         if not toegestaan:
             self._stop("payload_niet_toegestaan")
@@ -1114,6 +1141,8 @@ def _ketenidentiteit(
     """Limieten, prijzen, router, transport, norm/T, bronhashes en versies."""
     import anthropic
 
+    from domain.int02.contract import ANTWOORDSCHEMA, CONTRACTVERSIE
+    from services.ai.base_client import response_schema_sha256
     from services.validation.int02_assessment_service import (
         T_TEKST,
         TASK_TYPE,
@@ -1122,6 +1151,7 @@ def _ketenidentiteit(
 
     norm = laad_int02_norm(NORM_PAD)
     provider, model = router.get_model(TASK_TYPE)
+    denken = router.thinking_default_on(model, provider=provider)
     return {
         "limieten": asdict(limieten),
         "dienstbudget": dict(DIENSTBUDGET),
@@ -1129,7 +1159,16 @@ def _ketenidentiteit(
         "router": {
             "uitkomst": [provider, model],
             "accepts_temperature": router.accepts_temperature(model, provider=provider),
-            "thinking_default_on": router.thinking_default_on(model, provider=provider),
+            "thinking_default_on": denken,
+            # Besluit 14: de gecontroleerde schemacombinatie (zelfde endpoint
+            # en thinking-type als de adapter verstuurt) en het schema zelf.
+            "supports_structured_outputs": router.supports_structured_outputs(
+                model,
+                provider=provider,
+                endpoint=BASIS_URL,
+                thinking="disabled" if denken else None,
+            ),
+            "antwoordschema_sha256": response_schema_sha256(ANTWOORDSCHEMA),
         },
         "transport": {
             "basis_url": BASIS_URL,
@@ -1137,6 +1176,9 @@ def _ketenidentiteit(
             "authenticatie": "x-api-key",
             "headernamen": sorted(waarnemer.headernamen),
         },
+        # Codex-review P2a: expliciet, niet alleen via de bestandshash van het
+        # contract; samen met profiel.promptversie en de schemahash hierboven.
+        "contractversie": CONTRACTVERSIE,
         "normhash": norm.normhash,
         "t_tekst_sha256": _sha(T_TEKST.encode("utf-8")),
         "bestanden": {pad: _sha((REPO / pad).read_bytes()) for pad in KETENBESTANDEN},
@@ -1692,6 +1734,13 @@ def _evalueer(verwacht: str, beoordeling: Any) -> dict[str, Any]:
     status = beoordeling.status
     fout = status == "error"
     citaat = fout and beoordeling.document.foutcategorie == FOUT_CITAAT
+    # Ontwerp §4.4 (contract /4): de beslissende afleidingsregel en, bij een
+    # afwijking van het eigen modelverdict, de omzetting en haar richting.
+    oordeel = None if fout else beoordeling.document.oordeel
+    dienst = oordeel.get("dienst") if isinstance(oordeel, dict) else None
+    afleiding = dienst.get("afleiding") if isinstance(dienst, dict) else None
+    modelstatus = dienst.get("modelstatus") if isinstance(dienst, dict) else None
+    omzetting = None if fout else beoordeling.document.omzetting
     return {
         "verwacht": verwacht,
         "waargenomen": status,
@@ -1699,6 +1748,46 @@ def _evalueer(verwacht: str, beoordeling: Any) -> dict[str, Any]:
         "technische_fout": bool(beoordeling.gecachet) or (fout and not citaat),
         "citaatfout": citaat,
         "kritieke_false_pass": verwacht == "fail" and status == "pass",
+        "afleiding": afleiding,
+        "modelstatus": modelstatus,
+        "omzetting": omzetting,
+        "omzettingsrichting": f"{modelstatus}→{status}" if omzetting else None,
+    }
+
+
+#: Besluit 16, keuze 7A: wat een fase-uitslag bewijst.
+BEWIJSSTATUS = {
+    "regressie": "consistentietoets_7a",
+    "ontwikkeling": "consistentietoets_7a",
+    "holdout": "onafhankelijk_bewijs",
+}
+BEWIJSTOELICHTING = {
+    "consistentietoets_7a": (
+        "Fase 1 en 2 (regressie, ontwikkeling) zijn onder v8 een "
+        "consistentietoets (keuze 7A): contract /4 is op deze gevallen "
+        "afgestemd; een geslaagde fase is geen onafhankelijk bewijs."
+    ),
+    "onafhankelijk_bewijs": (
+        "De hold-out (apart akkoord) is het enige onafhankelijke bewijs."
+    ),
+}
+
+
+def _telling(waarden: list[Any]) -> dict[str, int]:
+    """Telling per waarde (None telt niet), gesorteerd op sleutel."""
+    teller = collections.Counter(w for w in waarden if w is not None)
+    return dict(sorted(teller.items()))
+
+
+def _afleidingen(uitkomsten: list[dict[str, Any]]) -> dict[str, Any]:
+    omgezet = [u for u in uitkomsten if u.get("omzetting")]
+    return {
+        "afleidingen": _telling([u.get("afleiding") for u in uitkomsten]),
+        "omzettingen": {
+            "totaal": len(omgezet),
+            "per_richting": _telling([u.get("omzettingsrichting") for u in omgezet]),
+            "per_regel": _telling([u.get("omzetting") for u in omgezet]),
+        },
     }
 
 
@@ -1789,7 +1878,10 @@ def _beoordeel_fase(
         "mechanisch_geslaagd": not redenen,
         "redenen": redenen,
         "tellers": tellers,
+        **_afleidingen(uitkomsten),
         "criteria": criteria,
+        "bewijsstatus": BEWIJSSTATUS[fase],
+        "bewijstoelichting": BEWIJSTOELICHTING[BEWIJSSTATUS[fase]],
     }
 
 
@@ -2163,11 +2255,14 @@ def _main_kwalificatie(
     )
     geslaagd = data["evaluatie"]["mechanisch_geslaagd"]
     logger.info(
-        "fase %s: stopreden %s; mechanisch geslaagd %s; cumulatief %s",
+        "fase %s: stopreden %s; mechanisch geslaagd %s; cumulatief %s; "
+        "bewijsstatus %s; omzettingen %s",
         data["fase"],
         data["stopreden"],
         geslaagd,
         data["cumulatief"],
+        data["evaluatie"]["bewijsstatus"],
+        data["evaluatie"]["omzettingen"],
     )
     return 0 if geslaagd else 3
 

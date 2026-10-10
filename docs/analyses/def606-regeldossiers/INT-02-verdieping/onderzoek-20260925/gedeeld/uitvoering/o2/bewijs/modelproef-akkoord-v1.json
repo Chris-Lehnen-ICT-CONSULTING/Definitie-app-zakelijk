@@ -1,0 +1,11 @@
+{
+  "soort": "def835-int02-modelproef-akkoord/1",
+  "manifest_sha256": "54c75b43b2b55a132e58a896f2d5d909bebf97b521a26ff0d77bb783a0df35c8",
+  "profiel_id": "def835-technische-proef-opus5-v1",
+  "experimenteel": true,
+  "geen_def815_kwalificatie": true,
+  "live_verzending_toegestaan": true,
+  "akkoord_door": "Chris Lehnen",
+  "akkoord_op": "2026-09-28",
+  "akkoord_bron": "Deze chat: gebruikersantwoord akkoord op 28 september 2026 na de twee voorgelegde besluiten (drie Opus5-aanroepen/maximaal US$1 en WP5a-zevenbestanden/API-uitbreiding). Concreet proefvoorstel technische-modelproef-voorstel-v1.md; gereviewde runnercommit 979ca0585100d94b613829d924c6d8bba4f24f1b."
+}

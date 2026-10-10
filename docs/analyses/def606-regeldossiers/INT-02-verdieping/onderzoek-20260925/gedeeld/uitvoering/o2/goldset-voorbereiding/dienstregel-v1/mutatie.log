@@ -1,0 +1,49 @@
+## M1 - actorcontrole weg
+............................................F........................... [ 42%]
+........................................................................ [ 85%]
+........................                                                 [100%]
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_menselijke_beoordelaar_wordt_niet_omgezet
+1 failed, 167 passed in 0.62s
+## M2 - all wordt any (een dragende discretie/kern volstaat)
+........................................................................ [ 42%]
+........................................................................ [ 85%]
+...F...FF...............                                                 [100%]
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_naast_actorvoorschrift_blijft_fail[discretie-eerst]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_naast_actorvoorschrift_blijft_fail[voorschrift-eerst]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_naast_discretie_met_contextgrond_blijft_fail
+3 failed, 165 passed in 0.59s
+## M3 - grondcontrole kern weg (elke discretie zonder bedoeling)
+........F.................FF.........F..F.....F......................... [ 42%]
+........................................................................ [ 85%]
+.............F.......F..                                                 [100%]
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_andere_grond_zonder_bedoeling_blijft_fail[begrip]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_andere_grond_zonder_bedoeling_blijft_fail[bron-citaat]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_andere_grond_zonder_bedoeling_blijft_fail[context-citaat]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_andere_grond_zonder_bedoeling_blijft_fail[bron]
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_naast_discretie_met_contextgrond_blijft_fail
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_discretie_met_andere_grond_zonder_bedoeling_blijft_fail[context]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestActueelOordeel::test_fail_is_adviserend_zonder_cijfer_poort_of_herstel[fail_discretie]
+FAILED tests/unit/validation/test_def835_int02_evaluator.py::TestActueelOordeel::test_actueel_oordeel_volgt_het_wp1_document[fail_discretie]
+8 failed, 160 passed in 0.61s
+## M4 - versiecontrole weg (regel ook bij replay onder /1 en /2)
+.....................................................F.................. [ 42%]
+........................................................................ [ 85%]
+........................                                                 [100%]
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_v2_proefdocument_wordt_historisch_en_niet_omgezet_of_error
+1 failed, 167 passed in 0.59s
+## M5 - geldige modelvraag overnemen in plaats van de vaste vraag
+........................................................................ [ 42%]
+.....................................................................F.. [ 85%]
+........................                                                 [100%]
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_modelvraag_bij_fail_wordt_niet_overgenomen_maar_blijft_zichtbaar
+1 failed, 167 passed in 0.59s
+## Herstel - alle mutaties teruggezet (zelfde 3 bestanden)
+........................................................................ [ 42%]
+........................................................................ [ 85%]
+........................                                                 [100%]
+168 passed in 0.56s

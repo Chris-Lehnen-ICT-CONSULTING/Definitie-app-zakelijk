@@ -1,0 +1,80 @@
+{"akkoord_sha256": "00a86b7f9c37741d8f7fad0e254afa70b85526bc4b17cf538b7ef187399380bb", "gebeurtenis": "mandaat", "manifest_sha256": "d5a4de426cbea46f9e7547e749a40e448bdf57232f0d053e21388de6ac1bf8fa", "soort": "def835-int02-kwalificatie-grootboek/1", "tijd": "2026-10-08T06:59:01.361036+00:00"}
+{"akkoord_sha256": "00a86b7f9c37741d8f7fad0e254afa70b85526bc4b17cf538b7ef187399380bb", "fase": "regressie", "gebeurtenis": "fase_start", "tijd": "2026-10-08T06:59:01.361553+00:00"}
+{"gebeurtenis": "tel_reservering", "geval": "C105", "tel": 1, "tijd": "2026-10-08T06:59:01.363660+00:00"}
+{"call": 1, "gebeurtenis": "inferentie_reservering", "geval": "C105", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T06:59:01.707796+00:00"}
+{"call": 1, "gebeurtenis": "inferentie_boeking", "geval": "C105", "kosten_usd": 0.035785, "tijd": "2026-10-08T06:59:09.544011+00:00", "usage": {"input_tokens": 5487, "output_tokens": 334}}
+{"gebeurtenis": "tel_reservering", "geval": "C107", "tel": 2, "tijd": "2026-10-08T06:59:09.563000+00:00"}
+{"call": 2, "gebeurtenis": "inferentie_reservering", "geval": "C107", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T06:59:09.758204+00:00"}
+{"call": 2, "gebeurtenis": "inferentie_boeking", "geval": "C107", "kosten_usd": 0.04082, "tijd": "2026-10-08T06:59:16.512451+00:00", "usage": {"input_tokens": 5509, "output_tokens": 531}}
+{"gebeurtenis": "tel_reservering", "geval": "C112", "tel": 3, "tijd": "2026-10-08T06:59:16.518417+00:00"}
+{"call": 3, "gebeurtenis": "inferentie_reservering", "geval": "C112", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T06:59:16.713557+00:00"}
+{"call": 3, "gebeurtenis": "inferentie_boeking", "geval": "C112", "kosten_usd": 0.036005, "tijd": "2026-10-08T06:59:22.186983+00:00", "usage": {"input_tokens": 5511, "output_tokens": 338}}
+{"bewijs_opgeslagen": true, "fase": "regressie", "gebeurtenis": "fase_einde", "looptijd_seconden": 21.975, "mechanisch_geslaagd": true, "stopreden": null, "tijd": "2026-10-08T06:59:22.193953+00:00"}
+{"akkoord_sha256": "00a86b7f9c37741d8f7fad0e254afa70b85526bc4b17cf538b7ef187399380bb", "fase": "ontwikkeling", "gebeurtenis": "fase_start", "tijd": "2026-10-08T06:59:28.336181+00:00"}
+{"gebeurtenis": "tel_reservering", "geval": "G011", "tel": 4, "tijd": "2026-10-08T06:59:28.338484+00:00"}
+{"call": 4, "gebeurtenis": "inferentie_reservering", "geval": "G011", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T06:59:28.590709+00:00"}
+{"call": 4, "gebeurtenis": "inferentie_boeking", "geval": "G011", "kosten_usd": 0.038515, "tijd": "2026-10-08T06:59:33.443823+00:00", "usage": {"input_tokens": 5678, "output_tokens": 405}}
+{"gebeurtenis": "tel_reservering", "geval": "G015", "tel": 5, "tijd": "2026-10-08T06:59:33.460955+00:00"}
+{"call": 5, "gebeurtenis": "inferentie_reservering", "geval": "G015", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T06:59:33.663005+00:00"}
+{"call": 5, "gebeurtenis": "inferentie_boeking", "geval": "G015", "kosten_usd": 0.04082, "tijd": "2026-10-08T06:59:40.454291+00:00", "usage": {"input_tokens": 5724, "output_tokens": 488}}
+{"gebeurtenis": "tel_reservering", "geval": "G019", "tel": 6, "tijd": "2026-10-08T06:59:40.459468+00:00"}
+{"call": 6, "gebeurtenis": "inferentie_reservering", "geval": "G019", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T06:59:40.647726+00:00"}
+{"call": 6, "gebeurtenis": "inferentie_boeking", "geval": "G019", "kosten_usd": 0.03862, "tijd": "2026-10-08T06:59:48.496035+00:00", "usage": {"input_tokens": 5644, "output_tokens": 416}}
+{"gebeurtenis": "tel_reservering", "geval": "G027", "tel": 7, "tijd": "2026-10-08T06:59:48.498823+00:00"}
+{"call": 7, "gebeurtenis": "inferentie_reservering", "geval": "G027", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T06:59:48.727224+00:00"}
+{"call": 7, "gebeurtenis": "inferentie_boeking", "geval": "G027", "kosten_usd": 0.039215, "tijd": "2026-10-08T06:59:56.461578+00:00", "usage": {"input_tokens": 5718, "output_tokens": 425}}
+{"gebeurtenis": "tel_reservering", "geval": "G030", "tel": 8, "tijd": "2026-10-08T06:59:56.465816+00:00"}
+{"call": 8, "gebeurtenis": "inferentie_reservering", "geval": "G030", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T06:59:56.643660+00:00"}
+{"call": 8, "gebeurtenis": "inferentie_boeking", "geval": "G030", "kosten_usd": 0.04807500000000001, "tijd": "2026-10-08T07:00:05.864799+00:00", "usage": {"input_tokens": 6085, "output_tokens": 706}}
+{"gebeurtenis": "tel_reservering", "geval": "G039", "tel": 9, "tijd": "2026-10-08T07:00:05.867598+00:00"}
+{"call": 9, "gebeurtenis": "inferentie_reservering", "geval": "G039", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:00:06.102718+00:00"}
+{"call": 9, "gebeurtenis": "inferentie_boeking", "geval": "G039", "kosten_usd": 0.041780000000000005, "tijd": "2026-10-08T07:00:13.378023+00:00", "usage": {"input_tokens": 5806, "output_tokens": 510}}
+{"gebeurtenis": "tel_reservering", "geval": "G007", "tel": 10, "tijd": "2026-10-08T07:00:13.388249+00:00"}
+{"call": 10, "gebeurtenis": "inferentie_reservering", "geval": "G007", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:00:13.610875+00:00"}
+{"call": 10, "gebeurtenis": "inferentie_boeking", "geval": "G007", "kosten_usd": 0.03937, "tijd": "2026-10-08T07:00:21.387267+00:00", "usage": {"input_tokens": 5679, "output_tokens": 439}}
+{"gebeurtenis": "tel_reservering", "geval": "G021", "tel": 11, "tijd": "2026-10-08T07:00:21.390585+00:00"}
+{"call": 11, "gebeurtenis": "inferentie_reservering", "geval": "G021", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:00:21.632264+00:00"}
+{"call": 11, "gebeurtenis": "inferentie_boeking", "geval": "G021", "kosten_usd": 0.043320000000000004, "tijd": "2026-10-08T07:00:27.801816+00:00", "usage": {"input_tokens": 5844, "output_tokens": 564}}
+{"gebeurtenis": "tel_reservering", "geval": "G037", "tel": 12, "tijd": "2026-10-08T07:00:27.804758+00:00"}
+{"call": 12, "gebeurtenis": "inferentie_reservering", "geval": "G037", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:00:27.992924+00:00"}
+{"call": 12, "gebeurtenis": "inferentie_boeking", "geval": "G037", "kosten_usd": 0.041125, "tijd": "2026-10-08T07:00:34.631280+00:00", "usage": {"input_tokens": 5735, "output_tokens": 498}}
+{"gebeurtenis": "tel_reservering", "geval": "G041", "tel": 13, "tijd": "2026-10-08T07:00:34.637439+00:00"}
+{"call": 13, "gebeurtenis": "inferentie_reservering", "geval": "G041", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:00:34.895571+00:00"}
+{"call": 13, "gebeurtenis": "inferentie_boeking", "geval": "G041", "kosten_usd": 0.042570000000000004, "tijd": "2026-10-08T07:00:42.453061+00:00", "usage": {"input_tokens": 5914, "output_tokens": 520}}
+{"gebeurtenis": "tel_reservering", "geval": "G046", "tel": 14, "tijd": "2026-10-08T07:00:42.460106+00:00"}
+{"call": 14, "gebeurtenis": "inferentie_reservering", "geval": "G046", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:00:42.641979+00:00"}
+{"call": 14, "gebeurtenis": "inferentie_boeking", "geval": "G046", "kosten_usd": 0.04564, "tijd": "2026-10-08T07:00:56.461549+00:00", "usage": {"input_tokens": 5918, "output_tokens": 642}}
+{"gebeurtenis": "tel_reservering", "geval": "G055", "tel": 15, "tijd": "2026-10-08T07:00:56.466874+00:00"}
+{"call": 15, "gebeurtenis": "inferentie_reservering", "geval": "G055", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:00:56.671007+00:00"}
+{"call": 15, "gebeurtenis": "inferentie_boeking", "geval": "G055", "kosten_usd": 0.04451000000000001, "tijd": "2026-10-08T07:01:04.337047+00:00", "usage": {"input_tokens": 5912, "output_tokens": 598}}
+{"gebeurtenis": "tel_reservering", "geval": "G008", "tel": 16, "tijd": "2026-10-08T07:01:04.345161+00:00"}
+{"call": 16, "gebeurtenis": "inferentie_reservering", "geval": "G008", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:01:04.556360+00:00"}
+{"call": 16, "gebeurtenis": "inferentie_boeking", "geval": "G008", "kosten_usd": 0.03957, "tijd": "2026-10-08T07:01:10.454896+00:00", "usage": {"input_tokens": 5689, "output_tokens": 445}}
+{"gebeurtenis": "tel_reservering", "geval": "G012", "tel": 17, "tijd": "2026-10-08T07:01:10.458010+00:00"}
+{"call": 17, "gebeurtenis": "inferentie_reservering", "geval": "G012", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:01:10.644603+00:00"}
+{"call": 17, "gebeurtenis": "inferentie_boeking", "geval": "G012", "kosten_usd": 0.03951, "tijd": "2026-10-08T07:01:15.945268+00:00", "usage": {"input_tokens": 5697, "output_tokens": 441}}
+{"gebeurtenis": "tel_reservering", "geval": "G036", "tel": 18, "tijd": "2026-10-08T07:01:15.952186+00:00"}
+{"call": 18, "gebeurtenis": "inferentie_reservering", "geval": "G036", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:01:16.136795+00:00"}
+{"call": 18, "gebeurtenis": "inferentie_boeking", "geval": "G036", "kosten_usd": 0.04377, "tijd": "2026-10-08T07:01:24.996021+00:00", "usage": {"input_tokens": 5729, "output_tokens": 605}}
+{"gebeurtenis": "tel_reservering", "geval": "G048", "tel": 19, "tijd": "2026-10-08T07:01:25.001659+00:00"}
+{"call": 19, "gebeurtenis": "inferentie_reservering", "geval": "G048", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:01:25.226488+00:00"}
+{"call": 19, "gebeurtenis": "inferentie_boeking", "geval": "G048", "kosten_usd": 0.05208, "tijd": "2026-10-08T07:01:34.529990+00:00", "usage": {"input_tokens": 6006, "output_tokens": 882}}
+{"gebeurtenis": "tel_reservering", "geval": "G050", "tel": 20, "tijd": "2026-10-08T07:01:34.535704+00:00"}
+{"call": 20, "gebeurtenis": "inferentie_reservering", "geval": "G050", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:01:34.735241+00:00"}
+{"call": 20, "gebeurtenis": "inferentie_boeking", "geval": "G050", "kosten_usd": 0.05083, "tijd": "2026-10-08T07:01:44.349098+00:00", "usage": {"input_tokens": 5956, "output_tokens": 842}}
+{"gebeurtenis": "tel_reservering", "geval": "G052", "tel": 21, "tijd": "2026-10-08T07:01:44.352797+00:00"}
+{"call": 21, "gebeurtenis": "inferentie_reservering", "geval": "G052", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:01:44.583936+00:00"}
+{"call": 21, "gebeurtenis": "inferentie_boeking", "geval": "G052", "kosten_usd": 0.047155, "tijd": "2026-10-08T07:01:53.787728+00:00", "usage": {"input_tokens": 5941, "output_tokens": 698}}
+{"gebeurtenis": "tel_reservering", "geval": "G042", "tel": 22, "tijd": "2026-10-08T07:01:53.794225+00:00"}
+{"call": 22, "gebeurtenis": "inferentie_reservering", "geval": "G042", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:01:54.001455+00:00"}
+{"call": 22, "gebeurtenis": "inferentie_boeking", "geval": "G042", "kosten_usd": 0.04472, "tijd": "2026-10-08T07:02:00.877983+00:00", "usage": {"input_tokens": 5924, "output_tokens": 604}}
+{"gebeurtenis": "tel_reservering", "geval": "G045", "tel": 23, "tijd": "2026-10-08T07:02:00.882664+00:00"}
+{"call": 23, "gebeurtenis": "inferentie_reservering", "geval": "G045", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:02:01.126902+00:00"}
+{"call": 23, "gebeurtenis": "inferentie_boeking", "geval": "G045", "kosten_usd": 0.041285, "tijd": "2026-10-08T07:02:08.163503+00:00", "usage": {"input_tokens": 5867, "output_tokens": 478}}
+{"gebeurtenis": "tel_reservering", "geval": "G047", "tel": 24, "tijd": "2026-10-08T07:02:08.166973+00:00"}
+{"call": 24, "gebeurtenis": "inferentie_reservering", "geval": "G047", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:02:08.468018+00:00"}
+{"call": 24, "gebeurtenis": "inferentie_boeking", "geval": "G047", "kosten_usd": 0.05018500000000001, "tijd": "2026-10-08T07:02:17.683081+00:00", "usage": {"input_tokens": 5862, "output_tokens": 835}}
+{"gebeurtenis": "tel_reservering", "geval": "G060", "tel": 25, "tijd": "2026-10-08T07:02:17.686556+00:00"}
+{"call": 25, "gebeurtenis": "inferentie_reservering", "geval": "G060", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-08T07:02:17.884182+00:00"}
+{"call": 25, "gebeurtenis": "inferentie_boeking", "geval": "G060", "kosten_usd": 0.04879, "tijd": "2026-10-08T07:02:35.860232+00:00", "usage": {"input_tokens": 5953, "output_tokens": 761}}
+{"bewijs_opgeslagen": true, "fase": "ontwikkeling", "gebeurtenis": "fase_einde", "looptijd_seconden": 188.803, "mechanisch_geslaagd": false, "stopreden": "invalid_citation", "tijd": "2026-10-08T07:02:35.870981+00:00"}

@@ -1,0 +1,935 @@
+{
+  "versie": "def835-casuspool-concept/1",
+  "status": "ongelabeld_niet_bevroren",
+  "auteur": "Codex-coördinator",
+  "datum": "2026-09-28",
+  "normversie": "def771-int02/2",
+  "basis": "kwalificatieprotocol-v1.md, geaccordeerd via vervolg-akkoord-v1.md",
+  "beoordelaars": "nog te benoemen",
+  "labels": null,
+  "splitsing": null,
+  "beperking": "Dit is voorgesteld synthetisch materiaal. Onafhankelijke labels, controle op zelfstandigheid tegenover het ontwerpregister en inhoudelijke acceptatie door Chris ontbreken. Het is nog geen goldset of gevalideerde hold-out. Buiten ontwikkel-/reviewbriefings houden.",
+  "gevallen": [
+    {
+      "id": "G001",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "uitzonderingsroute",
+      "kern": "Bij overbelasting kiest de planner een alternatieve route als hij de extra reistijd aanvaardbaar acht.",
+      "bedoeling": "De zin wordt gebruikt als definitie van een routetype; de brontekst regelt een operationele keuze.",
+      "context": {
+        "organisatorische_context": [
+          "Routeringproef Cipres (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De planner beslist per overbelasting over omleiding en weegt daarbij de extra reistijd. Dit hoofdstuk bevat de instructies aan de planner.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G002",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "overnemende route",
+      "kern": "Route die dezelfde eindpunten als de hoofdroute verbindt indien de hoofdroute door een storing onbruikbaar is.",
+      "bedoeling": "Dit is een soort route in een fictief netwerkmodel, niet een instructie om verkeer om te leiden.",
+      "context": {
+        "organisatorische_context": [
+          "Netwerk Riet (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het routemodel onderscheidt hoofdroutes en routes die bij uitval dezelfde eindpunten kunnen verbinden. Een routekeuzeprocedure is afzonderlijk beschreven.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G003",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "aangewezen referentie",
+      "kern": "Meetobject dat na aanwijzing door de commissie als referentie wordt gebruikt.",
+      "bedoeling": "De gebruiker heeft niet bevestigd of aanwijzing het objecttype constitueert of hier een opdracht tot gebruik wordt geformuleerd.",
+      "context": {
+        "organisatorische_context": [
+          "Referentieproef Abeel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Versie A noemt aanwijzing een registratie van het type meetobject. Versie B gebruikt dezelfde formulering als opdracht aan het laboratorium om het aangewezen object voortaan te gebruiken. De toepasselijke versie is niet gekozen.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G004",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "opschortingsbeding",
+      "kern": "Onderdeel van een afspraak dat uitvoering van een prestatie onderbreekt zolang de omschreven verstoring voortduurt.",
+      "bedoeling": "De term benoemt het beding zelf en de werking die het afsprakenmodel eraan toekent.",
+      "context": {
+        "organisatorische_context": [
+          "Contractproef Els (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Een opschortingsbeding koppelt de onderbreking van uitvoering aan een omschreven verstoring. Dit is een fictief model, geen uitspraak over geldend contractenrecht.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G005",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "vrije bufferruimte",
+      "kern": "Verschil tussen de capaciteit van de ontvangstbuffer en het aantal posities dat op het meetmoment bezet is.",
+      "bedoeling": "De term benoemt een berekende momentopname, niet een handeling van een beheerder.",
+      "context": {
+        "organisatorische_context": [
+          "Dataproef Linde (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De buffer heeft een vaste capaciteit. Vrije ruimte is capaciteit min bezette posities; beide worden in posities uitgedrukt.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G006",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "aanvaardbaar arrangement",
+      "kern": "Arrangement dat de commissie bij een evenwichtige belangenverdeling aanvaardt.",
+      "bedoeling": "De gebruiker heeft de beoogde referent en functie niet bevestigd.",
+      "context": {
+        "organisatorische_context": [
+          "Arrangementproef Vijg (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De ene bron beschrijft een reeds aanvaard arrangement met een constitutief oordeel. De andere bron schrijft de commissie voor arrangementen na een belangenafweging te aanvaarden. Voorrang is onbeslist.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G007",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "meldingsverbod",
+      "kern": "Norm die het bekendmaken van een nog niet vrijgegeven proefresultaat uitsluit.",
+      "bedoeling": "Het begrip is een type norm binnen een fictief onderzoeksreglement.",
+      "context": {
+        "organisatorische_context": [
+          "Proefreglement Acacia (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het begrippenmodel onderscheidt verboden, geboden en bevoegdheden. Het meldingsverbod heeft betrekking op bekendmaking vóór vrijgave.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G008",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "geblokkeerd transport",
+      "kern": "Zet een transport apart, registreer de reden en vraag de ploegchef om verdere aanwijzingen.",
+      "bedoeling": "Deze tekst staat in een definitieveld voor een transportstatus; zij komt letterlijk uit het fictieve handboek.",
+      "context": {
+        "organisatorische_context": [
+          "Transporthandboek Palm (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De geciteerde handboekregel richt zich tot de medewerker die een blokkering constateert. Het handboek is voor deze organisatie vastgesteld.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G009",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "wederkerige koppeling",
+      "kern": "Koppeling tussen twee objecten die vanaf elk object naar het andere object navigeerbaar is.",
+      "bedoeling": "De term benoemt een relatie-eigenschap in een objectmodel.",
+      "context": {
+        "organisatorische_context": [
+          "Objectmodel Vlier (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Wederkerigheid is de aanwezigheid van beide navigatierichtingen; zij schrijft geen onderhoudshandeling voor.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G010",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "passende inzet",
+      "kern": "Inzet die volgens het oordeel van de dienstleider aansluit bij de actuele behoefte.",
+      "bedoeling": "Het dossier laat open of een oordeel de categorie vastlegt of de dienstleider zijn inzetkeuze moet aanpassen.",
+      "context": {
+        "organisatorische_context": [
+          "Inzetproef Sering (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het registratiemodel noemt het oordeel constitutief. De planningshandleiding gebruikt dezelfde woorden voor een keuze over handelen. Beide zijn als grond toegevoegd.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G011",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "overdrachtsvenster",
+      "kern": "Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.",
+      "bedoeling": "De term benoemt een afgebakend interval in een waarnemingsmodel.",
+      "context": {
+        "organisatorische_context": [
+          "Transportproef Wilg (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Ontvangst en bevestiging zijn gelogde gebeurtenissen. Het venster wordt met die twee tijdstippen beschreven.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G012",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "storingsmelding",
+      "kern": "De meldkamer opent een incidentkaart en belt vervolgens de dienstdoende technicus.",
+      "bedoeling": "Deze tekst wordt aangeboden als definitie van storingsmelding in een begrippenlijst bij het operationele draaiboek.",
+      "context": {
+        "organisatorische_context": [
+          "Draaiboek Plataan (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Onder de kop Storingsmelding staan achtereenvolgens de taken openen van een incidentkaart en bellen van de technicus; deze taken gelden bij iedere gemelde storing.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G013",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "bewaarplicht",
+      "kern": "Plicht van de registratiehouder om bronbestanden gedurende de in de afspraak genoemde bewaartermijn beschikbaar te houden.",
+      "bedoeling": "De term benoemt de plicht, niet een opdracht in een werkinstructie.",
+      "context": {
+        "organisatorische_context": [
+          "Archiefproef Taxus (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het fictieve afsprakenmodel bevat een bewaarplicht als relatie tussen houder, bestanden en termijn. De feitelijke uitvoering wordt elders beschreven.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G014",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "voldoende herstel",
+      "kern": "Herstel dat de inspecteur na beoordeling als afdoende registreert.",
+      "bedoeling": "De bedoeling is niet bevestigd; de gebruiker wil geen keuze tussen de twee bronlezingen laten invullen.",
+      "context": {
+        "organisatorische_context": [
+          "Herstelproef Mirte (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Bron A maakt registratie door de inspecteur constitutief voor de status voldoende herstel. Bron B is een taakinstructie over wanneer de inspecteur herstel moet afmelden. De geldende lezing ontbreekt.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G015",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "ondertekende herstelkopie",
+      "kern": "Herstelkopie waarvan de inhoud overeenkomt met het origineel en waarvan de controlesom is ondertekend door de archiefdienst.",
+      "bedoeling": "Het begrip duidt een digitaal object aan; ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister.",
+      "context": {
+        "organisatorische_context": [
+          "Atlasarchief (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "In de inventaris wordt een herstelkopie ondertekend genoemd als haar inhoud gelijk is aan het origineel en de archiefdienst haar controlesom heeft ondertekend.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G016",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "toelaatbare afwijking",
+      "kern": "De projectleider kan besluiten een afwijking te aanvaarden wanneer hij het herstel onevenredig belastend vindt.",
+      "bedoeling": "Het begrip moet een categorie afwijkingen afbakenen; de bron regelt een afweging over aanvaarding.",
+      "context": {
+        "organisatorische_context": [
+          "Projectproef Olm (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Dit voorschrift geeft de projectleider de mogelijkheid de herstelbelasting af te wegen en op grond daarvan een afwijking te aanvaarden.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G017",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "inzagerecht",
+      "kern": "Aanspraak van een deelnemer op het raadplegen van de eigen meetregistraties.",
+      "bedoeling": "De term benoemt een aanspraak binnen een fictief deelnemersreglement.",
+      "context": {
+        "organisatorische_context": [
+          "Meetcollectief Spar (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het proefreglement kent deelnemers een aanspraak toe op inzage in hun eigen registraties. De procedure voor uitoefening staat in een ander hoofdstuk.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G018",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "herroepbare uitzondering",
+      "kern": "Uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt.",
+      "bedoeling": "Onbekend of de term een soort uitzonderingsbesluit met een beschreven herroepingskenmerk of een uitvoerbare opdracht benoemt.",
+      "context": {
+        "organisatorische_context": [
+          "Uitzonderingsproef Treurwilg (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het classificatiemodel beschrijft hiermee een type uitzondering. Het toezichtprotocol gebruikt dezelfde woorden voor de discretionaire herroepingsbeslissing. Beide lezingen zijn expliciet als mogelijk opgegeven.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G019",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "gepaarde registratie",
+      "kern": "Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.",
+      "bedoeling": "De term duidt een structuur in een logboek aan.",
+      "context": {
+        "organisatorische_context": [
+          "Logboek Duin (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G020",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "vrijgave",
+      "kern": "De beheerder dient het pakket vrij te geven mits de laatste controle is voltooid.",
+      "bedoeling": "Het begrip moet een gebeurtenis beschrijven; de bronzin is een opdracht aan de beheerder.",
+      "context": {
+        "organisatorische_context": [
+          "Pakketproef Kornoelje (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Na voltooiing van de laatste controle heeft de beheerder de taak het pakket vrij te geven.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G021",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "drempelbeslissing",
+      "kern": "Beslissing waarin een commissie vastlegt of een project volgens haar gemotiveerde beoordeling voor een nadere verkenning in aanmerking komt.",
+      "bedoeling": "De term benoemt de vastgelegde beslissing als resultaat, niet een opdracht aan de commissie.",
+      "context": {
+        "organisatorische_context": [
+          "Projectmodel Hazelaar (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Een drempelbeslissing is het verslagde resultaat van de eerste projectbeoordeling. De afweging die eraan voorafgaat is afzonderlijk geregeld.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G022",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "versnelde behandeling",
+      "kern": "Behandeling die de teamleider start zodra hij de omstandigheden dringend acht.",
+      "bedoeling": "Onbekend of de term een bestaand proces met een kenmerk benoemt of de teamleider opdracht geeft dat proces te starten.",
+      "context": {
+        "organisatorische_context": [
+          "Procesproef Tamarinde (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Een begrippenlijst beschrijft hiermee een soort behandeling. Een werkinstructie gebruikt exact deze omschrijving als startregel. Beide stukken zijn aangeleverd zonder rangorde.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G023",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "getrapt meetinterval",
+      "kern": "Meetinterval waarvan beide grenzen tot dezelfde kalibratietrap behoren, tenzij het interval een overgangsmeting omvat.",
+      "bedoeling": "De inventaris onderscheidt gewone en overgangsmetingen; de uitzondering begrenst welke intervallen in de categorie vallen.",
+      "context": {
+        "organisatorische_context": [
+          "Meetlab Iep (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Een overgangsmeting mag twee kalibratietrappen overspannen en wordt toch als getrapt meetinterval geregistreerd. Andere getrapte intervallen liggen binnen één trap.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G024",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "controlebewijs",
+      "kern": "Document waarvan de controleur eerst de datum verifieert en daarna de handtekening vergelijkt met het register.",
+      "bedoeling": "De term benoemt een bewijsdocument; de kandidaat komt uit een instructie voor de verwerking van zulke documenten.",
+      "context": {
+        "organisatorische_context": [
+          "Controleproef Eik (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De controleur voert bij ontvangst eerst de datumcontrole uit en vergelijkt daarna de handtekening. Deze volgorde is voorgeschreven voor de afhandeling.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G025",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "intrekkingsbesluit",
+      "kern": "Besluit waardoor een eerder verleende reservering haar geldigheid verliest.",
+      "bedoeling": "De term benoemt een besluit en het constitutieve gevolg ervan.",
+      "context": {
+        "organisatorische_context": [
+          "Reserveringsmodel Beuk (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "In dit model vervalt een reservering door het intrekkingsbesluit. De criteria voor het nemen van dat besluit staan niet in de definitie.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G026",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "voorwaardelijke inschaling",
+      "kern": "Inschaling die het panel vaststelt wanneer het de proefperiode overtuigend vindt.",
+      "bedoeling": "Onbekend of dit een besluitresultaat als begrip beschrijft of de beslisregel van het panel uitvoert.",
+      "context": {
+        "organisatorische_context": [
+          "Schaalproef Kamperfoelie (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het begrippenboek definieert met deze zin een type uitkomst. Het panelprotocol gebruikt haar als beslisregel. Het dossier bevat geen geldige keuze voor de bedoelde functie.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G027",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "gewogen verblijfsduur",
+      "kern": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.",
+      "bedoeling": "Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.",
+      "context": {
+        "organisatorische_context": [
+          "Procesmodel Berk (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Voor iedere deelpartij zijn hoeveelheid en verblijfsduur bekend. De gewogen verblijfsduur gebruikt de hoeveelheid als gewicht; de totale hoeveelheid is positief.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G028",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "reserveringsbevestiging",
+      "kern": "Bericht dat de medewerker naar de aanvrager stuurt nadat hij de beschikbaarheid heeft gecontroleerd; ontbreekt capaciteit, dan annuleert hij de aanvraag.",
+      "bedoeling": "Het eerste deel beschrijft een bericht; de volledige kandidaat moet als één definitiekern worden beoordeeld.",
+      "context": {
+        "organisatorische_context": [
+          "Reserveringsproef Kastanje (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het werkprotocol schrijft voor dat de medewerker beschikbaarheid controleert, bij voldoende capaciteit bevestigt en anders annuleert. Die volledige regel is in het definitieveld overgenomen.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G029",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "revisiebevoegdheid",
+      "kern": "Bevoegdheid van de catalogusbeheerder om een eerdere classificatie na heronderzoek te vervangen.",
+      "bedoeling": "Het model bevat rollen en bevoegdheden; het begrip benoemt een bevoegdheid.",
+      "context": {
+        "organisatorische_context": [
+          "Catalogus Den (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Revisiebevoegdheid is een bevoegdheid tot vervanging na heronderzoek. Het reglement bepaalt hier niet in welk individueel geval die bevoegdheid moet worden gebruikt.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G030",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "actieve aanbieding",
+      "kern": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+      "bedoeling": "Het is niet bevestigd of voortzetten een kenmerk van de categorie of een gedragsregel voor de behandelaar is.",
+      "context": {
+        "organisatorische_context": [
+          "Aanbiedingsproef Robinia (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het dossier bevat een tabel met aanbiedingstypen en een instructiekaart voor voortzetting. De zin komt in beide voor en er is geen bronkeuze gemaakt.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G031",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "onvolledig raster",
+      "kern": "Raster waarin ten minste één vereiste meetpositie geen waarde bevat.",
+      "bedoeling": "Het begrip is een klasse van meetbestanden; oorzaken en vervolghandelingen staan buiten de begripsafbakening.",
+      "context": {
+        "organisatorische_context": [
+          "Rasterlab Hulst (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het schema vermeldt de vereiste posities. Een ontbrekende waarde maakt het raster onvolledig, ongeacht de reden van ontbreken.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G032",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "spoedvak",
+      "kern": "Opslagvak dat de teamleider direct leegmaakt zodra een zending het kenmerk spoed draagt.",
+      "bedoeling": "Het begrip moet een soort opslagvak benoemen; de aangeleverde zin is overgenomen uit een taakregel voor de teamleider.",
+      "context": {
+        "organisatorische_context": [
+          "Magazijnproef Lariks (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De taakregel luidt dat de teamleider bij iedere spoedzending direct een vak leegmaakt. De regel beschrijft geen vaste eigenschappen van een vak.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G033",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "beoordelingsmarge",
+      "kern": "Ruimte die een regeling aan een beoordelaar laat om relevante omstandigheden naar eigen inzicht te wegen.",
+      "bedoeling": "Het begrip benoemt beslisruimte als object van beschrijving.",
+      "context": {
+        "organisatorische_context": [
+          "Regelmodel Populier (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het woordenboek beschrijft de ruimte voor weging. Een concrete keuze op grond van die ruimte is geen onderdeel van deze woordenboekinschrijving.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G034",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "toegewezen capaciteit",
+      "kern": "Capaciteit die de beheerder op verzoek beschikbaar stelt voor een project.",
+      "bedoeling": "Niet bevestigd of de zin een administratieve toestand na toewijzing benoemt of een opdracht tot beschikbaarstelling geeft.",
+      "context": {
+        "organisatorische_context": [
+          "Capaciteitsproef Moerbei (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De gegevenscatalogus behandelt toegewezen capaciteit als toestand. De beheerdersinstructie gebruikt de zin als taakregel. De gebruiker heeft beide zonder nadere duiding aangeleverd.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G035",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "herbruikbare capsule",
+      "kern": "Capsule die na de vastgelegde reinigingscyclus opnieuw een monster kan omsluiten zonder waarneembare lekkage.",
+      "bedoeling": "Het begrip betreft een fysieke eigenschap die een inspecteur vaststelt; er wordt geen besluit over inzet gevraagd.",
+      "context": {
+        "organisatorische_context": [
+          "Monsterbank Es (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Herbruikbaarheid betekent hier behoud van afsluitfunctie na de beschreven reinigingscyclus. Een inspecteur observeert lekkage, maar kent geen herbruikbaarheidsstatus toe.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G036",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "herstelronde",
+      "kern": "Proces waarbij de medewerker alle afgekeurde exemplaren moet verzamelen en ze vóór sluiting opnieuw moet aanbieden.",
+      "bedoeling": "Het begrip benoemt een proces; deze tekst legt de medewerker taken en een deadline op.",
+      "context": {
+        "organisatorische_context": [
+          "Revisieproef Ginkgo (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Voor iedere herstelronde gelden voor medewerkers de opdrachten verzamelen van afgekeurde exemplaren en opnieuw aanbieden vóór sluiting.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G037",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "leveringsgarantie",
+      "kern": "Toezegging van een leverancier dat vervanging zonder aanvullende vergoeding beschikbaar is wanneer het geleverde exemplaar binnen de overeengekomen periode uitvalt.",
+      "bedoeling": "De term benoemt de toezegging en haar bereik in een fictief afsprakenmodel.",
+      "context": {
+        "organisatorische_context": [
+          "Werkplaats Ceder (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het afsprakenmodel onderscheidt een leveringsgarantie van het feitelijk leveren van vervanging. De garantie omvat de genoemde uitvalsperiode en het ontbreken van een aanvullende vergoeding.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G038",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "geautoriseerde publicatie",
+      "kern": "Publicatie die na toestemming van de eigenaar openbaar wordt gemaakt.",
+      "bedoeling": "De term kan in dit dossier zowel een soort publicatie als de uitvoeringsregel voor openbaarmaking aanduiden; de gebruiker heeft niet gekozen.",
+      "context": {
+        "organisatorische_context": [
+          "Publicatieproef Magnolia (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De catalogus gebruikt toestemming als kenmerk van de publicatie. Het publicatieprotocol gebruikt dezelfde omschrijving als opdracht aan de redactie. Geen van beide bronnen is als leidend aangewezen.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G039",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "adviesprocedure",
+      "kern": "Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.",
+      "bedoeling": "Het begrip duidt een proces als geheel aan; deze inschrijving wijst geen uitvoerder aan of stappen toe.",
+      "context": {
+        "organisatorische_context": [
+          "Procescatalogus Jeneverbes (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "De procescatalogus onderscheidt de adviesprocedure van haar werkinstructies. Het proces is herkenbaar aan ontvangst, onderzoek en een gemotiveerd advies.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    },
+    {
+      "id": "G040",
+      "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+      "begrip": "escalatiemelding",
+      "kern": "Melding die de coördinator naar eigen inzicht doorzet naar het bestuur wanneer hij de gevolgen ernstig genoeg vindt.",
+      "bedoeling": "De aangeleverde zin is bedoeld als regel voor het doorzetten van meldingen en wordt als definitie gebruikt.",
+      "context": {
+        "organisatorische_context": [
+          "Meldproef Lijsterbes (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Het hoofdstuk geeft de coördinator opdracht per melding de ernst van de gevolgen te wegen en naar eigen inzicht te escaleren.",
+          "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+        }
+      ]
+    }
+  ]
+}
+

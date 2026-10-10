@@ -1,0 +1,266 @@
+# DEF-835 positiecorrectie-v1 — RODE run, na het schrijven van de tests en vóór elke productiewijziging
+# HEAD 3ba526daefe7da71d8332faba9e5d25fb1df06a3; 2026-10-07T11:36:59Z; exit=1
+# /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/domain/test_def835_int02_citaatposities.py tests/unit/services/prompts/test_def835_int02_prompt.py tests/unit/validation/test_def835_int02_assessment_service.py -k "citaatposities or test_def835_int02_prompt or dienst_leidt or dienst_meldt or dienst_weigert" -o addopts= --import-mode=importlib -q -rf --tb=line
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF.FFFFFFFF........F..F.F..........F.F.... [ 65%]
+.......F...F.....................FFFF.                                   [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert ('error', 'IN...ongewijzigd.') == ('pass', 'INT...ongewijzigd.')
+      
+      At index 0 diff: 'error' != 'pass'
+      Use -v to get more diff
+------------------------------ Captured log setup ------------------------------
+WARNING  config.config_manager:config_manager.py:598 API key niet geconfigureerd voor provider: anthropic
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:368: AssertionError: assert ('error', 'IN...ongewijzigd.') == ('pass', 'INT...ongewijzigd.')
+E   AssertionError: assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:185: AssertionError: assert 'error' == 'pass'
+E   AssertionError: invalid_output
+    assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:178: AssertionError: invalid_output
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AssertionError: invalid_output
+    assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:160: AssertionError: invalid_output
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:312: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AssertionError: assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:207: AssertionError: assert 'error' == 'pass'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:312: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AssertionError: assert frozenset({'e...te', 'start'}) == frozenset({'f...nd', 'quote'})
+      
+      Extra items in the left set:
+      'end'
+      'start'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:139: AssertionError: assert frozenset({'e...te', 'start'}) == frozenset({'f...nd', 'quote'})
+E   AssertionError: assert ('error', 'invalid_output') == ('pass', None)
+      
+      At index 0 diff: 'error' != 'pass'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:349: AssertionError: assert ('error', 'invalid_output') == ('pass', None)
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:312: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AssertionError: invalid_output
+    assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:160: AssertionError: invalid_output
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:312: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AssertionError: assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:199: AssertionError: assert 'error' == 'pass'
+E   AssertionError: invalid_output
+    assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:160: AssertionError: invalid_output
+E   TypeError: 'NoneType' object is not subscriptable
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:380: TypeError: 'NoneType' object is not subscriptable
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AssertionError: invalid_output
+    assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:160: AssertionError: invalid_output
+E   AssertionError: assert 'def835-int02-assessment/1' == 'def835-int02-assessment/2'
+      
+      - def835-int02-assessment/2
+      ?                         ^
+      + def835-int02-assessment/1
+      ?                         ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:133: AssertionError: assert 'def835-int02-assessment/1' == 'def835-int02-assessment/2'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:312: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AssertionError: assert ('error', 'invalid_citation') == ('error', 'invalid_output')
+      
+      At index 1 diff: 'invalid_citation' != 'invalid_output'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:343: AssertionError: assert ('error', 'invalid_citation') == ('error', 'invalid_output')
+E   TypeError: 'NoneType' object is not subscriptable
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:380: TypeError: 'NoneType' object is not subscriptable
+E   AssertionError: assert ('error' == 'pass'
+      
+      - pass
+      + error)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:289: AssertionError: assert ('error' == 'pass'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AssertionError: invalid_output
+    assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:178: AssertionError: invalid_output
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AssertionError: invalid_output
+    assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:160: AssertionError: invalid_output
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   TypeError: 'NoneType' object is not subscriptable
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:380: TypeError: 'NoneType' object is not subscriptable
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   TypeError: 'NoneType' object is not subscriptable
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:380: TypeError: 'NoneType' object is not subscriptable
+E   AssertionError: invalid_output
+    assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:178: AssertionError: invalid_output
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:215: AttributeError: 'Beoordelingsdocument' object has no attribute 'foutdetail'
+E   AssertionError: invalid_output
+    assert 'error' == 'pass'
+      
+      - pass
+      + error
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_citaatposities.py:178: AssertionError: invalid_output
+E   assert '- Kopieer elk passage- en grondcitaat letterlijk uit het opgegeven veld. Bepaal "start" nulgebaseerd, bereken "end" =...ing dat tekst[start:end] == quote voor de exacte tekst van dat veld. Lukt dat niet, verzin dan geen citaat of positie.' not in ['Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of he...inistische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', ...]
+     +  where ['Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of he...inistische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', ...] = <built-in method splitlines of str object at 0x95f71c000>()
+     +    where <built-in method splitlines of str object at 0x95f71c000> = 'Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.'.splitlines
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:380: assert '- Kopieer elk passage- en grondcitaat letterlijk uit het opgegeven veld. Bepaal "start" nulgebaseerd, bereken "end" =...ing dat tekst[start:end] == quote voor de exacte tekst van dat veld. Lukt dat niet, verzin dan geen citaat of positie.' not in ['Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of he...inistische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', ...]
+E   assert 0 == 1
+     +  where 0 = <built-in method count of list object at 0x10abe7c80>('- Kopieer elk passage- en grondcitaat letterlijk uit het opgegeven veld: exact dezelfde tekens, zonder normalisatie v...aangrenzende tekst mee. Geef geen posities; de dienst zoekt het citaat zelf op. Lukt dat niet, verzin dan geen citaat.')
+     +    where <built-in method count of list object at 0x10abe7c80> = ['Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of he...inistische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', ...].count
+     +      where ['Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of he...inistische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', ...] = <built-in method splitlines of str object at 0x95f720000>()
+     +        where <built-in method splitlines of str object at 0x95f720000> = 'Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.'.splitlines
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:363: assert 0 == 1
+E   AssertionError: assert '- Kopieer elk passage- en grondcitaat letterlijk uit het opgegeven veld: exact dezelfde tekens, zonder normalisatie v...aangrenzende tekst mee. Geef geen posities; de dienst zoekt het citaat zelf op. Lukt dat niet, verzin dan geen citaat.' in ['Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of he...inistische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', ...]
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:371: AssertionError: assert '- Kopieer elk passage- en grondcitaat letterlijk uit het opgegeven veld: exact dezelfde tekens, zonder normalisatie v...aangrenzende tekst mee. Geef geen posities; de dienst zoekt het citaat zelf op. Lukt dat niet, verzin dan geen citaat.' in ['Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of he...inistische afleiding, zonder als handelingsvoorschrift, procedure of discretionaire beslisregel te functioneren?', ...]
+E   AssertionError: assert 'def835-int02-prompt/2' == 'def835-int02-prompt/3'
+      
+      - def835-int02-prompt/3
+      ?                     ^
+      + def835-int02-prompt/2
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:355: AssertionError: assert 'def835-int02-prompt/2' == 'def835-int02-prompt/3'
+E   AssertionError: assert 'def835-int02-prompt/2' == 'def835-int02-prompt/3'
+      
+      - def835-int02-prompt/3
+      ?                     ^
+      + def835-int02-prompt/2
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:218: AssertionError: assert 'def835-int02-prompt/2' == 'def835-int02-prompt/3'
+E   assert '- "passages": lijst van passageobjecten met precies "quote", "function" en "ground".' in 'Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:396: assert '- "passages": lijst van passageobjecten met precies "quote", "function" en "ground".' in 'Je beoordeelt één definitie op toetsregel INT-02 (geen beslisregel). Je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.'
+E   assert 'precies één keer' in 'je beoordeelt één definitie op toetsregel int-02 (geen beslisregel). je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:210: assert 'precies één keer' in 'je beoordeelt één definitie op toetsregel int-02 (geen beslisregel). je bent beoordelaar: je wijzigt, herstelt of her..."not_applicable": niet-lege "scope_reason", "passages" leeg, "coverage" "none", "uncertainty" "none", "question" null.'
+E   AssertionError: assert ('error', 'invalid_output') == ('fail', None)
+      
+      At index 0 diff: 'error' != 'fail'
+      Use -v to get more diff
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:898 INT-02: beoordeling mislukt (invalid_output; -)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1494: AssertionError: assert ('error', 'invalid_output') == ('fail', None)
+E   AssertionError: assert 'invalid_output' == 'invalid_citation'
+      
+      - invalid_citation
+      + invalid_output
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:898 INT-02: beoordeling mislukt (invalid_output; -)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1518: AssertionError: assert 'invalid_output' == 'invalid_citation'
+E   AssertionError: assert 'invalid_output' == 'invalid_citation'
+      
+      - invalid_citation
+      + invalid_output
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:898 INT-02: beoordeling mislukt (invalid_output; -)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1518: AssertionError: assert 'invalid_output' == 'invalid_citation'
+E   AssertionError: assert 'invalid_output' == 'invalid_citation'
+      
+      - invalid_citation
+      + invalid_output
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:898 INT-02: beoordeling mislukt (invalid_output; -)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1518: AssertionError: assert 'invalid_output' == 'invalid_citation'
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_replay_aanvaardt_het_document_met_afgeleide_posities
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_grond_zonder_citaat_houdt_lege_posities
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_uniek_grondcitaat_krijgt_posities_van_de_dienst[bedoeling]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_passagecitaat_meer_dan_eens_is_invalid_citation[tweemaal]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_passagecitaat_niet_gevonden_is_invalid_citation[verzonnen]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_passagecitaat_niet_gevonden_is_invalid_citation[witruimte]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_uniek_passagecitaat_krijgt_posities_van_de_dienst[astraal]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_modeluitvoer_met_positievelden_is_invalid_output[grond-juist]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_melding_volgt_de_eerste_passage_op_afgeleide_positie
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_modeluitvoer_met_positievelden_is_invalid_output[grond-null]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_passagecitaat_niet_gevonden_is_invalid_citation[hoofdletter]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_modelschema_bevat_geen_positievelden_meer
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_c112_ruwe_v4_uitvoer_zonder_posities_is_geldige_pass
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_modeluitvoer_met_positievelden_is_invalid_output[passage-end]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_uniek_passagecitaat_krijgt_posities_van_de_dienst[begin-van-veld]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_modeluitvoer_met_positievelden_is_invalid_output[passage-start]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_passagecitaat_niet_gevonden_is_invalid_citation[nfd]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_meegegeven_modeluitvoer_wordt_niet_gemuteerd
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_uniek_passagecitaat_krijgt_posities_van_de_dienst[eind-van-veld]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_replay_weigert_een_gemanipuleerde_bewaarde_positie[end]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_grondcitaat_meer_dan_eens_is_invalid_citation
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_uniek_passagecitaat_krijgt_posities_van_de_dienst[hele-veld]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_contractversie_is_twee
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_modeluitvoer_met_positievelden_is_invalid_output[passage-juist]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_c112_ruwe_v4_uitvoer_met_te_korte_posities_wordt_geweigerd
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_replay_weigert_een_gemanipuleerde_bewaarde_positie[grond-end]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_geldig_oordeel_heeft_geen_foutdetail
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_passagecitaat_niet_gevonden_is_invalid_citation[leesteken]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_uniek_grondcitaat_krijgt_posities_van_de_dienst[kern-begin]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_passagecitaat_alleen_in_ander_veld_is_niet_gevonden
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_uniek_passagecitaat_krijgt_posities_van_de_dienst[midden-diacrieten]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_grondcitaat_niet_gevonden_is_invalid_citation
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_replay_weigert_een_gemanipuleerde_bewaarde_positie[start]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_leeg_grondcitaat_is_invalid_citation
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_niet_herleidbare_grond_heeft_eigen_foutdetail
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_replay_weigert_een_gemanipuleerde_bewaarde_positie[grond-start]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_uniek_grondcitaat_krijgt_posities_van_de_dienst[bron-eind]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_passagecitaat_meer_dan_eens_is_invalid_citation[overlappend]
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_leeg_passagecitaat_is_invalid_citation
+FAILED tests/unit/domain/test_def835_int02_citaatposities.py::test_uniek_grondcitaat_krijgt_posities_van_de_dienst[context]
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_systeemprompt_vraagt_geen_posities_meer
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_systeemprompt_bevat_de_aanwijzing_als_een_regel[citaat]
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_aanwijzing_staat_na_de_invoerduiding_en_voor_het_uitvoerschema[citaat]
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_promptversie_is_drie_na_de_positiecorrectie
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_promptversie_is_eigen_en_verschilt_van_contract_en_norm
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_uitvoerschema_noemt_alleen_citaat_en_veld
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_systeemprompt_legt_citaatregels_scoreverbod_en_gegevensrol_vast
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_dienst_leidt_posities_af_uit_een_uniek_citaat
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_dienst_meldt_citaatfout_met_onderscheidbaar_detail[leeg]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_dienst_meldt_citaatfout_met_onderscheidbaar_detail[niet-uniek]
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_dienst_meldt_citaatfout_met_onderscheidbaar_detail[niet-gevonden]
+51 failed, 59 passed, 135 deselected in 1.11s

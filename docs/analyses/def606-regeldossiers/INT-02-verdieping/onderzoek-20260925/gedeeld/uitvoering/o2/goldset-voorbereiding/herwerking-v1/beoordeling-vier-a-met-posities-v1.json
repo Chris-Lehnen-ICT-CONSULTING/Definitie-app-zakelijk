@@ -1,0 +1,307 @@
+{
+  "beoordelaar": "A",
+  "status": "voorstel_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "casuspool_kandidaat_v4": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+    "vier_vervangers_concept_v1": "f8abedbd14106d3a7b54a813762dac911d45509e2e005a3461869cad6d4dc81b",
+    "normcontract": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten_chris": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734"
+  },
+  "gevallen": [
+    {
+      "id": "G053",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "De administratie berekent voor iedere gereden dienstkilometer 0,23 euro",
+          "functie": "actorvoorschrift/procedure: rekenhandeling van een actor",
+          "start": 0,
+          "end": 71
+        },
+        {
+          "citaat": "beperkt het bedrag per dag tot 40 euro",
+          "functie": "actorvoorschrift/procedure: begrenzingshandeling",
+          "start": 73,
+          "end": 111
+        },
+        {
+          "citaat": "maakt het maandtotaal over aan de vrijwilliger",
+          "functie": "actorvoorschrift/procedure: uitbetalingshandeling",
+          "start": 115,
+          "end": 161
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "biedt daarvoor stap 3 uit de werkinstructie van de administratie aan",
+          "start": 91,
+          "end": 159
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Werkinstructie administratie Lijsterbes (fictief; geen geldend recht), stap 3 'Reiskosten'",
+          "start": 0,
+          "end": 90
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "bedraagt de reiskostenvergoeding 0,23 euro, met een maximum van 40 euro per dag",
+          "start": 174,
+          "end": 253
+        }
+      ],
+      "motivering": "De hele kern is een procedurestap. Het grammaticale onderwerp is de administratie, niet de vergoeding. De drie werkwoorden beschrijven opeenvolgende handelingen van die actor: berekenen, begrenzen en overmaken. De bedoeling en B2 bevestigen dat stap 3 uit een werkinstructie als definitie is aangeleverd. Dat de berekening deterministisch is, maakt haar geen afleidingsregel: volgens de norm is een gebonden handelingsopdracht niet enkel door haar determinisme een afleidingsregel. B1 laat zien dat dezelfde inhoud ook als beschrijvende afleiding bestaat. Er ontbreekt dus geen betekenisgrond; het gebrek is zelfstandig aangetoond.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C105",
+          "C15",
+          "C116",
+          "C114"
+        ],
+        "motivering": "C105 is een actoropdracht zonder signaalwoord en zonder rekeninhoud. C15 zet een procedure in een bijzin bij het object. G053 toetst de determismegrens uit de norm: dezelfde afleidbare grootheid die in C116-vorm voldoet, staat hier als uit te voeren handeling. Met B1 als beschikbare afleidingsbron vormt het een contrast met C116. De bron maakt geen verschil voor INT-02, zoals ook bij C114."
+      },
+      "redundantie_met": [
+        "G012",
+        "G052"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Grootste overlap met G012: ook daar is de volledige kern een reeks handelingen in de tegenwoordige tijd, met de actor als onderwerp, zonder genus en afkomstig uit een draaiboek. G053 voegt de determinismegrens toe en een bron (B1) die de afleiding wél levert.",
+        "G052 levert ook een werkinstructiestap als definitie, maar in de gebiedende wijs en met een discretionaire afweging; de beslisstructuur verschilt dus.",
+        "Buiten INT-02: de kern noemt geen genus en beschrijft geen bedrag, terwijl de term een vergoeding (bedrag) aanduidt. Dat is een referentmismatch (ESS/STR) en geen vervangende INT-02-grond.",
+        "De kern bevat geen S1- of bestaand signaalwoord; de reviewerhulp zonder signaal is van toepassing."
+      ]
+    },
+    {
+      "id": "G054",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "die op de dag waarop een tuin vrijkomt meer wachtpunten heeft dan iedere andere inschrijving",
+          "functie": "deterministische afleiding: hoogste aantal wachtpunten op de peildag",
+          "start": 30,
+          "end": 122
+        },
+        {
+          "citaat": "bij een gelijk hoogste aantal wachtpunten, van de inschrijvingen met dat aantal het laagste inschrijfnummer heeft",
+          "functie": "deterministische afleiding: beslissende tiebreak",
+          "start": 127,
+          "end": 240
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Eerstgerechtigd is de inschrijving die op de dag waarop de tuin vrijkomt de meeste wachtpunten heeft; hebben meer inschrijvingen dat hoogste aantal, dan is van die inschrijvingen de inschrijving met het laagste inschrijfnummer eerstgerechtigd.",
+          "start": 410,
+          "end": 653
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een inschrijving krijgt één wachtpunt voor ieder volledig jaar dat zij op de wachtlijst staat.",
+          "start": 194,
+          "end": 288
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term wordt gebruikt in het wachtlijstoverzicht van de tuinvereniging",
+          "start": 0,
+          "end": 71
+        }
+      ],
+      "motivering": "De kern bakent een inschrijving af met een deterministische rangschikking. Eerst telt het hoogste aantal wachtpunten op de dag dat een tuin vrijkomt. Bij gelijke stand beslist het laagste inschrijfnummer. Volgens B1 art. 5 liggen beide gegevens vast: wachtpunten per volledig jaar, en inschrijfnummers die oplopen en niet worden hergebruikt. De kern bevat geen actor, geen handeling en geen afweging. Het 'of' leidt een beslissende tiebreak in, geen keuze. De bestuurshandeling uit B1 art. 6 (aanbieden binnen twee weken) staat terecht niet in de kern. Een afleidingsregel voldoet.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C10",
+          "C27",
+          "C116",
+          "C18"
+        ],
+        "motivering": "C10, C27 en C116 zijn afleidingen uit feiten over één object: aantallen, leeftijd, een som. G054 leidt een status af uit een vergelijking met alle andere leden van een populatie, met een tiebreak. De bron voegt er een actorprocedure aan toe, die niet in de kern is overgenomen. Die combinatie komt in het ontwerpregister niet voor."
+      },
+      "redundantie_met": [
+        "G027"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Gedeeltelijke overlap met G027 (ook een deterministische afleiding die voldoet). G027 is echter een formule voor een grootheid; G054 is een rangschikking over een populatie. Dat is een andere beslisstructuur.",
+        "Lokaas zit in de bedoeling ('de brief waarmee het bestuur een vrijgekomen tuin aanbiedt') en in B1 art. 6, dat een bestuurshandeling bevat. Het geval toetst of de aanwezigheid van zo'n procedure in de bron de beschrijvende kern ten onrechte besmet.",
+        "'meer wachtpunten heeft dan iedere andere inschrijving' komt samen met de tiebreak overeen met 'de meeste wachtpunten' uit B1; ik zie geen betekenisverschuiving. Buiten INT-02 blijft open wat er gebeurt als meerdere tuinen op dezelfde dag vrijkomen (ESS/afbakening); dat is geen INT-02-grond.",
+        "De kern bevat geen signaalwoord."
+      ]
+    },
+    {
+      "id": "G055",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Vergadering van de ledenraad",
+          "functie": "genus",
+          "start": 0,
+          "end": 28
+        },
+        {
+          "citaat": "die de voorzitter niet vóór de aanvang besloten heeft verklaard",
+          "functie": "begripscriterium: het ontbreken van een (discretionaire) beslissing als kenmerk",
+          "start": 29,
+          "end": 92
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De vergaderingen van de ledenraad zijn openbaar.",
+          "start": 66,
+          "end": 114
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De voorzitter kan een vergadering vóór de aanvang besloten verklaren wanneer de voorzitter dat ter bescherming van de persoonlijke levenssfeer van een lid nodig acht.",
+          "start": 115,
+          "end": 281
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "9 april: besloten (besloten verklaard op 2 april)",
+          "start": 73,
+          "end": 122
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "die bij iedere vergadering van de ledenraad vermeldt of zij openbaar of besloten is",
+          "start": 65,
+          "end": 148
+        }
+      ],
+      "motivering": "De kern deelt vergaderingen in op grond van het ontbreken van een besloten verklaring vóór de aanvang. Volgens B1 is die verklaring discretionair ('nodig acht'). De kern voert die afweging niet uit, neemt het afwegingscriterium niet over en schrijft de voorzitter niets voor. Zij gebruikt alleen de wel of niet genomen beslissing als kenmerk, en de norm staat het beschrijven van een beslissing als begripskenmerk toe. De bedoeling en B2 laten zien dat de vergaderkalender precies deze status vastlegt. De kern bevat dus geen actorvoorschrift en geen beslisregel.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C69",
+          "C107",
+          "C12",
+          "C53"
+        ],
+        "motivering": "Het dichtst bij ligt C69: een besluituitkomst als kenmerk. G055 verschilt daarvan in de beslisstructuur. Het begrip wordt gedefinieerd door het ontbreken van een handeling (de standaardklasse), en de bron bevat uitdrukkelijk discretie die niet in de kern terechtkomt. Het is ook een tegenhanger van C12 en C107, waar oordeel of discretie wél in de kern staat."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Hoort bij de poolcluster 'status via een handeling van een orgaan' (G003, G014, G021). Die gevallen draaien om strijdige bronnen of een beschreven beslissing met motivering; ik zie geen gelijke beslisstructuur. G050 en G018 nemen de discretie wél in de kern op en vormen daarmee een contrast.",
+        "Het discretiewoord 'nodig acht' staat in B1 en niet in de kern. Het valt niet onder het S1-patroon 'redelijk acht'. De kern bevat geen signaalwoord.",
+        "Buiten INT-02: of een vergadering die nog moet beginnen en waarover nog niets is verklaard nu al 'openbaar' is, is een vraag over tijdsafbakening (ESS). Die is hier niet als INT-02-grond gebruikt.",
+        "Voor de tweede passage zijn geen posities opgegeven: 'vóór' bevat een diakriet, en de Unicode-normalisatie is niet gecontroleerd."
+      ]
+    },
+    {
+      "id": "G056",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Medewerker",
+          "functie": "genus",
+          "start": 0,
+          "end": 10
+        },
+        {
+          "citaat": "die tijdens een voorstelling de nooduitgangen van de zaal vrijhoudt",
+          "functie": "begripskenmerk: taak als onderscheidend kenmerk van de rol",
+          "start": 11,
+          "end": 78
+        },
+        {
+          "citaat": "bij alarm de ontruiming van de zaal leidt",
+          "functie": "begripskenmerk: taak als onderscheidend kenmerk van de rol",
+          "start": 82,
+          "end": 123
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "gebruikt als functienaam, naast de functies kassa en garderobe",
+          "start": 51,
+          "end": 113
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Waarden: kassa, garderobe, zaalwacht.",
+          "start": 56,
+          "end": 93
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een zaalwacht houdt tijdens de voorstelling de nooduitgangen van de zaal vrij en leidt bij alarm de ontruiming van de zaal.",
+          "start": 134,
+          "end": 257
+        }
+      ],
+      "motivering": "De kern definieert een rol: genus 'Medewerker', met de taken tijdens een voorstelling als onderscheidende kenmerken. De handelingen worden aan het gedefinieerde begrip toegeschreven en niet aan een lezer of derde actor opgedragen. Er is geen modaal werkwoord, geen stappenvolgorde en geen afweging. De bedoeling (functienaam naast kassa en garderobe) en B2 wijzen op een indelende functie. De norm staat het beschrijven van een verplichting of procedure als begripskenmerk toe. Zekerheid middel: het register kent geen precedent voor een actor die door zijn taken wordt gedefinieerd, en B1 is een normatief veiligheidsplan.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C15",
+          "C52",
+          "C112",
+          "C105"
+        ],
+        "motivering": "In C15 en C52 ondergaat het definiendum de procedure van een andere actor. In C105 is de kern zelf een opdracht. C112 definieert een verplichting. In G056 is het definiendum de uitvoerende actor zelf, en zijn taken zijn de differentia. Dat onderscheid tussen rolkenmerk en actorvoorschrift komt in het ontwerpregister niet voor."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Er is een oppervlakkige overlap met G051: hetzelfde werkwoord 'vrijhoudt'. Daar ondergaat het definiendum (een bed) de handeling van een andere actor, en de bedoeling wijkt af. Dat is een andere beslisstructuur.",
+        "In de pool zijn G036, G041 en G047 gevallen waarin een handeling van een derde actor in de kern staat; in G056 is de handelende actor het definiendum.",
+        "Buiten INT-02: of de rol pas bestaat wanneer de taken feitelijk worden uitgevoerd ('bij alarm'), of al bij roostering, is een vraag over extensie en ontologie (rol tegenover uitvoering, ESS/ontologie). Dat is hier niet als INT-02-grond gebruikt.",
+        "De kern bevat geen signaalwoord."
+      ]
+    }
+  ],
+  "selectiepunten": [
+    "G053 en G012 hebben dezelfde kernvorm: een reeks handelingen met de actor als onderwerp, als volledige kern, zonder genus. Wat G053 onderscheidt is de determismegrens en een B1-bron met een beschikbare afleiding. Chris beslist of beide behouden blijven of dat één van de twee volstaat.",
+    "G053 en C116 vormen samen een contrastpaar: afgeleide grootheid als kenmerk (voldoet) tegenover dezelfde soort berekening als actorprocedure (voldoet niet). Te beslissen is of dat paar bewust in de selectie moet blijven.",
+    "G054 en G027 zijn beide afleidingsgevallen die voldoen, met een verschillende beslisstructuur (rangschikking met tiebreak tegenover formule). Het is geen triviale variant, maar ze verhogen samen het aandeel afleidingen in de pool.",
+    "G055 ligt het dichtst bij C69 (besluituitkomst als kenmerk). Ik beoordeel het als zelfstandig, vanwege de definitie via afwezigheid en de discretionaire bron. Te bevestigen is of die afstand voldoende is.",
+    "Voor G056 (rol gedefinieerd door taken) bestaat geen precedent in het ontwerpregister. Mijn voorstel 'pass' heeft zekerheid middel. Het oordeel van beoordelaar B kan hier het meest informatief zijn voor de grens tussen rolkenmerk en actorvoorschrift.",
+    "Geen van de vier kernen bevat een bestaand of S1-signaalwoord. Alle vier toetsen dus het pad zonder signaal. Te beslissen is of die eenzijdigheid voor deze vervangers gewenst is.",
+    "Mijn voorstellen komen uit op één fail en drie pass. Die verdeling is niet geforceerd en niet afgestemd op aantallen per label of familie in de pool."
+  ],
+  "bewijsgrenzen": [
+    "Alleen de vijf opgegeven bronnen gelezen; geen oude beoordelingen, goldlabels, redacteuruitvoer of uitkomsten van beoordelaar B.",
+    "De bronhashes zijn letterlijk overgenomen uit manifest-vier-vervangers-v1.json en niet opnieuw berekend; in deze sessie was geen hashhulpmiddel gebruikt.",
+    "De posities zijn met de hand geteld, nulgebaseerd en met exclusief einde. Bij 'vóór' (G055) zijn ze weggelaten omdat de Unicode-normalisatie niet is gecontroleerd. Voor bron- en bedoelingcitaten zijn geen posities opgegeven.",
+    "Alle gevallen en bronnen zijn synthetisch en fictief; dit is geen oordeel over geldend recht of praktijkgevallen.",
+    "Het gaat om een onafhankelijk labelvoorstel onder def771-int02/2, uitsluitend voor INT-02. Het is geen goldlabel, geen expertgoldset en geen uitspraak over de kwaliteit van de app of een model.",
+    "Er zijn geen app-, model-, Git- of netwerkhandelingen uitgevoerd."
+  ]
+}

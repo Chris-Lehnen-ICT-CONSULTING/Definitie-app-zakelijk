@@ -1,0 +1,234 @@
+diff --git a/src/services/validation/modular_validation_service.py b/src/services/validation/modular_validation_service.py
+index b4133362c..c191df8cd 100644
+--- a/src/services/validation/modular_validation_service.py
++++ b/src/services/validation/modular_validation_service.py
+@@ -1480,6 +1480,12 @@ class ModularValidationService:
+         """
+         beschikbaar = self._available_inputs(ctx)
+         ontbrekend = missing_inputs(record, beschikbaar)
++        # DEF-835 (WP5a, review F1): de O2-evaluator doet zelf de volledige
++        # WP1-invoercontrole op de oorspronkelijke recordkern — NE in O2-vorm,
++        # ongeldige metadata `error`. Hier onderscheppen zou op `cleaned_text`
++        # en met de O1-NE-vorm beslissen; het O1-pad hieronder blijft gelijk.
++        if record.evaluator is EvaluatorType.DECISION_RULE_ASSESSMENT:
++            ontbrekend = ()
+         if ontbrekend:
+             # DEF-771: INT-02 geeft de exacte NE-melding (kern en/of context).
+             if record.rule_id.upper() == "INT-02":
+diff --git a/tests/unit/validation/test_def835_int02_modular.py b/tests/unit/validation/test_def835_int02_modular.py
+index 69a95bfd7..5e3b22bfa 100644
+--- a/tests/unit/validation/test_def835_int02_modular.py
++++ b/tests/unit/validation/test_def835_int02_modular.py
+@@ -25,6 +25,8 @@ import pytest
+ 
+ from domain.int02.contract import (
+     CONTRACTVERSIE,
++    MELDING_E,
++    MELDING_NE,
+     MELDING_NIET_BEOORDEELD,
+     Configuratie,
+     Uitvoering,
+@@ -264,8 +266,8 @@ async def test_elke_o2_status_landt_in_rule_results(
+ async def test_ontbrekende_kern_of_context_is_ne_zonder_oordeel(
+     o2_service, kern, context, ontbreekt
+ ):
+-    # Ontbrekende context loopt via het bestaande DEF-771-NE-pad vóór de
+-    # evaluator; een lege kern via de O2-evaluator. Beide: NE, exacte
++    # Sinds review F1 beslist onder O2 uitsluitend de O2-evaluator, ook bij
++    # ontbrekende context (O2-vorm: zie de F1-tests hieronder). Beide: NE, exacte
+     # WP1-melding, geen oordeel en geen cijfer.
+     geval = _geval("C56")
+     if kern is not None:
+@@ -331,3 +333,100 @@ async def test_int02_geeft_geen_cijfer_en_geen_poort(o2_service):
+     referentie = uitkomsten["pass"]
+     for naam, uitkomst in uitkomsten.items():
+         assert uitkomst == referentie, naam
++
++
++# --- F1 (review WP5a): alleen de O2-evaluator controleert de invoer -------------
++#
++# De voorafgaande `missing_inputs`-check van de service gaf voor INT-02 de
++# oude DEF-771-NE-uitkomst, op `cleaned_text` en vóór de O2-evaluator. Onder
++# O2 hoort de volledige WP1-invoercontrole (exacte recordkern, NE-vorm,
++# ongeldige metadata = error) uitsluitend bij `decision_rule_assessment`.
++
++GEEN_CONTEXT = {
++    "organisatorische_context": [],
++    "juridische_context": [],
++    "wettelijke_basis": [],
++}
++KERN_C105 = "De medewerker laat de aanvrager toe."
++
++
++class _VasteCleaning:
++    """Cleaning die altijd dezelfde tekst oplevert; mag INT-02 niet raken."""
++
++    def __init__(self, tekst: str) -> None:
++        self.tekst = tekst
++
++    def clean_text(self, _tekst):
++        return self.tekst
++
++
++def _assert_o2_vorm(detail: dict[str, Any], status: str, melding: str) -> None:
++    # Eerst status en exacte melding, daarna de O2-documentvorm.
++    assert detail["status"] == status
++    assert [deel["reason"] for deel in detail["parts"]] == [melding]
++    assert detail["score"] is None
++    assert detail["contract_version"] == CONTRACTVERSIE
++    assert detail["review"] == {"actuality": None}
++    assert detail["assessment"] is None
++    (deel,) = detail["parts"]
++    assert deel["id"] == "beoordeling"
++    assert deel["status"] == status
++
++
++@pytest.mark.parametrize(
++    ("kern", "cleaning", "context", "ontbreekt"),
++    [
++        pytest.param(KERN_C105, "", GEEN_CONTEXT, "context", id="kern-cleaning-leeg"),
++        pytest.param(
++            "", KERN_C105, GEEN_CONTEXT, "kern en context", id="leeg-cleaning-kern"
++        ),
++        pytest.param(KERN_C105, None, GEEN_CONTEXT, "context", id="zonder-cleaning"),
++        pytest.param(
++            "",
++            None,
++            {**GEEN_CONTEXT, "organisatorische_context": ["synthetische procedure"]},
++            "kern",
++            id="lege-kern-met-context",
++        ),
++    ],
++)
++async def test_f1_ne_volgt_de_oorspronkelijke_kern_in_o2_vorm(
++    o2_regelmap, kern, cleaning, context, ontbreekt
++):
++    service = ModularValidationService(
++        toetsregel_manager=ToetsregelManager(base_dir=str(o2_regelmap.parent)),
++        cleaning_service=_VasteCleaning(cleaning) if cleaning is not None else None,
++    )
++    resultaat = await service.validate_definition(
++        begrip="toelating",
++        text=kern,
++        context={"record_text": kern, **copy.deepcopy(context)},
++    )
++
++    assert resultaat["validation_status"] == "validated"
++    assert resultaat["rule_statuses"]["INT-02"] == "not_evaluated"
++    _assert_o2_vorm(
++        resultaat["rule_results"]["INT-02"],
++        "not_evaluated",
++        MELDING_NE.replace("{kern/context}", ontbreekt),
++    )
++
++
++@pytest.mark.parametrize(
++    "over",
++    [
++        pytest.param({"record_text": None}, id="recordkern-none"),
++        pytest.param({"int02_bedoeling": 42}, id="bedoeling-getal"),
++    ],
++)
++async def test_f1_ongeldige_metadata_zonder_context_is_error(o2_service, over):
++    metadata = {"record_text": KERN_C105, **copy.deepcopy(GEEN_CONTEXT), **over}
++
++    resultaat = await o2_service.validate_definition(
++        begrip="toelating", text=KERN_C105, context=metadata
++    )
++
++    assert resultaat["rule_statuses"]["INT-02"] == "error"
++    _assert_o2_vorm(resultaat["rule_results"]["INT-02"], "error", MELDING_E)
++    assert not [v for v in resultaat["violations"] if v["code"] == "INT-02"]
++    assert not [r for r in resultaat["review_required"] if r["rule_id"] == "INT-02"]
+diff --git a/tests/unit/services/orchestrators/test_def835_int02_wrappers.py b/tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+index 0861336fc..bab4bb627 100644
+--- a/tests/unit/services/orchestrators/test_def835_int02_wrappers.py
++++ b/tests/unit/services/orchestrators/test_def835_int02_wrappers.py
+@@ -32,7 +32,9 @@ from typing import Any
+ import pytest
+ 
+ from domain.int02.contract import (
++    CONTRACTVERSIE,
+     MELDING_E,
++    MELDING_NE,
+     MELDING_NIET_BEOORDEELD,
+     Configuratie,
+     Uitvoering,
+@@ -668,3 +670,77 @@ def test_definitie_orchestrator_geeft_int02_dienst_door_zonder_default():
+     # Geen lazy default: zonder expliciete injectie bestaat er geen INT-02-dienst.
+     assert zonder.int02_assessment_service is None
+     assert zonder.validation_service.int02_assessment_service is None
++
++
++# --- F1 (review WP5a): NE en ongeldige invoer zonder context -------------------
++#
++# Zonder context onderschepte de service INT-02 vóór de O2-evaluator (oude
++# DEF-771-uitkomst op `cleaned_text`). Via de volledige keten moet de
++# O2-evaluator zelf beslissen op de oorspronkelijke kern: exacte NE-melding in
++# O2-vorm, of `error` bij ongeldige aanwezige kern/bedoeling — nooit een
++# aanroep.
++
++
++class _VasteCleaning:
++    """Cleaning die altijd dezelfde tekst oplevert; mag INT-02 niet raken."""
++
++    def __init__(self, tekst: str) -> None:
++        self.tekst = tekst
++
++    def clean_text(self, _tekst):
++        return self.tekst
++
++
++GEEN_CONTEXT = {
++    "organisatorische_context": [],
++    "juridische_context": [],
++    "wettelijke_basis": [],
++}
++
++
++@pytest.mark.parametrize(
++    ("kern", "cleaning", "extra", "recordroute", "ontbreekt"),
++    [
++        pytest.param(KERN, "", {}, False, "context", id="kern-cleaning-leeg"),
++        pytest.param("", KERN, {}, False, "kern en context", id="leeg-cleaning-kern"),
++        pytest.param(None, None, {}, True, None, id="recordkern-none"),
++        pytest.param(
++            KERN, None, {"int02_bedoeling": 42}, False, None, id="bedoeling-getal"
++        ),
++    ],
++)
++async def test_f1_zonder_context_beslist_de_o2_evaluator_zonder_aanroep(
++    o2_manager, kern, cleaning, extra, recordroute, ontbreekt
++):
++    service = ModularValidationService(
++        toetsregel_manager=o2_manager,
++        cleaning_service=_VasteCleaning(cleaning) if cleaning is not None else None,
++    )
++    dienst = FakeDienst(_pass_respons())
++    orch = ValidationOrchestratorV2(service, int02_assessment_service=dienst)
++    metadata = {**copy.deepcopy(GEEN_CONTEXT), **extra}
++
++    if recordroute:
++        record = _record(kern)
++        record.organisatorische_context = []
++        resultaat = await orch.validate_definition(
++            record, ValidationContext(metadata=_metadata(**metadata))
++        )
++    else:
++        resultaat = await _via_tekst(orch, kern, **metadata)
++
++    assert dienst.calls == []
++    detail = _int02(resultaat)
++    status = "not_evaluated" if ontbreekt else "error"
++    melding = (
++        MELDING_NE.replace("{kern/context}", ontbreekt) if ontbreekt else MELDING_E
++    )
++    # Eerst status en exacte melding, daarna de O2-documentvorm.
++    assert resultaat["rule_statuses"]["INT-02"] == status
++    assert detail["status"] == status
++    assert [deel["reason"] for deel in detail["parts"]] == [melding]
++    assert detail["contract_version"] == CONTRACTVERSIE
++    assert detail["review"] == {"actuality": None}
++    assert detail["assessment"] is None
++    (deel,) = detail["parts"]
++    assert deel["id"] == "beoordeling"

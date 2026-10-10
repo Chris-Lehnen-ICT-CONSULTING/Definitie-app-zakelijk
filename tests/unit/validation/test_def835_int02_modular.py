@@ -35,6 +35,7 @@ from domain.int02.contract import (
 )
 from services.validation import modular_validation_service as mvs
 from services.validation.modular_validation_service import ModularValidationService
+from tests.fixtures.def835_int02_v4 import naar_v4
 from toetsregels.manager import ToetsregelManager
 from toetsregels.runtime_contract import EvaluatorType
 
@@ -71,8 +72,11 @@ def _invoer(geval: dict[str, Any]):
 
 
 def _document(geval: dict[str, Any], respons: Any = None):
+    # De fixture en de responsen hieronder zijn /3-vorm; contract /4 krijgt ze
+    # via `naar_v4` (kernvorm en bronfuncties, zelfde citaten en verdict).
     respons = geval["modelrespons"] if respons is None else respons
-    return beoordeel(_invoer(geval), CONFIG, respons, VOLTOOID)
+    invoer = _invoer(geval)
+    return beoordeel(invoer, CONFIG, naar_v4(invoer, respons), VOLTOOID)
 
 
 def _na_respons() -> dict[str, Any]:
@@ -94,16 +98,8 @@ def _pass_respons_c105() -> dict[str, Any]:
         "passages": [
             {
                 "quote": kern,
-                "start": 0,
-                "end": len(kern),
                 "function": "criterion",
-                "ground": {
-                    "field": "kern",
-                    "ref": None,
-                    "quote": None,
-                    "start": None,
-                    "end": None,
-                },
+                "ground": {"field": "kern", "ref": None, "quote": None},
             }
         ],
         "reason": "Synthetische pass voor de mapping; geen modeloordeel.",
@@ -115,9 +111,17 @@ def _pass_respons_c105() -> dict[str, Any]:
 
 
 def _onvoldoende_respons_c105() -> dict[str, Any]:
+    # Contract /4 (ontwerp §2.2): buiten not_applicable minstens één passage.
+    kern = _geval("C105")["invoer"]["kern"]
     return {
         "verdict": "insufficient_information",
-        "passages": [],
+        "passages": [
+            {
+                "quote": kern,
+                "function": "unclear",
+                "ground": {"field": "kern", "ref": None, "quote": None},
+            }
+        ],
         "reason": "Synthetisch: de bedoelde functie is onduidelijk.",
         "question": "Beschrijft de zin een kenmerk of een opdracht?",
         "uncertainty": "decisive",

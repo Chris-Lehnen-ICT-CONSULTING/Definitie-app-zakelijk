@@ -1,0 +1,60 @@
+{
+  "beoordelaar": "B",
+  "status": "voorstel_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "normcontract.md": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten-chris.md": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister.md": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734",
+    "oorspronkelijke-casuspool.json": "d70c645e12667c1a46bf8c192b6b13dfa794fa112425da371ddc5bfcb0cebb11",
+    "casuspool-kandidaat-v3.json": "e2ee47f91ef65e2cfe7c2b0001293ddc74e92627774243c8596e025865ea5857"
+  },
+  "gevallen": [
+    {
+      "id": "G018",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt.",
+          "functie": "Uitzonderingstype beschreven door het vervalkenmerk bij een negatief voortzettingsoordeel."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Herroepbare uitzondering: uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt. Een vaste uitzondering heeft dat kenmerk niet. Het register vermeldt bij iedere verleende uitzondering een van beide typen."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "De toezichthouder weegt of voortzetting van een herroepbare uitzondering wenselijk is en laat de uitzondering vervallen zodra hij voortzetting onwenselijk vindt."
+        }
+      ],
+      "motivering": "De verwijzing is hersteld: dat kenmerk verwijst naar het direct voorafgaande vervalkenmerk. Mijn voorstel blijft pass. B1 onderscheidt daarmee twee typen verleende uitzonderingen; de gehele kern beschrijft het onderscheidende kenmerk. B2 regelt daarnaast de weging en uitvoering. De kern draagt die afweging niet zelfstandig op. De verwijzingswijziging verduidelijkt de bron, maar bewijst op zichzelf deze functie niet.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": ["C83", "C30"],
+        "motivering": "Het concrete contrast tussen vaste en herroepbare verleende uitzonderingen ondersteunt het vervalkenmerk als typeonderscheid. Die functiegrond verschilt van een los discretionair handelingsvoorbeeld."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Voorstel, familie, zekerheid en geschiktheid blijven gelijk aan mijn beoordeling van v2.",
+        "Een afzonderlijk voorbehoud bij verlening wordt niet als extra bronpremisse ingelezen. De actuele grond is het beschreven vervalkenmerk en het ontbreken daarvan bij vaste uitzonderingen.",
+        "Geen resterende concrete bronfout of nieuwe betekenisverschuiving door deze wijziging vastgesteld. De citaten zijn exact en uniek gecontroleerd."
+      ]
+    }
+  ],
+  "dispositie_per_geval": [
+    {
+      "id": "G018",
+      "bronpunt_opgelost": "ja",
+      "reden": "Dat kenmerk heeft een direct herkenbaar antecedent in de voorafgaande omschrijving. De niet afzonderlijk geïntroduceerde term voorbehoud is verdwenen. Het inhoudelijke typeonderscheid blijft behouden; mijn voorstellen pass en bruikbaar blijven gelijk.",
+      "resterend_open": []
+    }
+  ]
+}

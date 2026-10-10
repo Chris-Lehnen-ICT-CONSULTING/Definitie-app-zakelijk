@@ -1,0 +1,116 @@
+........................................F............................... [ 29%]
+........................................................................ [ 58%]
+.............................................F....F..F..F...FF.F....F... [ 87%]
+......FF.......F..F....F.......                                          [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert '2b1ac6a869c0...d0ed896f96191' == 'NIEUWE_PIN'
+      
+      - NIEUWE_PIN
+      + 2b1ac6a869c0b989287c421ee66d40a204fcca0ffe41c6971d6d0ed896f96191
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:2434: AssertionError: assert '2b1ac6a869c0...d0ed896f96191' == 'NIEUWE_PIN'
+E   AssertionError: assert '2b1ac6a869c0...d0ed896f96191' == 'NIEUWE_PIN'
+      
+      - NIEUWE_PIN
+      + 2b1ac6a869c0b989287c421ee66d40a204fcca0ffe41c6971d6d0ed896f96191
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:713: AssertionError: assert '2b1ac6a869c0...d0ed896f96191' == 'NIEUWE_PIN'
+E   AssertionError: ground hoort een anyOf van varianten te zijn
+    assert {'additionalP...ired', 'type'} == {'anyOf'}
+      
+      Extra items in the left set:
+      'type'
+      'properties'
+      'additionalProperties'
+      'required'
+      Extra items in the right set:
+      'anyOf'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:271: AssertionError: ground hoort een anyOf van varianten te zijn
+E   assert (0, 4) == (0, 6)
+      
+      At index 1 diff: 4 != 6
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:440: assert (0, 4) == (0, 6)
+E   AssertionError: assert '2b1ac6a869c0...d0ed896f96191' == 'NIEUWE_PIN'
+      
+      - NIEUWE_PIN
+      + 2b1ac6a869c0b989287c421ee66d40a204fcca0ffe41c6971d6d0ed896f96191
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:878: AssertionError: assert '2b1ac6a869c0...d0ed896f96191' == 'NIEUWE_PIN'
+E   AssertionError: ground hoort een anyOf van varianten te zijn
+    assert {'additionalP...ired', 'type'} == {'anyOf'}
+      
+      Extra items in the left set:
+      'type'
+      'properties'
+      'additionalProperties'
+      'required'
+      Extra items in the right set:
+      'anyOf'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:271: AssertionError: ground hoort een anyOf van varianten te zijn
+E   AssertionError: ground hoort een anyOf van varianten te zijn
+    assert {'additionalP...ired', 'type'} == {'anyOf'}
+      
+      Extra items in the left set:
+      'type'
+      'properties'
+      'additionalProperties'
+      'required'
+      Extra items in the right set:
+      'anyOf'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:271: AssertionError: ground hoort een anyOf van varianten te zijn
+E   AssertionError: assert not True
+     +  where True = voldoet({'coverage': 'complete', 'passages': [{'function': 'actor_prescription', 'ground': {'field': 'juridische_context', 'quote': None, 'ref': None}, 'quote': 'q'}], 'question': None, 'reason': 'r', ...}, {'additionalProperties': False, 'properties': {'coverage': {'enum': ['complete', 'none', 'partial'], 'type': 'string'}... ...}, 'required': ['verdict', 'passages', 'reason', 'question', 'uncertainty', 'scope_reason', ...], 'type': 'object'})
+     +    where {'additionalProperties': False, 'properties': {'coverage': {'enum': ['complete', 'none', 'partial'], 'type': 'string'}... ...}, 'required': ['verdict', 'passages', 'reason', 'question', 'uncertainty', 'scope_reason', ...], 'type': 'object'} = _schema()
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:377: AssertionError: assert not True
+E   AssertionError: ('bedoeling', 0, None)
+    assert True == False
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:421: AssertionError: ('bedoeling', 0, None)
+E   AssertionError: assert {'additionalP...pe': 'object'} == {'anyOf': [{'...': 'object'}]}
+      
+      Left contains 4 more items:
+      {'additionalProperties': False,
+       'properties': {'field': {'enum': ['bedoeling',
+                                         'begrip',
+                                         'bron',
+                                         'juridische_context',...
+      
+      ...Full output truncated (37 lines hidden), use '-vv' to show
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:343: AssertionError: assert {'additionalP...pe': 'object'} == {'anyOf': [{'...': 'object'}]}
+E   AssertionError: assert not True
+     +  where True = voldoet({'coverage': 'complete', 'passages': [{'function': 'actor_prescription', 'ground': {'field': 'bron', 'quote': None, 'ref': None}, 'quote': 'q'}], 'question': None, 'reason': 'r', ...}, {'additionalProperties': False, 'properties': {'coverage': {'enum': ['complete', 'none', 'partial'], 'type': 'string'}... ...}, 'required': ['verdict', 'passages', 'reason', 'question', 'uncertainty', 'scope_reason', ...], 'type': 'object'})
+     +    where {'additionalProperties': False, 'properties': {'coverage': {'enum': ['complete', 'none', 'partial'], 'type': 'string'}... ...}, 'required': ['verdict', 'passages', 'reason', 'question', 'uncertainty', 'scope_reason', ...], 'type': 'object'} = _schema()
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:377: AssertionError: assert not True
+E   AssertionError: assert '2b1ac6a869c0...d0ed896f96191' == 'NIEUWE_PIN'
+      
+      - NIEUWE_PIN
+      + 2b1ac6a869c0b989287c421ee66d40a204fcca0ffe41c6971d6d0ed896f96191
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:445: AssertionError: assert '2b1ac6a869c0...d0ed896f96191' == 'NIEUWE_PIN'
+E   AssertionError: assert not True
+     +  where True = voldoet({'coverage': 'complete', 'passages': [{'function': 'actor_prescription', 'ground': {'field': 'kern', 'quote': None, 'ref': 'willekeurig'}, 'quote': 'q'}], 'question': None, 'reason': 'r', ...}, {'additionalProperties': False, 'properties': {'coverage': {'enum': ['complete', 'none', 'partial'], 'type': 'string'}... ...}, 'required': ['verdict', 'passages', 'reason', 'question', 'uncertainty', 'scope_reason', ...], 'type': 'object'})
+     +    where {'additionalProperties': False, 'properties': {'coverage': {'enum': ['complete', 'none', 'partial'], 'type': 'string'}... ...}, 'required': ['verdict', 'passages', 'reason', 'question', 'uncertainty', 'scope_reason', ...], 'type': 'object'} = _schema()
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:377: AssertionError: assert not True
+E   AssertionError: assert {'2b1ac6a869c...0ed896f96191'} == {'NIEUWE_PIN'}
+      
+      Extra items in the left set:
+      '2b1ac6a869c0b989287c421ee66d40a204fcca0ffe41c6971d6d0ed896f96191'
+      Extra items in the right set:
+      'NIEUWE_PIN'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:482: AssertionError: assert {'2b1ac6a869c...0ed896f96191'} == {'NIEUWE_PIN'}
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_schemaroute_identiteit_bindt_schemahash_en_capability
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_dienst_stuurt_het_vastgepinde_schema_mee
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_nullables_via_anyof
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_blijft_binnen_de_grenzen_van_structured_outputs
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_echte_keten_body_draagt_exact_het_schema_zonder_beta
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_enums_komen_uit_de_constanten_en_zijn_gesorteerd
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_is_de_gesloten_wp1_structuur_in_promptvolgorde
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_bevestigde_review_combinaties_zijn_niet_schema_conform[juridische_context-None]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_en_contractvorm_zijn_gelijk_over_de_hele_grondmatrix
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_ground_is_een_unie_van_gesloten_varianten_volgens_het_contract
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_bevestigde_review_combinaties_zijn_niet_schema_conform[bron-None]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schemahash_is_gepind_en_volgordegevoelig
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_bevestigde_review_combinaties_zijn_niet_schema_conform[kern-willekeurig]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schemahash_is_stabiel_in_subprocessen_met_andere_hashseed
+14 failed, 233 passed in 38.84s

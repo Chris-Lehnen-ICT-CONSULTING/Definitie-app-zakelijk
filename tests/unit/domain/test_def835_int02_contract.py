@@ -1,4 +1,15 @@
-"""DEF-835 WP1: het interne INT-02-beoordelingscontract def835-int02-assessment/1.
+"""DEF-835 WP1: het interne INT-02-beoordelingscontract, regels van /3.
+
+Sinds /2 (besluit 9, optie A) levert de beoordelaar geen posities meer; de
+code leidt ze af uit de enige exacte vindplaats van elk citaat. Dat gedrag
+staat in `test_def835_int02_citaatposities.py`; hier is de rest van het
+contract op /2 herijkt. /3 (besluit 12) voegt alleen de smalle dienstregel
+"discretie zonder bedoeling" toe; die staat in `test_def835_int02_dienstregel.py`.
+
+Sinds /4 (besluit 16, bronfuncties; `test_def835_int02_bronfuncties.py`)
+blijven de /3-regels gelden voor de hercontrole van bewaarde /3-documenten.
+Deze module toetst ze daarom met /3 als actuele versie (`contract_drie`): de
+gedeelde invoer-, bindings- en meldingslaag én de /3-uitvoerregels.
 
 Bron: plan-v1.md §Ontwerpvoorstel en §WP1 (akkoord 26-09-2026), synthese v5
 §2/§4 (norm def771-int02/2, T-tekst, appmeldingen, statusmapping) en het
@@ -14,9 +25,9 @@ Wat deze tests bewijzen (zuiver domein, geen model, geen app-route):
   component apart maakt een bewaard document historisch;
 - de modeluitvoer is een gesloten structuur (onbekende velden, verkeerde
   typen en bool-als-int worden geweigerd) en wordt nooit gerepareerd;
-- elk passagecitaat staat exact op de opgegeven nulgebaseerde posities
-  (einde exclusief) in de kern; een geciteerde grond staat exact in het
-  genoemde invoerveld of de genoemde bron;
+- elk passagecitaat staat precies één keer exact in de kern; een geciteerde
+  grond staat precies één keer exact in het genoemde invoerveld of de
+  genoemde bron; de afgeleide posities zijn nulgebaseerd, einde exclusief;
 - de statusmapping uit synthese §4: pass, fail, review_required
   (inhoudelijk onvoldoende informatie tegenover nog niet beoordeeld en
   historisch), not_evaluated, error, not_applicable; nooit een cijfer;
@@ -44,6 +55,7 @@ from pathlib import Path
 
 import pytest
 
+from domain.int02 import contract
 from domain.int02.contract import (
     Configuratie,
     Int02ContractError,
@@ -57,6 +69,15 @@ from domain.int02.contract import (
 
 pytestmark = [pytest.mark.unit]
 
+
+@pytest.fixture(autouse=True)
+def contract_drie(monkeypatch):
+    """Besluit 16: de regels van /3 blijven gelden voor bewaarde /3-documenten;
+    hier getoetst met /3 als actuele versie (de regels hangen aan de vaste
+    versienaam, niet aan `CONTRACTVERSIE`)."""
+    monkeypatch.setattr(contract, "CONTRACTVERSIE", "def835-int02-assessment/3")
+
+
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURE = json.loads(
     (ROOT / "tests/fixtures/def835_int02_ontwerpgevallen.json").read_text("utf-8")
@@ -69,7 +90,7 @@ _APP = next(
     r for r in _SYN.splitlines() if r.startswith("**Appmeldingen [V, B3 V06]:**")
 )
 V, VN, VN_DISCRETIE, ONVOLDOENDE, NE, E, HISTORISCH = re.findall(r'"([^"]+)"', _APP)
-CONTRACTDOC = ROOT / "docs/architectuur/contracts/int02_assessment_contract_v1.md"
+CONTRACTDOC = ROOT / "docs/architectuur/contracts/int02_assessment_contract_v3.md"
 
 # Eigen formuleringen (zie moduledocstring); de T-tekst noemt de toestand
 # "nog te beoordelen — beoordeling niet uitgevoerd".
@@ -138,6 +159,15 @@ def _grondtekst(grond: dict) -> str:
 
 def _zonder_slotpunt(tekst: str) -> str:
     return tekst[:-1] if tekst.endswith(".") else tekst
+
+
+def _zonder_posities(oordeel: dict) -> dict:
+    """Het bewaarde oordeel in modelvorm: zonder de afgeleide posities."""
+    oordeel = copy.deepcopy(oordeel)
+    for passage in oordeel["passages"]:
+        del passage["start"], passage["end"]
+        del passage["ground"]["start"], passage["ground"]["end"]
+    return oordeel
 
 
 def _sleutels(waarde) -> set[str]:
@@ -371,7 +401,7 @@ _BINDINGSVELDEN = (
 
 def test_binding_legt_versies_en_hashes_vast():
     binding = bereken_binding(maak_invoer(**_basis_invoer()), _configuratie())
-    assert binding.contractversie == "def835-int02-assessment/1"
+    assert binding.contractversie == "def835-int02-assessment/3"
     assert binding.normversie == "def771-int02/2"
     assert (binding.normhash, binding.routeringshash) == (NORMHASH, ROUTERINGSHASH)
     assert (binding.provider, binding.model) == ("fake-provider", "fake-model-1")
@@ -493,7 +523,7 @@ def test_oordeel_is_een_kopie_en_invoerrespons_blijft_ongewijzigd():
     respons["verdict"] = "fail"
     uitgelezen = doc.oordeel
     uitgelezen["passages"].clear()
-    assert doc.oordeel == geval["modelrespons"]
+    assert _zonder_posities(doc.oordeel) == geval["modelrespons"]
 
 
 def test_document_is_onveranderlijk():
@@ -521,7 +551,7 @@ def test_document_is_json_serialiseerbaar_zonder_score():
     geval = _geval("C116")
     doc = _beoordeel(geval["invoer"], geval["modelrespons"])
     data = json.loads(json.dumps(doc.als_dict(), ensure_ascii=False))
-    assert data["contractversie"] == "def835-int02-assessment/1"
+    assert data["contractversie"] == "def835-int02-assessment/3"
     assert data["binding"]["normversie"] == "def771-int02/2"
     assert not any("score" in s or "cijfer" in s for s in _sleutels(data))
     assert not hasattr(doc, "score")
@@ -556,8 +586,10 @@ STRUCTUURFOUTEN = {
     "passage-onbekend-veld": _mut(("passages", 0, "confidence"), 0.9),
     "passage-veld-ontbreekt": _mut(("passages", 0, "ground"), _WEG),
     "functie-onbekend": _mut(("passages", 0, "function"), "rule"),
-    "start-float": _mut(("passages", 0, "start"), 14.0),
-    "start-str": _mut(("passages", 0, "start"), "14"),
+    "quote-geen-str": _mut(("passages", 0, "quote"), 14),
+    # /2: posities zijn geen modelvelden meer, ook niet met juiste waarde.
+    "passage-met-start": _mut(("passages", 0, "start"), 14),
+    "passage-met-end": _mut(("passages", 0, "end"), 77),
     "reason-leeg": _mut(("reason",), ""),
     "reason-geen-str": _mut(("reason",), 1),
     "question-lijst": _mut(("question",), ["Welke?"]),
@@ -567,11 +599,14 @@ STRUCTUURFOUTEN = {
     "grond-onbekend-veld": _mut(("passages", 0, "ground", "confidence"), 1),
     "grond-veld-onbekend": _mut(("passages", 0, "ground", "field"), "toelichting"),
     "grond-ref-ontbreekt": _mut(("passages", 0, "ground", "ref"), _WEG),
-    "grond-start-bool": _mut(("passages", 0, "ground", "start"), False),
-    "grond-citaat-zonder-positie": _mut(("passages", 0, "ground", "start"), None),
-    "grond-kern-met-ref": _mut(
+    "grond-met-start": _mut(("passages", 0, "ground", "start"), 0),
+    "grond-met-lege-posities": _mut(
         ("passages", 0, "ground"),
-        {"field": "kern", "ref": "K1", "quote": None, "start": None, "end": None},
+        {"field": "kern", "ref": None, "quote": None, "start": None, "end": None},
+    ),
+    "grond-quote-geen-str": _mut(("passages", 0, "ground", "quote"), 0),
+    "grond-kern-met-ref": _mut(
+        ("passages", 0, "ground"), {"field": "kern", "ref": "K1", "quote": None}
     ),
 }
 
@@ -590,7 +625,7 @@ def test_structureel_ongeldige_uitvoer_is_technische_fout(mutatie):
     assert doc.oordeel is None and doc.reden is None
 
 
-def test_bool_is_geen_passagepositie():
+def test_modelpositie_wordt_ook_als_bool_geweigerd():
     geval = _geval("C105")  # passage begint op 0: False == 0 mag niet slagen
     geval["modelrespons"]["passages"][0]["start"] = False
     doc = _beoordeel(geval["invoer"], geval["modelrespons"])
@@ -610,28 +645,27 @@ def test_voltooide_uitvoering_zonder_uitvoer_is_technische_fout():
 
 
 CITAATFOUTEN = {
-    "verschoven": {"start": 15, "end": 78},
-    "einde-inclusief": {"end": 76},
-    "einde-voorbij-kern": {"start": 14, "end": 79},
-    "negatieve-start": {"start": -1},
-    "leeg-citaat": {"quote": "", "start": 14, "end": 14},
-    "hoofdletter": {
-        "quote": "Gelijk is aan de som van de bedragen van de verkopen op die dag"
-    },
-    "niet-in-kern": {"quote": "de som van alle bedragen", "start": 20, "end": 44},
+    "leeg-citaat": ("", "leeg"),
+    "hoofdletter": (
+        "Gelijk is aan de som van de bedragen van de verkopen op die dag",
+        "niet_gevonden",
+    ),
+    "niet-in-kern": ("de som van alle bedragen", "niet_gevonden"),
+    "niet-uniek": ("de", "niet_uniek"),
 }
 
 
 @pytest.mark.parametrize(
-    "wijziging", list(CITAATFOUTEN.values()), ids=list(CITAATFOUTEN)
+    ("quote", "detail"), list(CITAATFOUTEN.values()), ids=list(CITAATFOUTEN)
 )
-def test_onjuist_passagecitaat_is_technische_fout(wijziging):
+def test_onjuist_passagecitaat_is_technische_fout(quote, detail):
     geval = _geval("C116")
-    geval["modelrespons"]["passages"][0].update(wijziging)
+    geval["modelrespons"]["passages"][0]["quote"] = quote
     doc = _beoordeel(geval["invoer"], geval["modelrespons"])
-    assert (doc.status, doc.foutcategorie, doc.melding) == (
+    assert (doc.status, doc.foutcategorie, doc.foutdetail, doc.melding) == (
         "error",
         "invalid_citation",
+        detail,
         E,
     )
 
@@ -640,9 +674,10 @@ def test_citaat_wordt_niet_genormaliseerd():
     data = _basis_invoer()
     data["kern"] = "Getal dat even is."
     respons = copy.deepcopy(_geval("C112")["modelrespons"])
-    respons["passages"][0].update({"quote": "dat even", "start": 6, "end": 14})
+    respons["passages"][0]["quote"] = "dat even"  # kern heeft een NBSP
     doc = beoordeel(maak_invoer(**data), _configuratie(), respons, _uitvoering())
     assert (doc.status, doc.foutcategorie) == ("error", "invalid_citation")
+    assert doc.foutdetail == "niet_gevonden"
 
 
 def _met_grond(grond: dict):
@@ -653,19 +688,19 @@ def _met_grond(grond: dict):
     )
 
 
-def _grond(field, ref=None, quote=None, start=None, end=None):
-    return {"field": field, "ref": ref, "quote": quote, "start": start, "end": end}
+def _grond(field, ref=None, quote=None):
+    return {"field": field, "ref": ref, "quote": quote}
 
 
 @pytest.mark.parametrize(
-    "grond",
+    ("grond", "posities"),
     [
-        _grond("bron", "B1", "een verplichting rust op een partij", 19, 54),
-        _grond("bron", "B1"),
-        _grond("juridische_context", 0, "verbintenissenrecht", 12, 31),
-        _grond("wettelijke_basis", 0),
-        _grond("kern", None, "Verplichting", 0, 12),
-        _grond("begrip"),
+        (_grond("bron", "B1", "een verplichting rust op een partij"), (19, 54)),
+        (_grond("bron", "B1"), (None, None)),
+        (_grond("juridische_context", 0, "verbintenissenrecht"), (12, 31)),
+        (_grond("wettelijke_basis", 0), (None, None)),
+        (_grond("kern", None, "Verplichting"), (0, 12)),
+        (_grond("begrip"), (None, None)),
     ],
     ids=[
         "bron-geciteerd",
@@ -676,29 +711,39 @@ def _grond(field, ref=None, quote=None, start=None, end=None):
         "begrip",
     ],
 )
-def test_herleidbare_grond_wordt_geaccepteerd(grond):
+def test_herleidbare_grond_wordt_geaccepteerd(grond, posities):
     doc = _met_grond(grond)
     assert doc.status == "pass"
-    assert doc.oordeel["passages"][0]["ground"] == grond
+    start, end = posities
+    assert doc.oordeel["passages"][0]["ground"] == {**grond, "start": start, "end": end}
 
 
 @pytest.mark.parametrize(
-    ("grond", "categorie"),
+    ("grond", "categorie", "detail"),
     [
-        (_grond("bron", "B9"), "invalid_citation"),
+        (_grond("bron", "B9"), "invalid_citation", "grond_niet_herleidbaar"),
         (
-            _grond("bron", "B1", "een verplichting rust op een partij", 18, 53),
+            _grond("bron", "B1", "Een verplichting rust op een partij"),
             "invalid_citation",
+            "niet_gevonden",
         ),
-        (_grond("bron", "B1", "verzonnen bronzin", 0, 17), "invalid_citation"),
-        (_grond("organisatorische_context", 5), "invalid_citation"),
-        (_grond("organisatorische_context", True), "invalid_output"),
-        (_grond("organisatorische_context", "0"), "invalid_output"),
-        (_grond("bron", None), "invalid_output"),
+        (
+            _grond("bron", "B1", "verzonnen bronzin"),
+            "invalid_citation",
+            "niet_gevonden",
+        ),
+        (
+            _grond("organisatorische_context", 5),
+            "invalid_citation",
+            "grond_niet_herleidbaar",
+        ),
+        (_grond("organisatorische_context", True), "invalid_output", None),
+        (_grond("organisatorische_context", "0"), "invalid_output", None),
+        (_grond("bron", None), "invalid_output", None),
     ],
     ids=[
         "onbekende-bron",
-        "bronpositie-verschoven",
+        "broncitaat-hoofdletter",
         "verzonnen-broncitaat",
         "contextindex-buiten-lijst",
         "contextindex-bool",
@@ -706,9 +751,14 @@ def test_herleidbare_grond_wordt_geaccepteerd(grond):
         "bron-zonder-id",
     ],
 )
-def test_niet_herleidbare_grond_is_technische_fout(grond, categorie):
+def test_niet_herleidbare_grond_is_technische_fout(grond, categorie, detail):
     doc = _met_grond(grond)
-    assert (doc.status, doc.foutcategorie, doc.melding) == ("error", categorie, E)
+    assert (doc.status, doc.foutcategorie, doc.foutdetail, doc.melding) == (
+        "error",
+        categorie,
+        detail,
+        E,
+    )
 
 
 def test_grond_op_onbekende_bedoeling_is_niet_herleidbaar():
@@ -781,8 +831,6 @@ def test_fail_blijft_fail_met_open_vraag_en_onzekerheid():
     respons["passages"].append(
         {
             "quote": "de aanvrager",
-            "start": 19,
-            "end": 31,
             "function": "unclear",
             "ground": _grond("kern"),
         }
@@ -919,18 +967,9 @@ def test_ontbrekende_invoer(kern, context, ontbreekt):
 
 def test_niet_uitgevoerd_negeert_meegegeven_oordeel():
     data = _geval("C56")["invoer"]
-    kern = data["kern"]
     quote = "indien hij in de vijf jaar voorafgaand aan het laatste feit"
-    start = kern.index(quote)
     respons = copy.deepcopy(_geval("C116")["modelrespons"])
-    respons["passages"][0].update(
-        {
-            "quote": quote,
-            "start": start,
-            "end": start + len(quote),
-            "function": "criterion",
-        }
-    )
+    respons["passages"][0].update({"quote": quote, "function": "criterion"})
     respons["passages"][0]["ground"] = _grond("kern")
     doc = _beoordeel(data, respons)
     assert doc.status == "not_evaluated"
@@ -979,10 +1018,8 @@ def test_voorwaardewoord_leidt_niet_tot_afkeur():
     respons = copy.deepcopy(_geval("C116")["modelrespons"])
     respons["passages"][0] = {
         "quote": quote,
-        "start": 18,
-        "end": 18 + len(quote),
         "function": "criterion",
-        "ground": _grond("kern", None, quote, 18, 18 + len(quote)),
+        "ground": _grond("kern", None, quote),
     }
     assert _beoordeel(data, respons).status == "pass"
 
@@ -995,7 +1032,7 @@ def test_code_overrulet_modelfunctie_niet_op_woorden():
     data["bedoeling"] = None
     kern = data["kern"]
     respons = copy.deepcopy(_geval("C105")["modelrespons"])
-    respons["passages"][0].update({"quote": kern, "start": 0, "end": len(kern)})
+    respons["passages"][0]["quote"] = kern
     respons["passages"][0]["ground"] = _grond("kern")
     # Geen signaalwoord in de kern: de code bewijst geen semantiek en keurt
     # de (handmatig ingevulde) functie niet op woorden goed of af.
@@ -1090,7 +1127,16 @@ def test_ongeldige_uitvoeringsmetadata_wordt_geweigerd(wijziging):
 def test_contractdocument_legt_versies_en_exacte_meldingen_vast():
     tekst = CONTRACTDOC.read_text(encoding="utf-8")
     for verplicht in (
+        "def835-int02-assessment/3",
+        "def835-int02-assessment/2",
         "def835-int02-assessment/1",
+        "niet_gevonden",
+        "niet_uniek",
+        "discretie_zonder_bedoeling",
+        (
+            "Is de bedoeling dat deze passage een begripskenmerk beschrijft of de "
+            "actor een afweging voorschrijft?"
+        ),
         "def771-int02/2",
         V,
         VN,
@@ -1138,7 +1184,7 @@ def _met_eigen_kern(case_id: str, kern: str):
     geval = _geval(case_id)
     geval["invoer"]["kern"] = kern
     geval["modelrespons"]["passages"][0].update(
-        {"quote": kern, "start": 0, "end": len(kern), "ground": _grond("kern")}
+        {"quote": kern, "ground": _grond("kern")}
     )
     return _beoordeel(geval["invoer"], geval["modelrespons"])
 

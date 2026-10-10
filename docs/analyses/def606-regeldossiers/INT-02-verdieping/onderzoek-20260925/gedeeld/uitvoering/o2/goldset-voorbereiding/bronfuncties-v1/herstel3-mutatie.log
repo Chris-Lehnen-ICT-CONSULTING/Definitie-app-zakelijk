@@ -1,0 +1,64 @@
+DEF-835 — mutatiecontrole na herreview 2 van Codex (P1-rest 2)
+Datum: 2026-10-08 · branch feature/DEF-835-int02-o2 (ongecommit, HEAD 5315fa8e0)
+
+Werkwijze
+- Plugin: bronfuncties-v1/mutatie/mutatie_plugin.py, nu met 18 mutanten.
+  - Aangepast: `betekenisdragend_weg_p1rest` (r.104). Het fragment volgt de nieuwe
+    helper (`any(map(_zichtbare_letter, waarde))`); de variant valt nog steeds terug
+    op `_gevuld`.
+  - Nieuw: `isalnum_p1rest2` (r.120). De helper valt terug op `str.isalnum` (de stand
+    van herstel 2). Dit is de door Chris gevraagde mutant.
+  - Nieuw, extra: `onzichtbaar_vergeten_p1rest2` (r.125). Dit is de smalle variant:
+    letters (L*) tellen, maar `ONZICHTBARE_LETTERS` wordt niet uitgesloten. Hij toont
+    dat de filler- en blancotests zelfstandig iets vangen, los van de cijfertests.
+- Testset, deselect, interpreter en commando zijn gelijk aan herstel2-mutatie.log
+  (vanuit de mutatiemap, zonder env-prefix, --junitxml=resultaten/herstel3-<naam>.xml).
+  Per run 537 tests.
+- Alles gebeurt in het geheugen. De plugin eist dat elk fragment precies 1x in
+  contract.py staat; alle 18 fragmenten zijn gevonden.
+
+Uitkomst (gedood = minstens één test faalt)
+
+mutant                                   kernvoorwaarde                                               gefaald/537  oordeel
+---------------------------------------  -----------------------------------------------------------  -----------  -------
+nulmeting (geen mutant)                  —                                                                0        groen
+isalnum_p1rest2 (NIEUW)                  letter (L*) zonder onzichtbare; cijfers tellen niet              70        gedood
+onzichtbaar_vergeten_p1rest2 (NIEUW)     onzichtbare letters tonen geen betekenis                         50        gedood
+betekenisdragend_weg_p1rest (aangepast)  alleen tekst met een zichtbare letter draagt een oordeel        102        gedood
+passagecitaat_ongetoetst_p1rest          passagecitaat zonder zichtbare letter is leeg                    16        gedood
+inhoudsloze_bedoeling_bekend_p1rest      bedoeling zonder zichtbare letter is in stap 4 onbekend          16        gedood
+onzekerheid_genegeerd_17                 besluit 17: decisive blokkeert een afgeleide pass                 5        gedood
+stap1_weg                                stap 1: voorschrift in de kern is altijd gebrek                  18        gedood
+bedoeling_symmetrisch_1a                 1B: bedoeling beslecht conflict alleen naar gebrek                3        gedood
+n_geen_conflict_6a                       6A: not_a_criterion botst met criterion                           6        gedood
+tweede_signaal_altijd_3a                 3A: één voorschrift-bron vraagt een tweede signaal               30        gedood
+n_geen_tweede_signaal_6a                 6A: G én N samen = tweede signaal                                 8        gedood
+alleen_o_zwijgt                          alleen 'unclear' is review, niet zwijgen                          8        gedood
+beschrijvend_zonder_bedoeling_pass_5a    5A: beschrijvend, alles zwijgt, bedoeling onbekend = review      36        gedood
+discretie_zonder_bedoeling_weg_b12       besluit 12: discretievorm zonder bedoeling = review              20        gedood
+dekkingseis_weg                          onvolledige dekking is review                                     2        gedood
+review_voor_gebrek                       gebrek gaat voor review                                           1        gedood
+omzetting_nooit                          2A: omzetting bij afwijkende status                              56        gedood
+modelverdict_beslist_2a                  2A: de afleiding beslist, niet het modelverdict                  98        gedood
+
+=> 18/18 gedood; nulmeting 537/537 groen.
+
+Welke tests `isalnum_p1rest2` vangt (70, uit de junit-xml)
+   9 test_inhoudsloze_bron_draagt_geen_functie           (route grondbron: bron)
+   9 test_inhoudsloos_contextitem_draagt_geen_functie    (route grondbron: contextitem)
+   9 test_inhoudsloze_bedoeling_draagt_geen_functie      (route bedoeling als grondbron)
+   9 test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend (route bedoeling, stap 4)
+   7 test_inhoudsloos_grondcitaat_in_gevulde_bron_is_leeg (route grondcitaat)
+   7 test_inhoudsloos_passagecitaat_in_de_kern_is_leeg  (route passage)
+  12 test_niet_betekenisdragend                          (helpertest)
+   4 test_reproductie_codex_2_* (filler als grondcitaat, als passage, als bedoeling;
+     alleen cijfers als grondcitaat)
+   4 test_vervalst_consistent_pass_document_is_error_bij_hercontrole
+     (grondcitaat-filler, passage-filler, bedoeling-filler, grondcitaat-cijfer)
+  => 9 = 4 fillers + 2 blanco + 3 cijferreeksen; 7 = 4 fillers + 2 blanco + "7".
+     Alle vier routes en de hercontrole vangen de terugval op isalnum. 58 van de 70
+     zijn gedragstests.
+
+Welke tests `onzichtbaar_vergeten_p1rest2` vangt (50)
+  6 per route (4 fillers + 2 blanco) in alle zes routetests, 8 helpertests,
+  3 Codex-reproducties met U+1160 en 3 hercontroles (de fillervarianten).

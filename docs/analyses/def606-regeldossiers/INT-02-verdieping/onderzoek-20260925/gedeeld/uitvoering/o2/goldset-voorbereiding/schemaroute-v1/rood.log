@@ -1,0 +1,291 @@
+........................................................................ [ 12%]
+.....................................F...........F...................... [ 24%]
+....F.....................................F...........................F. [ 37%]
+.....F...F...F.....FFFFFFFF.FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF.............. [ 49%]
+..........................F.F..........................FF............... [ 61%]
+.....................................F............F...........FF........ [ 74%]
+..............F......................................................... [ 86%]
+....F.................................F...F.F..F...F.................... [ 99%]
+.....                                                                    [100%]
+=================================== FAILURES ===================================
+E   KeyError: 'response_schema'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:540: KeyError: 'response_schema'
+E   AssertionError: assert 'unconfirmed_completion' == 'structured_o...t_unsupported'
+      
+      - structured_output_unsupported
+      + unconfirmed_completion
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:895 INT-02: beoordeling mislukt (unconfirmed_completion; -)
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:895 INT-02: beoordeling mislukt (unconfirmed_completion; -)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1287: AssertionError: assert 'unconfirmed_completion' == 'structured_o...t_unsupported'
+E   AttributeError: module 'domain.int02.contract' has no attribute 'ANTWOORDSCHEMA'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1093: AttributeError: module 'domain.int02.contract' has no attribute 'ANTWOORDSCHEMA'
+E   AssertionError: assert 'error' == 'review_required'
+      
+      - review_required
+      + error
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:895 INT-02: beoordeling mislukt (unconfirmed_completion; -)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_assessment_service.py:1298: AssertionError: assert 'error' == 'review_required'
+E   AssertionError: assert '6f3507192174a0a90d22c8f5d8da35a87cad1d9180f159b1f5f14f9072789866' != '6f3507192174a0a90d22c8f5d8da35a87cad1d9180f159b1f5f14f9072789866'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting.py:287: AssertionError: assert '6f3507192174a0a90d22c8f5d8da35a87cad1d9180f159b1f5f14f9072789866' != '6f3507192174a0a90d22c8f5d8da35a87cad1d9180f159b1f5f14f9072789866'
+E   AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+      
+      - def835-int02-prompt/4
+      ?                     ^
+      + def835-int02-prompt/3
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting.py:329: AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+E   ImportError: cannot import name 'ANTWOORDSCHEMA' from 'domain.int02.contract' (/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/domain/int02/contract.py)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting.py:268: ImportError: cannot import name 'ANTWOORDSCHEMA' from 'domain.int02.contract' (/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/domain/int02/contract.py)
+E   AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+      
+      - def835-int02-prompt/4
+      ?                     ^
+      + def835-int02-prompt/3
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting.py:246: AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   AssertionError: assert 'fail' == 'error'
+      
+      - error
+      + fail
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:632: AssertionError: assert 'fail' == 'error'
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   AssertionError: assert 'connection' == 'structured_o...t_unsupported'
+      
+      - structured_output_unsupported
+      + connection
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:895 INT-02: beoordeling mislukt (connection; AIServiceError)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:668: AssertionError: assert 'connection' == 'structured_o...t_unsupported'
+E   AssertionError: assert 'fail' == 'error'
+      
+      - error
+      + fail
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:632: AssertionError: assert 'fail' == 'error'
+E   AssertionError: assert 'fail' == 'error'
+      
+      - error
+      + fail
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:632: AssertionError: assert 'fail' == 'error'
+E   AssertionError: assert 'fail' == 'error'
+      
+      - error
+      + fail
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:632: AssertionError: assert 'fail' == 'error'
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   KeyError: 'output_config'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:762: KeyError: 'output_config'
+E   AssertionError: assert 'fail' == 'error'
+      
+      - error
+      + fail
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:632: AssertionError: assert 'fail' == 'error'
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   AssertionError: assert 'fail' == 'error'
+      
+      - error
+      + fail
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:632: AssertionError: assert 'fail' == 'error'
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   AssertionError: assert 'fail' == 'error'
+      
+      - error
+      + fail
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:632: AssertionError: assert 'fail' == 'error'
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   AssertionError: assert 'unknown' == 'structured_o...t_unsupported'
+      
+      - structured_output_unsupported
+      + unknown
+------------------------------ Captured log call -------------------------------
+WARNING  services.validation.int02_assessment_service:int02_assessment_service.py:895 INT-02: beoordeling mislukt (unknown; AIStructuredOutputUnsupportedError)
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:668: AssertionError: assert 'unknown' == 'structured_o...t_unsupported'
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   AssertionError: Traceback (most recent call last):
+        File "<string>", line 1, in <module>
+          import json; from domain.int02 import contract as c; from services.ai.base_client import response_schema_sha256 as h; print(json.dumps({'hash': h(c.ANTWOORDSCHEMA), 'pin': c.ANTWOORDSCHEMA_SHA256, 'rauw': list(c.FUNCTIES)}))
+                                                                                                                                                            ^^^^^^^^^^^^^^^^
+      AttributeError: module 'domain.int02.contract' has no attribute 'ANTWOORDSCHEMA'
+      
+    assert 1 == 0
+     +  where 1 = CompletedProcess(args=['/Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python', '-c', "import json; from domain....             ^^^^^^^^^^^^^^^^\nAttributeError: module \'domain.int02.contract\' has no attribute \'ANTWOORDSCHEMA\'\n').returncode
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:367: AssertionError: Traceback (most recent call last):
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+      
+      - def835-int02-prompt/4
+      ?                     ^
+      + def835-int02-prompt/3
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:584: AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+E   AssertionError: assert [<Request('PO...1/messages')>] == []
+      
+      Left contains one more item: <Request('POST', 'https://api.anthropic.com/v1/messages')>
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:778: AssertionError: assert [<Request('PO...1/messages')>] == []
+E   Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:132: Failed: domain.int02.contract.ANTWOORDSCHEMA ontbreekt
+E   AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+      
+      - def835-int02-prompt/4
+      ?                     ^
+      + def835-int02-prompt/3
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:740: AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+E   AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+      
+      - def835-int02-prompt/4
+      ?                     ^
+      + def835-int02-prompt/3
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:760: AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+E   AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+      
+      - def835-int02-prompt/4
+      ?                     ^
+      + def835-int02-prompt/3
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:357: AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+E   AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+      
+      - def835-int02-prompt/4
+      ?                     ^
+      + def835-int02-prompt/3
+      ?                     ^
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/services/prompts/test_def835_int02_prompt.py:219: AssertionError: assert 'def835-int02-prompt/3' == 'def835-int02-prompt/4'
+E   AssertionError: assert 'payload_niet_toegestaan' == 'tellimiet'
+      
+      - tellimiet
+      + payload_niet_toegestaan
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:777: AssertionError: assert 'payload_niet_toegestaan' == 'tellimiet'
+E   AssertionError: assert 'payload_niet_toegestaan' == 'payload_hash_mismatch'
+      
+      - payload_hash_mismatch
+      + payload_niet_toegestaan
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:744: AssertionError: assert 'payload_niet_toegestaan' == 'payload_hash_mismatch'
+E   AssertionError: assert 'payload_hash_mismatch' == 'payload_niet_toegestaan'
+      
+      - payload_niet_toegestaan
+      + payload_hash_mismatch
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:2420: AssertionError: assert 'payload_hash_mismatch' == 'payload_niet_toegestaan'
+E   KeyError: 'supports_structured_outputs'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:2427: KeyError: 'supports_structured_outputs'
+E   def835_int02_modelproef.ProefStopError: payload_niet_toegestaan
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/scripts/analysis/def835_int02_modelproef.py:636: def835_int02_modelproef.ProefStopError: payload_niet_toegestaan
+E   KeyError: 'output_config'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:261: KeyError: 'output_config'
+E   KeyError: 'properties'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:2360: KeyError: 'properties'
+E   KeyError: 'properties'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:2364: KeyError: 'properties'
+E   KeyError: 'properties'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:2356: KeyError: 'properties'
+E   def835_int02_modelproef.ProefStopError: payload_niet_toegestaan
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/scripts/analysis/def835_int02_modelproef.py:636: def835_int02_modelproef.ProefStopError: payload_niet_toegestaan
+E   Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_modelproef.py:2443: Failed: DID NOT RAISE <class 'def835_int02_modelproef.ProefGeweigerdError'>
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_aanroep_gebruikt_opt_ins_budget_en_routing
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f1_echte_openai_adapter_afgekapt_antwoord_is_geen_oordeel
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_echte_ai_laag_een_aanroep_met_sdk_retries_nul_en_exacte_berichten
+FAILED tests/unit/validation/test_def835_int02_assessment_service.py::test_f1_openai_route_blijft_geblokkeerd_zolang_de_stopreden_ontbreekt
+FAILED tests/unit/validation/test_def835_int02_variatiemeting.py::test_dryrun_payload_is_niet_meer_die_van_kwalificatieproef_v5
+FAILED tests/unit/validation/test_def835_int02_variatiemeting.py::test_live_vijf_runs_alleen_c107_zonder_sleutel_in_uitvoer
+FAILED tests/unit/validation/test_def835_int02_variatiemeting.py::test_live_verstuurt_de_v5_payload_plus_alleen_het_schema
+FAILED tests/unit/validation/test_def835_int02_variatiemeting.py::test_herkomst_bindt_script_contract_dienst_en_systeemprompt
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('coverage',)-Ellipsis]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_onbevestigd_schema_of_afwijkende_blokken_geeft_geen_oordeel[andere-hash]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_dat_niet_bij_de_pin_hoort_gaat_niet_naar_de_ai
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schemahash_is_gepind_en_volgordegevoelig
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('passages', 0, 'ground', 'fie-'context']
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('question',)-1]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('verdict',)-Ellipsis]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_niet_ondersteund_schema_eigen_reden_en_niets_verstuurd[verpakt-door-ai-laag]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_onbevestigd_schema_of_afwijkende_blokken_geeft_geen_oordeel[nul-blokken]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_onbevestigd_schema_of_afwijkende_blokken_geeft_geen_oordeel[twee-tekstblokken]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_onbevestigd_schema_of_afwijkende_blokken_geeft_geen_oordeel[geen-bloktypen]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('passages', 0, 'ground', 'ref-Ellipsis]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_blijft_binnen_de_grenzen_van_structured_outputs
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_echte_keten_body_draagt_exact_het_schema_zonder_beta
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_onbevestigd_schema_of_afwijkende_blokken_geeft_geen_oordeel[geen-tekst-hash]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('passages', 0, 'ground', 'ref-True]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_enums_komen_uit_de_constanten_en_zijn_gesorteerd
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('reason',)-None]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_onbevestigd_schema_of_afwijkende_blokken_geeft_geen_oordeel[geen-hash]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_dienst_stuurt_het_vastgepinde_schema_mee
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_v6_respons_van_c105_met_passagereden_voldoet_niet
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('extra',)-'x']
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('passages', 0, 'ground', 'sta-0]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('uncertainty',)-None]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_nullables_via_anyof_en_ref_als_tekst_getal_of_null
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_onbevestigd_schema_of_afwijkende_blokken_geeft_geen_oordeel[thinking-blok]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_alle_geldige_ontwerpvoorbeelden_voldoen_aan_het_schema
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('passages', 0, 'start')-0]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_niet_ondersteund_schema_eigen_reden_en_niets_verstuurd[direct]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('passages', 0, 'reason')-'x']
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schemahash_is_stabiel_in_subprocessen_met_andere_hashseed
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('passages',)-{}]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('passages', 0, 'ground', 'ref-1.5]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('passages', 0, 'function')-'criterium']
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_weigert_wat_de_gesloten_contractvorm_weigert[('verdict',)-'voldoet']
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_promptversie_vier_met_ongewijzigde_prompttekst
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_echte_keten_zonder_capability_verstuurt_niets
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_schema_is_de_gesloten_wp1_structuur_in_promptvolgorde
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_prompt_vier_houdt_dezelfde_systeemprompt_als_drie
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_dienst_zet_de_ruwe_v5_fail_om_en_laat_dat_zien
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_promptversie_is_vier_na_de_schemaroute
+FAILED tests/unit/services/prompts/test_def835_int02_prompt.py::test_promptversie_is_eigen_en_verschilt_van_contract_en_norm
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_tellimiet_stopt_voor_telverzoek
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_waarnemer_weigert_hashmismatch_en_budget_voor_verzending
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_schemaroute_waarnemer_weigert_ander_of_ontbrekend_schema[ontbreekt]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_schemaroute_identiteit_bindt_schemahash_en_capability
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_harde_limiet_telt_ook_mislukte_verzoeken
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_payload_bevat_alleen_invoer_en_geen_cache_tools_of_labels
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_schemaroute_waarnemer_weigert_ander_of_ontbrekend_schema[andere-enum]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_schemaroute_waarnemer_weigert_ander_of_ontbrekend_schema[open-object]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_schemaroute_waarnemer_weigert_ander_of_ontbrekend_schema[andere-volgorde]
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_schemaroute_waarnemer_accepteert_exact_schema_en_telt_het_mee
+FAILED tests/unit/validation/test_def835_int02_modelproef.py::test_schemaroute_zonder_capability_geen_payload_en_geen_manifest
+61 failed, 520 passed in 35.42s

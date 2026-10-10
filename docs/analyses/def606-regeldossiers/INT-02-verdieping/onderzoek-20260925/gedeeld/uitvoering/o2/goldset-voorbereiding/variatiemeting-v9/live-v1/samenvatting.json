@@ -1,0 +1,385 @@
+{
+  "soort": "def835-int02-variatiemeting-v9-samenvatting/1",
+  "claim": "Variatiemeting op de 24 ontwikkelgevallen buiten het kwalificatieprotocol (besluit 21): dezelfde keten als kwalificatieproef v9 (prompt /6, schema d3ad029e…), N extra herhalingen. Geen kwalificatie, geen herhaling van een kwalificatiefase, geen DEF-815-claim; ontwikkelgevallen zijn een consistentietoets (7A). Kosten = gemelde usage x prijzen manifest v9; geen providerfactuur.",
+  "modus": "live",
+  "afgerond": "2026-10-08T08:47:20.842161+00:00",
+  "herhalingen": 2,
+  "gepland": 48,
+  "inferenties": 48,
+  "telverzoeken": 48,
+  "stopreden": null,
+  "kosten_usd_conservatief": 2.1674550000000004,
+  "kostenplafond_usd": 3.0,
+  "runs": [
+    "v9-fase2",
+    "h1",
+    "h2"
+  ],
+  "per_run": {
+    "v9-fase2": {
+      "gedraaid": 17,
+      "juist": 15,
+      "onterechte_passes": [
+        "G050"
+      ],
+      "kritieke_false_passes": [
+        "G050"
+      ]
+    },
+    "h1": {
+      "gedraaid": 24,
+      "juist": 21,
+      "onterechte_passes": [
+        "G050",
+        "G060"
+      ],
+      "kritieke_false_passes": [
+        "G050"
+      ]
+    },
+    "h2": {
+      "gedraaid": 24,
+      "juist": 22,
+      "onterechte_passes": [
+        "G060"
+      ],
+      "kritieke_false_passes": []
+    }
+  },
+  "gevallen_met_wisselende_status": [
+    "G030",
+    "G050"
+  ],
+  "gevallen_met_wisselende_bronfuncties": [
+    "G011",
+    "G015",
+    "G030",
+    "G048",
+    "G050",
+    "G052",
+    "G076"
+  ],
+  "per_geval": [
+    {
+      "geval": "G011",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {
+        "bron/B1": {
+          "v9-fase2": "derivation",
+          "h1": "derivation",
+          "h2": "criterion"
+        }
+      }
+    },
+    {
+      "geval": "G015",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {
+        "bedoeling": {
+          "v9-fase2": "criterion",
+          "h1": "criterion|criterion",
+          "h2": "criterion|criterion"
+        },
+        "bron/B1": {
+          "v9-fase2": "criterion",
+          "h1": "criterion|criterion",
+          "h2": "criterion|criterion"
+        },
+        "juridische_context/0": {
+          "v9-fase2": "not_addressed",
+          "h1": "not_addressed|not_addressed",
+          "h2": "not_addressed|not_addressed"
+        },
+        "organisatorische_context/0": {
+          "v9-fase2": "not_addressed",
+          "h1": "not_addressed|not_addressed",
+          "h2": "not_addressed|not_addressed"
+        }
+      }
+    },
+    {
+      "geval": "G019",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G027",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G030",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "review_required",
+        "h1": "review_required",
+        "h2": "pass"
+      },
+      "stabiel": false,
+      "wisselende_bronfuncties": {
+        "bron/B2": {
+          "v9-fase2": "actor_prescription",
+          "h1": "actor_prescription",
+          "h2": "criterion"
+        }
+      }
+    },
+    {
+      "geval": "G039",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G007",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G021",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G037",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G041",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G046",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G055",
+      "label": "pass",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G008",
+      "label": "fail",
+      "statussen": {
+        "v9-fase2": "fail",
+        "h1": "fail",
+        "h2": "fail"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G012",
+      "label": "fail",
+      "statussen": {
+        "v9-fase2": "fail",
+        "h1": "fail",
+        "h2": "fail"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G036",
+      "label": "fail",
+      "statussen": {
+        "v9-fase2": "fail",
+        "h1": "fail",
+        "h2": "fail"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G048",
+      "label": "fail",
+      "statussen": {
+        "v9-fase2": "fail",
+        "h1": "fail",
+        "h2": "fail"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {
+        "bedoeling": {
+          "v9-fase2": "not_addressed|not_addressed",
+          "h1": "unclear|not_addressed",
+          "h2": "not_addressed|not_addressed"
+        },
+        "bron/B1": {
+          "v9-fase2": "unclear|actor_prescription",
+          "h1": "criterion|actor_prescription",
+          "h2": "unclear|actor_prescription"
+        }
+      }
+    },
+    {
+      "geval": "G050",
+      "label": "fail",
+      "statussen": {
+        "v9-fase2": "pass",
+        "h1": "pass",
+        "h2": "review_required"
+      },
+      "stabiel": false,
+      "wisselende_bronfuncties": {
+        "bron/B1": {
+          "v9-fase2": "derivation|criterion",
+          "h1": "derivation|criterion",
+          "h2": "derivation|discretionary_decision_rule"
+        }
+      }
+    },
+    {
+      "geval": "G052",
+      "label": "fail",
+      "statussen": {
+        "h1": "fail",
+        "h2": "fail"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {
+        "bron/B2": {
+          "h1": "unclear",
+          "h2": "criterion"
+        }
+      }
+    },
+    {
+      "geval": "G042",
+      "label": "review_required",
+      "statussen": {
+        "h1": "review_required",
+        "h2": "review_required"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G045",
+      "label": "review_required",
+      "statussen": {
+        "h1": "review_required",
+        "h2": "review_required"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G047",
+      "label": "review_required",
+      "statussen": {
+        "h1": "review_required",
+        "h2": "review_required"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G060",
+      "label": "review_required",
+      "statussen": {
+        "h1": "pass",
+        "h2": "pass"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G070",
+      "label": "review_required",
+      "statussen": {
+        "h1": "review_required",
+        "h2": "review_required"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {}
+    },
+    {
+      "geval": "G076",
+      "label": "review_required",
+      "statussen": {
+        "h1": "review_required",
+        "h2": "review_required"
+      },
+      "stabiel": true,
+      "wisselende_bronfuncties": {
+        "bron/B2": {
+          "h1": "actor_prescription",
+          "h2": "not_a_criterion"
+        },
+        "bron/B3": {
+          "h1": "not_addressed",
+          "h2": "unclear"
+        }
+      }
+    }
+  ]
+}

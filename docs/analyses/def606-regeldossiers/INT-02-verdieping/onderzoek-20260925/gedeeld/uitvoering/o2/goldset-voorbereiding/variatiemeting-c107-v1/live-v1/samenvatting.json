@@ -1,0 +1,64 @@
+{
+  "soort": "def835-int02-variatiemeting-samenvatting/1",
+  "claim": "Variatiemeting op C107 buiten het kwalificatieprotocol (besluit 11): dezelfde keten als kwalificatieproef v5, N losse calls. Geen kwalificatie, geen DEF-815-claim. Kosten = gemelde usage x routerprijzen; geen providerfactuur.",
+  "modus": "live",
+  "afgerond": "2026-10-07T14:08:28.503894+00:00",
+  "aantal_gevraagd": 5,
+  "aantal_uitgevoerd": 5,
+  "inferenties": 5,
+  "telverzoeken": 5,
+  "opgevangen_zonder_verzending": 1,
+  "stopreden": null,
+  "kosten_usd_conservatief": 0.16142499999999999,
+  "kostenstop_usd": 0.5,
+  "telling": {
+    "review_required/insufficient_information": 5
+  },
+  "runs": [
+    {
+      "run": 1,
+      "uitkomst": "review_required/insufficient_information",
+      "function": [
+        "unclear"
+      ],
+      "uncertainty": "decisive",
+      "vraag_gesteld": true
+    },
+    {
+      "run": 2,
+      "uitkomst": "review_required/insufficient_information",
+      "function": [
+        "unclear"
+      ],
+      "uncertainty": "decisive",
+      "vraag_gesteld": true
+    },
+    {
+      "run": 3,
+      "uitkomst": "review_required/insufficient_information",
+      "function": [
+        "unclear"
+      ],
+      "uncertainty": "decisive",
+      "vraag_gesteld": true
+    },
+    {
+      "run": 4,
+      "uitkomst": "review_required/insufficient_information",
+      "function": [
+        "unclear"
+      ],
+      "uncertainty": "decisive",
+      "vraag_gesteld": true
+    },
+    {
+      "run": 5,
+      "uitkomst": "review_required/insufficient_information",
+      "function": [
+        "unclear"
+      ],
+      "uncertainty": "decisive",
+      "vraag_gesteld": true
+    }
+  ]
+}

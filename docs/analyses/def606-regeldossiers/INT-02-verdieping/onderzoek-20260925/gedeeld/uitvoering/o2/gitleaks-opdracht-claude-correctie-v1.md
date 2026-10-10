@@ -1,0 +1,13 @@
+# DEF-835 — gerichte correctie A/B aan dezelfde scanneruitvoerder
+
+Jij bent dezelfde Claude Code CLI-uitvoerder, sessie 5bc9ae88-46e4-489b-9a78-489c125a07bd. Voer deze opdracht zelf uit; start geen agents, reviewers of extra CLI-sessies. Nederlands verslag. Je bent niet alleen in de repo; alle WP5a-bronwijzigingen en oorspronkelijke38stagedbestanden intact laten. Geen stage/unstage/commit, geen git write-tree (ook geen cache-treeverversing), geen dependencies, livecalls of Actions.
+
+Werkroot /Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2, branch feature/DEF-835-int02-o2. Lees gitleaks-codex-review-v1.md. Coördinator neemt de bevestigde LOW-punten A en B over met dispositie FIX NU.
+
+A: corrigeer de bestaande zelfscan in scripts/ci/test_secret_scan_metadata.py. Dit is één aanvullend testbestand: het pakket omvat nu vijf bestanden, geen verruiming van de exact geaccordeerde uitzondering, geen API-/schemawijziging. Alleen de bestaande zelftest op een neutraal niet-overgeslagen pad laten draaien en aantoonbaar de volledige configinhoud laten lezen (bytecontrole zoals in de nieuwe module). Behoud het testgeval en alle bestaande fixtures/andere cases. Eerst toonbaar RED voor het oude overgeslagen pad met aangescherpte byte-eis; daarna de minimale padcorrectie en GREEN. Geen algemene refactor van de testmodule.
+
+B: maak alleen de nieuwe toelichting over [f] feitelijk precies in .gitleaks.toml en waar van toepassing scripts/ci/test_secret_scan_def835_metadata.py: de tekenklasse blijft conform het geaccordeerde patroon, maar is voor deze regel niet strikt nodig zolang de punt ge-escaped blijft. De regex en het exacte detectiebereik NIET wijzigen. Geen uitleg toevoegen alsof een bredere uitzondering is toegestaan. Geen behoefte aan een nieuwe mutatiematrix; bestaand bewijs bevestigt dit al.
+
+Draai de nieuwe22canaries plus de bestaande13metadata-tests en toepasselijke Ruff/Black. De bestaande volledige105suite heeft passend behouden bewijs; herhaal die niet zonder een concrete nieuwe fout/doorwerking. Geen extra polish, algemene audit of brede meting. Dezelfde reviewer controleert de beperkte delta.
+
+Lever nieuw gitleaks-claude-correctieverslag-v1.md, bewijs/gitleaks-correctie-* met volledige opdrachten/exits, RED/GREEN, eindhashes en correctiediff. Vier bestaande pakketbestanden die niet geraakt hoeven te worden blijven ongemoeid; het nieuwe vijfde bestand is alleen voor A geautoriseerd door de coördinator als noodzakelijke correctie van de geaccordeerde regressietests, binnen de vijfbestanden-grens. Geen bestanden/testgevallen verwijderen. Maximaal drie pogingen per actie. Na deze gerichte correcties stoppen voor herreview.

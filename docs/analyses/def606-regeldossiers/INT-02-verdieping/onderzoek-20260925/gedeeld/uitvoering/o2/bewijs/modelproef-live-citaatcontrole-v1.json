@@ -1,0 +1,62 @@
+[
+  {
+    "casus": "C105",
+    "veld": "kern",
+    "begin": 0,
+    "einde": 36,
+    "citaatlengte": 36,
+    "exacte_slice": true,
+    "voorkomen_start": 0,
+    "bronlengte": 36
+  },
+  {
+    "casus": "C105",
+    "veld": "bedoeling",
+    "begin": 0,
+    "einde": 23,
+    "citaatlengte": 23,
+    "exacte_slice": true,
+    "voorkomen_start": 0,
+    "bronlengte": 23
+  },
+  {
+    "casus": "C107",
+    "veld": "kern",
+    "begin": 0,
+    "einde": 86,
+    "citaatlengte": 86,
+    "exacte_slice": true,
+    "voorkomen_start": 0,
+    "bronlengte": 86
+  },
+  {
+    "casus": "C107",
+    "veld": "kern",
+    "begin": 13,
+    "einde": 61,
+    "citaatlengte": 48,
+    "exacte_slice": true,
+    "voorkomen_start": 13,
+    "bronlengte": 86
+  },
+  {
+    "casus": "C112",
+    "veld": "kern",
+    "begin": 0,
+    "einde": 70,
+    "citaatlengte": 73,
+    "exacte_slice": false,
+    "voorkomen_start": 0,
+    "bronlengte": 73
+  },
+  {
+    "casus": "C112",
+    "veld": "bedoeling",
+    "begin": 0,
+    "einde": 46,
+    "citaatlengte": 47,
+    "exacte_slice": false,
+    "voorkomen_start": 0,
+    "bronlengte": 47
+  }
+]

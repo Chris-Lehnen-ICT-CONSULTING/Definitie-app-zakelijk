@@ -1,0 +1,6 @@
+{"akkoord_sha256": "955d84dc8f84be6b6a8ac19b9f41bb5a911ef2de6301cf478b1385be1e45bc4a", "gebeurtenis": "mandaat", "manifest_sha256": "37b8e36a46c30a3d62b579a0eaf2afc544a454d709c49030c5626fa318539e37", "soort": "def835-int02-kwalificatie-grootboek/1", "tijd": "2026-10-07T15:15:12.641278+00:00"}
+{"akkoord_sha256": "955d84dc8f84be6b6a8ac19b9f41bb5a911ef2de6301cf478b1385be1e45bc4a", "fase": "regressie", "gebeurtenis": "fase_start", "tijd": "2026-10-07T15:15:12.641740+00:00"}
+{"gebeurtenis": "tel_reservering", "geval": "C105", "tel": 1, "tijd": "2026-10-07T15:15:12.643348+00:00"}
+{"call": 1, "gebeurtenis": "inferentie_reservering", "geval": "C105", "reservering_usd": 0.22999999999999998, "tijd": "2026-10-07T15:15:13.662561+00:00"}
+{"call": 1, "gebeurtenis": "inferentie_boeking", "geval": "C105", "kosten_usd": 0.02649, "tijd": "2026-10-07T15:15:18.442997+00:00", "usage": {"input_tokens": 3543, "output_tokens": 351}}
+{"bewijs_opgeslagen": true, "fase": "regressie", "gebeurtenis": "fase_einde", "looptijd_seconden": 6.719, "mechanisch_geslaagd": false, "stopreden": "invalid_output", "tijd": "2026-10-07T15:15:18.459981+00:00"}

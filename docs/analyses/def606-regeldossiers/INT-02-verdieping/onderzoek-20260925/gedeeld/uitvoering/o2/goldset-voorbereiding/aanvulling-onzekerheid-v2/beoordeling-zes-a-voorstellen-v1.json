@@ -1,0 +1,412 @@
+{
+  "beoordelaar": "A",
+  "status": "voorstel_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "gevalobjecten_v2": "10b90000143356ff0e2064e4230528d68c29d7ae40a3e074f81bb311c98e8d5b",
+    "concept_v2": "58c7317b689ecb152f0aa202aa33460856795d08ee1ae4cfcf11969e58544149",
+    "pool_v4": "2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+    "concept_v1_gevalobjecten": "6309d72b5b83b5ffb30cc7571e9e9df0eb2a95707f3d470e8a5dfd5827ab160f",
+    "normcontract": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten_chris": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734"
+  },
+  "gevallen": [
+    {
+      "id": "G064",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Selectie van declaraties uit de maandlijst",
+          "functie": "genus",
+          "start": 0,
+          "end": 42
+        },
+        {
+          "citaat": "waarin de controleur eerst alle declaraties boven 1.000 euro opneemt",
+          "functie": "begripsbepalend samenstellingscriterium (verplicht opgenomen deel)"
+        },
+        {
+          "citaat": "die hij daarna door loting uit de resterende declaraties aanvult tot twintig",
+          "functie": "begripsbepalend samenstellingscriterium (aanvulling door loting; deterministische regel met toevalsinvoer, geen afweging)"
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Bij een risicoselectie wordt eerst iedere declaratie boven 1.000 euro opgenomen en worden de overige plaatsen tot twintig door loting uit de resterende declaraties gevuld"
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "wordt het foutpercentage van een risicoselectie niet doorgetrokken naar de hele maandlijst"
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "zijn er twintig of meer declaraties boven 1.000 euro, dan bestaat de risicoselectie alleen uit die declaraties"
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Stap 4: Leg de selectie vast in het controlelogboek en wijzig haar daarna niet meer."
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken"
+        }
+      ],
+      "motivering": "De kern bakent een selectiesoort af naar haar samenstelling: alle declaraties boven 1.000 euro, aangevuld door loting tot twintig. B1 omschrijft de risicoselectie zonder actor op precies die manier en verbindt aan die samenstelling een gevolg (geen extrapolatie). De werkwijze is dus begripsbepalend en niet alleen uitvoering. Dat de controleur wordt genoemd en de volgorde 'eerst … daarna' spiegelen WI-7, maar de kern schrijft niets voor; zij beschrijft hoe een selectie van dit type ontstaat. Loting is geen afweging. Stap 4 uit B2 (vastleggen, niet wijzigen) staat terecht buiten de kern. Het ontbrekende geval van twintig of meer declaraties is een volledigheidsvraag en geen INT-02-grond.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "G024",
+          "G053",
+          "G054",
+          "G039",
+          "C15"
+        ],
+        "motivering": "In G024 en G053 is de procedure met actor en volgorde niet begripsbepalend, want die komt uit een verwerkingsinstructie. Hier draagt B1 de werkwijze als onderscheid met de aselecte selectie. G054 is een deterministische rangorde zonder actor of toevalselement. Het contrast met G024 (zelfde 'eerst … daarna'-vorm, andere functie) geeft zelfstandige testwaarde."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De kern mist het geval van twintig of meer declaraties boven 1.000 euro. Volgens B1 bestaat de selectie dan alleen uit die declaraties, zodat 'aanvult tot twintig' daar niet klopt. Dit is een ander kwaliteitsprobleem (ESS-05/CON-02), geen INT-02.",
+        "Dat 'de controleur'/'hij' wordt genoemd, is voor de afbakening niet nodig. Dit is een vorm- of stijlpunt, geen INT-02-grond."
+      ]
+    },
+    {
+      "id": "G065",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Melding van een dier in nood",
+          "functie": "genus",
+          "start": 0,
+          "end": 28
+        },
+        {
+          "citaat": "waarin de beller ten minste één van de drie spoedvragen met ja beantwoordt",
+          "functie": "feitelijk lidmaatschapscriterium (eerste alternatief)"
+        },
+        {
+          "citaat": "waarbij de centralist een antwoord niet kan vaststellen en de melding daarom als spoed aanmerkt",
+          "functie": "constitutieve aanmerking als kenmerk (tweede alternatief); waarneming, geen discretionaire afweging"
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Is één antwoord ja, of kunt u een antwoord niet vaststellen, merk de melding dan aan als spoed."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "telt iedere melding die de centralist als spoed heeft aangemerkt als spoedmelding, ook als achteraf blijkt dat geen van de spoedvragen met ja had hoeven te worden beantwoord"
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Bij iedere spoedmelding vertrekt een ambulance binnen tien minuten nadat de centralist de rit heeft uitgezet."
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Die lijst wordt gebruikt door de centralisten en door de vrijwillige chauffeurspoule"
+        }
+      ],
+      "motivering": "De kern bakent de melding af met twee alternatieve kenmerken. Het eerste is een feitelijk ja-antwoord van de beller. Het tweede is dat een antwoord niet kan worden vastgesteld, gevolgd door aanmerking als spoed. B1 is een gebonden instructie aan de centralist, maar de kern neemt alleen de uitkomstvoorwaarden over, niet de opdracht om vragen te stellen of te vertrekken. B2 bevestigt dat de aanmerking constitutief is. 'Niet kan vaststellen' is een menselijke waarneming en geen afweging. Geen passage schrijft handelen voor. B2 telt iedere aangemerkte melding, maar de kern bindt het eerste alternatief niet aan aanmerking. Dat is een reikwijdtevraag buiten INT-02.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "G014",
+          "G055",
+          "C69",
+          "C107",
+          "C85"
+        ],
+        "motivering": "G014 en G055 maken één handeling van een actor (registratie of verklaring) constitutief. G065 combineert een feitelijk en een constitutief alternatief met een epistemische grens ('niet kan vaststellen'). Die grens lijkt op C107, maar is geen kwaliteitsoordeel. De bron is bovendien een gebonden uitvraaginstructie waarvan alleen de uitkomstvoorwaarden in de kern staan. C85 deelt alleen het woord spoed."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Mogelijke afwijking in extensie: B2 telt iedere als spoed aangemerkte melding mee, ook zonder ja-antwoord of onzekerheid. De kern sluit een ten onrechte aangemerkte melding uit. Dit hoort bij ESS-05/CON-02, niet bij INT-02.",
+        "De vertrektermijn uit B2 en de uitvraagopdracht uit B1 staan terecht niet in de kern."
+      ]
+    },
+    {
+      "id": "G066",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "waarbij de vertrekkende coach de openstaande termijnen en toezeggingen in een overdrachtsnotitie vastlegt",
+          "functie": "classificerend kenmerk: verrichte handeling"
+        },
+        {
+          "citaat": "die notitie met de nieuwe coach bespreekt voordat deze het dossier overneemt",
+          "functie": "classificerend kenmerk: verrichte handeling met volgordecriterium"
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "dan legt de vertrekkende coach de openstaande termijnen en toezeggingen vast in een overdrachtsnotitie en bespreekt hij die notitie met de nieuwe coach voordat deze het dossier overneemt"
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Deze code werkt volgens pas toe of leg uit"
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Het dossier bevat een overdrachtsnotitie met de openstaande termijnen en toezeggingen en een aantekening dat de notitie vóór de overname met de nieuwe coach is besproken."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "De auditor scoort D3 per overdracht met ja of nee; het auditrapport vermeldt het aantal zorgvuldige overdrachten per team."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "notitie aanwezig, geen aantekening van een bespreking; D3 nee"
+        }
+      ],
+      "motivering": "De kern deelt overdrachten in naar twee verrichte handelingen en hun volgorde. Een overdracht zonder die handelingen is geen zorgvuldige overdracht, maar blijft een overdracht. B1 formuleert dezelfde handelingen als gedragsprincipe. B2 gebruikt de term echter als ja/nee-criterium dat per overdracht wordt gescoord en geteld. Dat de code volgens pas toe of leg uit werkt, bevestigt dat er afwijkende overdrachten bestaan. De kern neemt de gebodsvorm niet over: zij beschrijft kenmerken in de aantonende wijs, zonder opdracht of afweging. De evaluatieve term 'zorgvuldig' wordt met toetsbare kenmerken ingevuld. Het verschil tussen feitelijk bespreken (kern) en een aantekening daarvan (B2) is een bewijs- of reikwijdtepunt, geen INT-02-grond.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "G063",
+          "G069",
+          "G061",
+          "G047"
+        ],
+        "motivering": "G063 uit de eerdere zeven heeft dezelfde vorm: 'handeling waarbij [actor] … [handeling]', uit een protocol aan die actor, naast een classificerende bron. G066 voegt pas toe of leg uit en een auditscore met tegenvoorbeeld toe, maar functioneel ligt het dicht bij G063. Binnen de zes nieuwe gevallen deelt G069 dezelfde structuur. Het eigen element is een evaluatief klinkende term die met deterministische kenmerken wordt gevuld."
+      },
+      "redundantie_met": [
+        "G069"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Het bewijskenmerk in B2 (aantekening van de bespreking) wijkt af van het feitelijke kenmerk in de kern (bespreken). Dat raakt CON-02/ESS-05, niet INT-02."
+      ]
+    },
+    {
+      "id": "G067",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "waarvan ten minste 80 procent van de grondstoffen naar gewicht binnen 30 kilometer van de productielocatie is ingekocht",
+          "functie": "toetsbaar lidmaatschapscriterium"
+        },
+        {
+          "citaat": "waarvan de licentiehouder de inkoopfacturen vijf jaar bewaart",
+          "functie": "nalevingstoestand als begripskenmerk; de bron draagt dit als producteis"
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "b. De inkoopfacturen van die grondstoffen zijn vijf jaar beschikbaar."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Een product dat niet meer aan §2 voldoet, verliest het streeklabel en wordt uit de productlijst van streekproducten verwijderd."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het certificatieschema is een bijlage bij en maakt deel uit van deze overeenkomst."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Hij bewaart de inkoopfacturen van die grondstoffen vijf jaar en toont ze op verzoek aan de keurmeester."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Komt de licentiehouder artikel 5 niet na, dan kan de stichting de licentie schorsen."
+        }
+      ],
+      "motivering": "Het 80-procentcriterium is een toetsbaar lidmaatschapskenmerk. De bewaarclausule staat in B1 als plicht van de licentiehouder. B2 §2 neemt haar echter op als eis aan het product, en §4 verbindt aan niet-voldoen het verlies van label en plaats op de productlijst. Omdat B1 art. 2 het schema tot onderdeel van de overeenkomst maakt, strijden de bronnen niet. De kern beschrijft dus een nalevingstoestand als begripskenmerk, zonder opdracht of afweging. De zuivere plicht 'toont ze op verzoek' en de schorsingsbevoegdheid staan terecht buiten de kern. Dat 'vijf jaar bewaart' een doorlopende toestand is, raakt de toetsbaarheid (ESS-04), niet INT-02.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "G041",
+          "G060",
+          "G042",
+          "G049",
+          "C112"
+        ],
+        "motivering": "In G041, G060 en G049 staat een meld-, opgave- of voorlegplicht met termijn in de kern, zonder bron die haar uitdrukkelijk als begripseis draagt. G042 heeft een afschermingseis met bronsteun, maar geen doorlopende plicht van een derde. G067 combineert een toestandscriterium met een doorlopende bewaarplicht van de licentiehouder die de bron als producteis en labelvoorwaarde draagt. Een uitgelaten zuivere plicht dient als contrast."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Het gevolg in B1 art. 11 (schorsing van de licentie) verschilt van dat in B2 §4 (verlies van het label per product). Dat raakt de reikwijdte, niet INT-02.",
+        "Op het classificatiemoment is 'vijf jaar bewaart' niet volledig vast te stellen. Dat raakt ESS-04."
+      ]
+    },
+    {
+      "id": "G068",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Toezending van een boek ter inzage aan een lid",
+          "functie": "genus met onderscheidend kenmerk (ter inzage)",
+          "start": 0,
+          "end": 46
+        },
+        {
+          "citaat": "waarbij het lid het boek binnen veertien dagen na ontvangst terugstuurt of de prijs betaalt",
+          "functie": "onbeslist: beschrijving van de keuzeregeling als kenmerk, of voorschrift aan het lid"
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het lid stuurt het boek binnen veertien dagen na ontvangst onbeschadigd terug of betaalt de prijs."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Heeft de club het boek na die veertien dagen niet terugontvangen, dan is het boek gekocht"
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "U hebt dan veertien dagen de tijd om te kiezen"
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "stuurt u het boek terug, dan betaalt u niets; houdt u het, dan schrijven wij de prijs af"
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term wordt gebruikt in de algemene voorwaarden van de leesclub en in de welkomstbrief voor nieuwe leden."
+        }
+      ],
+      "motivering": "Als lidmaatschapscriterium werkt de bijzin niet. Een zichtzending bestaat bij toezending, en volgens B1 blijft een niet teruggestuurd, onbetaald boek binnen de regeling: het geldt als gekocht en de prijs wordt afgeschreven. De bijzin draagt dus normatieve inhoud. Dat kan een toegestane beschrijving zijn van de keuzeregeling die de zichtzending kenmerkt (B2: 'de tijd om te kiezen'). Het kan ook een gedragsvoorschrift aan het lid zijn (B1: 'Het lid stuurt … terug of betaalt'). De bedoeling noemt alleen vindplaatsen en beslist niet welke functie beoogd is, en de bronnen verwoorden haar verschillend. Er is geen zelfstandig bewezen voorschrift.",
+      "vraag": "Is de bijzin 'waarbij het lid het boek binnen veertien dagen na ontvangst terugstuurt of de prijs betaalt' bedoeld om de keuzeregeling te beschrijven die een toezending tot zichtzending maakt, of om voor te schrijven wat het lid na ontvangst moet doen?",
+      "zekerheid": "laag",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "G047",
+          "G049",
+          "G060",
+          "G045",
+          "C14"
+        ],
+        "motivering": "In G047, G049 en G060 verricht de actor zelf de termijnhandeling die het begrip vormt of oplevert. In G068 gaat het om later gedrag van de ontvanger dat het lidmaatschap niet bepaalt, want B1 kent een standaardgevolg. Er staat geen modaal woord in. C14 heeft 'moet' en een expliciete gedragslezing. De bronnen verschillen in framing (plicht tegenover keuze), wat de functievraag zelf openlaat."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Het bereik is dubbelzinnig: onduidelijk is of 'binnen veertien dagen' ook bij 'de prijs betaalt' hoort. B1 laat afschrijving na de termijn toe.",
+        "B1 eist dat het boek onbeschadigd wordt teruggestuurd; de kern niet. Dat is een volledigheidspunt, geen INT-02."
+      ]
+    },
+    {
+      "id": "G069",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "waarbij de speler de boule met beide voeten binnen de werpcirkel werpt",
+          "functie": "waarneembaar geldigheidskenmerk van de worp"
+        },
+        {
+          "citaat": "die voeten op de grond houdt tot de boule de grond raakt",
+          "functie": "waarneembaar geldigheidskenmerk met tijdsgrens"
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De speler werpt met beide voeten binnen de werpcirkel en houdt die voeten op de grond tot de geworpen boule de grond raakt."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een worp die daaraan niet voldoet, is ongeldig; een ongeldig geworpen boule wordt uit het spel genomen."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "De scheidsrechter beoordeelt een voetfout alleen op verzoek van de tegenpartij, gedaan vóór de volgende worp."
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "blijft de boule in het spel, ook als de scheidsrechter de voetfout heeft gezien"
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker wil de term opnemen in de begrippenlijst bij het spelreglement"
+        }
+      ],
+      "motivering": "De kern bakent een geldige worp af met twee waarneembare kenmerken van de worp zelf. B1 formuleert die als spelregel voor de speler, maar koppelt er uitdrukkelijk de geldigheid aan ('Een worp die daaraan niet voldoet, is ongeldig'). De kern neemt alleen dat classificerende deel over, zonder opdracht of afweging. De handhavingsprocedure uit B2 (beoordeling alleen op verzoek, waarschuwing) staat terecht buiten de kern. Dat een voetfout zonder verzoek in het spel blijft, roept een vraag op over 'geldig' tegenover 'blijft in het spel'. Dat is een extensie- of bronconsistentiepunt (ESS-05/CON-02) en laat de functie van de kernpassages onverlet.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "G066",
+          "G063",
+          "G061",
+          "C19"
+        ],
+        "motivering": "G069 heeft dezelfde functionele structuur als G066 en G063: handelingen uit een regel aan een actor worden kenmerk van een klasse gebeurtenissen. Het eigen element is dat de bron ongeldigheid als gevolg koppelt aan een handhavingsprocedure met afwijkende praktijk. C19 is een geldigheidscriterium zonder actor, en G061 een gedragsregel als kenmerk van een ruimte in plaats van de gebeurtenis zelf."
+      },
+      "redundantie_met": [
+        "G066"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Het wedstrijdverslag in B2 laat zien dat een worp met voetfout meetelde. Of zo'n worp 'geldig' is, is een reikwijdtevraag voor ESS-05/CON-02, niet voor INT-02."
+      ]
+    }
+  ],
+  "selectiepunten": [
+    "G066 en G069 delen met elkaar en met G063 (eerdere zeven) de structuur 'regel aan een actor wordt kenmerk van de gebeurtenis'. Neemt Chris beide op, of één als representant met het extra element (pas toe of leg uit plus auditscore, of handhaving op verzoek)?",
+    "Beoordelaar A stelt voor vijf van de zes gevallen pass voor. Alleen G068 draagt volgens A een echte INT-02-functievraag. De overige onzekerheden (G064: geval van twintig of meer, G065: aanmerking zonder ja-antwoord, G067: bewaartoestand, G069: voetfout zonder verzoek) raken andere regels. Als de aanvulling bedoeld was om INT-02-onzekerheidsgevallen te leveren, is dat bij deze zes beperkt gelukt.",
+    "G068: of het label pass of fail wordt, hangt af van de bedoeling die Chris vastlegt (beschrijving van de keuzeregeling of voorschrift aan het lid). Zonder die keuze blijft het review_required.",
+    "G064 tegenover G024/G053 en G067 tegenover G041/G060: in beide paren draagt de bronsteun voor de begripsbepalende werking het verschil. Bij een labelbesluit is het zinvol die grond expliciet vast te leggen.",
+    "concept_v2 (hash in het manifest) stond niet in de bronnenlijst en is niet gelezen."
+  ],
+  "bewijsgrenzen": [
+    "De bronhashes zijn letterlijk overgenomen uit manifest-v1. Zelf herberekenen lukte in deze sessie niet: de shell-aanroep vereiste goedkeuring.",
+    "Posities staan alleen bij citaten die op positie 0 van de kern beginnen. Bij de overige citaten zijn start en end weggelaten en niet geraden.",
+    "Alle gevallen en bronnen zijn synthetisch. Er is geen claim over geldend recht, appkwaliteit of een expertgoldset.",
+    "Dit is een voorstel van één beoordelaar, zonder inzage in labels, redacteursuitvoer of andere beoordelingen. Chris beslist.",
+    "Het afstandsoordeel berust op lezing van kern, bedoeling en bronnen van de 76 ontwerpen, de 40 kandidaten en de 7 concepten, niet op hun labels.",
+    "De JSON-geldigheid is handmatig gecontroleerd, niet machinaal."
+  ]
+}

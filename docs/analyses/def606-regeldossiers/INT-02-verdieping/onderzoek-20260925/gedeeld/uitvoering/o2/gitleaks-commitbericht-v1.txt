@@ -1,0 +1,16 @@
+fix(DEF-835): Begrens bronhashuitzondering voor proefmanifesten
+
+Voeg de door Chris geaccordeerde AND-uitzondering toe voor twee exacte
+manifestpaden en één volledige bronhashregel. Behoud alle detectieregels.
+Borg de uitzondering met 22 canaries en herstel het bytebewijs van de
+bestaande configuratiescan. Neem de nieuwe suite op in Makefile/runbook.
+
+Neem tevens de 38 eerder staged proefrunner-dossierbestanden mee die door
+deze twee aantoonbare hash-false-positives waren geblokkeerd.
+
+Claude CLI implementeerde; onafhankelijke Codex CLI reviewde de concrete
+diff en sloot A/B. Eerste vaste suite: 105 geslaagd; uiteindelijke geraakte
+modules: 35 geslaagd, plus Ruff/Black. Geen hooks overgeslagen.
+
+WP5a-bronwijzigingen blijven ongestaged. O1 blijft actief; F2/F3 en de
+inhoudelijke O2-modelkwalificatie blijven open. Geen push of activering.

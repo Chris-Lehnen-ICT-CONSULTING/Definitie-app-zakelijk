@@ -1,0 +1,88 @@
+{
+  "beoordelaar": "A",
+  "status": "voorstel_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "normcontract.md": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten-chris.md": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister.md": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734",
+    "oorspronkelijke-casuspool.json": "d70c645e12667c1a46bf8c192b6b13dfa794fa112425da371ddc5bfcb0cebb11",
+    "casuspool-kandidaat-v3.json": "e2ee47f91ef65e2cfe7c2b0001293ddc74e92627774243c8596e025865ea5857"
+  },
+  "gevallen": [
+    {
+      "id": "G018",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "veld": "kern",
+          "citaat": "die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt",
+          "functie": "onduidelijk: beschreven herroepbaarheid als typekenmerk, of discretionaire herroepingsregel",
+          "start": 13,
+          "end": 90
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Herroepbare uitzondering: uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt",
+          "start": 140,
+          "end": 256
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een vaste uitzondering heeft dat kenmerk niet",
+          "start": 258,
+          "end": 303
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "De toezichthouder weegt of voortzetting van een herroepbare uitzondering wenselijk is en laat de uitzondering vervallen zodra hij voortzetting onwenselijk vindt",
+          "start": 68,
+          "end": 228
+        },
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker heeft beide stukken als mogelijke betekenisgrond opgegeven",
+          "start": 105,
+          "end": 176
+        }
+      ],
+      "motivering": "De nieuwe zin verwijst terug naar het lemma en sluit dus aan. B1 gebruikt de kernzin nu consistent als typekenmerk, tegenover de vaste uitzondering. B2 draagt exact dezelfde woorden als discretionaire herroepingsregel. B1 herhaalt alleen de kernwoorden en geeft geen eigen constitutieve grond; brongezag vrijwaart niet. De bedoeling noemt beide stukken uitdrukkelijk als mogelijke grond. De functie blijft daarom onbeslist, zoals in de O-tak van C83/C13.",
+      "vraag": "Is 'herroepbare uitzondering' bedoeld als type uit het classificatiemodel (onderscheid tussen vaste en herroepbare uitzonderingen), of als de herroepingsregel uit art. 12 van het toezichtprotocol?",
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C83",
+          "C13"
+        ],
+        "motivering": "Dezelfde beslisstructuur als C83/C13: genus + actorhandeling + discretionair oordeel. Het verschil is het concrete bronpaar en het ontbreken van een S1-marker."
+      },
+      "redundantie_met": [
+        "G003",
+        "G014"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De bungelende verwijzing is opgelost: 'dat kenmerk' verwijst naar het direct voorafgaande lemma. Daarmee is de onbedoelde sturing richting een niet-genoemd voorbehoud verdwenen.",
+        "De wijziging bewijst op zichzelf geen functie. Mijn INT-02-voorstel blijft review_required met zekerheid middel.",
+        "Geschiktheid gaat van aanpassen naar bruikbaar, omdat de bronfout de enige reden voor 'aanpassen' was.",
+        "Resterend interpretatieverschil voor Chris: B1 kan als onderbouwde typeomschrijving gelden (dan pass) of als herhaling van dezelfde woorden zonder zelfstandige grond (dan O). Ik kies het laatste omdat de bedoeling beide stukken uitdrukkelijk als mogelijke grond noemt."
+      ]
+    }
+  ],
+  "dispositie_per_geval": [
+    {
+      "id": "G018",
+      "bronpunt_opgelost": "ja",
+      "reden": "'Een vaste uitzondering heeft dat kenmerk niet' verwijst naar het voorafgaande lemma. Er is geen losse verwijzing naar een niet-genoemd voorbehoud meer; B1 is intern consistent.",
+      "resterend_open": "Geen bronfout meer. Wel open blijft of B1 als zelfstandige grond voor een typekenmerk telt of als bron die dezelfde woorden draagt als B2. De bedoeling beslist dat niet; Chris beslist."
+    }
+  ]
+}

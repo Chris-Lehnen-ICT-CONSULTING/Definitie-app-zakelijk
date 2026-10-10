@@ -1,0 +1,337 @@
+....F.........F.........F......F.....F...F...F......F..F.F..F..F....F.F. [ 24%]
+......F.......FFF...F...F...F...F...................F.FF.......F...FFF.. [ 48%]
+.F.....F.F..F......FF.F.....F........F....F..F...F.F.F.................. [ 73%]
+......FF.FF...F.......F..............F....F.FF.F...F.................... [ 97%]
+.....FF                                                                  [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1694: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1530: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1496: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1550: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert True is False
+     +  where True = <function _betekenisdragend at 0x10cf4f6a0>('٣')
+     +    where <function _betekenisdragend at 0x10cf4f6a0> = contract._betekenisdragend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1629: AssertionError: assert True is False
+E   AssertionError: assert True is False
+     +  where True = <function _betekenisdragend at 0x10cf4f6a0>('ﾠ')
+     +    where <function _betekenisdragend at 0x10cf4f6a0> = contract._betekenisdragend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1629: AssertionError: assert True is False
+E   AssertionError: assert True is False
+     +  where True = <function _betekenisdragend at 0x10cf4f6a0>('ᅠ 7')
+     +    where <function _betekenisdragend at 0x10cf4f6a0> = contract._betekenisdragend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1629: AssertionError: assert True is False
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1566: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1566: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1530: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1507: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1694: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1518: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AttributeError: module 'domain.int02.contract' has no attribute 'ONZICHTBARE_LETTERS'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1643: AttributeError: module 'domain.int02.contract' has no attribute 'ONZICHTBARE_LETTERS'
+E   AssertionError: assert True is False
+     +  where True = <function _betekenisdragend at 0x10cf4f6a0>('7.')
+     +    where <function _betekenisdragend at 0x10cf4f6a0> = contract._betekenisdragend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1629: AssertionError: assert True is False
+E   AssertionError: assert True is False
+     +  where True = <function _betekenisdragend at 0x10cf4f6a0>('ᅟᅠㅤﾠ')
+     +    where <function _betekenisdragend at 0x10cf4f6a0> = contract._betekenisdragend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1629: AssertionError: assert True is False
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1507: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1550: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1518: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1518: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1478: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1694: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1574: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1530: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1550: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1507: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1507: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1550: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1530: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1574: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert True is False
+     +  where True = <function _betekenisdragend at 0x10cf4f6a0>('ᅟ')
+     +    where <function _betekenisdragend at 0x10cf4f6a0> = contract._betekenisdragend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1629: AssertionError: assert True is False
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1566: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1574: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert 'pass' == 'error'
+      
+      - error
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1694: AssertionError: assert 'pass' == 'error'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1484: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1550: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert True is False
+     +  where True = <function _betekenisdragend at 0x10cf4f6a0>('ㅤ')
+     +    where <function _betekenisdragend at 0x10cf4f6a0> = contract._betekenisdragend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1629: AssertionError: assert True is False
+E   AssertionError: assert True is False
+     +  where True = <function _betekenisdragend at 0x10cf4f6a0>('ᅠ')
+     +    where <function _betekenisdragend at 0x10cf4f6a0> = contract._betekenisdragend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1629: AssertionError: assert True is False
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1574: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1530: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert True is False
+     +  where True = <function _betekenisdragend at 0x10cf4f6a0>('7')
+     +    where <function _betekenisdragend at 0x10cf4f6a0> = contract._betekenisdragend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1629: AssertionError: assert True is False
+E   AssertionError: assert True is False
+     +  where True = <function _betekenisdragend at 0x10cf4f6a0>('12')
+     +    where <function _betekenisdragend at 0x10cf4f6a0> = contract._betekenisdragend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1629: AssertionError: assert True is False
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1518: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1472: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1518: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1530: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1507: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1574: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1566: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1566: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1518: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1550: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1507: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert 'pass' == 'review_required'
+      
+      - review_required
+      + pass
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1550: AssertionError: assert 'pass' == 'review_required'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1518: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1530: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1507: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_vervalst_consistent_pass_document_is_error_bij_hercontrole[passage-filler]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[12]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_reproductie_codex_2_alleen_cijfers_als_grondcitaat_draagt_geen_pass
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[7]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[\u0663]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[\uffa0]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[\u1160 7]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_grondcitaat_in_gevulde_bron_is_leeg[\u115f]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_grondcitaat_in_gevulde_bron_is_leeg[7]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[7]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[\u115f]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_vervalst_consistent_pass_document_is_error_bij_hercontrole[grondcitaat-cijfer]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[7]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_onzichtbare_letters_zijn_alle_letters_met_filler_of_blank_in_de_naam
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[7.]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[\u115f\u1160\u3164\uffa0]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[\u0663]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[12]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[\u3164]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[\u1160]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_reproductie_codex_2_filler_als_passage_draagt_geen_pass
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_vervalst_consistent_pass_document_is_error_bij_hercontrole[bedoeling-filler]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_passagecitaat_in_de_kern_is_leeg[\u3164]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[\u3164]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[\u1160]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[12]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[\uffa0]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[\u3164]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[\u1160]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_passagecitaat_in_de_kern_is_leeg[\u1160]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[\u115f]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_grondcitaat_in_gevulde_bron_is_leeg[\uffa0]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_passagecitaat_in_de_kern_is_leeg[7]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_vervalst_consistent_pass_document_is_error_bij_hercontrole[grondcitaat-filler]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_reproductie_codex_2_filler_als_bedoeling_draagt_geen_pass
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[\u115f]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[\u3164]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[\u1160]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_passagecitaat_in_de_kern_is_leeg[\u115f]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[\u115f]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[7_1]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[12]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[12]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_reproductie_codex_2_filler_als_grondcitaat_draagt_geen_pass
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[\u115f]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[\uffa0]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[\u1160]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_passagecitaat_in_de_kern_is_leeg[\uffa0]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_grondcitaat_in_gevulde_bron_is_leeg[\u1160]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_grondcitaat_in_gevulde_bron_is_leeg[\u3164]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[\u0663]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[\uffa0]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[\u3164]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_telt_in_stap4_als_onbekend[\u0663]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[\uffa0]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[\u0663]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[7]
+57 failed, 238 passed in 1.14s

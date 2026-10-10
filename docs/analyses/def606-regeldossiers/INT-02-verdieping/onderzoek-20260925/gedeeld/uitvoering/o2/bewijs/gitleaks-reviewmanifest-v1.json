@@ -1,0 +1,13 @@
+{
+  "base": "979ca0585100d94b613829d924c6d8bba4f24f1b",
+  "files": {
+    ".gitleaks.toml": "8bb3a2799b485b7798f88bd6c96848f7e1075a99723e3832a7be3c53e821d812",
+    "Makefile": "1083b45bcf7ba358862e887771418cbe3619d966f9132f140c151d4dd35fae49",
+    "docs/technisch/def522-secret-scan-runbook.md": "cd485f28bebcbe705623fa856a77a5c8e2af20be9e672cf61e11608376e1067b",
+    "scripts/ci/test_secret_scan_def835_metadata.py": "77d803cca30840e51cef895374c5c07230e0781453e46e97c9105d2eabb29aaa"
+  },
+  "patch": "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/bewijs/gitleaks-vierbestandsdiff-v1.patch",
+  "patch_sha256": "b8c64722488fef4f85f47baf5e8599bca406a35fe89bda0ee38c61e61e058047",
+  "reviewroot": "/private/tmp/def835-wp2-review-20260927",
+  "source_root": "/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2"
+}

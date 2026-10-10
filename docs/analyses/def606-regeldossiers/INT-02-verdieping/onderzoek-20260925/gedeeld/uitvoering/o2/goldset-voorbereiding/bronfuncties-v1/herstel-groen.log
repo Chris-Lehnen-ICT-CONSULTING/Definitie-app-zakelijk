@@ -1,0 +1,39 @@
+DEF-835 — herstel na Codex-review en besluit 17: rood → groen
+Datum: 2026-10-07 · branch feature/DEF-835-int02-o2 (ongecommit, HEAD 5315fa8e0)
+Interpreter: /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python (Python 3.13)
+Alles offline: geen API- of netwerkcalls, .env niet gelezen.
+
+0. Rood, vóór het herstel — herstel-rood.log
+   pytest test_def835_int02_bronfuncties.py test_def835_int02_modelproef.py
+   => 29 failed, 335 passed
+      - 18 in bronfuncties: besluit 17 (sectie H) en P1 (sectie I);
+      - 11 in modelproef: P2a identiteit, P2b tellingen en bewijsstatus.
+
+1. Gericht, na het herstel — herstel-groen-0-gericht.log
+   bronfuncties, papertest, modelproef, schemaroute, assessment_service
+   => 643 passed in 41.86s
+
+2. -k "def835 or int02" tests/unit — herstel-groen-1-def835-int02.log
+   => 1292 passed, 11 skipped, 7913 deselected in 47.47s
+   (11 skipped = DEF771_SKILLS_ROOT niet gezet; dezelfde als in de nulmeting)
+
+3. INT-03 / ESS-03 — herstel-groen-2-int03-ess03.log
+   => 786 passed, 8430 deselected in 21.59s
+
+4. ruff (venv, via python -m ruff) — herstel-ruff.log => All checks passed!
+   Paden: src/domain/int02, int02_assessment_service.py, interfaces.py,
+   decision_rule_assessment.py, runtime_contract.py, de runner,
+   tests/fixtures/def835_int02_v4.py, tests/unit/{domain,validation,services}
+   en mutatie_plugin.py.
+5. black --check (zelfde paden) — herstel-black.log => 264 files would be left unchanged.
+
+6. Papieren toets — herstel-papertest.log
+   => 86 passed, waaronder test_papertest_27_van_27_met_6_van_6_review.
+      Besluit 17 verandert het 27/27-resultaat niet.
+
+7. Mutatiecontrole — herstel-mutatie.log (+ mutatie/resultaten/herstel-*.xml)
+   => 13/13 gedood (inclusief de nieuwe onzekerheid_genegeerd_17), nulmeting 388/388.
+
+Niet gecontroleerd
+- pre-commit-ruff v0.16.5 (uvx vraagt toestemming).
+- De volledige unit-suite (-m unit) is na het herstel niet opnieuw gedraaid.

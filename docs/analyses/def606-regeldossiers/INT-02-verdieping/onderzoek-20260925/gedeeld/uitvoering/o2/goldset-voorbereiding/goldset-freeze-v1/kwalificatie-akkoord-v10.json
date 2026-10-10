@@ -1,0 +1,15 @@
+{
+  "soort": "def835-int02-kwalificatie-akkoord/1",
+  "manifest_sha256": "e45f97ff213a0585e47aba10406b2a076fc8f22e2fb219af0cf4dea2af6050ae",
+  "gevallenmanifest_sha256": "af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953",
+  "protocol_sha256": "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f",
+  "profiel_id": "def835-kwalificatieproef-opus5-v1",
+  "geen_def815_kwalificatie": true,
+  "live_verzending_toegestaan": true,
+  "max_inferenties": 43,
+  "max_tokenmetingen": 43,
+  "budget_usd": 12.0,
+  "akkoord_door": "Chris Lehnen",
+  "akkoord_op": "2026-10-08",
+  "akkoord_bron": "Cowork-chat 08-10-2026: keuzevraag 'Akkoord op manifest v10 (843d9126…) … laatste run' beantwoord met 'Akkoord, fase 1 + 2 (Aanbevolen)'; vastgelegd in o2/besluit-chris-promptcorrectie-en-v3-v1.md besluit 23"
+}

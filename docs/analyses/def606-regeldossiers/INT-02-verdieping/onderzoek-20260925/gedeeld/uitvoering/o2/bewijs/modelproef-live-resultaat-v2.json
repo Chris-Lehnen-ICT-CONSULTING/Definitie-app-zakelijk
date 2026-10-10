@@ -1,0 +1,304 @@
+{
+  "soort": "def835-int02-modelproef-resultaat/1",
+  "claim": "Experimentele technische proef van de INT-02-keten op drie synthetische ontwikkelgevallen; geen inhoudelijke modelkwalificatie, geen DEF-815-kwaliteitsclaim. Kosten = gemelde usage x routerprijzen; geen factuurgarantie.",
+  "manifest_sha256": "54c75b43b2b55a132e58a896f2d5d909bebf97b521a26ff0d77bb783a0df35c8",
+  "akkoord_sha256": "fec98942244d9c07e02e3cce694f4135a04ffcbd140255a6492931a23f66cc21",
+  "identiteit_sha256": "74aa689581ad22f79679d4e820a2a27b101e918dad312e974b6f88517d7bd576",
+  "gestart": "2026-09-28T11:20:49.466946+00:00",
+  "beeindigd": "2026-09-28T11:21:05.991545+00:00",
+  "looptijd_seconden": 16.525,
+  "stopreden": "invalid_citation",
+  "tellingen": {
+    "inferenties": 3,
+    "telverzoeken": 3
+  },
+  "kosten_usd_berekend": 0.07814000000000002,
+  "kosten_usd_bekend_deel": 0.07814000000000002,
+  "kosten_onzeker": [],
+  "gevallen": [
+    {
+      "id": "C105",
+      "status": "fail",
+      "reden": null,
+      "verdict": "fail",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "b9d8cb8c5d2efa822017e96999136260d3150c0001bcf5dda1ad314553baf582",
+      "antwoord_sha256": "42a74321179e9e28b3f0b978fbc0b1e025464c6a15449edb23e6de33aa909b71",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "e2a8d9a68498110ed05865de644c5531bbeb097cae64ea14697e8f299fbd4537",
+        "telpayload_sha256": "36c2ffaca6e8f76f1a07b56f56883a68a8d40067863dc099958f3e71e1aa954a",
+        "geschatte_invoertokens": 3256,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.023480000000000004,
+        "duur_ms": 3172,
+        "http_status": 200,
+        "request_id": "req_011CfVkNf14tLXnqTMS7B9wx",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 3256,
+          "output_tokens": 288
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "toelating",
+          "kern": "De medewerker laat de aanvrager toe.",
+          "bedoeling": "opdracht aan medewerker",
+          "organisatorische_context": [
+            "synthetische procedure"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/1",
+          "routeringshash": "5f17c9e5650403200edef57c4945862d81f36116320cd0dab7c58d975b3a36af",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "ff56293e13aad0c2a9a8ffa34d4bd9b440925ac6f5ebe3dbc18959e40a7d4824",
+          "kern_hash": "14a75bb6a5ef7507caaa8db4655dc2bce49b7737c19b8d98e671f5a816fb7705",
+          "bedoeling_hash": "0621a08481a5d1e4a7b50ba406bd9e02ee84bd8753b229b4aeb3078e253b7715",
+          "context_hash": "bd1cdeff8a4b4a8fe7ee7432926c8ace9ebc6276712600a489533ec9b23d0345",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-09-28T11:20:50.296845+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 3409,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "fail",
+        "reden": null,
+        "melding": "INT-02 — Voldoet niet. 'De medewerker laat de aanvrager toe.' schrijft een handeling voor in plaats van het begrip af te bakenen. Grond: de bevestigde bedoeling ('opdracht aan medewerker'). De tekst is ongewijzigd.",
+        "vraag": null,
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 36,
+              "function": "actor_prescription",
+              "ground": {
+                "end": 23,
+                "field": "bedoeling",
+                "quote": "opdracht aan medewerker",
+                "ref": null,
+                "start": 0
+              },
+              "quote": "De medewerker laat de aanvrager toe.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern beschrijft geen kenmerken die bepalen wat onder het begrip 'toelating' valt, maar formuleert een handeling van een actor (de medewerker die de aanvrager toelaat). De bevestigde bedoeling benoemt dit expliciet als 'opdracht aan medewerker', zodat de definitiekern zelf als handelingsvoorschrift functioneert in plaats van als begripsafbakening.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "fail"
+        }
+      }
+    },
+    {
+      "id": "C107",
+      "status": "fail",
+      "reden": null,
+      "verdict": "fail",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "c45cf9c67e32dc2895babc776a39a7f05b0673d0dba26a9f3c09b93a2358a689",
+      "antwoord_sha256": "599164b21dee8500eb8fdcd869879417b34d9673472abdc4851ecc31c410345d",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "c6266a4402852c0c96c7dea5fba43ddbf306abcf444d2304f5cc848c3d03941d",
+        "telpayload_sha256": "bc536b13370985a19cf4a658329ee2001c0e1f9153c9f236f69d825c3fcbe9ce",
+        "geschatte_invoertokens": 3287,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.028085000000000002,
+        "duur_ms": 7284,
+        "http_status": 200,
+        "request_id": "req_011CfVkNuPkrWhZoj4B35WcE",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 3287,
+          "output_tokens": 466
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "voldoende onderbouwde aanvraag",
+          "kern": "Aanvraag die naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is.",
+          "bedoeling": null,
+          "organisatorische_context": [
+            "synthetische begrippenstudie"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/1",
+          "routeringshash": "5f17c9e5650403200edef57c4945862d81f36116320cd0dab7c58d975b3a36af",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "0eb4e59887776fd2e1ae7abda1749b6316cf30aa7822718cca2e6c1b3716b250",
+          "kern_hash": "0b3044f05c78ea879654924166734b1741c4b9d6b2bff29b63d95a6139dbcbdf",
+          "bedoeling_hash": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "context_hash": "42c6c9a33f429c3b52833fddcde19f9befcbe57d0ee2a326f2d975d9dc0fd7c3",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-09-28T11:20:53.706290+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 7444,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "fail",
+        "reden": null,
+        "melding": "INT-02 — Voldoet niet. 'Aanvraag die naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is.' schrijft een afweging voor in plaats van het begrip af te bakenen. Grond: de kern ('naar het gemotiveerde oordeel van de beoordelaar'). De tekst is ongewijzigd. Deze passage functioneert als discretionaire beslisregel voor het handelen: 'Aanvraag die naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is.'. Dat is onder de gekozen INT-02-norm geen beschrijvende afbakening van dit begrip. Het enkele beschrijven van een bevoegdheid of besluit is geen overtreding.",
+        "vraag": null,
+        "foutcategorie": null,
+        "oordeel": {
+          "coverage": "complete",
+          "passages": [
+            {
+              "end": 86,
+              "function": "discretionary_decision_rule",
+              "ground": {
+                "end": 61,
+                "field": "kern",
+                "quote": "naar het gemotiveerde oordeel van de beoordelaar",
+                "ref": null,
+                "start": 13
+              },
+              "quote": "Aanvraag die naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De definitiekern bevat geen inhoudelijke kenmerken die bepalen wanneer een aanvraag voldoende onderbouwd is, maar verwijst voor de volledige afbakening naar het gemotiveerde oordeel van een actor (de beoordelaar). Daarmee is het begrip circulair ('voldoende onderbouwd is' = 'voldoende onderbouwd naar oordeel van') en legt de kern de afweging zelf als beslissing bij de beoordelaar; dat is een discretionaire beslisregel en geen begripscriterium of deterministische afleiding. Het gaat hier niet om een kwalitatief criterium dat slechts waarneming of deskundige beoordeling vergt, want er is geen enkel criterium gegeven waarop die beoordeling zich richt.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "fail"
+        }
+      }
+    },
+    {
+      "id": "C112",
+      "status": "error",
+      "reden": "invalid_citation",
+      "verdict": null,
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "14e0a407eebbb46f2eca2f4b5f06350bd161c3919d6ae04603dacbd7485351fe",
+      "antwoord_sha256": "d0650a49d569172dc651275be45c6bdab05b067dfd777e84e16e26b56445c24d",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "3d0a2e2548cf40a0172329f3305bbbbf6db8752dd9cbfbfc376bbcfd5fb80527",
+        "telpayload_sha256": "4cd8f5c67139dce64da0dc2346c1caae249ef31d6646e3dd4033da3c75298424",
+        "geschatte_invoertokens": 3280,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.026575,
+        "duur_ms": 4658,
+        "http_status": 200,
+        "request_id": "req_011CfVkPTHeSMhDxgysidJ8F",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 3280,
+          "output_tokens": 407
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "verplichting",
+          "kern": "Verplichting van een partij om de overeengekomen prestatie te verrichten.",
+          "bedoeling": "Synthetische beschrijving van verplichting zelf",
+          "organisatorische_context": [
+            "synthetische begrippenstudie"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/1",
+          "routeringshash": "5f17c9e5650403200edef57c4945862d81f36116320cd0dab7c58d975b3a36af",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "896597153b1154dcacb67e091ff3e25f7420cc225a06248ec5f81488e1df3e61",
+          "kern_hash": "9bb1ed627aab8b40d845878a286be2c00018259f37ebf542697e11c50fd6c9fa",
+          "bedoeling_hash": "e2bc7e9ba783e167514fa82f835e43809c13a34a596da548c1c639685a82a72e",
+          "context_hash": "42c6c9a33f429c3b52833fddcde19f9befcbe57d0ee2a326f2d975d9dc0fd7c3",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-09-28T11:21:01.151082+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 4837,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "error",
+        "reden": null,
+        "melding": "INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.",
+        "vraag": null,
+        "foutcategorie": "invalid_citation",
+        "oordeel": null
+      }
+    }
+  ]
+}

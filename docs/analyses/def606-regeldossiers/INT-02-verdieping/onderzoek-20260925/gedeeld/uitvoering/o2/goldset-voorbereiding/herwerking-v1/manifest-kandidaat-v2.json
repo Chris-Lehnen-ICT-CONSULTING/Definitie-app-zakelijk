@@ -1,0 +1,43 @@
+{
+  "status": "kandidaat_geen_freeze",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "normcontract.md": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten-chris.md": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister.md": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734",
+    "oorspronkelijke-casuspool.json": "d70c645e12667c1a46bf8c192b6b13dfa794fa112425da371ddc5bfcb0cebb11",
+    "casuspool-kandidaat-v2.json": "b119ad780dbe08c5171a94e50027d62118f8ed60091e5859d29c7bf888e0856e"
+  },
+  "beoordelingsscope": [
+    "G003",
+    "G006",
+    "G018",
+    "G030"
+  ],
+  "hergebruik_scope": [
+    "G001",
+    "G002",
+    "G005",
+    "G014",
+    "G016",
+    "G021",
+    "G023",
+    "G033",
+    "G035",
+    "G036",
+    "G039",
+    "G041",
+    "G042",
+    "G043",
+    "G044",
+    "G045",
+    "G046",
+    "G047",
+    "G048",
+    "G049",
+    "G050",
+    "G051",
+    "G052"
+  ],
+  "toelichting": "Alleen de vier genoemde gevallen zijn sinds kandidaat-v1 veranderd; overige objecten zijn exact gelijk. Geen labels of selectie geaccepteerd."
+}

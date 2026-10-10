@@ -1,0 +1,362 @@
+.............F...........................................F....F.F..FF..F [ 22%]
+..F.F..F..FF...FF.FFFFFF......F.F..F..F.FF..F.....FFF..FF.FFF.FF...FF.FF [ 44%]
+..FF...FFFFFFF........FF..F.F..F....FF.FFFF..F.........FF....F.F..F..F.. [ 66%]
+..F....F.FF.F.F..FFF...F..F.F..F.F..F...FF.....FF.F..F.F................ [ 88%]
+........................F............                                    [100%]
+=================================== FAILURES ===================================
+E   AssertionError: assert '3047bb1a34f8...e77af9c2d2b70' == '000000000000...0000000000000'
+      
+      - 0000000000000000000000000000000000000000000000000000000000000000
+      + 3047bb1a34f878e77bd434d668d870f0dfcfb92e3e948ac0caee77af9c2d2b70
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_dienstregel.py:761: AssertionError: assert '3047bb1a34f8...e77af9c2d2b70' == '000000000000...0000000000000'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1513: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1513: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1489: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1461: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1481: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1449: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1438: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1438: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1449: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1489: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1461: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1489: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1449: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1449: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: <module 'domain.int02.contract' from '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/domain/int02/contract.py'> has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1543: AttributeError: <module 'domain.int02.contract' from '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/domain/int02/contract.py'> has no attribute '_betekenisdragend'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1438: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1481: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1519: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1513: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1427: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1513: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1519: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1519: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1438: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1519: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1513: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1461: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1449: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: <module 'domain.int02.contract' from '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/domain/int02/contract.py'> has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1543: AttributeError: <module 'domain.int02.contract' from '/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/domain/int02/contract.py'> has no attribute '_betekenisdragend'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1489: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1519: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1438: AssertionError: assert ('pass', None, None) == ('error', 'in..._herleidbaar')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1519: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1489: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   TypeError: _fout() takes 1 positional argument but 2 were given
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:344: TypeError: _fout() takes 1 positional argument but 2 were given
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1461: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+      
+      At index 0 diff: 'fail' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1461: AssertionError: assert ('fail', None, None) == ('error', 'in..._herleidbaar')
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1421: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1519: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1519: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+      
+      At index 0 diff: 'pass' != 'error'
+      Use -v to get more diff
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1481: AssertionError: assert ('pass', None, None) == ('error', 'in...tion', 'leeg')
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1513: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1519: AttributeError: module 'domain.int02.contract' has no attribute '_betekenisdragend'
+E   AttributeError: 'dict' object has no attribute 'status'
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/domain/test_def835_int02_bronfuncties.py:1409: AttributeError: 'dict' object has no attribute 'status'
+E   AssertionError: assert '3047bb1a34f8...e77af9c2d2b70' == '000000000000...0000000000000'
+      
+      - 0000000000000000000000000000000000000000000000000000000000000000
+      + 3047bb1a34f878e77bd434d668d870f0dfcfb92e3e948ac0caee77af9c2d2b70
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_schemaroute.py:694: AssertionError: assert '3047bb1a34f8...e77af9c2d2b70' == '000000000000...0000000000000'
+=========================== short test summary info ============================
+FAILED tests/unit/domain/test_def835_int02_dienstregel.py::test_prompt_vijf_vervangt_de_systeemprompt_van_drie_en_vier
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_richtinggevende_bronfunctie_zonder_citaat_is_invalid_output[derivation]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'bronfuncties', 0, 'star-0]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_onbekende_grondbron_is_niet_herleidbaar[kern]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_eigen_modelverdict_moet_intern_samenhangen[{'verdict': 'fail', 'scope_reason': 'buiten bereik]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_bronfunctiecitaat_moet_letterlijk_en_uniek_in_die_bron_staan[e-niet_uniek]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_zwijgende_bron_met_citaat_is_invalid_output[]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'function')-'criterion']
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_uitvoer_in_vorm_drie_is_onder_vier_invalid_output
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_betekenisdragend_is_een_letter_of_cijfer[\xe9]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_betekenisdragend_is_een_letter_of_cijfer[\xdf]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_eigen_modelverdict_moet_intern_samenhangen[{'verdict': 'pass', 'uncertainty': 'decisive'}]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_passagecitaat_in_de_kern_is_leeg[\t]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[?!]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_grondcitaat_in_gevulde_bron_is_leeg[...]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[?!]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'bronfuncties', 0, 'quot-Ellipsis]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_bronfunctiecitaat_moet_letterlijk_en_uniek_in_die_bron_staan[Een melding telt mee-niet_gevonden]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[?!]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[ - ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[-\u2013\u2014]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_passagecitaat_in_de_kern_is_leeg[ - ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'start')-0]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_eigen_modelverdict_moet_intern_samenhangen[{'verdict': 'insufficient_information', 'question']
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_onbekende_grondbron_is_niet_herleidbaar[organisatorische_context/x]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'bronfuncties', 0, 'func-'niet_van_toepassing']
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[...]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_passagecitaat_in_de_kern_is_leeg[...]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('verdict',)-'voldoet']
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_onbekende_grondbron_is_niet_herleidbaar[]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[...]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[\u2014]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'kernvorm')-Ellipsis]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_eigen_modelverdict_moet_intern_samenhangen[{'verdict': 'insufficient_information', 'uncertain]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_vervalst_consistent_pass_document_is_error_bij_hercontrole[grondcitaat-punt]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[...]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'kernvorm')-None]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_grondcitaat_in_gevulde_bron_is_leeg[ - ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[...]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_betekenisdragend_is_een_letter_of_cijfer[\u65e5]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_reproductie_codex_b_tab_als_passage_draagt_geen_pass
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_bronfunctiecitaat_moet_letterlijk_en_uniek_in_die_bron_staan[-leeg]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_betekenisdragend_is_een_letter_of_cijfer[a]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_eigen_modelverdict_moet_intern_samenhangen[{'verdict': 'fail', 'question': 'Een? Twee?'}]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[?!]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_bronfunctiecitaat_moet_letterlijk_en_uniek_in_die_bron_staan[de beheerder legt-niet_gevonden]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[\u2014]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[\u2014]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_onbekende_grondbron_is_niet_herleidbaar[bron/B9]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'bronfuncties', 0, 'func-'not_applicable']
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_richtinggevende_bronfunctie_zonder_citaat_is_invalid_output[actor_prescription]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_onbekende_grondbron_is_niet_herleidbaar[organisatorische_context/5]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_richtinggevende_bronfunctie_zonder_citaat_is_invalid_output[criterion]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[_]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'bronfuncties')-{}]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_betekenisdragend_is_een_letter_of_cijfer[7]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_passagecitaat_moet_letterlijk_en_uniek_in_de_kern_staan
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[.]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bedoeling_draagt_geen_functie[.]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_zwijgende_bron_met_citaat_is_invalid_output[Een melding telt mee als zij in het register staat.]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_vervalst_consistent_pass_document_is_error_bij_hercontrole[passage-tab]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_passagecitaat_in_de_kern_is_leeg[\n]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_richtinggevende_bronfunctie_zonder_citaat_is_invalid_output[not_a_criterion]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_eigen_modelverdict_moet_intern_samenhangen[{'verdict': 'pass', 'coverage': 'partial'}]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'bronfuncties', 0, 'bron-1]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[None]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloze_bron_draagt_geen_functie[.]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_richtinggevende_bronfunctie_zonder_citaat_is_invalid_output[discretionary_decision_rule]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'ground')-{'field': 'kern', 'ref': None, 'quote': ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_passagecitaat_in_de_kern_is_leeg[\u2014]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_bedoeling_als_grondbron_bij_onbekende_bedoeling_is_niet_herleidbaar
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'kernvorm')-'imperative']
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[-\u2013\u2014]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_contextitem_draagt_geen_functie[\u2014]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_ontbrekende_of_dubbele_grondbron_is_invalid_output
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_reproductie_codex_a_grondcitaat_punt_draagt_geen_pass
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[7]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('passages', 0, 'bronfuncties', 0, 'quot-1]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[ ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_eigen_modelverdict_moet_intern_samenhangen[{'verdict': 'pass', 'question': 'Waarom?'}]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_eigen_modelverdict_moet_intern_samenhangen[{'verdict': 'not_applicable', 'scope_reason': 'bui]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_structureel_ongeldige_uitvoer_is_invalid_output[('extra',)-'x']
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_onbekende_grondbron_is_niet_herleidbaar[bron/]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_inhoudsloos_grondcitaat_in_gevulde_bron_is_leeg[\u2014]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_betekenisdragend_is_een_letter_of_cijfer[\u0663]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_zwijgende_bron_met_citaat_is_invalid_output[ ]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_onbekende_grondbron_is_niet_herleidbaar[begrip]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_niet_betekenisdragend[\t\n]
+FAILED tests/unit/domain/test_def835_int02_bronfuncties.py::test_eigen_modelverdict_moet_intern_samenhangen[{'passages': [], 'verdict': 'fail'}]
+FAILED tests/unit/validation/test_def835_int02_schemaroute.py::test_promptversie_vijf_met_gewijzigde_prompttekst
+91 failed, 234 passed in 6.21s

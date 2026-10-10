@@ -1,0 +1,65 @@
+DEF-835 besluit 16 — mutatiecontrole beslisregel contract /4
+Datum: 2026-10-07 · branch feature/DEF-835-int02-o2 (ongecommit, HEAD 5315fa8e0)
+
+Werkwijze
+- Plugin: bronfuncties-v1/mutatie/mutatie_plugin.py (pytest -p mutatie_plugin).
+- Per run vervangt de plugin vóór het verzamelen `domain.int02.contract` in
+  sys.modules door een kopie met precies één kernvoorwaarde in haar naïeve
+  variant (str.replace, exact 1 treffer geëist). Repository ongewijzigd.
+- Testset per run (358 tests):
+    tests/unit/domain/test_def835_int02_bronfuncties.py
+    tests/unit/domain/test_def835_int02_papertest.py
+    tests/unit/validation/test_def835_int02_assessment_service.py
+- Commando (vanuit de werkboom, M = bronfuncties-v1/mutatie):
+    PYTHONPATH=$M .venv/bin/python -m pytest -p mutatie_plugin \
+      --def835-mutant <naam> -p no:cacheprovider --tb=no \
+      --junitxml=$M/resultaten/<naam>.xml <testset>
+- Ruwe uitkomst per run: bronfuncties-v1/mutatie/resultaten/<naam>.xml
+  (junit; telling in het testsuite-element). Uitgevoerd op de eindstand van
+  de code (na de laatste wijziging aan contract.py; tweede, identieke ronde).
+
+Uitkomst (gedood = minstens één test faalt)
+
+mutant                                   kernvoorwaarde                                              gefaald/358  oordeel
+---------------------------------------  ----------------------------------------------------------  -----------  -------
+nulmeting (geen mutant)                  —                                                               0        groen
+stap1_weg                                stap 1: voorschrift in de kern is altijd gebrek                17        gedood
+bedoeling_symmetrisch_1a                 1B: bedoeling beslecht conflict alleen naar gebrek              3        gedood
+n_geen_conflict_6a                       6A: not_a_criterion botst met criterion                         6        gedood
+tweede_signaal_altijd_3a                 3A: één voorschrift-bron vraagt een tweede signaal             29        gedood
+n_geen_tweede_signaal_6a                 6A: G én N samen = tweede signaal                               7        gedood
+alleen_o_zwijgt                          alleen 'unclear' is review, niet zwijgen                        8        gedood
+beschrijvend_zonder_bedoeling_pass_5a    5A: beschrijvend, alles zwijgt, bedoeling onbekend = review     3        gedood
+discretie_zonder_bedoeling_weg_b12       besluit 12: afwegingsvorm zonder grond/bedoeling = review       6        gedood
+dekkingseis_weg                          pass vereist volledige dekking                                  1        gedood
+review_voor_gebrek                       gebrek gaat vóór review over passages                           1        gedood
+omzetting_nooit                          2A: afwijking van modelverdict zichtbaar (omzetting)           53        gedood
+modelverdict_beslist_2a                  2A: de dienst beslist, niet het modelverdict                   76        gedood
+
+Totaal: 12/12 mutanten gedood (opdracht: ≥5 kernvoorwaarden).
+
+Discriminerende tests (voorbeeld per mutant, uit de -rf-uitvoer van ronde 1)
+- stap1_weg: test_stap1_gaat_voor_een_bronconflict_en_voor_beschrijvende_bronnen,
+  test_stap1_draagt_de_eerste_voorschrijvende_bron_als_grond, papertest C105/G008/G012/G052
+- bedoeling_symmetrisch_1a: test_1b_beschrijvende_bedoeling_beslecht_een_conflict_nooit_naar_pass[tegen0,tegen1]
+- n_geen_conflict_6a: test_stap2_not_a_criterion_tegen_criterion_is_conflict_6a
+- tweede_signaal_altijd_3a: test_3a_een_voorschriftbron_zonder_tweede_signaal_is_review[alleen-A,alleen-R,A-en-open],
+  test_twee_voorschriftbronnen_zonder_ander_signaal_blijven_review
+- n_geen_tweede_signaal_6a: test_3a_voorschriftbron_met_tweede_signaal_is_fail[voorschrift-en-geen-kenmerk,discretie-en-N]
+- alleen_o_zwijgt: test_stap3_alleen_open_bronnen_is_review[O,O+], test_open_context_gaat_voor_stap4,
+  test_onvoldoende_informatie_wordt_review_required_met_een_vraag (dienst)
+- beschrijvend_zonder_bedoeling_pass_5a: test_5a_beschrijvende_handeling_zonder_grond_en_bedoeling_is_review
+- discretie_zonder_bedoeling_weg_b12: test_stap4_discretievorm_zonder_bedoeling_is_de_dienstregel_van_besluit12
+- dekkingseis_weg: test_pass_vraagt_volledige_dekking
+- review_voor_gebrek: test_fail_gaat_voor_review_en_noemt_het_open_punt
+- omzetting_nooit: test_2a_omzetting_is_zichtbaar_en_het_modelverdict_blijft_bewaard[6 richtingen],
+  test_manipulatie_van_omgezet_document_is_error_bij_hercontrole[...]
+- modelverdict_beslist_2a: test_2a_..., test_6a_alleen_not_a_criterion_is_geen_fail, test_pass_vraagt_volledige_dekking
+
+Kanttekeningen
+- dekkingseis_weg en review_voor_gebrek worden elk door precies één test gedood;
+  dat is een smalle vangst (één test per voorwaarde), geen dubbele borging.
+- De mutanten zijn naïeve varianten van één voorwaarde (geen sloop van de hele
+  beslisregel); de grote aantallen bij 3A/2A komen doordat veel tests een
+  omzetting of een bronvoorschrift-review als opzet gebruiken.
+- junit-XML bevat de hostnaam van de meetmachine (standaard pytest-veld).

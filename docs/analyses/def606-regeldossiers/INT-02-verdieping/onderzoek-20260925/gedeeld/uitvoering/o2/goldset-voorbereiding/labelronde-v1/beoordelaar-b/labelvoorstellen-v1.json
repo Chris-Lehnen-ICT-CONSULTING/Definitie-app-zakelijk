@@ -1,0 +1,1871 @@
+{
+  "beoordelaar": "B",
+  "status": "voorstel_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "casuspool.json": "d70c645e12667c1a46bf8c192b6b13dfa794fa112425da371ddc5bfcb0cebb11",
+    "normcontract.md": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten-chris.md": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister.md": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734"
+  },
+  "gevallen": [
+    {
+      "id": "G001",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "Bij overbelasting kiest de planner een alternatieve route als hij de extra reistijd aanvaardbaar acht.",
+          "start": 0,
+          "end": 102,
+          "functie": "Operationele routekeuze afhankelijk van de waardering van extra reistijd."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De zin wordt gebruikt als definitie van een routetype; de brontekst regelt een operationele keuze.",
+          "start": 0,
+          "end": 98
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De planner beslist per overbelasting over omleiding en weegt daarbij de extra reistijd. Dit hoofdstuk bevat de instructies aan de planner.",
+          "start": 0,
+          "end": 138
+        }
+      ],
+      "motivering": "De kern laat de planner bij overbelasting een route kiezen op basis van zijn waardering van reistijd. B1 bevestigt dat dit instructies voor de operationele keuze zijn. Daarmee voert de kern een discretionaire handelingsregel uit in plaats van een routetype met kenmerken af te bakenen.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C51",
+          "C83"
+        ],
+        "motivering": "C51 betreft weigering met een uitzondering; C83 het opleggen van een maatregel. Hier vormt een storing de aanleiding voor een positieve routekeuze met een afzonderlijke reistijdafweging, zonder hun discretionaire markerformulering."
+      },
+      "redundantie_met": [
+        "G016"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Bedoeling noemt de operationele keuze en B1 noemt zichzelf instructies; dat stuurt de functie sterk vooraf.",
+        "G016 herhaalt een actorbesluit op basis van aanvaardbaarheid van lasten; verschil is de feitelijke keuzeregel tegenover een expliciete beslismogelijkheid."
+      ]
+    },
+    {
+      "id": "G002",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Route die dezelfde eindpunten als de hoofdroute verbindt indien de hoofdroute door een storing onbruikbaar is.",
+          "start": 0,
+          "end": 110,
+          "functie": "Relationeel routecriterium met uitval als toepassingsvoorwaarde."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Dit is een soort route in een fictief netwerkmodel, niet een instructie om verkeer om te leiden.",
+          "start": 0,
+          "end": 96
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het routemodel onderscheidt hoofdroutes en routes die bij uitval dezelfde eindpunten kunnen verbinden. Een routekeuzeprocedure is afzonderlijk beschreven.",
+          "start": 0,
+          "end": 154
+        }
+      ],
+      "motivering": "Dezelfde eindpunten en onbruikbaarheid van de hoofdroute begrenzen het routetype. De kern draagt niemand op verkeer om te leiden. B1 ondersteunt het onderscheid tussen de route-eigenschap en een afzonderlijke keuzeprocedure; de voorwaardelijke vorm verandert die beschrijvende functie niet.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C04",
+          "C26"
+        ],
+        "motivering": "C04 koppelt een getal aan deelbaarheid; C26 geeft een terugval tussen identiteitsdocumenten. Hier wordt een alternatief door een relatie tot een ander netwerkobject én diens toestand bepaald; het is geen vervanging van hun termen of drempel."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "De bedoeling sluit expliciet een omleidingsinstructie uit en B1 plaatst de procedure elders; deze dubbele functieduiding maakt het geval erg gestuurd."
+      ]
+    },
+    {
+      "id": "G003",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Meetobject dat na aanwijzing door de commissie als referentie wordt gebruikt.",
+          "start": 0,
+          "end": 77,
+          "functie": "Aanwijzing en gebruik kunnen typekenmerk of opdracht tot gebruik zijn."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker heeft niet bevestigd of aanwijzing het objecttype constitueert of hier een opdracht tot gebruik wordt geformuleerd.",
+          "start": 0,
+          "end": 128
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Versie A noemt aanwijzing een registratie van het type meetobject. Versie B gebruikt dezelfde formulering als opdracht aan het laboratorium om het aangewezen object voortaan te gebruiken. De toepasselijke versie is niet gekozen.",
+          "start": 0,
+          "end": 228
+        }
+      ],
+      "motivering": "De kern kan het aangewezen meetobject beschrijven, maar dezelfde formulering is volgens B1 ook een opdracht aan het laboratorium. De toepasselijke versie is niet gekozen. Aanwijzing door een commissie bewijst op zichzelf geen verboden beslisregel; zonder bronkeuze is de functie hier niet vast te stellen.",
+      "vraag": "Geldt voor deze definitie versie A, waarin aanwijzing het meetobjecttype vastlegt, of versie B, waarin het laboratorium opdracht krijgt het object te gebruiken?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C24",
+          "C60"
+        ],
+        "motivering": "C24 laat de functie van toestemming met voorwaarden open; C60 betreft strijdige bronnen bij een inschrijvingscriterium. G003 specificeert een versieconflict tussen typeaanwijzing en toekomstig gebruik van een meetobject."
+      },
+      "redundantie_met": [
+        "G014",
+        "G034",
+        "G038"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "B1 geeft beide functies al als analytische samenvatting en meldt expliciet dat geen versie gekozen is; afzonderlijke bronpassages ontbreken.",
+        "Met G014, G034 en G038 wordt dezelfde onbesliste catalogus-/taaklezing herhaald; aanwijzing vóór gebruik is hier het eigen inhoudelijke accent."
+      ]
+    },
+    {
+      "id": "G004",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Onderdeel van een afspraak dat uitvoering van een prestatie onderbreekt zolang de omschreven verstoring voortduurt.",
+          "start": 0,
+          "end": 115,
+          "functie": "Beschrijving van een beding via zijn voorwaardelijke werking."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term benoemt het beding zelf en de werking die het afsprakenmodel eraan toekent.",
+          "start": 0,
+          "end": 83
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een opschortingsbeding koppelt de onderbreking van uitvoering aan een omschreven verstoring. Dit is een fictief model, geen uitspraak over geldend contractenrecht.",
+          "start": 0,
+          "end": 163
+        }
+      ],
+      "motivering": "Het begrip is een onderdeel van een afspraak. De kern beschrijft het daaraan verbonden onderbrekende gevolg en de duur daarvan, zonder een actor te laten besluiten tot opschorting. B1 ondersteunt die koppeling tussen beding en verstoring; een normatieve werking beschrijven is onder B1 van Chris toegestaan.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C53",
+          "C103"
+        ],
+        "motivering": "C53 betreft verval van rechtsgevolgen en C103 een verandering door een rechtsfeit. Hier staat een afspraakonderdeel centraal met tijdelijke onderbreking zolang een verstoring voortduurt, geen onvoorwaardelijke vernietiging of algemene gevolgdefinitie."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": []
+    },
+    {
+      "id": "G005",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Verschil tussen de capaciteit van de ontvangstbuffer en het aantal posities dat op het meetmoment bezet is.",
+          "start": 0,
+          "end": 107,
+          "functie": "Deterministische verschilgrootheid op één meetmoment."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term benoemt een berekende momentopname, niet een handeling van een beheerder.",
+          "start": 0,
+          "end": 81
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De buffer heeft een vaste capaciteit. Vrije ruimte is capaciteit min bezette posities; beide worden in posities uitgedrukt.",
+          "start": 0,
+          "end": 123
+        }
+      ],
+      "motivering": "De kern bepaalt vrije ruimte door capaciteit en bezette posities van elkaar af te trekken. B1 geeft de vaste capaciteit, aftrekking en gelijke eenheden. Er wordt geen beheerhandeling opgedragen en geen keuze gemaakt; de afleiding is juist een toegestane manier om dit begrip te definiëren.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C116",
+          "C27"
+        ],
+        "motivering": "Net als C116 is dit een direct berekende grootheid; C27 gebruikt een verschil tussen twee tijdstippen. Capaciteit minus bezetting met een meetmoment is inhoudelijk anders, maar voor INT-02 blijft slechts de eenvoudige rekenkundige afleiding over; beperkte extra uitdaging."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Bedoeling zegt expliciet dat het geen beheerhandeling is; de formule en grootheid bieden die grond al.",
+        "Nabij C116/C27; zelfstandige meerwaarde van deze eenvoudige aftrekking nog door Chris te wegen."
+      ]
+    },
+    {
+      "id": "G006",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Arrangement dat de commissie bij een evenwichtige belangenverdeling aanvaardt.",
+          "start": 0,
+          "end": 78,
+          "functie": "Aanvaarding als constitutieve eigenschap of als voorgeschreven belangenbeslissing."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De gebruiker heeft de beoogde referent en functie niet bevestigd.",
+          "start": 0,
+          "end": 65
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De ene bron beschrijft een reeds aanvaard arrangement met een constitutief oordeel. De andere bron schrijft de commissie voor arrangementen na een belangenafweging te aanvaarden. Voorrang is onbeslist.",
+          "start": 0,
+          "end": 201
+        }
+      ],
+      "motivering": "De kern laat zowel een arrangement na aanvaarding als een regel voor het aanvaarden na belangenafweging toe. B1 bevestigt juist die strijdige lezingen zonder voorrang. Een evenwichtige belangenverdeling vergt beoordeling, maar dat alleen bewijst niet dat de definitie de beslissing uitvoert.",
+      "vraag": "Beschrijft deze inschrijving een reeds aanvaard arrangement, of moet de commissie met deze zin na belangenafweging over aanvaarding beslissen?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C107",
+          "C60"
+        ],
+        "motivering": "C107 heeft al het grensprobleem van een constitutief oordeel bij een categorie; G006 voegt een expliciet tweeledig bronconflict toe zoals C60. De belangenafweging maakt de handelingslezing concreet, maar beide bouwstenen zijn sterk voorgevormd."
+      },
+      "redundantie_met": [
+        "G010",
+        "G026"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "De bron benoemt zelf constitutief oordeel, voorschrift en onbesliste voorrang; het conflicttype wordt vooraf verklaard.",
+        "G010 en G026 herhalen de tegenstelling tussen een beoordelingsresultaat en een uit te voeren keuze, met andere onderwerpen."
+      ]
+    },
+    {
+      "id": "G007",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Norm die het bekendmaken van een nog niet vrijgegeven proefresultaat uitsluit.",
+          "start": 0,
+          "end": 78,
+          "functie": "Beschrijving van een verbodsnorm met een temporeel begrensd object."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip is een type norm binnen een fictief onderzoeksreglement.",
+          "start": 0,
+          "end": 67
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het begrippenmodel onderscheidt verboden, geboden en bevoegdheden. Het meldingsverbod heeft betrekking op bekendmaking vóór vrijgave.",
+          "start": 0,
+          "end": 133
+        }
+      ],
+      "motivering": "De kern beschrijft een norm en haar bereik: bekendmaken vóór vrijgave. Zij formuleert geen zelfstandige opdracht aan een publicerende actor. B1 plaatst het begrip bij de normtypen verboden, geboden en bevoegdheden. De normatieve inhoud is hier het beschreven object.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C112"
+        ],
+        "motivering": "C112 beschrijft een positieve prestatieverplichting. G007 beschrijft een verbod, met vrijgave als grens aan het verboden gedrag. Dat andere normtype en de temporele beperking zijn meer dan een vervanging van partij en prestatie."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": []
+    },
+    {
+      "id": "G008",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "Zet een transport apart, registreer de reden en vraag de ploegchef om verdere aanwijzingen.",
+          "start": 0,
+          "end": 91,
+          "functie": "Rechtstreekse opdrachten tot afzonderen, registreren en navragen."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Deze tekst staat in een definitieveld voor een transportstatus; zij komt letterlijk uit het fictieve handboek.",
+          "start": 0,
+          "end": 110
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De geciteerde handboekregel richt zich tot de medewerker die een blokkering constateert. Het handboek is voor deze organisatie vastgesteld.",
+          "start": 0,
+          "end": 139
+        }
+      ],
+      "motivering": "De volledige kern bestaat uit drie opdrachten aan de medewerker. B1 bevestigt de geadresseerde bij een geconstateerde blokkering. Zij beschrijft daarmee hoe te handelen en niet wat de transportstatus is. Dat het handboek in de synthetische organisatie is vastgesteld, geeft geen vrijstelling van de brede norm.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C114",
+          "C15"
+        ],
+        "motivering": "C114 combineert brongezag met een discretionaire weigering; C15 een betrekkelijke bijzin met behandeling en afwijzing. Hier worden drie rechtstreekse imperatieven overgenomen als statusdefinitie, zonder afwegingsvoorwaarde."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De vaststelling van het fictieve handboek is uitsluitend betekeniscontext, geen aanwijzing dat de kern voldoet."
+      ]
+    },
+    {
+      "id": "G009",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Koppeling tussen twee objecten die vanaf elk object naar het andere object navigeerbaar is.",
+          "start": 0,
+          "end": 91,
+          "functie": "Structureel criterium van navigatie in beide richtingen."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term benoemt een relatie-eigenschap in een objectmodel.",
+          "start": 0,
+          "end": 58
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Wederkerigheid is de aanwezigheid van beide navigatierichtingen; zij schrijft geen onderhoudshandeling voor.",
+          "start": 0,
+          "end": 108
+        }
+      ],
+      "motivering": "De kern begrenst koppelingen door navigeerbaarheid van elk object naar het andere. Dit is een eigenschap van de relatie, geen opdracht tot aanleg of onderhoud. B1 bevestigt beide navigatierichtingen als betekenis van wederkerigheid.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C05",
+          "C55"
+        ],
+        "motivering": "C05 betreft een rekenkundige objecteigenschap en C55 een waarneembaar oppervlak. Een tweezijdige relatie-eigenschap tussen objecten komt daarin niet voor; er is geen gedeelde concrete criteriumstructuur buiten beschrijvende afbakening."
+      },
+      "redundantie_met": [
+        "G019"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "B1 sluit onderhoud expliciet uit terwijl de kern zelf al duidelijk structureel is.",
+        "G019 gebruikt eveneens een heen-/terugrelatie; het voegt precies één paar toe, maar de functionele uitdaging overlapt."
+      ]
+    },
+    {
+      "id": "G010",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Inzet die volgens het oordeel van de dienstleider aansluit bij de actuele behoefte.",
+          "start": 0,
+          "end": 83,
+          "functie": "Oordeel als categoriegrond of als keuze over inzet."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het dossier laat open of een oordeel de categorie vastlegt of de dienstleider zijn inzetkeuze moet aanpassen.",
+          "start": 0,
+          "end": 109
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het registratiemodel noemt het oordeel constitutief. De planningshandleiding gebruikt dezelfde woorden voor een keuze over handelen. Beide zijn als grond toegevoegd.",
+          "start": 0,
+          "end": 165
+        }
+      ],
+      "motivering": "Volgens de kern berust passendheid op het oordeel van de dienstleider. B1 geeft dat oordeel echter zowel een constitutieve als een handelingsgerichte functie. Geen van beide gronden is leidend gemaakt. De menselijke beoordeling alleen rechtvaardigt geen afkeur, maar de bronstrijd verhindert een gedragen pass.",
+      "vraag": "Is hier het registratiemodel leidend dat het oordeel tot categoriekenmerk maakt, of de planningshandleiding die ermee een inzetkeuze laat uitvoeren?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C107",
+          "C60"
+        ],
+        "motivering": "De kern volgt de structuur van C107: object dat volgens het oordeel van een beoordelaar voldoet. Het bronconflict voegt de C60-grens toe, maar inhoudelijk ligt de combinatie dicht bij die twee ontwerpen."
+      },
+      "redundantie_met": [
+        "G006",
+        "G026"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "B1 noemt de functies constitutief en keuze over handelen expliciet; de bronnen zijn alleen samengevat.",
+        "De onbesliste oordeelsfunctie herhaalt G006 en G026; aansluiting op actuele behoefte is het eigen criterium."
+      ]
+    },
+    {
+      "id": "G011",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.",
+          "start": 0,
+          "end": 111,
+          "functie": "Afgrenzing van een tijdsinterval door twee gebeurtenissen."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term benoemt een afgebakend interval in een waarnemingsmodel.",
+          "start": 0,
+          "end": 64
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Ontvangst en bevestiging zijn gelogde gebeurtenissen. Het venster wordt met die twee tijdstippen beschreven.",
+          "start": 0,
+          "end": 108
+        }
+      ],
+      "motivering": "Ontvangst van het eerste en bevestiging van het laatste pakket bepalen begin en einde van het interval. De kern draagt geen ontvangst of bevestiging op. B1 identificeert beide als gelogde gebeurtenissen; het begrip beschrijft dus een waarneembare temporele afbakening.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C22",
+          "C27"
+        ],
+        "motivering": "C22 classificeert een aangifte met een vaste termijn; C27 berekent volledige levensjaren. G011 definieert het interval zelf tussen twee verschillende grensgebeurtenissen en geeft geen vaste duur of leeftijdsberekening."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": []
+    },
+    {
+      "id": "G012",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "De meldkamer opent een incidentkaart en belt vervolgens de dienstdoende technicus.",
+          "start": 0,
+          "end": 82,
+          "functie": "Taakvolgorde voor de meldkamer zonder modaal voorschriftwoord."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Deze tekst wordt aangeboden als definitie van storingsmelding in een begrippenlijst bij het operationele draaiboek.",
+          "start": 0,
+          "end": 115
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Onder de kop Storingsmelding staan achtereenvolgens de taken openen van een incidentkaart en bellen van de technicus; deze taken gelden bij iedere gemelde storing.",
+          "start": 0,
+          "end": 163
+        }
+      ],
+      "motivering": "De kern laat de meldkamer een kaart openen en vervolgens een technicus bellen. B1 bevestigt dat dit taken zijn die bij iedere storing gelden. De zin voert zo een behandelprocedure uit, hoewel zij geen moet bevat; zij bakent het begrip storingsmelding niet af.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C105",
+          "C15"
+        ],
+        "motivering": "C105 geeft één ongemarkeerde opdracht; C15 combineert een behandeltermijn en conditionele afwijzing. G012 bevat twee opeenvolgende, onvoorwaardelijke taken in een zelfstandige actorzin. Het temporele verband maakt een meerstapsprocedure zonder normmarker zichtbaar."
+      },
+      "redundantie_met": [
+        "G024"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "G024 bevat eveneens twee geordende uitvoerderstaken zonder moet; daar zijn ze ingebed in een nominale documentomschrijving. Die verschillende inbedding heeft vergelijkingswaarde."
+      ]
+    },
+    {
+      "id": "G013",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Plicht van de registratiehouder om bronbestanden gedurende de in de afspraak genoemde bewaartermijn beschikbaar te houden.",
+          "start": 0,
+          "end": 122,
+          "functie": "Beschrijving van een bewaarplicht met houder, object en termijn."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term benoemt de plicht, niet een opdracht in een werkinstructie.",
+          "start": 0,
+          "end": 67
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het fictieve afsprakenmodel bevat een bewaarplicht als relatie tussen houder, bestanden en termijn. De feitelijke uitvoering wordt elders beschreven.",
+          "start": 0,
+          "end": 149
+        }
+      ],
+      "motivering": "Het gedefinieerde object is de plicht zelf, met registratiehouder, bronbestanden en bewaartermijn als onderdelen. De kern geeft geen zelfstandige werkinstructie voor het bewaren. B1 ondersteunt deze normatieve relatie; het daarin beschreven moeten bewaren is geen INT-02-overtreding.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "triviale_variant",
+        "nabije_casus_ids": [
+          "C112"
+        ],
+        "motivering": "C112 beschrijft een verplichting van een partij om een overeengekomen prestatie te verrichten. G013 vervangt partij/prestatie door registratiehouder/beschikbaar houden en specificeert een overeengekomen termijn; dezelfde plicht-om-structuur en functiegrens blijven volledig intact."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "uitsluiten",
+      "opmerkingen": [
+        "Voorstel tot uitsluiting als onafhankelijk goldsetgeval wegens de nauwe inhoudelijke herhaling van C112; het pass-voorstel blijft staan.",
+        "Bedoeling sluit een werkinstructie expliciet uit; B1 vermeldt bovendien dat uitvoering elders staat."
+      ]
+    },
+    {
+      "id": "G014",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Herstel dat de inspecteur na beoordeling als afdoende registreert.",
+          "start": 0,
+          "end": 66,
+          "functie": "Registratie als constitutieve statusgrond of als afmeldtaak."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De bedoeling is niet bevestigd; de gebruiker wil geen keuze tussen de twee bronlezingen laten invullen.",
+          "start": 0,
+          "end": 103
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Bron A maakt registratie door de inspecteur constitutief voor de status voldoende herstel. Bron B is een taakinstructie over wanneer de inspecteur herstel moet afmelden. De geldende lezing ontbreekt.",
+          "start": 0,
+          "end": 199
+        }
+      ],
+      "motivering": "Registratie na beoordeling kan de status voldoende herstel constitueren. B1 presenteert daarnaast dezelfde grond als taakinstructie voor het afmelden van herstel. De geldende lezing ontbreekt. De kern alleen beslecht dit functieconflict niet en bevat geen daarvan onafhankelijk bewezen actorvoorschrift.",
+      "vraag": "Geldt registratie hier als constitutief kenmerk van de status voldoende herstel, of als de opdracht aan de inspecteur om herstel af te melden?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C107",
+          "C60"
+        ],
+        "motivering": "C107 gaat eveneens over voldoende-zijn volgens een beoordelaar; G014 maakt een registratiehandeling constitutief en voegt expliciete bronstrijd toe. Dat is meer dan alleen een andere term, maar blijft nauw bij C107 plus C60."
+      },
+      "redundantie_met": [
+        "G003",
+        "G034",
+        "G038"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "B1 benoemt statusfunctie, taakinstructie en ontbrekende keuze al; de bronduiding stuurt het open oordeel sterk.",
+        "G003, G034 en G038 herhalen de botsing tussen een geregistreerde/ontstane categorie en een uit te voeren taak."
+      ]
+    },
+    {
+      "id": "G015",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Herstelkopie waarvan de inhoud overeenkomt met het origineel en waarvan de controlesom is ondertekend door de archiefdienst.",
+          "start": 0,
+          "end": 124,
+          "functie": "Conjunctie van inhoudsgelijkheid en ondertekende controlesom."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip duidt een digitaal object aan; ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister.",
+          "start": 0,
+          "end": 122
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "In de inventaris wordt een herstelkopie ondertekend genoemd als haar inhoud gelijk is aan het origineel en de archiefdienst haar controlesom heeft ondertekend.",
+          "start": 0,
+          "end": 159
+        }
+      ],
+      "motivering": "De kern vereist zowel overeenkomst met het origineel als een door de archiefdienst ondertekende controlesom. Dit zijn kenmerken van de herstelkopie; niemand krijgt opdracht die controles uit te voeren. B1 bevestigt dezelfde tweeledige afbakening in de inventaris.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C19"
+        ],
+        "motivering": "C19 classificeert een gewaarmerkt document met handtekening en datum. G015 combineert inhoudsgelijkheid met ondertekening van een afgeleid object, de controlesom, in plaats van het document zelf. Die relaties gaan verder dan een andere documentnaam."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": []
+    },
+    {
+      "id": "G016",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "De projectleider kan besluiten een afwijking te aanvaarden wanneer hij het herstel onevenredig belastend vindt.",
+          "start": 0,
+          "end": 111,
+          "functie": "Beslismogelijkheid voor de projectleider op basis van een belastingafweging."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip moet een categorie afwijkingen afbakenen; de bron regelt een afweging over aanvaarding.",
+          "start": 0,
+          "end": 98
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Dit voorschrift geeft de projectleider de mogelijkheid de herstelbelasting af te wegen en op grond daarvan een afwijking te aanvaarden.",
+          "start": 0,
+          "end": 135
+        }
+      ],
+      "motivering": "De kern bepaalt wanneer de projectleider een afwijking kan aanvaarden na een afweging van herstelbelasting. Het bedoelde begrip is een categorie afwijkingen; B1 bevestigt dat de bron een handelingsvoorschrift met beslisruimte is. De zin beschrijft daardoor geen bevoegdheid als begrip, maar voert de discretionaire beslisregel uit.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C51",
+          "C83"
+        ],
+        "motivering": "Waar C51 weigering met een tenzij-uitzondering en C83 het opleggen van een maatregel beschrijft, formuleert G016 een expliciete mogelijkheid tot aanvaarden bij onevenredige herstelbelasting. Het onderscheid tussen een bevoegdheidsbeschrijving en een uitvoerbare beslisregel is hier direct aan de orde."
+      },
+      "redundantie_met": [
+        "G001"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Bedoeling en B1 noemen zelf afweging en voorschrift; dit neemt een belangrijk deel van de functiebepaling over.",
+        "G001 herhaalt aanvaardbaarheid van lasten als grond voor een actorbesluit; de modaliteit kan waarde als contrast houden."
+      ]
+    },
+    {
+      "id": "G017",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Aanspraak van een deelnemer op het raadplegen van de eigen meetregistraties.",
+          "start": 0,
+          "end": 76,
+          "functie": "Aanspraak als normatief object met rechthebbende en bereik."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term benoemt een aanspraak binnen een fictief deelnemersreglement.",
+          "start": 0,
+          "end": 69
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het proefreglement kent deelnemers een aanspraak toe op inzage in hun eigen registraties. De procedure voor uitoefening staat in een ander hoofdstuk.",
+          "start": 0,
+          "end": 149
+        }
+      ],
+      "motivering": "De kern omschrijft een aanspraak van de deelnemer, beperkt tot eigen meetregistraties. Zij draagt geen raadpleging, toestemmingsverlening of behandeling op. B1 bevestigt de aanspraak binnen het fictieve reglement. Dat de uitoefening apart is geregeld ondersteunt, maar vervangt niet, de beschrijvende kernfunctie.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C112",
+          "C30"
+        ],
+        "motivering": "C112 beschrijft een plicht; C30 een vereiste toestemming. G017 betreft het recht van een deelnemer op een begrensde informatieverzameling, zonder voorwaarde voor verlening of gedragsopdracht. Dat is een andere normatieve relatie."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "B1 noemt een afzonderlijke uitoefeningsprocedure; de aanspraak is ook zonder die scheidingszin uit de kern herkenbaar."
+      ]
+    },
+    {
+      "id": "G018",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt.",
+          "start": 0,
+          "end": 91,
+          "functie": "Herroepingskenmerk of discretionaire herroepingsregel."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Onbekend of de term een soort uitzonderingsbesluit met een beschreven herroepingskenmerk of een uitvoerbare opdracht benoemt.",
+          "start": 0,
+          "end": 125
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het classificatiemodel beschrijft hiermee een type uitzondering. Het toezichtprotocol gebruikt dezelfde woorden voor de discretionaire herroepingsbeslissing. Beide lezingen zijn expliciet als mogelijk opgegeven.",
+          "start": 0,
+          "end": 211
+        }
+      ],
+      "motivering": "Het laten vervallen bij onwenselijke voortzetting kan volgens B1 zowel een type uitzondering karakteriseren als een herroepingsbeslissing laten uitvoeren. De bedoeling bevestigt geen van beide. Onwenselijkheid is daarom geen zelfstandig bewijs van een verboden discretionaire regel in deze kern.",
+      "vraag": "Moet de zin een uitzondering met een herroepingskenmerk beschrijven, of de toezichthouder laten beslissen over herroeping zodra hij voortzetting onwenselijk vindt?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C13",
+          "C83"
+        ],
+        "motivering": "C13 bevat al intrekking na een afweging; C83 een handeling bij een actorwaardering. G018 maakt de constitutieve tegenlezing expliciet maar houdt de discretionaire intrekkingsstructuur vrijwel ongewijzigd. De expliciete bronstrijd geeft enige nieuwe context."
+      },
+      "redundantie_met": [
+        "G022"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "B1 levert de twee mogelijke functies als analyse, zonder de onderliggende passages.",
+        "G022 herhaalt een conditionele actorhandeling op basis van een waardering met een onbesliste type-/taakfunctie; starten versus laten vervallen is het concrete verschil."
+      ]
+    },
+    {
+      "id": "G019",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.",
+          "start": 0,
+          "end": 84,
+          "functie": "Cardinaliteits- en relatiecriterium voor een registratie."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term duidt een structuur in een logboek aan.",
+          "start": 0,
+          "end": 47
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties.",
+          "start": 0,
+          "end": 103
+        }
+      ],
+      "motivering": "Precies één heenverwijzing met haar bijbehorende terugverwijzing bepaalt de structuur van de registratie. B1 beschrijft het paar als een verwijzing met haar inverse. Er wordt geen registratiehandeling of onderhoud voorgeschreven; het betreft uitsluitend een lidmaatschapscriterium.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C05",
+          "C10"
+        ],
+        "motivering": "C05 gebruikt deelbaarheid en C10 een telling van veroordelingen in een tijdvak. G019 combineert exacte cardinaliteit met een inverse relatie; die relationele structuur is niet uit die ontwerpen gekopieerd."
+      },
+      "redundantie_met": [
+        "G009"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "G009 toetst ook twee richtingen van een relatie. G019 voegt precies één paar en opslag in een registratie toe; bij selectie niet als geheel onafhankelijke functionele uitdaging tellen."
+      ]
+    },
+    {
+      "id": "G020",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "De beheerder dient het pakket vrij te geven mits de laatste controle is voltooid.",
+          "start": 0,
+          "end": 81,
+          "functie": "Gebonden opdracht tot vrijgave na voltooiing van een controle."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip moet een gebeurtenis beschrijven; de bronzin is een opdracht aan de beheerder.",
+          "start": 0,
+          "end": 89
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Na voltooiing van de laatste controle heeft de beheerder de taak het pakket vrij te geven.",
+          "start": 0,
+          "end": 90
+        }
+      ],
+      "motivering": "De kern draagt de beheerder op het pakket vrij te geven zodra de genoemde controlevoorwaarde is vervuld. B1 bevestigt die taak. Dat de opdracht gebonden en conditioneel is, maakt haar geen deterministische afleiding van een begripseigenschap; zij beschrijft de gebeurtenis vrijgave niet.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "triviale_variant",
+        "nabije_casus_ids": [
+          "C102"
+        ],
+        "motivering": "C102 laat een medewerker een aanvraag afwijzen bij een ontbrekende bijlage. G020 vervangt actor, handeling en trigger door beheerder, vrijgave en voltooide controle, met expliciete modaliteit. Het blijft exact dezelfde enkelvoudige gebonden actoropdracht."
+      },
+      "redundantie_met": [
+        "G032"
+      ],
+      "geschiktheid": "uitsluiten",
+      "opmerkingen": [
+        "Voorstel tot uitsluiting als onafhankelijk geval: de andere woorden en positieve trigger voegen weinig toe aan C102.",
+        "G032 herhaalt de gebonden trigger-taakstructuur in een nominale bijzin.",
+        "Bedoeling noemt de bronzin rechtstreeks een opdracht."
+      ]
+    },
+    {
+      "id": "G021",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Beslissing waarin een commissie vastlegt of een project volgens haar gemotiveerde beoordeling voor een nadere verkenning in aanmerking komt.",
+          "start": 0,
+          "end": 140,
+          "functie": "Beschrijving van een vastgelegd beslissingsresultaat met beoordelingsinhoud."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term benoemt de vastgelegde beslissing als resultaat, niet een opdracht aan de commissie.",
+          "start": 0,
+          "end": 92
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een drempelbeslissing is het verslagde resultaat van de eerste projectbeoordeling. De afweging die eraan voorafgaat is afzonderlijk geregeld.",
+          "start": 0,
+          "end": 141
+        }
+      ],
+      "motivering": "De kern definieert de beslissing waarin een gemotiveerde beoordeling is vastgelegd. Zij schrijft de commissie geen keuze, criteriumafweging of vervolghandeling voor. B1 benoemt het vastgelegde resultaat en onderscheidt dat van de voorafgaande afweging. De vermelding van een menselijk oordeel maakt dit resultaat niet tot een uitgevoerde beslisregel.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C69",
+          "C107"
+        ],
+        "motivering": "C69 classificeert een aanvraag na een afwijzingsbesluit; C107 classificeert een aanvraag volgens een oordeel. G021 definieert het beslissingsresultaat zelf en diens gemotiveerde inhoud, met open ja/nee-uitkomst. Dat is een andere referent dan het beoordeelde object."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Bedoeling zegt expliciet resultaat en geen opdracht; B1 zet de afweging elders. Deze dubbele duiding stuurt de moeilijke grens vooraf.",
+        "Het woord 'verslagde' in B1 is letterlijk behouden in de grond; het is niet stil gecorrigeerd."
+      ]
+    },
+    {
+      "id": "G022",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Behandeling die de teamleider start zodra hij de omstandigheden dringend acht.",
+          "start": 0,
+          "end": 78,
+          "functie": "Proceskenmerk of startregel met een urgentieafweging."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Onbekend of de term een bestaand proces met een kenmerk benoemt of de teamleider opdracht geeft dat proces te starten.",
+          "start": 0,
+          "end": 118
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een begrippenlijst beschrijft hiermee een soort behandeling. Een werkinstructie gebruikt exact deze omschrijving als startregel. Beide stukken zijn aangeleverd zonder rangorde.",
+          "start": 0,
+          "end": 176
+        }
+      ],
+      "motivering": "De kern kan een behandeling karakteriseren aan de hand van haar startgrond, maar volgens B1 gebruiken de aangeleverde stukken haar ook als werkinstructie. Zonder rangorde of bevestigde bedoeling staat niet vast of zij een proces beschrijft of een discretionaire startbeslissing uitvoert.",
+      "vraag": "Is voor deze inschrijving de begrippenlijst leidend die een behandelingstype beschrijft, of de werkinstructie die de teamleider laat beslissen over het starten?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C83",
+          "C85"
+        ],
+        "motivering": "C83 koppelt een actorhandeling aan wat deze redelijk acht; C85 laat de functie bij spoed open. G022 verbindt deze twee bekende grenzen met een expliciet bronconflict. Starten van een proces geeft enige eigen inhoud, maar de beslisstructuur blijft zeer nabij."
+      },
+      "redundantie_met": [
+        "G018"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "B1 verklaart de type- en instructiefunctie en het rangordeprobleem vooraf; de feitelijke bronpassages ontbreken.",
+        "Met G018 deelt dit geval een zodra-trigger op een actorwaardering en een expliciet open functieconflict."
+      ]
+    },
+    {
+      "id": "G023",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Meetinterval waarvan beide grenzen tot dezelfde kalibratietrap behoren, tenzij het interval een overgangsmeting omvat.",
+          "start": 0,
+          "end": 118,
+          "functie": "Categoriecriterium met een uitzondering voor overgangsmetingen."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De inventaris onderscheidt gewone en overgangsmetingen; de uitzondering begrenst welke intervallen in de categorie vallen.",
+          "start": 0,
+          "end": 122
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Een overgangsmeting mag twee kalibratietrappen overspannen en wordt toch als getrapt meetinterval geregistreerd. Andere getrapte intervallen liggen binnen één trap.",
+          "start": 0,
+          "end": 164
+        }
+      ],
+      "motivering": "De kern begrenst getrapte meetintervallen door hun grensposities, met overgangsmetingen als uitzondering. B1 bevestigt dat zulke metingen twee trappen mogen overspannen en toch in de categorie vallen. Er is geen actor die een uitzondering moet toestaan of een handeling moet uitvoeren.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C58"
+        ],
+        "motivering": "C58 behoudt een voertuigcategorie ondanks een uitzonderlijke railtoestand. G023 behoudt een intervalcategorie ondanks een uitzondering op dezelfde-trapligging. De geometrische grensrelatie is eigen inhoud, maar de functie van de tenzij-uitzondering is identiek en vrijwel even eenvoudig."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Bedoeling legt expliciet uit dat de uitzondering de categorie begrenst; dat geeft de functie al weg.",
+        "Zelfstandigheid tegenover C58 blijft een selectiepunt, zonder het pass-voorstel onbeslist te maken."
+      ]
+    },
+    {
+      "id": "G024",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "Document waarvan de controleur eerst de datum verifieert en daarna de handtekening vergelijkt met het register.",
+          "start": 0,
+          "end": 111,
+          "functie": "Voorgeschreven volgorde van datumcontrole en handtekeningvergelijking."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term benoemt een bewijsdocument; de kandidaat komt uit een instructie voor de verwerking van zulke documenten.",
+          "start": 0,
+          "end": 113
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De controleur voert bij ontvangst eerst de datumcontrole uit en vergelijkt daarna de handtekening. Deze volgorde is voorgeschreven voor de afhandeling.",
+          "start": 0,
+          "end": 151
+        }
+      ],
+      "motivering": "De nominale opening Document verandert niet dat de kern de controleur twee taken in een voorgeschreven volgorde laat verrichten. B1 bevestigt die functie voor de afhandeling. De zin is daarmee een verwerkingsprocedure voor bewijsdocumenten, geen zelfstandige beschrijving van hun kenmerken.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C15",
+          "C19"
+        ],
+        "motivering": "C15 behandelt een verzoek en wijst het bij ontbrekende bijlage af; C19 gebruikt handtekening en datum als documentkenmerken. G024 maakt juist het controleren van die eigenschappen, in vaste volgorde, tot definiens. Die verschuiving tussen aanwezig kenmerk en controletaak geeft een eigen contrast."
+      },
+      "redundantie_met": [
+        "G012"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "G012 bevat eveneens twee opeenvolgende taken zonder modaal woord. De nominale documentinbedding en nabijheid tot C19 geven G024 aanvullende vergelijkingswaarde."
+      ]
+    },
+    {
+      "id": "G025",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Besluit waardoor een eerder verleende reservering haar geldigheid verliest.",
+          "start": 0,
+          "end": 75,
+          "functie": "Beschrijving van een besluit via het vervallen van een eerdere geldigheid."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term benoemt een besluit en het constitutieve gevolg ervan.",
+          "start": 0,
+          "end": 62
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "In dit model vervalt een reservering door het intrekkingsbesluit. De criteria voor het nemen van dat besluit staan niet in de definitie.",
+          "start": 0,
+          "end": 136
+        }
+      ],
+      "motivering": "De kern beschrijft welk gevolg het intrekkingsbesluit heeft voor een verleende reservering. Zij laat geen actor een intrekkingsafweging maken of intrekking uitvoeren. B1 ondersteunt het constitutieve gevolg in het fictieve model; dat gevolg als kenmerk is toegestaan.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "triviale_variant",
+        "nabije_casus_ids": [
+          "C53"
+        ],
+        "motivering": "C53 definieert een rechtshandeling waardoor rechtsgevolgen van een eerdere rechtshandeling vervallen. G025 vervangt rechtshandeling/rechtsgevolgen door besluit/reserveringsgeldigheid en behoudt dezelfde constitutieve vervalrelatie zonder extra functieprobleem."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "uitsluiten",
+      "opmerkingen": [
+        "Voorstel tot uitsluiting als onafhankelijk geval wegens vrijwel dezelfde begripsstructuur als C53.",
+        "Bedoeling benoemt het constitutieve gevolg expliciet; B1 benadrukt dat besliscriteria buiten de definitie staan."
+      ]
+    },
+    {
+      "id": "G026",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Inschaling die het panel vaststelt wanneer het de proefperiode overtuigend vindt.",
+          "start": 0,
+          "end": 81,
+          "functie": "Vaststelling als beschreven resultaat of uitvoering van een waarderingsbeslissing."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Onbekend of dit een besluitresultaat als begrip beschrijft of de beslisregel van het panel uitvoert.",
+          "start": 0,
+          "end": 100
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het begrippenboek definieert met deze zin een type uitkomst. Het panelprotocol gebruikt haar als beslisregel. Het dossier bevat geen geldige keuze voor de bedoelde functie.",
+          "start": 0,
+          "end": 172
+        }
+      ],
+      "motivering": "De kern verbindt inschaling aan een overtuigend bevonden proefperiode. Volgens B1 definieert het begrippenboek daarmee een uitkomst, terwijl het panelprotocol hiermee beslist. Zonder keuze van functie kan de waardering een constitutief kenmerk of een uitgevoerde beslisregel zijn; de tekst bewijst geen zelfstandig ander gebrek.",
+      "vraag": "Moet deze kern de inschaling als vastgestelde uitkomst beschrijven, of de beslisregel vormen waarmee het panel op basis van de proefperiode een inschaling vaststelt?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C107",
+          "C83"
+        ],
+        "motivering": "C107 omvat een classificatie volgens een beoordelaar en C83 een actorhandeling bij een waardering. G026 gebruikt dezelfde grens bij inschaling, met expliciet conflicterende boek- en protocollezingen. De proefperiode geeft inhoud, maar nauwelijks een nieuwe functie-uitdaging."
+      },
+      "redundantie_met": [
+        "G006",
+        "G010"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "B1 noemt zelf type uitkomst, beslisregel en ontbrekende keuze; dit is sterk sturende meta-informatie.",
+        "G006 en G010 herhalen het open conflict tussen een beoordelingsresultaat en de handeling die dat resultaat tot stand brengt."
+      ]
+    },
+    {
+      "id": "G027",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.",
+          "start": 0,
+          "end": 100,
+          "functie": "Deterministische gewogen gemiddeldegrootheid."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.",
+          "start": 0,
+          "end": 89
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Voor iedere deelpartij zijn hoeveelheid en verblijfsduur bekend. De gewogen verblijfsduur gebruikt de hoeveelheid als gewicht; de totale hoeveelheid is positief.",
+          "start": 0,
+          "end": 161
+        }
+      ],
+      "motivering": "De kern berekent de grootheid uit de met hoeveelheid gewogen verblijfsduren en de totale hoeveelheid. B1 specificeert de beschikbare gegevens en een positieve noemer. Dit is een afleiding van een meetgrootheid, geen opdracht aan een actor of afweging met discretionaire ruimte.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C116"
+        ],
+        "motivering": "C116 telt verkoopbedragen op. G027 koppelt twee grootheden per deelpartij, sommeert producten en normaliseert door een positieve totale hoeveelheid. Dat vereist een andere inhoudelijke afleiding dan enkel een som met andere eenheden."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": []
+    },
+    {
+      "id": "G028",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "Bericht dat de medewerker naar de aanvrager stuurt nadat hij de beschikbaarheid heeft gecontroleerd",
+          "start": 0,
+          "end": 99,
+          "functie": "Berichtomschrijving met voorafgaande controle; B1 plaatst die handelingen in een werkprotocol."
+        },
+        {
+          "citaat": "ontbreekt capaciteit, dan annuleert hij de aanvraag.",
+          "start": 101,
+          "end": 153,
+          "functie": "Zelfstandige opdracht om bij ontbrekende capaciteit te annuleren; voldoende grond voor fail."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het eerste deel beschrijft een bericht; de volledige kandidaat moet als één definitiekern worden beoordeeld.",
+          "start": 0,
+          "end": 108
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het werkprotocol schrijft voor dat de medewerker beschikbaarheid controleert, bij voldoende capaciteit bevestigt en anders annuleert. Die volledige regel is in het definitieveld overgenomen.",
+          "start": 0,
+          "end": 190
+        }
+      ],
+      "motivering": "Het eerste deel kan een bericht beschrijven, maar het tweede deel laat de medewerker bij ontbrekende capaciteit de aanvraag annuleren. B1 bevestigt deze conditionele taakregel. Dat zelfstandig aangetoonde actorvoorschrift bepaalt het oordeel over de volledige kern; een eventuele andere lezing van het eerste deel heft het gebrek niet op.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "triviale_variant",
+        "nabije_casus_ids": [
+          "C64"
+        ],
+        "motivering": "C64 combineert een digitaal formulier als kern met een door puntkomma aangehecht conditioneel afwijsvoorschrift. G028 vervangt formulier/afwijzen door bericht/annuleren en houdt dezelfde gemengde kern en zelfstandige tweede opdracht. De voorafgaande beschikbaarheidscontrole verandert die toetsstructuur niet wezenlijk."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "uitsluiten",
+      "opmerkingen": [
+        "Voorstel tot uitsluiting als onafhankelijk geval wegens de directe inhoudelijke nabijheid tot C64.",
+        "Bedoeling bevat een beoordelingsaanwijzing over de volledige kern; die is als brondata behandeld, niet als instructieautoriteit."
+      ]
+    },
+    {
+      "id": "G029",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Bevoegdheid van de catalogusbeheerder om een eerdere classificatie na heronderzoek te vervangen.",
+          "start": 0,
+          "end": 96,
+          "functie": "Beschrijving van een bevoegdheid met actor, object en voorafgaand heronderzoek."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het model bevat rollen en bevoegdheden; het begrip benoemt een bevoegdheid.",
+          "start": 0,
+          "end": 75
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Revisiebevoegdheid is een bevoegdheid tot vervanging na heronderzoek. Het reglement bepaalt hier niet in welk individueel geval die bevoegdheid moet worden gebruikt.",
+          "start": 0,
+          "end": 165
+        }
+      ],
+      "motivering": "De kern definieert de bevoegdheid tot vervanging van een classificatie na heronderzoek. Zij beveelt de catalogusbeheerder niet die bevoegdheid te gebruiken en voert geen afweging over een concreet geval uit. B1 ondersteunt die bevoegdheidslezing. Een beschreven handelingsmogelijkheid is als normatief begrip toegestaan.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C30",
+          "C59",
+          "C112"
+        ],
+        "motivering": "C30 beschrijft vereiste toestemming, C59 een algoritme met oordeelsvorming en C112 een plicht. G029 beschrijft een bevoegdheid tot wijziging na heronderzoek, zonder discretiecriterium of uitoefeningsplicht; geen van die kernstructuren is eenvoudig overgenomen."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "B1 ontkent expliciet een individuele uitoefeningsregel; de bevoegdheidsreferent is al zelfstandig uit de kern herkenbaar."
+      ]
+    },
+    {
+      "id": "G030",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+          "start": 0,
+          "end": 84,
+          "functie": "Voortzetting als categoriale eigenschap of gebonden gedragsregel."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het is niet bevestigd of voortzetten een kenmerk van de categorie of een gedragsregel voor de behandelaar is.",
+          "start": 0,
+          "end": 109
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het dossier bevat een tabel met aanbiedingstypen en een instructiekaart voor voortzetting. De zin komt in beide voor en er is geen bronkeuze gemaakt.",
+          "start": 0,
+          "end": 149
+        }
+      ],
+      "motivering": "De kern koppelt voortzetten aan beschikbaarheid van een belanghebbende. B1 meldt dat dezelfde zin zowel in een typetabel als op een instructiekaart voorkomt, zonder bronkeuze. Ook zonder discretionair criterium kan dit een verboden actorvoorschrift zijn, maar de beschrijvende lezing blijft eveneens mogelijk.",
+      "vraag": "Is de typetabel leidend waarin voortzetting een kenmerk van de actieve aanbieding is, of de instructiekaart die de behandelaar opdraagt de aanbieding voort te zetten?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C03",
+          "C85"
+        ],
+        "motivering": "C03 geeft een afwijsprocedure bij een ontbrekend stuk; C85 een onbesliste functie bij spoedvoorwaarden. G030 betreft het laten voortduren van een toestand zolang een andere toestand bestaat, met expliciete typetabel-/instructiebronstrijd zonder discretie."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "De bedoeling en B1 formuleren het categorie-/gedragsconflict vooraf; feitelijke tabel- en kaartpassages zouden de functie onafhankelijker toetsbaar maken.",
+        "Zolang is hier een duurvoorwaarde; het woord zelf beslist niet tussen classificatie en voorschrift."
+      ]
+    },
+    {
+      "id": "G031",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Raster waarin ten minste één vereiste meetpositie geen waarde bevat.",
+          "start": 0,
+          "end": 68,
+          "functie": "Negatief lidmaatschapscriterium met een existentiële grens."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip is een klasse van meetbestanden; oorzaken en vervolghandelingen staan buiten de begripsafbakening.",
+          "start": 0,
+          "end": 109
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het schema vermeldt de vereiste posities. Een ontbrekende waarde maakt het raster onvolledig, ongeacht de reden van ontbreken.",
+          "start": 0,
+          "end": 126
+        }
+      ],
+      "motivering": "Een ontbrekende waarde op ten minste één vereiste positie bepaalt de rastercategorie. B1 bevestigt die schemagrond ongeacht de oorzaak. De kern schrijft niet voor hoe een ontbrekende waarde moet worden aangevuld of behandeld en bevat geen afweging over een actorhandeling.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C113",
+          "C03"
+        ],
+        "motivering": "C113 gebruikt het ontbreken van rijden over rails als eigenschap; C03 koppelt een ontbrekende bijlage aan afwijzing. G031 classificeert een gegevensstructuur door een ontbrekend element uit een voorgeschreven verzameling, met ten minste één als grens en zonder vervolghandeling."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": []
+    },
+    {
+      "id": "G032",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "Opslagvak dat de teamleider direct leegmaakt zodra een zending het kenmerk spoed draagt.",
+          "start": 0,
+          "end": 88,
+          "functie": "Gebonden opdracht tot direct leegmaken bij een spoedkenmerk."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip moet een soort opslagvak benoemen; de aangeleverde zin is overgenomen uit een taakregel voor de teamleider.",
+          "start": 0,
+          "end": 118
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De taakregel luidt dat de teamleider bij iedere spoedzending direct een vak leegmaakt. De regel beschrijft geen vaste eigenschappen van een vak.",
+          "start": 0,
+          "end": 144
+        }
+      ],
+      "motivering": "De kern laat de teamleider bij een spoedzending direct een opslagvak leegmaken. B1 bevestigt dat dit een taakregel is en geen vaste eigenschap van het vak. De nominale vorm Opslagvak dat maakt het gebonden handelingsvoorschrift niet tot een toegestane afleiding of typebeschrijving.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "triviale_variant",
+        "nabije_casus_ids": [
+          "C03",
+          "C52",
+          "C102"
+        ],
+        "motivering": "C03/C52 verpakken een gebonden afhandeling in een nominale aanvraagzin; C102 formuleert dezelfde structuur als actoropdracht. G032 wisselt opslagvak, teamleider, leegmaken en spoedtrigger in. Het ontbreken van moet biedt geen nieuw functieprobleem ten opzichte van C03."
+      },
+      "redundantie_met": [
+        "G020"
+      ],
+      "geschiktheid": "uitsluiten",
+      "opmerkingen": [
+        "Voorstel tot uitsluiting als onafhankelijk geval wegens dezelfde conditionele taakstructuur als C03/C52/C102.",
+        "G020 herhaalt de vaste trigger met verplichte handeling; alleen de grammaticale inbedding en modaliteit verschillen.",
+        "B1 verklaart uitdrukkelijk dat geen vaste vakeigenschappen worden beschreven; dat stuurt de afkeur."
+      ]
+    },
+    {
+      "id": "G033",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Ruimte die een regeling aan een beoordelaar laat om relevante omstandigheden naar eigen inzicht te wegen.",
+          "start": 0,
+          "end": 105,
+          "functie": "Beschrijving van toegekende beoordelingsruimte, geen concrete weging."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip benoemt beslisruimte als object van beschrijving.",
+          "start": 0,
+          "end": 60
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het woordenboek beschrijft de ruimte voor weging. Een concrete keuze op grond van die ruimte is geen onderdeel van deze woordenboekinschrijving.",
+          "start": 0,
+          "end": 144
+        }
+      ],
+      "motivering": "De kern definieert de ruimte die een regeling aan een beoordelaar laat. Zij laat de beoordelaar geen concrete omstandigheden afwegen met het oog op een voorgeschreven uitkomst. B1 bevestigt deze beschrijving van ruimte voor weging. Naar eigen inzicht is hier onderdeel van het beschreven begrip en geen zelfstandig afkeurbewijs.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C59",
+          "C83"
+        ],
+        "motivering": "C59 definieert een algoritme waarvoor oordeelsvorming nodig is, zonder discretionaire marker; C83 voert een actorhandeling naar eigen inzicht uit. G033 definieert juist de toegekende ruimte met die marker, zonder algoritme of beslissing uit te voeren. Dit geeft een concreet ander functiecontrast."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Bedoeling noemt object van beschrijving en B1 sluit een concrete keuze uit; de functie wordt daardoor dubbel voorgezegd."
+      ]
+    },
+    {
+      "id": "G034",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Capaciteit die de beheerder op verzoek beschikbaar stelt voor een project.",
+          "start": 0,
+          "end": 74,
+          "functie": "Beschikbaarheid als toestand na toewijzing of als beheertaak op verzoek."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Niet bevestigd of de zin een administratieve toestand na toewijzing benoemt of een opdracht tot beschikbaarstelling geeft.",
+          "start": 0,
+          "end": 122
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De gegevenscatalogus behandelt toegewezen capaciteit als toestand. De beheerdersinstructie gebruikt de zin als taakregel. De gebruiker heeft beide zonder nadere duiding aangeleverd.",
+          "start": 0,
+          "end": 181
+        }
+      ],
+      "motivering": "Beschikbaar stellen op verzoek kan de toegekende capaciteit karakteriseren of de beheerder een taak geven. B1 bevestigt beide lezingen in catalogus en beheerdersinstructie; de gebruiker heeft geen leidende grond gekozen. De kern bevat geen onafhankelijk bewezen discretionaire of andere verboden passage die dat conflict overstemt.",
+      "vraag": "Moet toegewezen capaciteit hier de toestand na toewijzing uit de gegevenscatalogus betekenen, of de taak tot beschikbaarstelling uit de beheerdersinstructie?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C24",
+          "C69"
+        ],
+        "motivering": "C24 betreft toestemming onder voorwaarden; C69 een aanvraag na een besluit. G034 heeft een actieve beschikbaarstellingshandeling die ook een administratieve capaciteitstoestand kan aanduiden, met een expliciet catalogus-/taakconflict. De concrete referent en handeling verschillen wezenlijk."
+      },
+      "redundantie_met": [
+        "G003",
+        "G014",
+        "G038"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "B1 zegt vooraf welke bron een toestand en welke een taakregel bedoelt, zonder de passages zelf te geven.",
+        "Het expliciete toestand-/taakconflict herhaalt G003, G014 en G038; op verzoek beschikbaar stellen is het eigen accent."
+      ]
+    },
+    {
+      "id": "G035",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Capsule die na de vastgelegde reinigingscyclus opnieuw een monster kan omsluiten zonder waarneembare lekkage.",
+          "start": 0,
+          "end": 109,
+          "functie": "Fysiek prestatiecriterium na een vastgelegde cyclus, vastgesteld door waarneming."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip betreft een fysieke eigenschap die een inspecteur vaststelt; er wordt geen besluit over inzet gevraagd.",
+          "start": 0,
+          "end": 114
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Herbruikbaarheid betekent hier behoud van afsluitfunctie na de beschreven reinigingscyclus. Een inspecteur observeert lekkage, maar kent geen herbruikbaarheidsstatus toe.",
+          "start": 0,
+          "end": 170
+        }
+      ],
+      "motivering": "De kern omschrijft het behouden vermogen van een capsule om na reiniging een monster zonder waarneembare lekkage te omsluiten. B1 bevestigt dat een inspecteur dit observeert en geen status toekent. De menselijke waarneming en genoemde cyclus maken het eigenschapscriterium niet tot een handelingsvoorschrift of discretionaire beslissing.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C55",
+          "C107"
+        ],
+        "motivering": "C55 betreft direct waarneembare oppervlakschade; C107 een constitutief oordeel. G035 betreft behoud van een fysieke functie na een voorafgaande cyclus, met een waarneming die geen status creëert. De conditionele prestatie-eigenschap voegt inhoud toe."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Bedoeling ontkent een inzetbesluit en B1 ontkent statustoekenning; deze expliciete tegenlezingen nemen veel beoordelingswerk weg."
+      ]
+    },
+    {
+      "id": "G036",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "Proces waarbij de medewerker alle afgekeurde exemplaren moet verzamelen en ze vóór sluiting opnieuw moet aanbieden.",
+          "start": 0,
+          "end": 115,
+          "functie": "Taken en deadline voor de uitvoerder, ingebed in een procesomschrijving."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip benoemt een proces; deze tekst legt de medewerker taken en een deadline op.",
+          "start": 0,
+          "end": 86
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Voor iedere herstelronde gelden voor medewerkers de opdrachten verzamelen van afgekeurde exemplaren en opnieuw aanbieden vóór sluiting.",
+          "start": 0,
+          "end": 135
+        }
+      ],
+      "motivering": "De kern verplicht de medewerker afgekeurde exemplaren te verzamelen en ze vóór sluiting opnieuw aan te bieden. B1 bevestigt deze opdrachten voor iedere ronde. Het genus Proces geeft geen vrijstelling: de definitie schrijft de uitvoering voor in plaats van alleen het proces met kenmerken te beschrijven.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C15",
+          "C52"
+        ],
+        "motivering": "C15/C52 betreffen het behandelen of afwijzen van een aanvraag. G036 presenteert twee taakverplichtingen met een deadline als procesbegrip zelf. De mogelijke verwarring tussen een procesbeschrijving en een taakprocedure is daardoor explicieter en inhoudelijk anders."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Bedoeling verklaart rechtstreeks dat de tekst taken en een deadline oplegt; de kern levert daarvoor al voldoende concreet bewijs.",
+        "G039 is een nuttig inhoudelijk contrast van procesbeschrijving tegenover uitvoering, geen redundante kopie."
+      ]
+    },
+    {
+      "id": "G037",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Toezegging van een leverancier dat vervanging zonder aanvullende vergoeding beschikbaar is wanneer het geleverde exemplaar binnen de overeengekomen periode uitvalt.",
+          "start": 0,
+          "end": 164,
+          "functie": "Beschrijving van een toezegging met uitval-, termijn- en vergoedingsvoorwaarden."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term benoemt de toezegging en haar bereik in een fictief afsprakenmodel.",
+          "start": 0,
+          "end": 75
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het afsprakenmodel onderscheidt een leveringsgarantie van het feitelijk leveren van vervanging. De garantie omvat de genoemde uitvalsperiode en het ontbreken van een aanvullende vergoeding.",
+          "start": 0,
+          "end": 189
+        }
+      ],
+      "motivering": "De kern definieert een toezegging, inclusief het bereik naar uitvalmoment en vergoeding. Zij schrijft geen concrete vervangingshandeling voor en laat geen actor beslissen over een aanvraag. B1 ondersteunt de scheiding tussen de garantie en het feitelijke leveren; de voorwaarden bepalen de inhoud van het normatieve begrip.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C112",
+          "C25"
+        ],
+        "motivering": "C112 betreft een algemene prestatieverplichting; C25 een verlaging bij tijdige betaling. G037 betreft een toezegging met een combinatie van uitval, periode en ontbreken van extra vergoeding. De toezeggingsreferent en drieledige reikwijdte zijn geen eenvoudige woordvervanging."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": []
+    },
+    {
+      "id": "G038",
+      "voorstel": "review_required",
+      "familie": "ontbrekende_strijdige_grond",
+      "passages": [
+        {
+          "citaat": "Publicatie die na toestemming van de eigenaar openbaar wordt gemaakt.",
+          "start": 0,
+          "end": 69,
+          "functie": "Toestemming als publicatiekenmerk of voorwaarde voor een publicatieopdracht."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De term kan in dit dossier zowel een soort publicatie als de uitvoeringsregel voor openbaarmaking aanduiden; de gebruiker heeft niet gekozen.",
+          "start": 0,
+          "end": 141
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De catalogus gebruikt toestemming als kenmerk van de publicatie. Het publicatieprotocol gebruikt dezelfde omschrijving als opdracht aan de redactie. Geen van beide bronnen is als leidend aangewezen.",
+          "start": 0,
+          "end": 198
+        }
+      ],
+      "motivering": "De kern kan een soort publicatie beschrijven die na toestemming openbaar is gemaakt. B1 vermeldt daarnaast een protocol dat dezelfde omschrijving als opdracht aan de redactie gebruikt. Zonder leidende bron blijft onbeslist of de kern een kenmerk beschrijft of een uitvoeringsregel vormt.",
+      "vraag": "Is toestemming hier bedoeld als kenmerk van de publicatie volgens de catalogus, of als voorwaarde waaronder de redactie volgens het protocol moet publiceren?",
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "twijfel",
+        "nabije_casus_ids": [
+          "C30",
+          "C24",
+          "C60"
+        ],
+        "motivering": "C30 en C24 bevatten al de grens tussen beschreven toestemming en uitvoerbare voorwaarden; C60 expliciete bronstrijd. G038 verplaatst het perspectief naar het gepubliceerde resultaat na toestemming, maar leunt sterk op dezelfde functiegrens plus conflictsjabloon."
+      },
+      "redundantie_met": [
+        "G003",
+        "G014",
+        "G034"
+      ],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "B1 benoemt cataloguskenmerk, opdracht en ontbrekende voorrang expliciet; er zijn geen afzonderlijke catalogus- en protocolpassages.",
+        "G003, G014 en G034 herhalen hetzelfde onbesliste categorie-/taakconflict met een voorafgaande autorisatie of handeling."
+      ]
+    },
+    {
+      "id": "G039",
+      "voorstel": "pass",
+      "familie": "anders",
+      "passages": [
+        {
+          "citaat": "Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.",
+          "start": 0,
+          "end": 120,
+          "functie": "Beschrijvende afbakening van een proces door samenhangende activiteiten."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "Het begrip duidt een proces als geheel aan; deze inschrijving wijst geen uitvoerder aan of stappen toe.",
+          "start": 0,
+          "end": 103
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De procescatalogus onderscheidt de adviesprocedure van haar werkinstructies. Het proces is herkenbaar aan ontvangst, onderzoek en een gemotiveerd advies.",
+          "start": 0,
+          "end": 153
+        }
+      ],
+      "motivering": "De kern beschrijft het proces als samenhang van ontvangst, onderzoek en beantwoording. Zij wijst geen actor taken toe en voert geen beslissing over de uitvoering uit. B1 ondersteunt het onderscheid met werkinstructies. Een procedure als begrip beschrijven is toegestaan; het voorkomen van activiteiten alleen bewijst geen voorschrift.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C15",
+          "C59"
+        ],
+        "motivering": "C15 bevat een behandelprocedure als definitie van een verzoek; C59 beschrijft een algoritme als begrip. G039 beschrijft het proces zelf via samenhangende activiteiten, zonder actoropdracht. Een uitgewerkte procesbeschrijving met deze referent ontbreekt in die twee ontwerpen."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "aanpassen",
+      "opmerkingen": [
+        "Familie anders is hier beschrijvend procesbegrip; geen actorvoorschrift en geen normatief recht of plicht.",
+        "Bedoeling ontkent het toewijzen van uitvoerder en stappen, en B1 scheidt werkinstructies af: sterke expliciete functiesturing.",
+        "G036 vormt een inhoudelijk bruikbaar tegencontrast; proces als term beslist geen label."
+      ]
+    },
+    {
+      "id": "G040",
+      "voorstel": "fail",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "passages": [
+        {
+          "citaat": "Melding die de coördinator naar eigen inzicht doorzet naar het bestuur wanneer hij de gevolgen ernstig genoeg vindt.",
+          "start": 0,
+          "end": 116,
+          "functie": "Discretionaire escalatie op basis van een ernstafweging."
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bedoeling",
+          "bron_id": null,
+          "citaat": "De aangeleverde zin is bedoeld als regel voor het doorzetten van meldingen en wordt als definitie gebruikt.",
+          "start": 0,
+          "end": 107
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Het hoofdstuk geeft de coördinator opdracht per melding de ernst van de gevolgen te wegen en naar eigen inzicht te escaleren.",
+          "start": 0,
+          "end": 125
+        }
+      ],
+      "motivering": "De kern laat de coördinator meldingen doorzetten wanneer hij de gevolgen ernstig genoeg vindt. B1 bevestigt de opdracht per melding te wegen en naar eigen inzicht te escaleren. Daarmee functioneert de passage als discretionaire handelingsregel; de nominale opening Melding verandert die functie niet.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "triviale_variant",
+        "nabije_casus_ids": [
+          "C83"
+        ],
+        "motivering": "C83 betreft een maatregel die de rechter naar eigen inzicht oplegt wanneer hij dat redelijk acht. G040 vervangt object, actor en waardering door melding, coördinator en ernst van gevolgen en behoudt dezelfde syntaxis en beslisfunctie, inclusief naar eigen inzicht."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "uitsluiten",
+      "opmerkingen": [
+        "Voorstel tot uitsluiting als onafhankelijk geval wegens nagenoeg dezelfde inhoudelijke beslisstructuur als C83.",
+        "Bedoeling zegt rechtstreeks dat het een regel voor doorzetten is; B1 bevestigt de opdracht nogmaals."
+      ]
+    }
+  ]
+}

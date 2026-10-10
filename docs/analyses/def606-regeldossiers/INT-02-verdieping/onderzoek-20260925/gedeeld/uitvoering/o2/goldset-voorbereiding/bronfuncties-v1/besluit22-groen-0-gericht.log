@@ -1,0 +1,64 @@
+........................................................................ [  6%]
+...........................................................FF...FF...FFF [ 13%]
+.....FF......F.F........................................................ [ 20%]
+........................................................................ [ 27%]
+........................................................................ [ 34%]
+........................................................................ [ 41%]
+........................................................................ [ 48%]
+........................................................................ [ 55%]
+........................................................................ [ 61%]
+........................................................................ [ 68%]
+........................................................................ [ 75%]
+........................................................................ [ 82%]
+........................................................................ [ 89%]
+........................................................................ [ 96%]
+......................................                                   [100%]
+=================================== FAILURES ===================================
+E   assert 2 == 0
+     +  where 2 = <function main at 0x10cb3a7a0>([])
+     +    where <function main at 0x10cb3a7a0> = v.main
+------------------------------ Captured log call -------------------------------
+ERROR    def835_int02_variatiemeting_v9:variatiemeting_v9.py:1058 geweigerd: ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting_v9.py:226: assert 2 == 0
+E   def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/variatiemeting-v9/variatiemeting_v9.py:306: def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+E   def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/variatiemeting-v9/variatiemeting_v9.py:306: def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+E   def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/variatiemeting-v9/variatiemeting_v9.py:306: def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+E   def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/variatiemeting-v9/variatiemeting_v9.py:306: def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+E   AssertionError: assert 'ketenbestand_afwijkend' == 'verboden_bestand'
+      
+      - verboden_bestand
+      + ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting_v9.py:339: AssertionError: assert 'ketenbestand_afwijkend' == 'verboden_bestand'
+E   def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/variatiemeting-v9/variatiemeting_v9.py:306: def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+E   def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/variatiemeting-v9/variatiemeting_v9.py:306: def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+E   AssertionError: assert 'ketenbestand_afwijkend' == 'payload_afwi...n_manifest_v9'
+      
+      - payload_afwijkend_van_manifest_v9
+      + ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting_v9.py:240: AssertionError: assert 'ketenbestand_afwijkend' == 'payload_afwi...n_manifest_v9'
+E   AssertionError: assert 'ketenbestand_afwijkend' == 'geval_buiten_ontwikkelset'
+      
+      - geval_buiten_ontwikkelset
+      + ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/tests/unit/validation/test_def835_int02_variatiemeting_v9.py:353: AssertionError: assert 'ketenbestand_afwijkend' == 'geval_buiten_ontwikkelset'
+E   def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/variatiemeting-v9/variatiemeting_v9.py:306: def835_int02_variatiemeting_v9.MetingGeweigerdError: ketenbestand_afwijkend
+=========================== short test summary info ============================
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_cli_droge_run_is_standaard
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_live_samenvatting_bevat_v9_fase2_en_beide_herhalingen
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_providerfout_stopt_zonder_herhaling
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_kostenplafond_stopt_voor_de_call_die_het_kan_overschrijden
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_alleen_ontwikkelset_gelezen_nooit_een_holdoutbestand
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_holdoutpad_wordt_geweigerd_voor_het_openen
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_live_twee_herhalingen_48_calls_met_regel_per_call
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_uitvoerfout_van_het_model_wordt_vastgelegd_en_meting_gaat_door
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_droge_run_controleert_payloads_tegen_manifest_v9
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_geval_buiten_de_ontwikkelset_wordt_geweigerd
+FAILED tests/unit/validation/test_def835_int02_variatiemeting_v9.py::test_zonder_live_geen_call_geen_sleutel_en_geen_uitvoer
+11 failed, 1035 passed in 37.97s

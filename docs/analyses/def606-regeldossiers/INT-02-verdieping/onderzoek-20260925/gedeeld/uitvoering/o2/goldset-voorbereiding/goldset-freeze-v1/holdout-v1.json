@@ -1,0 +1,1053 @@
+{
+  "soort": "def835-int02-goldset-holdout/1",
+  "normversie": "def771-int02/2",
+  "freeze": {
+    "status": "bevroren",
+    "geaccepteerd_door": "Chris",
+    "geaccepteerd_op": "2026-09-30",
+    "bron": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-selectie-split-v1.md; SHA-256 6c80ae8b1ed354ea5d2a6039310c84f53eba0e41184c9b596c39609e903f7465"
+  },
+  "gevallen": [
+    {
+      "id": "G002",
+      "familie": "begripscriterium_afleiding",
+      "geval": {
+        "id": "G002",
+        "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+        "begrip": "overnemende route",
+        "kern": "Route die dezelfde eindpunten als de hoofdroute verbindt indien de hoofdroute door een storing onbruikbaar is.",
+        "bedoeling": "De gebruiker wil de term gebruiken als naam van een routesoort in het netwerkmodel Riet, naast de hoofdroute.",
+        "context": {
+          "organisatorische_context": [
+            "Netwerk Riet (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Netwerkmodel Riet (fictief; geen geldend recht), §2.3 'Routesoorten': 'Het model kent hoofdroutes en overnemende routes. Een overnemende route heeft dezelfde eindpunten als de hoofdroute waaraan zij in het model is gekoppeld. Zij is in het model beschikbaar voor de toestand waarin die hoofdroute door een storing onbruikbaar is.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B2",
+            "tekst": "Netwerkmodel Riet (fictief; geen geldend recht), bijlage C 'Routekeuze bij storing', stap 1 en 2: 'De verkeersleider bevestigt de storing op de hoofdroute. De verkeersleider activeert in het verkeerssysteem de gekoppelde overnemende route.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "passages": [
+          {
+            "citaat": "Route die dezelfde eindpunten als de hoofdroute verbindt",
+            "start": 0,
+            "end": 56,
+            "functie": "begripscriterium"
+          },
+          {
+            "citaat": "indien de hoofdroute door een storing onbruikbaar is",
+            "start": 57,
+            "end": 109,
+            "functie": "voorwaarde als onderdeel van het criterium"
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "als naam van een routesoort",
+            "start": 35,
+            "end": 62
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Zij is in het model beschikbaar voor de toestand waarin die hoofdroute door een storing onbruikbaar is",
+            "start": 226,
+            "end": 328
+          }
+        ],
+        "normgrond": "Het genus 'Route' wordt afgebakend door dezelfde eindpunten als de hoofdroute. De indien-zin begrenst de toestand waarvoor deze routesoort bestaat. B1 en de bedoeling behandelen de term als routesoort in het model. De activeringsstappen van de verkeersleider staan alleen in B2 en komen niet in de kern. Er is geen actor en geen afweging: dit is een voorwaardelijk begripscriterium.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G031",
+      "familie": "begripscriterium_afleiding",
+      "geval": {
+        "id": "G031",
+        "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+        "begrip": "onvolledig raster",
+        "kern": "Raster waarin ten minste één vereiste meetpositie geen waarde bevat.",
+        "bedoeling": "Het begrip is een klasse van meetbestanden; oorzaken en vervolghandelingen staan buiten de begripsafbakening.",
+        "context": {
+          "organisatorische_context": [
+            "Rasterlab Hulst (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Het schema vermeldt de vereiste posities. Een ontbrekende waarde maakt het raster onvolledig, ongeacht de reden van ontbreken.",
+            "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "passages": [
+          {
+            "citaat": "waarin ten minste één vereiste meetpositie geen waarde bevat",
+            "start": 7,
+            "end": 67,
+            "functie": "criterium met kwantor; “vereiste” verwijst naar het schema"
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Een ontbrekende waarde maakt het raster onvolledig, ongeacht de reden van ontbreken.",
+            "start": 42,
+            "end": 126
+          },
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "oorzaken en vervolghandelingen staan buiten de begripsafbakening",
+            "start": 44,
+            "end": 108
+          }
+        ],
+        "normgrond": "Criterium met kwantor: ten minste één vereiste meetpositie zonder waarde. “vereiste” verwijst naar het schema, niet naar een plicht van een actor. Bron en bedoeling sluiten oorzaken en vervolghandelingen uit.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G035",
+      "familie": "begripscriterium_afleiding",
+      "geval": {
+        "id": "G035",
+        "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+        "begrip": "herbruikbare capsule",
+        "kern": "Capsule die na de vastgelegde reinigingscyclus opnieuw een monster kan omsluiten zonder waarneembare lekkage.",
+        "bedoeling": "De term wordt gebruikt in de materiaalregistratie van de monsterbank om capsules na de reinigingscyclus in te delen.",
+        "context": {
+          "organisatorische_context": [
+            "Monsterbank Es (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Materiaalspecificatie Monsterbank Es (fictief; geen geldend recht), §6: 'Reinigingscyclus R2 bestaat uit twintig minuten spoelen op 60 °C en drogen aan de lucht. Na R2 wordt de capsule met een testmonster gevuld en 24 uur rechtop bewaard; daarna kijkt een inspecteur of er vocht langs de afsluiting is getreden. Is er geen vocht getreden, dan heeft de capsule haar afsluitfunctie na R2 behouden.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "passages": [
+          {
+            "citaat": "Capsule die na de vastgelegde reinigingscyclus opnieuw een monster kan omsluiten zonder waarneembare lekkage",
+            "start": 0,
+            "end": 108,
+            "functie": "kwalitatief, waarneembaar begripscriterium"
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "daarna kijkt een inspecteur of er vocht langs de afsluiting is getreden",
+            "start": 239,
+            "end": 310
+          }
+        ],
+        "normgrond": "Een kwalitatief, waarneembaar kenmerk: na de vastgelegde reinigingscyclus kan de capsule zonder waarneembare lekkage een monster omsluiten. B1 beschrijft de inspectie als waarneming van vocht, niet als afweging of toekenning. Er is geen voorschrift aan een actor.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G054",
+      "familie": "begripscriterium_afleiding",
+      "geval": {
+        "id": "G054",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+        "begrip": "eerstgerechtigde inschrijving",
+        "kern": "Inschrijving op de wachtlijst die op de dag waarop een tuin vrijkomt meer wachtpunten heeft dan iedere andere inschrijving of, bij een gelijk hoogste aantal wachtpunten, van de inschrijvingen met dat aantal het laagste inschrijfnummer heeft.",
+        "bedoeling": "De term wordt gebruikt in het wachtlijstoverzicht van de tuinvereniging en in de brief waarmee het bestuur een vrijgekomen tuin aanbiedt.",
+        "context": {
+          "organisatorische_context": [
+            "Tuinvereniging Kornoelje (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Tuinreglement Kornoelje (fictief; geen geldend recht), art. 5: 'Iedere inschrijving op de wachtlijst krijgt een inschrijfnummer; inschrijfnummers worden oplopend uitgegeven en niet hergebruikt. Een inschrijving krijgt één wachtpunt voor ieder volledig jaar dat zij op de wachtlijst staat.' Art. 6: 'Komt een tuin vrij, dan biedt het bestuur die tuin binnen twee weken aan de eerstgerechtigde inschrijving aan. Eerstgerechtigd is de inschrijving die op de dag waarop de tuin vrijkomt de meeste wachtpunten heeft; hebben meer inschrijvingen dat hoogste aantal, dan is van die inschrijvingen de inschrijving met het laagste inschrijfnummer eerstgerechtigd.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "passages": [
+          {
+            "citaat": "die op de dag waarop een tuin vrijkomt meer wachtpunten heeft dan iedere andere inschrijving",
+            "functie": "deterministische afleiding: hoogste aantal wachtpunten op de peildag",
+            "start": 30,
+            "end": 122
+          },
+          {
+            "citaat": "bij een gelijk hoogste aantal wachtpunten, van de inschrijvingen met dat aantal het laagste inschrijfnummer heeft",
+            "functie": "deterministische afleiding: beslissende tiebreak",
+            "start": 127,
+            "end": 240
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Eerstgerechtigd is de inschrijving die op de dag waarop de tuin vrijkomt de meeste wachtpunten heeft; hebben meer inschrijvingen dat hoogste aantal, dan is van die inschrijvingen de inschrijving met het laagste inschrijfnummer eerstgerechtigd.",
+            "start": 410,
+            "end": 653
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Een inschrijving krijgt één wachtpunt voor ieder volledig jaar dat zij op de wachtlijst staat.",
+            "start": 194,
+            "end": 288
+          },
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "De term wordt gebruikt in het wachtlijstoverzicht van de tuinvereniging",
+            "start": 0,
+            "end": 71
+          }
+        ],
+        "normgrond": "De kern bakent een inschrijving af met een deterministische rangschikking. Eerst telt het hoogste aantal wachtpunten op de dag dat een tuin vrijkomt. Bij gelijke stand beslist het laagste inschrijfnummer. Volgens B1 art. 5 liggen beide gegevens vast: wachtpunten per volledig jaar, en inschrijfnummers die oplopen en niet worden hergebruikt. De kern bevat geen actor, geen handeling en geen afweging. Het 'of' leidt een beslissende tiebreak in, geen keuze. De bestuurshandeling uit B1 art. 6 (aanbieden binnen twee weken) staat terecht niet in de kern. Een afleidingsregel voldoet.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G017",
+      "familie": "normatief_begrip",
+      "geval": {
+        "id": "G017",
+        "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+        "begrip": "inzagerecht",
+        "kern": "Aanspraak van een deelnemer op het raadplegen van de eigen meetregistraties.",
+        "bedoeling": "De term benoemt een aanspraak binnen een fictief deelnemersreglement.",
+        "context": {
+          "organisatorische_context": [
+            "Meetcollectief Spar (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Het proefreglement kent deelnemers een aanspraak toe op inzage in hun eigen registraties. De procedure voor uitoefening staat in een ander hoofdstuk.",
+            "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "passages": [
+          {
+            "citaat": "Aanspraak van een deelnemer op het raadplegen van de eigen meetregistraties",
+            "start": 0,
+            "end": 75,
+            "functie": "beschrijft een recht als begrip"
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Het proefreglement kent deelnemers een aanspraak toe op inzage in hun eigen registraties.",
+            "start": 0,
+            "end": 89
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "De procedure voor uitoefening staat in een ander hoofdstuk.",
+            "start": 90,
+            "end": 149
+          }
+        ],
+        "normgrond": "Definitie van een aanspraak van een deelnemer op inzage in de eigen registraties. Een recht als begrip beschrijven is geen gedragsopdracht; de uitoefeningsprocedure staat volgens de bron elders.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G033",
+      "familie": "normatief_begrip",
+      "geval": {
+        "id": "G033",
+        "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+        "begrip": "beoordelingsmarge",
+        "kern": "Ruimte die een regeling aan een beoordelaar laat om relevante omstandigheden naar eigen inzicht te wegen.",
+        "bedoeling": "De term wordt opgenomen in het woordenboek van het regelmodel. Daarin staan ook de termen 'beoordelaar' en 'weging'.",
+        "context": {
+          "organisatorische_context": [
+            "Regelmodel Populier (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Woordenboek regelmodel Populier (fictief; geen geldend recht), inleiding bij de lemmata over beoordeling: 'Regelingen in het model verschillen in de mate waarin zij de uitkomst vastleggen. Sommige regelingen noemen de omstandigheden die een beoordelaar betrekt en laten het gewicht daarvan aan de beoordelaar over; andere verbinden aan vastgestelde omstandigheden een vaste uitkomst. Het lemma beoordelingsmarge heeft betrekking op de eerste groep.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "passages": [
+          {
+            "citaat": "Ruimte die een regeling aan een beoordelaar laat om relevante omstandigheden naar eigen inzicht te wegen",
+            "start": 0,
+            "end": 104,
+            "functie": "begrip over discretie; beschrijving"
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Sommige regelingen noemen de omstandigheden die een beoordelaar betrekt en laten het gewicht daarvan aan de beoordelaar over",
+            "start": 189,
+            "end": 313
+          }
+        ],
+        "normgrond": "De kern definieert een begrip over discretie: de ruimte die een regeling laat. Zij schrijft zelf geen weging voor. B1 plaatst het lemma bij regelingen die het gewicht aan de beoordelaar overlaten. 'Naar eigen inzicht' beschrijft de aard van die ruimte; de S1-treffer is hier een vals alarm.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G043",
+      "familie": "normatief_begrip",
+      "geval": {
+        "id": "G043",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+        "begrip": "vervaltermijn",
+        "kern": "Termijn na afloop waarvan een aanspraak die niet schriftelijk is ingeroepen vervalt, zonder dat de termijn kan worden verlengd.",
+        "bedoeling": "De term wordt opgenomen in de begrippenlijst bij het deelnemersreglement. In die lijst komt ook de term 'klachttermijn' voor.",
+        "context": {
+          "organisatorische_context": [
+            "Spaarkring Hop (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Deelnemersreglement Spaarkring Hop (fictief; geen geldend recht), art. 11: 'Een aanspraak op teruggave van een inleg vervalt als de deelnemer haar niet binnen zes maanden na de inleg schriftelijk heeft ingeroepen. Deze termijn van zes maanden is de vervaltermijn; zij kan niet worden verlengd.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B2",
+            "tekst": "Deelnemersreglement Spaarkring Hop (fictief; geen geldend recht), art. 12: 'Een klacht wordt binnen vier weken na de gebeurtenis ingediend (klachttermijn). Het bestuur kan de klachttermijn in bijzondere gevallen verlengen.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "passages": [
+          {
+            "citaat": "Termijn na afloop waarvan een aanspraak die niet schriftelijk is ingeroepen vervalt, zonder dat de termijn kan worden verlengd",
+            "start": 0,
+            "end": 126,
+            "functie": "rechtsgevolg en eigenschap als begripskenmerk"
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Deze termijn van zes maanden is de vervaltermijn; zij kan niet worden verlengd",
+            "start": 214,
+            "end": 292
+          }
+        ],
+        "normgrond": "Een normatief begrip: een termijn beschreven via het rechtsgevolg (verval van een niet schriftelijk ingeroepen aanspraak) en de onverlengbaarheid. B1 bevestigt beide kenmerken; B2 staat er als contrast tegenover (verlengbare klachttermijn). Een rechtsgevolg beschrijven is geen voorschrift.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G056",
+      "familie": "normatief_begrip",
+      "geval": {
+        "id": "G056",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+        "begrip": "zaalwacht",
+        "kern": "Medewerker die tijdens een voorstelling de nooduitgangen van de zaal vrijhoudt en bij alarm de ontruiming van de zaal leidt.",
+        "bedoeling": "De term wordt in het dienstrooster van het theater gebruikt als functienaam, naast de functies kassa en garderobe.",
+        "context": {
+          "organisatorische_context": [
+            "Theater Taxus (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Veiligheidsplan Theater Taxus (fictief; geen geldend recht), §3 'Bezetting': 'Bij iedere voorstelling zijn twee zaalwachten aanwezig. Een zaalwacht houdt tijdens de voorstelling de nooduitgangen van de zaal vrij en leidt bij alarm de ontruiming van de zaal.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B2",
+            "tekst": "Dienstrooster Theater Taxus (fictief), veld 'functie': 'Waarden: kassa, garderobe, zaalwacht.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "passages": [
+          {
+            "citaat": "Medewerker",
+            "functie": "genus",
+            "start": 0,
+            "end": 10
+          },
+          {
+            "citaat": "die tijdens een voorstelling de nooduitgangen van de zaal vrijhoudt",
+            "functie": "begripskenmerk: taak als onderscheidend kenmerk van de rol",
+            "start": 11,
+            "end": 78
+          },
+          {
+            "citaat": "bij alarm de ontruiming van de zaal leidt",
+            "functie": "begripskenmerk: taak als onderscheidend kenmerk van de rol",
+            "start": 82,
+            "end": 123
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "gebruikt als functienaam, naast de functies kassa en garderobe",
+            "start": 51,
+            "end": 113
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B2",
+            "citaat": "Waarden: kassa, garderobe, zaalwacht.",
+            "start": 56,
+            "end": 93
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Een zaalwacht houdt tijdens de voorstelling de nooduitgangen van de zaal vrij en leidt bij alarm de ontruiming van de zaal.",
+            "start": 134,
+            "end": 257
+          }
+        ],
+        "normgrond": "De kern definieert een rol: genus 'Medewerker', met de taken tijdens een voorstelling als onderscheidende kenmerken. De handelingen worden aan het gedefinieerde begrip toegeschreven en niet aan een lezer of derde actor opgedragen. Er is geen modaal werkwoord, geen stappenvolgorde en geen afweging. De bedoeling (functienaam naast kassa en garderobe) en B2 wijzen op een indelende functie. De norm staat het beschrijven van een verplichting of procedure als begripskenmerk toe. Zekerheid middel: het register kent geen precedent voor een actor die door zijn taken wordt gedefinieerd, en B1 is een normatief veiligheidsplan.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G024",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "geval": {
+        "id": "G024",
+        "herkomst": "Nieuw synthetisch werkconcept, opgesteld door Codex-coördinator op 28 september 2026; geen praktijk- of expertbewijs.",
+        "begrip": "controlebewijs",
+        "kern": "Document waarvan de controleur eerst de datum verifieert en daarna de handtekening vergelijkt met het register.",
+        "bedoeling": "De term benoemt een bewijsdocument; de kandidaat komt uit een instructie voor de verwerking van zulke documenten.",
+        "context": {
+          "organisatorische_context": [
+            "Controleproef Eik (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "De controleur voert bij ontvangst eerst de datumcontrole uit en vergelijkt daarna de handtekening. Deze volgorde is voorgeschreven voor de afhandeling.",
+            "herkomst": "Speciaal voor dit geval verzonnen betekenisgrond; geen externe bron"
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "passages": [
+          {
+            "citaat": "waarvan de controleur eerst de datum verifieert en daarna de handtekening vergelijkt met het register",
+            "start": 9,
+            "end": 110,
+            "functie": "voorgeschreven afhandelingsvolgorde; bakent niet af welke documenten controlebewijs zijn"
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Deze volgorde is voorgeschreven voor de afhandeling.",
+            "start": 99,
+            "end": 151
+          },
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "de kandidaat komt uit een instructie voor de verwerking van zulke documenten",
+            "start": 36,
+            "end": 112
+          }
+        ],
+        "normgrond": "De bijzin geeft een voorgeschreven afhandelingsvolgorde van de controleur (eerst datum, daarna handtekening) en bakent niet af welke documenten controlebewijs zijn. De bron noemt die volgorde voorgeschreven; de bedoeling zegt dat de kandidaat uit een verwerkingsinstructie komt. Het genus “document” verandert de functie van de bijzin niet.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G044",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "geval": {
+        "id": "G044",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+        "begrip": "proefmonster",
+        "kern": "Monster dat de laborant niet mag openen voordat twee medewerkers de verzegeling hebben gecontroleerd.",
+        "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de monsterregistratie en heeft daarvoor een zin uit het werkvoorschrift van het laboratorium aangeleverd.",
+        "context": {
+          "organisatorische_context": [
+            "Laboratorium Kers (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Werkvoorschrift laboratorium Kers (fictief; geen geldend recht), art. 2.4: 'Verzegelde monsters voor de externe vergelijkingsproef mag de laborant niet openen voordat twee medewerkers de verzegeling hebben gecontroleerd en dat met hun paraaf op het begeleidingsformulier hebben bevestigd.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B2",
+            "tekst": "Handleiding monsterregistratie Kers (fictief; geen geldend recht), veld 'monstersoort': 'Waarden: regulier, proefmonster. Kies proefmonster voor een monster dat voor de externe vergelijkingsproef is verzegeld.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "passages": [
+          {
+            "citaat": "dat de laborant niet mag openen voordat twee medewerkers de verzegeling hebben gecontroleerd",
+            "start": 8,
+            "end": 100,
+            "functie": "handelingsverbod voor de laborant"
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Verzegelde monsters voor de externe vergelijkingsproef mag de laborant niet openen voordat twee medewerkers de verzegeling hebben gecontroleerd",
+            "start": 76,
+            "end": 219
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B2",
+            "citaat": "Kies proefmonster voor een monster dat voor de externe vergelijkingsproef is verzegeld",
+            "start": 122,
+            "end": 208
+          }
+        ],
+        "normgrond": "De kern kenmerkt het monster via een openingsverbod voor de laborant, letterlijk uit het werkvoorschrift (B1). Volgens B2 rust de classificatie 'proefmonster' op verzegeling voor de externe vergelijkingsproef, niet op het verbod. De passage werkt als handelingsvoorschrift in de definitiekern en niet als begripsbepalend kenmerk.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G049",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "geval": {
+        "id": "G049",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+        "begrip": "jaarverslag",
+        "kern": "Verslag over het afgelopen verenigingsjaar dat het bestuur vóór 1 april aan de ledenvergadering voorlegt.",
+        "bedoeling": "De term wordt in het ledenportaal gebruikt voor de verslagen over een verenigingsjaar. Volgens de gebruiker valt ook het verslag over 2025 eronder, dat in mei 2026 aan de ledenvergadering is voorgelegd.",
+        "context": {
+          "organisatorische_context": [
+            "Vereniging Brem (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Statuten Vereniging Brem (fictief; geen geldend recht), art. 14 lid 1: 'Het bestuur legt jaarlijks vóór 1 april een verslag over het afgelopen verenigingsjaar aan de ledenvergadering voor.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B2",
+            "tekst": "Ledenportaal Vereniging Brem (fictief), overzicht Jaarverslagen: 'Jaarverslag 2023: voorgelegd 21 maart 2024. Jaarverslag 2024: voorgelegd 27 maart 2025. Jaarverslag 2025: voorgelegd 14 mei 2026, na uitstel van de voorjaarsvergadering.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 29 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "passages": [
+          {
+            "citaat": "dat het bestuur vóór 1 april aan de ledenvergadering voorlegt",
+            "start": 43,
+            "end": 104,
+            "functie": "statutaire handelingsplicht van het bestuur"
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Het bestuur legt jaarlijks vóór 1 april een verslag over het afgelopen verenigingsjaar aan de ledenvergadering voor",
+            "start": 72,
+            "end": 187
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B2",
+            "citaat": "Jaarverslag 2025: voorgelegd 14 mei 2026, na uitstel van de voorjaarsvergadering",
+            "start": 154,
+            "end": 234
+          },
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "Volgens de gebruiker valt ook het verslag over 2025 eronder, dat in mei 2026 aan de ledenvergadering is voorgelegd",
+            "start": 87,
+            "end": 201
+          }
+        ],
+        "normgrond": "'Dat het bestuur vóór 1 april … voorlegt' is de statutaire plicht uit B1. De bedoeling rekent ook het in mei voorgelegde verslag over 2025 tot de term, en B2 vermeldt het als jaarverslag. De termijn is dus geen kenmerk. De bijzin werkt als handelingsvoorschrift voor het bestuur.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G053",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "geval": {
+        "id": "G053",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs.",
+        "begrip": "reiskostenvergoeding",
+        "kern": "De administratie berekent voor iedere gereden dienstkilometer 0,23 euro, beperkt het bedrag per dag tot 40 euro en maakt het maandtotaal over aan de vrijwilliger.",
+        "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de vrijwilligersadministratie en biedt daarvoor stap 3 uit de werkinstructie van de administratie aan.",
+        "context": {
+          "organisatorische_context": [
+            "Vrijwilligersorganisatie Lijsterbes (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Vrijwilligersreglement Lijsterbes (fictief; geen geldend recht), art. 12: 'Voor iedere kilometer die een vrijwilliger in opdracht van de organisatie rijdt (dienstkilometer), bedraagt de reiskostenvergoeding 0,23 euro, met een maximum van 40 euro per dag. De reiskostenvergoeding wordt maandelijks uitbetaald.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B2",
+            "tekst": "Werkinstructie administratie Lijsterbes (fictief; geen geldend recht), stap 3 'Reiskosten': 'De administratie berekent voor iedere gereden dienstkilometer 0,23 euro, beperkt het bedrag per dag tot 40 euro en maakt het maandtotaal over aan de vrijwilliger.' Stap 4: 'Archiveer de rittenstaat bij de maandafrekening.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 op basis van individuele besluiten van Chris; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "passages": [
+          {
+            "citaat": "De administratie berekent voor iedere gereden dienstkilometer 0,23 euro",
+            "functie": "actorvoorschrift/procedure: rekenhandeling van een actor",
+            "start": 0,
+            "end": 71
+          },
+          {
+            "citaat": "beperkt het bedrag per dag tot 40 euro",
+            "functie": "actorvoorschrift/procedure: begrenzingshandeling",
+            "start": 73,
+            "end": 111
+          },
+          {
+            "citaat": "maakt het maandtotaal over aan de vrijwilliger",
+            "functie": "actorvoorschrift/procedure: uitbetalingshandeling",
+            "start": 115,
+            "end": 161
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "biedt daarvoor stap 3 uit de werkinstructie van de administratie aan",
+            "start": 91,
+            "end": 159
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B2",
+            "citaat": "Werkinstructie administratie Lijsterbes (fictief; geen geldend recht), stap 3 'Reiskosten'",
+            "start": 0,
+            "end": 90
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "bedraagt de reiskostenvergoeding 0,23 euro, met een maximum van 40 euro per dag",
+            "start": 174,
+            "end": 253
+          }
+        ],
+        "normgrond": "De hele kern is een procedurestap. Het grammaticale onderwerp is de administratie, niet de vergoeding. De drie werkwoorden beschrijven opeenvolgende handelingen van die actor: berekenen, begrenzen en overmaken. De bedoeling en B2 bevestigen dat stap 3 uit een werkinstructie als definitie is aangeleverd. Dat de berekening deterministisch is, maakt haar geen afleidingsregel: volgens de norm is een gebonden handelingsopdracht niet enkel door haar determinisme een afleidingsregel. B1 laat zien dat dezelfde inhoud ook als beschrijvende afleiding bestaat. Er ontbreekt dus geen betekenisgrond; het gebrek is zelfstandig aangetoond.",
+        "vraag": null
+      }
+    },
+    {
+      "id": "G057",
+      "familie": "ontbrekende_strijdige_grond",
+      "geval": {
+        "id": "G057",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+        "begrip": "transitcontainer",
+        "kern": "Container die op de terminal naar een ander schip wordt overgeslagen en bij aankomst op de terminal wordt gewogen.",
+        "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de terminal en heeft de Nederlandse en de Engelse tekst van het terminalreglement meegestuurd.",
+        "context": {
+          "organisatorische_context": [
+            "Terminal Zeekraal (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Terminalreglement Zeekraal (fictief; geen geldend recht), Nederlandse tekst, art. 4 lid 1: 'Transitcontainers zijn containers die op de terminal naar een ander schip worden overgeslagen en bij aankomst op de terminal worden gewogen.' Art. 31: 'De Nederlandse en de Engelse tekst van dit reglement zijn gelijkelijk authentiek.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B2",
+            "tekst": "Terminalreglement Zeekraal (fictief; geen geldend recht), Engelse tekst, art. 4(1): 'Containers transhipped at the terminal to another vessel shall be weighed on arrival at the terminal.' Art. 31: 'The Dutch and English texts of these regulations are equally authentic.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "passages": [
+          {
+            "citaat": "Container die op de terminal naar een ander schip wordt overgeslagen en bij aankomst op de terminal wordt gewogen.",
+            "functie": "Overslag als objectkenmerk; wegen is onbeslist tussen lidmaatschapscriterium en opgelegde handeling.",
+            "start": 0,
+            "end": 114
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Transitcontainers zijn containers die op de terminal naar een ander schip worden overgeslagen en bij aankomst op de terminal worden gewogen.",
+            "start": 92,
+            "end": 232
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "De Nederlandse en de Engelse tekst van dit reglement zijn gelijkelijk authentiek.",
+            "start": 244,
+            "end": 325
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B2",
+            "citaat": "Containers transhipped at the terminal to another vessel shall be weighed on arrival at the terminal.",
+            "start": 85,
+            "end": 186
+          },
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "De gebruiker wil de term opnemen in de begrippenlijst van de terminal en heeft de Nederlandse en de Engelse tekst van het terminalreglement meegestuurd.",
+            "start": 0,
+            "end": 152
+          }
+        ],
+        "normgrond": "De Nederlandse bron verbindt overslag en wegen in een begripsomschrijving; de Engelse bron legt het wegen op aan de door overslag bepaalde categorie. De gelijkelijke authenticiteit biedt geen grond om één lezing voorrang te geven. Het verschil raakt of een ongewogen overslagcontainer buiten de categorie valt of binnen de categorie een weegvoorschrift schendt. De bedoeling kiest geen lezing. Het voorschrift in B2 bewijst daardoor nog niet zelfstandig dat de aangeboden Nederlandse kern dat voorschrift uitvoert. De INT-02-functie van het weegdeel blijft onbeslist.",
+        "vraag": "Is wegen bij aankomst een voorwaarde om een container transitcontainer te noemen, of een verplichte handeling voor iedere container die naar een ander schip wordt overgeslagen?"
+      }
+    },
+    {
+      "id": "G068",
+      "familie": "ontbrekende_strijdige_grond",
+      "geval": {
+        "id": "G068",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+        "begrip": "zichtzending",
+        "kern": "Toezending van een boek ter inzage aan een lid, waarbij het lid het boek binnen veertien dagen na ontvangst terugstuurt of de prijs betaalt.",
+        "bedoeling": "De term wordt gebruikt in de algemene voorwaarden van de leesclub en in de welkomstbrief voor nieuwe leden. De gebruiker heeft uit beide stukken een passage meegestuurd.",
+        "context": {
+          "organisatorische_context": [
+            "Leesclub Korenbloem (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Algemene voorwaarden Leesclub Korenbloem (fictief; geen geldend recht), versie 2026, art. 6: 'Bij een zichtzending ontvangt het lid een boek ter inzage. Het lid stuurt het boek binnen veertien dagen na ontvangst onbeschadigd terug of betaalt de prijs. Heeft de club het boek na die veertien dagen niet terugontvangen, dan is het boek gekocht; de club schrijft de prijs dan van de rekening van het lid af, voor zover het lid die nog niet heeft betaald.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B2",
+            "tekst": "Welkomstbrief voor nieuwe leden Leesclub Korenbloem (fictief), 2026: 'Wat is een zichtzending? Vier keer per jaar sturen wij u een boek ter inzage. U hebt dan veertien dagen de tijd om te kiezen: stuurt u het boek terug, dan betaalt u niets; houdt u het, dan schrijven wij de prijs af. Voorbeeld: u ontvangt het boek op 3 maart; tot en met 17 maart kunt u het terugsturen.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "passages": [
+          {
+            "citaat": "Toezending van een boek ter inzage aan een lid, waarbij het lid het boek binnen veertien dagen na ontvangst terugstuurt of de prijs betaalt.",
+            "functie": "Onbesliste functie van de retour-/betalingspassage: kenmerk van de aangeboden keuzeconstructie of rechtstreeks voorschrift aan het ontvangende lid.",
+            "start": 0,
+            "end": 140
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Bij een zichtzending ontvangt het lid een boek ter inzage. Het lid stuurt het boek binnen veertien dagen na ontvangst onbeschadigd terug of betaalt de prijs.",
+            "start": 94,
+            "end": 251
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "Heeft de club het boek na die veertien dagen niet terugontvangen, dan is het boek gekocht; de club schrijft de prijs dan van de rekening van het lid af, voor zover het lid die nog niet heeft betaald.",
+            "start": 252,
+            "end": 451
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B2",
+            "citaat": "U hebt dan veertien dagen de tijd om te kiezen: stuurt u het boek terug, dan betaalt u niets; houdt u het, dan schrijven wij de prijs af.",
+            "start": 148,
+            "end": 285
+          },
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "De term wordt gebruikt in de algemene voorwaarden van de leesclub en in de welkomstbrief voor nieuwe leden. De gebruiker heeft uit beide stukken een passage meegestuurd.",
+            "start": 0,
+            "end": 169
+          }
+        ],
+        "normgrond": "B1 draagt een concrete retour-/betalingsplicht; B2 beschrijft de keuze en automatische afrekening die de toezending begeleiden. De kern kan die constructie als begripskenmerk beschrijven, maar kan ook het handelingsvoorschrift uit B1 in het definitieveld uitvoeren. De bedoeling noemt uitsluitend de twee gebruiksplaatsen en kiest geen referent tussen toezendingsconstructie en gedragsopdracht. De bronnen spreken elkaar niet noodzakelijk tegen; onbeslist is welke functie hun handelingsinhoud in deze kern draagt. Daarom is noch een zelfstandig voorschrift noch uitsluitend beschrijvende werking voldoende bewezen. De termijn alleen rechtvaardigt geen afkeur.",
+        "vraag": "Beschrijft de passage over terugsturen of betalen de retour-/koopkeuze die deze toezending kenmerkt, of moet zij het lid in deze begrippenlijst rechtstreeks opdragen binnen veertien dagen terug te sturen of te betalen?"
+      }
+    },
+    {
+      "id": "G071",
+      "familie": "ontbrekende_strijdige_grond",
+      "geval": {
+        "id": "G071",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+        "begrip": "geannuleerde rondvaart",
+        "kern": "Rondvaart die de schipper wegens windkracht 6 of meer niet laat vertrekken.",
+        "bedoeling": "De term komt voor in de vervoersvoorwaarden en in het veiligheidsplan van het rondvaartbedrijf. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd, met een uittreksel uit het vaarlogboek.",
+        "context": {
+          "organisatorische_context": [
+            "Rondvaartbedrijf Waternavel (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Vervoersvoorwaarden Rondvaartbedrijf Waternavel (fictief; geen geldend recht), vastgesteld door de directie op 1 april 2026, art. 7: 'Een geannuleerde rondvaart is een rondvaart die de schipper wegens windkracht 6 of meer niet laat vertrekken. De beslissing van de schipper om niet te vertrekken maakt de rondvaart geannuleerd; de passagier krijgt bij een geannuleerde rondvaart de volledige ritprijs terug. Een rondvaart die is vertrokken, is niet geannuleerd, ook niet als tijdens de vaart windkracht 6 of meer wordt gemeten.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B2",
+            "tekst": "Veiligheidsplan Rondvaartbedrijf Waternavel (fictief; geen geldend recht), vastgesteld door de directie op 1 april 2026, §4, gericht aan de schipper: 'Wijst de windmeter op de steiger een kwartier voor het geplande vertrek windkracht 6 of meer aan, dan is de rondvaart geannuleerd. De schipper laat een geannuleerde rondvaart niet vertrekken en meldt de annulering aan de kassa.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B3",
+            "tekst": "Vaarlogboek Rondvaartbedrijf Waternavel (fictief), 14 juni 2026: '19.45 uur: windmeter steiger windkracht 6. 20.00 uur: rondvaart vertrokken nadat de wind was afgenomen; geen annulering aan de kassa gemeld.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "passages": [
+          {
+            "citaat": "Rondvaart die de schipper wegens windkracht 6 of meer niet laat vertrekken.",
+            "functie": "Niet laten vertrekken als constitutieve beslissing of als gedragsplicht na automatische annulering.",
+            "start": 0,
+            "end": 75
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "De beslissing van de schipper om niet te vertrekken maakt de rondvaart geannuleerd; de passagier krijgt bij een geannuleerde rondvaart de volledige ritprijs terug. Een rondvaart die is vertrokken, is niet geannuleerd, ook niet als tijdens de vaart windkracht 6 of meer wordt gemeten.",
+            "start": 244,
+            "end": 527
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B2",
+            "citaat": "Wijst de windmeter op de steiger een kwartier voor het geplande vertrek windkracht 6 of meer aan, dan is de rondvaart geannuleerd. De schipper laat een geannuleerde rondvaart niet vertrekken en meldt de annulering aan de kassa.",
+            "start": 151,
+            "end": 378
+          },
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken",
+            "start": 96,
+            "end": 170
+          }
+        ],
+        "normgrond": "B1 laat de annulering ontstaan door de beslissing niet te vertrekken. B2 laat haar al ontstaan door de windmeting en schrijft vervolgens niet vertrekken voor. Dat keert de richting tussen status en handeling om. De kern bevat juist die handeling, terwijl de bedoeling beide stukken tegelijk omvat. Zij kan dus een constitutief kenmerk beschrijven of een veiligheidsopdracht als definitie aanbieden. Het logboek illustreert het verschil, maar kiest geen betekenisgrond. Er is geen zelfstandig kernvoorschrift bewezen naast deze functietwijfel.",
+        "vraag": "Moet niet laten vertrekken in de kern de constitutieve annuleringsbeslissing beschrijven, of het gedrag voorschrijven nadat de windmeting de rondvaart al geannuleerd maakt?"
+      }
+    },
+    {
+      "id": "G073",
+      "familie": "ontbrekende_strijdige_grond",
+      "geval": {
+        "id": "G073",
+        "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+        "begrip": "rustperiode",
+        "kern": "Periode waarin de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uitvoert.",
+        "bedoeling": "De term komt voor in de monitoringsmethodiek en in het beheerplan van het natuurterrein. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd, met een uittreksel uit het werklogboek.",
+        "context": {
+          "organisatorische_context": [
+            "Natuurterrein Zwanebloem (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": []
+        },
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Monitoringsmethodiek weidevogels Natuurterrein Zwanebloem (fictief; geen geldend recht), vastgesteld door het bestuur op 20 januari 2026, §3: 'Een rustperiode is een periode waarin de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uitvoert. De rustperioden van een seizoen worden na afloop uit het werklogboek afgeleid: iedere aaneengesloten periode van ten minste dertig dagen zonder geregistreerd maai- of snoeiwerk in het weidevogelgebied is een rustperiode. Het broedsucces wordt per rustperiode berekend.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B2",
+            "tekst": "Beheerplan Natuurterrein Zwanebloem 2026 (fictief; geen geldend recht), vastgesteld door het bestuur op 20 januari 2026, §5, gericht aan de terreinbeheerder: 'Van 15 maart tot en met 15 juni is het rustperiode. In de rustperiode voert de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uit.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+          },
+          {
+            "id": "B3",
+            "tekst": "Werklogboek Natuurterrein Zwanebloem 2026 (fictief), uittreksel weidevogelgebied: 'Maai- of snoeiwerk op 3 maart, 2 mei (omgewaaide wilg bij de toegangsweg gesnoeid), 20 juni en 4 juli.'",
+            "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "passages": [
+          {
+            "citaat": "Periode waarin de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uitvoert.",
+            "functie": "Feitelijk werkvrij tijdvak als afleiding of werkverbod binnen een vooraf vastgesteld tijdvak.",
+            "start": 0,
+            "end": 92
+          }
+        ],
+        "grondcitaten": [
+          {
+            "veld": "bron",
+            "bron_id": "B1",
+            "citaat": "De rustperioden van een seizoen worden na afloop uit het werklogboek afgeleid: iedere aaneengesloten periode van ten minste dertig dagen zonder geregistreerd maai- of snoeiwerk in het weidevogelgebied is een rustperiode.",
+            "start": 259,
+            "end": 479
+          },
+          {
+            "veld": "bron",
+            "bron_id": "B2",
+            "citaat": "Van 15 maart tot en met 15 juni is het rustperiode. In de rustperiode voert de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uit.",
+            "start": 159,
+            "end": 307
+          },
+          {
+            "veld": "bedoeling",
+            "bron_id": null,
+            "citaat": "De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken",
+            "start": 89,
+            "end": 163
+          }
+        ],
+        "normgrond": "Volgens B1 bepaalt geregistreerde afwezigheid van werkzaamheden achteraf welke perioden rustperioden zijn. Volgens B2 ligt het tijdvak vooraf vast en schrijft dezelfde afwezigheid van werkzaamheden gedrag voor. De kern laat juist de kalendergrond en de minimumduur weg en kan daardoor beide functies dragen. Het logboek maakt hun uiteenlopende toepassing concreet, zonder één bron te laten voorgaan. De ontbrekende dertigdagengrens is afzonderlijk een volledigheidsprobleem; de omkering tussen periodeafleiding en werkverbod raakt INT-02 zelf.",
+        "vraag": "Moet geen maai- of snoeiwerk in de kern het tijdvak achteraf afbakenen, of de terreinbeheerder gedrag voorschrijven binnen de vooraf vastgestelde kalenderperiode?"
+      }
+    }
+  ]
+}

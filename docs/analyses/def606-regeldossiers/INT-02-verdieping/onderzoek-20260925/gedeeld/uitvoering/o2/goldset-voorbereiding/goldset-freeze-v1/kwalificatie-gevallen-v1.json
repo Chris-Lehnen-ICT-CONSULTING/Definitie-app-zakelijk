@@ -1,0 +1,1771 @@
+{
+  "soort": "def835-int02-kwalificatie-gevallen/1",
+  "technische_testfixture": false,
+  "goldset": true,
+  "gebruik": "Geaccordeerde synthetische INT-02-kwalificatieset; alleen voor de begrensde Q1-modelproef. Hold-outinhoud en labels niet delen met promptontwikkelaars of implementatoren.",
+  "protocol_sha256": "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f",
+  "freeze": {
+    "status": "bevroren",
+    "geaccepteerd_door": "Chris",
+    "geaccepteerd_op": "2026-09-30",
+    "bron": "docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/labelronde-v1/besluit-chris-selectie-split-v1.md; SHA-256 6c80ae8b1ed354ea5d2a6039310c84f53eba0e41184c9b596c39609e903f7465"
+  },
+  "gevallen": [
+    {
+      "id": "C105",
+      "fase": "regressie",
+      "familie": "bekende_regressie",
+      "herkomst": "c-codex-app/bewijs/proefopzet-v1.json, gevallen INT02-C105 (term, tekst, organisatorische context en bedoeling exact); register v5 rij C105",
+      "invoer": {
+        "begrip": "toelating",
+        "kern": "De medewerker laat de aanvrager toe.",
+        "bedoeling": "opdracht aan medewerker",
+        "organisatorische_context": [
+          "synthetische procedure"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "fail",
+        "reden": "De kern schrijft een medewerker voor de aanvrager toe te laten in plaats van het begrip af te bakenen.",
+        "passages": [
+          {
+            "quote": "De medewerker laat de aanvrager toe.",
+            "start": 0,
+            "end": 36,
+            "function": "actor_prescription",
+            "ground": {
+              "field": "bedoeling",
+              "ref": null,
+              "quote": "opdracht aan medewerker",
+              "start": 0,
+              "end": 23
+            }
+          }
+        ],
+        "normgrond": "N-breed VN op functie uit de bevestigde bedoeling 'opdracht aan medewerker'; nul signaalwoorden."
+      }
+    },
+    {
+      "id": "C107",
+      "fase": "regressie",
+      "familie": "bekende_regressie",
+      "herkomst": "c-codex-app/casusregister-c-v1.md rij INT02-C107 (tekst exact); register v5 rij C107",
+      "invoer": {
+        "begrip": "voldoende onderbouwde aanvraag",
+        "kern": "Aanvraag die naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd is.",
+        "bedoeling": null,
+        "organisatorische_context": [
+          "synthetische begrippenstudie"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "De bedoeling is onbekend; uit de kern blijkt niet of het oordeel een kenmerk van de aanvraag beschrijft of de beoordelaar een afweging voorschrijft.",
+        "passages": [
+          {
+            "quote": "naar het gemotiveerde oordeel van de beoordelaar voldoende onderbouwd",
+            "start": 13,
+            "end": 82,
+            "function": "unclear",
+            "ground": {
+              "field": "kern",
+              "ref": null,
+              "quote": null,
+              "start": null,
+              "end": null
+            }
+          }
+        ],
+        "normgrond": "O bij onduidelijke functie van het constitutieve oordeel; geen verzonnen numerieke grens."
+      }
+    },
+    {
+      "id": "C112",
+      "fase": "regressie",
+      "familie": "bekende_regressie",
+      "herkomst": "c-codex-app/casusregister-c-v1.md rij INT02-C112 (tekst en bedoeling exact); register v5 rij C112",
+      "invoer": {
+        "begrip": "verplichting",
+        "kern": "Verplichting van een partij om de overeengekomen prestatie te verrichten.",
+        "bedoeling": "Synthetische beschrijving van verplichting zelf",
+        "organisatorische_context": [
+          "synthetische begrippenstudie"
+        ],
+        "juridische_context": [],
+        "wettelijke_basis": [],
+        "bronnen": []
+      },
+      "label": {
+        "status": "pass",
+        "reden": "De kern beschrijft wat een verplichting is; zij draagt niemand op de prestatie te verrichten.",
+        "passages": [
+          {
+            "quote": "Verplichting van een partij om de overeengekomen prestatie te verrichten",
+            "start": 0,
+            "end": 72,
+            "function": "criterion",
+            "ground": {
+              "field": "bedoeling",
+              "ref": null,
+              "quote": "Synthetische beschrijving van verplichting zelf",
+              "start": 0,
+              "end": 47
+            }
+          }
+        ],
+        "normgrond": "V bij beschrijvende bedoeling: definitie van een normatieve zaak is geen gedragsopdracht."
+      }
+    },
+    {
+      "id": "G011",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "herkomst": "Synthetisch geval G011; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "overdrachtsvenster",
+        "kern": "Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.",
+        "bedoeling": "De term benoemt een afgebakend interval in een waarnemingsmodel.",
+        "organisatorische_context": [
+          "Transportproef Wilg (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Ontvangst en bevestiging zijn gelogde gebeurtenissen. Het venster wordt met die twee tijdstippen beschreven."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "Interval afgebakend door twee gelogde gebeurtenissen: ontvangst van het eerste en bevestiging van het laatste pakket. Deterministisch vast te stellen; “bevestiging” is hier een gebeurtenis, geen opdracht. Bron en bedoeling bevestigen dit.",
+        "passages": [
+          {
+            "citaat": "dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket",
+            "start": 14,
+            "end": 110,
+            "functie": "afbakening door twee waarneembare gebeurtenissen"
+          }
+        ],
+        "normgrond": "Interval afgebakend door twee gelogde gebeurtenissen: ontvangst van het eerste en bevestiging van het laatste pakket. Deterministisch vast te stellen; “bevestiging” is hier een gebeurtenis, geen opdracht. Bron en bedoeling bevestigen dit."
+      }
+    },
+    {
+      "id": "G015",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "herkomst": "Synthetisch geval G015; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "ondertekende herstelkopie",
+        "kern": "Herstelkopie waarvan de inhoud overeenkomt met het origineel en waarvan de controlesom is ondertekend door de archiefdienst.",
+        "bedoeling": "Het begrip duidt een digitaal object aan; ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister.",
+        "organisatorische_context": [
+          "Atlasarchief (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "In de inventaris wordt een herstelkopie ondertekend genoemd als haar inhoud gelijk is aan het origineel en de archiefdienst haar controlesom heeft ondertekend."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "Twee cumulatieve criteria: inhoudsgelijkheid met het origineel en een door de archiefdienst ondertekende controlesom. De handeling van de archiefdienst staat als voltooid resultaat en wordt niet voorgeschreven. Bron en bedoeling noemen beide als eigenschappen in het register.",
+        "passages": [
+          {
+            "citaat": "waarvan de inhoud overeenkomt met het origineel",
+            "start": 13,
+            "end": 60,
+            "functie": "criterium: inhoudsgelijkheid"
+          },
+          {
+            "citaat": "waarvan de controlesom is ondertekend door de archiefdienst",
+            "start": 64,
+            "end": 123,
+            "functie": "criterium: verrichte ondertekening als resultaat; geen opdracht"
+          }
+        ],
+        "normgrond": "Twee cumulatieve criteria: inhoudsgelijkheid met het origineel en een door de archiefdienst ondertekende controlesom. De handeling van de archiefdienst staat als voltooid resultaat en wordt niet voorgeschreven. Bron en bedoeling noemen beide als eigenschappen in het register."
+      }
+    },
+    {
+      "id": "G019",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "herkomst": "Synthetisch geval G019; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "gepaarde registratie",
+        "kern": "Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.",
+        "bedoeling": "De term duidt een structuur in een logboek aan.",
+        "organisatorische_context": [
+          "Logboek Duin (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "Structureel criterium met exact aantal: precies één heenverwijzing met de bijbehorende terugverwijzing. Geen actor of handeling; de bron onderscheidt gepaarde van ongepaarde registraties.",
+        "passages": [
+          {
+            "citaat": "die precies één heenverwijzing en de bijbehorende terugverwijzing bevat",
+            "start": 12,
+            "end": 83,
+            "functie": "structureel criterium met exact aantal"
+          }
+        ],
+        "normgrond": "Structureel criterium met exact aantal: precies één heenverwijzing met de bijbehorende terugverwijzing. Geen actor of handeling; de bron onderscheidt gepaarde van ongepaarde registraties."
+      }
+    },
+    {
+      "id": "G027",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "herkomst": "Synthetisch geval G027; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "gewogen verblijfsduur",
+        "kern": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.",
+        "bedoeling": "Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.",
+        "organisatorische_context": [
+          "Procesmodel Berk (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Voor iedere deelpartij zijn hoeveelheid en verblijfsduur bekend. De gewogen verblijfsduur gebruikt de hoeveelheid als gewicht; de totale hoeveelheid is positief."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "Deterministische afleiding: gewogen gemiddelde van verblijfsduren met de hoeveelheid als gewicht. Geen actor of handeling; de bron bevestigt gewicht en positieve noemer. Afleidbaar begrip, dus juist zo te definiëren.",
+        "passages": [
+          {
+            "citaat": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid",
+            "start": 0,
+            "end": 99,
+            "functie": "deterministische afleiding (gewogen gemiddelde)"
+          }
+        ],
+        "normgrond": "Deterministische afleiding: gewogen gemiddelde van verblijfsduren met de hoeveelheid als gewicht. Geen actor of handeling; de bron bevestigt gewicht en positieve noemer. Afleidbaar begrip, dus juist zo te definiëren."
+      }
+    },
+    {
+      "id": "G030",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "herkomst": "Synthetisch geval G030; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "actieve aanbieding",
+        "kern": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+        "bedoeling": "De gebruiker wil de term opnemen in het begrippenregister van de proef. De zin staat letterlijk in de tabel met aanbiedingstypen en op de instructiekaart voor behandelaars; de gebruiker heeft beide stukken meegestuurd.",
+        "organisatorische_context": [
+          "Aanbiedingsproef Robinia (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Tabel aanbiedingstypen Robinia (fictief; geen geldend recht), rij 'actieve aanbieding', kolom omschrijving: 'Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Kolom registerstatus: 'open'. Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten)."
+          },
+          {
+            "id": "B2",
+            "tekst": "Instructiekaart behandelaars Robinia (fictief; geen geldend recht), kaart 3 'Voortzetting'. Kopregel van de kaart: 'Actieve aanbieding — Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Werkwijze op de kaart: 'Controleer per actieve aanbieding of er nog een belanghebbende beschikbaar is. Zet de aanbieding voort zolang dat het geval is.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "In beide stukken fungeert de zin als omschrijving van het type. In B1 is het een rij in de typetabel (registerstatus open, tegenover vervallen en gegund). In B2 is het de kopregel die het begrip benoemt. De handelingsopdracht staat in B2 in een aparte werkwijzezin, buiten de kern. De kern bakent dus een categorie af via haar kenmerk en schrijft de behandelaar niets voor.",
+        "passages": [
+          {
+            "veld": "kern",
+            "citaat": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft",
+            "functie": "typeomschrijving: categoriekenmerk (voortgezet zolang een belanghebbende beschikbaar is)",
+            "start": 0,
+            "end": 83
+          }
+        ],
+        "normgrond": "In beide stukken fungeert de zin als omschrijving van het type. In B1 is het een rij in de typetabel (registerstatus open, tegenover vervallen en gegund). In B2 is het de kopregel die het begrip benoemt. De handelingsopdracht staat in B2 in een aparte werkwijzezin, buiten de kern. De kern bakent dus een categorie af via haar kenmerk en schrijft de behandelaar niets voor."
+      }
+    },
+    {
+      "id": "G039",
+      "fase": "ontwikkeling",
+      "familie": "begripscriterium_afleiding",
+      "herkomst": "Synthetisch geval G039; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "adviesprocedure",
+        "kern": "Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.",
+        "bedoeling": "De term wordt opgenomen in de procescatalogus van de organisatie. Die catalogus rubriceert processen naar hun eindresultaat.",
+        "organisatorische_context": [
+          "Procescatalogus Jeneverbes (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Procescatalogus Jeneverbes (fictief; geen geldend recht), rubriek Advisering: 'Het proces met als eindresultaat een gemotiveerd advies omvat drie fasen: ontvangst van de adviesvraag, onderzoek en beantwoording. Per afdeling staat in de werkinstructies W-12 tot en met W-15 wie een fase uitvoert en binnen welke termijn.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "De kern karakteriseert een proces door zijn activiteiten en gemotiveerde antwoord. Er worden geen taken, termijnen of afwegingen aan een actor opgelegd. B1 ondersteunt deze processamenhang en onderscheidt haar concreet van de uitvoeringsinstructies.",
+        "passages": [
+          {
+            "citaat": "Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.",
+            "start": 0,
+            "end": 120,
+            "functie": "Procesbeschrijving via samenhangende activiteiten en eindresultaat."
+          }
+        ],
+        "normgrond": "De kern karakteriseert een proces door zijn activiteiten en gemotiveerde antwoord. Er worden geen taken, termijnen of afwegingen aan een actor opgelegd. B1 ondersteunt deze processamenhang en onderscheidt haar concreet van de uitvoeringsinstructies."
+      }
+    },
+    {
+      "id": "G007",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "herkomst": "Synthetisch geval G007; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "meldingsverbod",
+        "kern": "Norm die het bekendmaken van een nog niet vrijgegeven proefresultaat uitsluit.",
+        "bedoeling": "Het begrip is een type norm binnen een fictief onderzoeksreglement.",
+        "organisatorische_context": [
+          "Proefreglement Acacia (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Het begrippenmodel onderscheidt verboden, geboden en bevoegdheden. Het meldingsverbod heeft betrekking op bekendmaking vóór vrijgave."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "De kern definieert een norm naar haar inhoud: bekendmaking vóór vrijgave uitsluiten. Een verbod als begrip beschrijven is geen gedragsopdracht; de kern spreekt geen actor aan. Bedoeling en bron plaatsen het begrip in een normtypologie.",
+        "passages": [
+          {
+            "citaat": "Norm die het bekendmaken van een nog niet vrijgegeven proefresultaat uitsluit",
+            "start": 0,
+            "end": 77,
+            "functie": "beschrijft een verbodsnorm naar haar inhoud; richt zich niet tot een actor"
+          }
+        ],
+        "normgrond": "De kern definieert een norm naar haar inhoud: bekendmaking vóór vrijgave uitsluiten. Een verbod als begrip beschrijven is geen gedragsopdracht; de kern spreekt geen actor aan. Bedoeling en bron plaatsen het begrip in een normtypologie."
+      }
+    },
+    {
+      "id": "G021",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "herkomst": "Synthetisch geval G021; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "drempelbeslissing",
+        "kern": "Beslissing waarin een commissie vastlegt of een project volgens haar gemotiveerde beoordeling voor een nadere verkenning in aanmerking komt.",
+        "bedoeling": "De term wordt in het projectmodel gebruikt voor het stuk dat na de eerste beoordeling van een projectvoorstel in het projectdossier komt.",
+        "organisatorische_context": [
+          "Projectmodel Hazelaar (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Projectmodel Hazelaar (fictief; geen geldend recht), §4.1: 'De eerste beoordeling van een projectvoorstel eindigt met een drempelbeslissing. De drempelbeslissing staat in het verslag van de commissievergadering en vermeldt met de motivering van de commissie of het project voor een nadere verkenning in aanmerking komt.' §4.2: 'De beoordelingscriteria en de werkwijze van de commissie staan in het beoordelingskader (bijlage 2).'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "De kern definieert een beslissing naar haar inhoud: vastleggen of het project in aanmerking komt. Het gemotiveerde oordeel wordt beschreven, niet uitgevoerd of voorgeschreven. B1 bevestigt dat de drempelbeslissing als vastgelegd stuk in het verslag staat; criteria en werkwijze staan elders.",
+        "passages": [
+          {
+            "citaat": "Beslissing waarin een commissie vastlegt of een project volgens haar gemotiveerde beoordeling voor een nadere verkenning in aanmerking komt",
+            "start": 0,
+            "end": 139,
+            "functie": "beschreven beslissing als begrip"
+          }
+        ],
+        "normgrond": "De kern definieert een beslissing naar haar inhoud: vastleggen of het project in aanmerking komt. Het gemotiveerde oordeel wordt beschreven, niet uitgevoerd of voorgeschreven. B1 bevestigt dat de drempelbeslissing als vastgelegd stuk in het verslag staat; criteria en werkwijze staan elders."
+      }
+    },
+    {
+      "id": "G037",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "herkomst": "Synthetisch geval G037; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "leveringsgarantie",
+        "kern": "Toezegging van een leverancier dat vervanging zonder aanvullende vergoeding beschikbaar is wanneer het geleverde exemplaar binnen de overeengekomen periode uitvalt.",
+        "bedoeling": "De term benoemt de toezegging en haar bereik in een fictief afsprakenmodel.",
+        "organisatorische_context": [
+          "Werkplaats Ceder (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Het afsprakenmodel onderscheidt een leveringsgarantie van het feitelijk leveren van vervanging. De garantie omvat de genoemde uitvalsperiode en het ontbreken van een aanvullende vergoeding."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "Definitie van een toezegging met haar bereik: vervanging zonder extra vergoeding bij uitval binnen de overeengekomen periode. De wanneer-bijzin begrenst het bereik en schrijft geen levering voor; de bron onderscheidt de garantie van het feitelijk leveren.",
+        "passages": [
+          {
+            "citaat": "Toezegging van een leverancier dat vervanging zonder aanvullende vergoeding beschikbaar is",
+            "start": 0,
+            "end": 90,
+            "functie": "beschrijft een toezegging naar haar inhoud"
+          },
+          {
+            "citaat": "wanneer het geleverde exemplaar binnen de overeengekomen periode uitvalt",
+            "start": 91,
+            "end": 163,
+            "functie": "bereikvoorwaarde; geen leveringsopdracht"
+          }
+        ],
+        "normgrond": "Definitie van een toezegging met haar bereik: vervanging zonder extra vergoeding bij uitval binnen de overeengekomen periode. De wanneer-bijzin begrenst het bereik en schrijft geen levering voor; de bron onderscheidt de garantie van het feitelijk leveren."
+      }
+    },
+    {
+      "id": "G041",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "herkomst": "Synthetisch geval G041; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "meldplichtige wijziging",
+        "kern": "Wijziging in de samenstelling van een product die de producent vóór de eerste levering van het gewijzigde product aan het productregister moet melden.",
+        "bedoeling": "De term wordt opgenomen in de begrippenlijst bij het productregister, naast de termen 'productwijziging' en 'melding'.",
+        "organisatorische_context": [
+          "Productregister Wegedoorn (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Registerreglement Wegedoorn (fictief; geen geldend recht), art. 8: 'Een producent meldt een wijziging in de samenstelling van een product aan het productregister vóór de eerste levering van het gewijzigde product. Dit reglement noemt zo'n wijziging een meldplichtige wijziging. Wijzigingen in verpakking of etiket zijn geen meldplichtige wijzigingen.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Registerreglement Wegedoorn (fictief; geen geldend recht), art. 9: 'Het productregister vermeldt bij iedere ontvangen melding de datum van ontvangst en de datum van eerste levering die de producent opgeeft.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "De kern beschrijft een wijziging via de meldplicht die haar tot 'meldplichtige wijziging' maakt. Volgens B1 noemt het reglement zo'n wijziging uitdrukkelijk zo. De plicht is dus het begripsbepalende kenmerk en geen losse handelingsinstructie in de kern. 'Moet' beschrijft hier de verplichting (vergelijk C112); de S1-treffer beslist niets.",
+        "passages": [
+          {
+            "citaat": "die de producent vóór de eerste levering van het gewijzigde product aan het productregister moet melden",
+            "start": 46,
+            "end": 149,
+            "functie": "verplichting beschreven als begripsbepalend kenmerk"
+          }
+        ],
+        "normgrond": "De kern beschrijft een wijziging via de meldplicht die haar tot 'meldplichtige wijziging' maakt. Volgens B1 noemt het reglement zo'n wijziging uitdrukkelijk zo. De plicht is dus het begripsbepalende kenmerk en geen losse handelingsinstructie in de kern. 'Moet' beschrijft hier de verplichting (vergelijk C112); de S1-treffer beslist niets."
+      }
+    },
+    {
+      "id": "G046",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "herkomst": "Synthetisch geval G046; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "werkmandaat",
+        "kern": "Bevoegdheid die het bestuur schriftelijk aan een medewerker verleent en op ieder moment kan intrekken, om binnen een omschreven taak namens het bestuur besluiten te nemen.",
+        "bedoeling": "De term wordt opgenomen in het bevoegdhedenregister van de stichting.",
+        "organisatorische_context": [
+          "Stichting Vuilboom (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Stichtingsreglement Vuilboom (fictief; geen geldend recht), art. 20: 'Het bestuur kan een medewerker schriftelijk werkmandaat verlenen om binnen een omschreven taak namens het bestuur besluiten te nemen. Het bestuur kan een werkmandaat op ieder moment intrekken. Een besluit binnen het werkmandaat geldt als besluit van het bestuur.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Bevoegdhedenregister Vuilboom (fictief), regel 14: 'Werkmandaat; medewerker inkoop; taak: bestellingen tot 5.000 euro; verleend 3 februari 2026; niet ingetrokken.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "De kern definieert een bevoegdheid via verlener, vorm, intrekbaarheid en reikwijdte; B1 bevestigt deze kenmerken. De bevoegdheid wordt beschreven, niet uitgeoefend of voorgeschreven. De S1-marker 'kan … besluiten' treft over de komma heen ('kan intrekken, om … besluiten'); dat is hier een vals alarm.",
+        "passages": [
+          {
+            "citaat": "Bevoegdheid die het bestuur schriftelijk aan een medewerker verleent en op ieder moment kan intrekken, om binnen een omschreven taak namens het bestuur besluiten te nemen",
+            "start": 0,
+            "end": 170,
+            "functie": "beschreven bevoegdheid als begrip"
+          }
+        ],
+        "normgrond": "De kern definieert een bevoegdheid via verlener, vorm, intrekbaarheid en reikwijdte; B1 bevestigt deze kenmerken. De bevoegdheid wordt beschreven, niet uitgeoefend of voorgeschreven. De S1-marker 'kan … besluiten' treft over de komma heen ('kan intrekken, om … besluiten'); dat is hier een vals alarm."
+      }
+    },
+    {
+      "id": "G055",
+      "fase": "ontwikkeling",
+      "familie": "normatief_begrip",
+      "herkomst": "Synthetisch geval G055; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "openbare vergadering",
+        "kern": "Vergadering van de ledenraad die de voorzitter niet vóór de aanvang besloten heeft verklaard.",
+        "bedoeling": "De term wordt gebruikt in de vergaderkalender van de coöperatie, die bij iedere vergadering van de ledenraad vermeldt of zij openbaar of besloten is.",
+        "organisatorische_context": [
+          "Coöperatie Vlier (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Reglement ledenraad Vlier (fictief; geen geldend recht), art. 8: 'De vergaderingen van de ledenraad zijn openbaar. De voorzitter kan een vergadering vóór de aanvang besloten verklaren wanneer de voorzitter dat ter bescherming van de persoonlijke levenssfeer van een lid nodig acht. Een besloten verklaring wordt in de vergaderkalender vermeld.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Vergaderkalender ledenraad Vlier 2026 (fictief): '12 februari: openbaar. 9 april: besloten (besloten verklaard op 2 april). 11 juni: openbaar.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "De kern deelt vergaderingen in op grond van het ontbreken van een besloten verklaring vóór de aanvang. Volgens B1 is die verklaring discretionair ('nodig acht'). De kern voert die afweging niet uit, neemt het afwegingscriterium niet over en schrijft de voorzitter niets voor. Zij gebruikt alleen de wel of niet genomen beslissing als kenmerk, en de norm staat het beschrijven van een beslissing als begripskenmerk toe. De bedoeling en B2 laten zien dat de vergaderkalender precies deze status vastlegt. De kern bevat dus geen actorvoorschrift en geen beslisregel.",
+        "passages": [
+          {
+            "citaat": "Vergadering van de ledenraad",
+            "functie": "genus",
+            "start": 0,
+            "end": 28
+          },
+          {
+            "citaat": "die de voorzitter niet vóór de aanvang besloten heeft verklaard",
+            "functie": "begripscriterium: het ontbreken van een (discretionaire) beslissing als kenmerk",
+            "start": 29,
+            "end": 92
+          }
+        ],
+        "normgrond": "De kern deelt vergaderingen in op grond van het ontbreken van een besloten verklaring vóór de aanvang. Volgens B1 is die verklaring discretionair ('nodig acht'). De kern voert die afweging niet uit, neemt het afwegingscriterium niet over en schrijft de voorzitter niets voor. Zij gebruikt alleen de wel of niet genomen beslissing als kenmerk, en de norm staat het beschrijven van een beslissing als begripskenmerk toe. De bedoeling en B2 laten zien dat de vergaderkalender precies deze status vastlegt. De kern bevat dus geen actorvoorschrift en geen beslisregel."
+      }
+    },
+    {
+      "id": "G008",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "herkomst": "Synthetisch geval G008; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "geblokkeerd transport",
+        "kern": "Zet een transport apart, registreer de reden en vraag de ploegchef om verdere aanwijzingen.",
+        "bedoeling": "Deze tekst staat in een definitieveld voor een transportstatus; zij komt letterlijk uit het fictieve handboek.",
+        "organisatorische_context": [
+          "Transporthandboek Palm (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "De geciteerde handboekregel richt zich tot de medewerker die een blokkering constateert. Het handboek is voor deze organisatie vastgesteld."
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "reden": "De kern bestaat uit drie gebiedende handelingen voor een medewerker en noemt geen genus of kenmerk van een transportstatus. Zij functioneert als werkinstructie; de bron bevestigt dat de regel zich tot de medewerker richt. Vaststelling van het handboek geeft geen INT-02-vrijstelling.",
+        "passages": [
+          {
+            "citaat": "Zet een transport apart, registreer de reden en vraag de ploegchef om verdere aanwijzingen",
+            "start": 0,
+            "end": 90,
+            "functie": "gebiedende handelingsvolgorde voor een medewerker; geen genus of kenmerk van een transportstatus"
+          }
+        ],
+        "normgrond": "De kern bestaat uit drie gebiedende handelingen voor een medewerker en noemt geen genus of kenmerk van een transportstatus. Zij functioneert als werkinstructie; de bron bevestigt dat de regel zich tot de medewerker richt. Vaststelling van het handboek geeft geen INT-02-vrijstelling."
+      }
+    },
+    {
+      "id": "G012",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "herkomst": "Synthetisch geval G012; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "storingsmelding",
+        "kern": "De meldkamer opent een incidentkaart en belt vervolgens de dienstdoende technicus.",
+        "bedoeling": "Deze tekst wordt aangeboden als definitie van storingsmelding in een begrippenlijst bij het operationele draaiboek.",
+        "organisatorische_context": [
+          "Draaiboek Plataan (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Onder de kop Storingsmelding staan achtereenvolgens de taken openen van een incidentkaart en bellen van de technicus; deze taken gelden bij iedere gemelde storing."
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "reden": "De kern beschrijft opeenvolgende taken van de meldkamer (kaart openen, dan technicus bellen) en geen kenmerk van een melding. De bron bevestigt dat deze taken bij iedere storing gelden. Daarmee functioneert de kern als procedure voor een actor.",
+        "passages": [
+          {
+            "citaat": "De meldkamer opent een incidentkaart en belt vervolgens de dienstdoende technicus",
+            "start": 0,
+            "end": 81,
+            "functie": "opeenvolgende taken van de meldkamer; geen kenmerk van een melding"
+          }
+        ],
+        "normgrond": "De kern beschrijft opeenvolgende taken van de meldkamer (kaart openen, dan technicus bellen) en geen kenmerk van een melding. De bron bevestigt dat deze taken bij iedere storing gelden. Daarmee functioneert de kern als procedure voor een actor."
+      }
+    },
+    {
+      "id": "G036",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "herkomst": "Synthetisch geval G036; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "herstelronde",
+        "kern": "Proces waarbij de medewerker alle afgekeurde exemplaren moet verzamelen en ze vóór sluiting opnieuw moet aanbieden.",
+        "bedoeling": "De term wordt in de procesoverzichten van de revisieproef gebruikt voor het proces waarin afgekeurde exemplaren opnieuw worden aangeboden.",
+        "organisatorische_context": [
+          "Revisieproef Ginkgo (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Voor iedere herstelronde gelden voor medewerkers de opdrachten verzamelen van afgekeurde exemplaren en opnieuw aanbieden vóór sluiting."
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "reden": "Het genus is 'Proces', maar de bijzin legt de medewerker twee plichten ('moet … moet') met een deadline op in plaats van het proces te kenmerken. B1 noemt deze inhoud uitdrukkelijk opdrachten voor medewerkers. De bedoeling vraagt een beschrijving van het proces. Het procesgenus rechtvaardigt het actorvoorschrift niet.",
+        "passages": [
+          {
+            "citaat": "waarbij de medewerker alle afgekeurde exemplaren moet verzamelen en ze vóór sluiting opnieuw moet aanbieden",
+            "start": 7,
+            "end": 114,
+            "functie": "actorvoorschrift met termijn"
+          }
+        ],
+        "normgrond": "Het genus is 'Proces', maar de bijzin legt de medewerker twee plichten ('moet … moet') met een deadline op in plaats van het proces te kenmerken. B1 noemt deze inhoud uitdrukkelijk opdrachten voor medewerkers. De bedoeling vraagt een beschrijving van het proces. Het procesgenus rechtvaardigt het actorvoorschrift niet."
+      }
+    },
+    {
+      "id": "G048",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "herkomst": "Synthetisch geval G048; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "tussentijdse meting",
+        "kern": "Meting van de grondwaterstand tussen twee reguliere meetmomenten, met dien verstande dat de meetploeg haar alleen na een alarmmelding uitvoert.",
+        "bedoeling": "De term wordt gebruikt in de kwartaalrapportage van het peilnet. Die rapportage telt reguliere en tussentijdse metingen afzonderlijk.",
+        "organisatorische_context": [
+          "Peilnet Wintergroen (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Meetplan peilnet Wintergroen (fictief; geen geldend recht), §5 'Meetfrequentie': 'De meetploeg meet de grondwaterstand op de reguliere meetmomenten, iedere eerste maandag van de maand. Tussen twee reguliere meetmomenten meet de meetploeg alleen na een alarmmelding van het peilsysteem.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Veldbeschrijving meetdatabase Wintergroen (fictief): 'Veld soort: regulier voor een meting op een regulier meetmoment, tussentijds voor iedere andere meting. Veld aanleiding, alleen bij tussentijdse metingen: alarm, klacht omwonende of kalibratiecontrole.' Kwartaaloverzicht eerste kwartaal 2026: 17 tussentijdse metingen, waarvan 6 met aanleiding alarm."
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "reden": "Het eerste deel bakent de tussentijdse meting af. De clausule neemt de werkregel uit het meetplan (B1) over. B2 telt iedere niet-reguliere meting als tussentijds, ook bij een klacht of kalibratie; 11 van de 17 hadden geen alarm als aanleiding. De clausule is dus geen lidmaatschapscriterium maar een handelingsbeperking voor de meetploeg.",
+        "passages": [
+          {
+            "citaat": "met dien verstande dat de meetploeg haar alleen na een alarmmelding uitvoert",
+            "start": 66,
+            "end": 142,
+            "functie": "handelingsbeperking voor de meetploeg"
+          }
+        ],
+        "normgrond": "Het eerste deel bakent de tussentijdse meting af. De clausule neemt de werkregel uit het meetplan (B1) over. B2 telt iedere niet-reguliere meting als tussentijds, ook bij een klacht of kalibratie; 11 van de 17 hadden geen alarm als aanleiding. De clausule is dus geen lidmaatschapscriterium maar een handelingsbeperking voor de meetploeg."
+      }
+    },
+    {
+      "id": "G050",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "herkomst": "Synthetisch geval G050; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "servicetoeslag",
+        "kern": "Bedrag van vijf procent van de kale maandhuur, tenzij de huurcommissie een lager percentage passend vindt.",
+        "bedoeling": "De term wordt gebruikt op de jaarafrekening die leden van de wooncoöperatie ontvangen.",
+        "organisatorische_context": [
+          "Wooncoöperatie Egelantier (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Huisvestingsreglement Egelantier (fictief; geen geldend recht), art. 17: 'De servicetoeslag bedraagt vijf procent van de kale maandhuur. De huurcommissie kan voor een lid een lager percentage vaststellen als zij dat gelet op de inkomenssituatie van het lid passend vindt. Een lager percentage geldt tot het einde van het kalenderjaar waarin het is vastgesteld.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Jaarafrekening Egelantier 2025 (fictief), regel servicetoeslag: 'Servicetoeslag: 12 × 5% van € 640 = € 384.' Voorbeeldregel voor een lid met een door de huurcommissie vastgesteld percentage van 3%: 'Servicetoeslag: 12 × 3% van € 640 = € 230,40.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "reden": "Het eerste deel is een deterministische afleiding. De uitzondering laat het bedrag afhangen van wat de huurcommissie 'passend vindt'; B1 beschrijft dat als een discretionaire bevoegdheid. De kern voert daarmee een afweging over het rechtsgevolg uit als onderdeel van de begripsbepaling: een beslisregel in de zin van ASTRA.",
+        "passages": [
+          {
+            "citaat": "Bedrag van vijf procent van de kale maandhuur",
+            "start": 0,
+            "end": 45,
+            "functie": "deterministische afleiding"
+          },
+          {
+            "citaat": "tenzij de huurcommissie een lager percentage passend vindt",
+            "start": 47,
+            "end": 105,
+            "functie": "discretionaire beslisregel binnen de afleiding"
+          }
+        ],
+        "normgrond": "Het eerste deel is een deterministische afleiding. De uitzondering laat het bedrag afhangen van wat de huurcommissie 'passend vindt'; B1 beschrijft dat als een discretionaire bevoegdheid. De kern voert daarmee een afweging over het rechtsgevolg uit als onderdeel van de begripsbepaling: een beslisregel in de zin van ASTRA."
+      }
+    },
+    {
+      "id": "G052",
+      "fase": "ontwikkeling",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "herkomst": "Synthetisch geval G052; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "voorrangsaanvraag",
+        "kern": "Weeg de urgentie van de aanvraag af tegen de beschikbare behandelcapaciteit en geef de aanvraag voorrang wanneer u de urgentie zwaarder vindt wegen.",
+        "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van het intakepunt en heeft stap 4 van de intakewijzer als omschrijving aangeleverd.",
+        "organisatorische_context": [
+          "Intakepunt Hondsroos (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Intakewijzer Hondsroos (fictief; geen geldend recht), stap 4 en 5, gericht aan de intakemedewerker: 'Stap 4: Weeg de urgentie van de aanvraag af tegen de beschikbare behandelcapaciteit en geef de aanvraag voorrang wanneer u de urgentie zwaarder vindt wegen. Stap 5: Noteer de uitkomst in het intakeoverzicht.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Intakeoverzicht Hondsroos (fictief), toelichting bij kolom V: 'Een V staat bij aanvragen die bij de intake voorrang hebben gekregen.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "reden": "De kern is een gebiedende zin aan de intakemedewerker met een eigen afweging ('zwaarder vindt wegen'). B1 bevestigt dat het stap 4 van de intakewijzer is. De kern beschrijft geen aanvraag maar schrijft handelen en afweging voor. Er is geen genus of kenmerk.",
+        "passages": [
+          {
+            "citaat": "Weeg de urgentie van de aanvraag af tegen de beschikbare behandelcapaciteit en geef de aanvraag voorrang wanneer u de urgentie zwaarder vindt wegen",
+            "start": 0,
+            "end": 147,
+            "functie": "gebiedende discretionaire beslisregel"
+          }
+        ],
+        "normgrond": "De kern is een gebiedende zin aan de intakemedewerker met een eigen afweging ('zwaarder vindt wegen'). B1 bevestigt dat het stap 4 van de intakewijzer is. De kern beschrijft geen aanvraag maar schrijft handelen en afweging voor. Er is geen genus of kenmerk."
+      }
+    },
+    {
+      "id": "G042",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "herkomst": "Synthetisch geval G042; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "afgeschermd proefvlak",
+        "kern": "Proefvlak dat met een hekwerk van ten minste 1,20 meter hoog wordt afgeschermd.",
+        "bedoeling": "De term komt voor in het veldreglement en op de veldkaart van de proeftuin. De gebruiker wil één omschrijving die in beide stukken bruikbaar is.",
+        "organisatorische_context": [
+          "Proeftuin Gagel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Veldreglement Gagel (fictief; geen geldend recht), art. 6: 'Een proefvlak waarop gewassen onder ontheffing worden geteeld, wordt met een hekwerk van ten minste 1,20 meter hoog afgeschermd.' Art. 2 van hetzelfde reglement: 'Een proefvlak wordt na de oogst binnen twee weken geploegd.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Veldkaart Gagel seizoen 2026 (fictief), legenda: 'Grijs vlak: proefvlak. Grijs vlak met rode rand: afgeschermd proefvlak.' Op de kaart hebben 9 van de 14 proefvlakken een rode rand."
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "Geeft de rode rand op de veldkaart aan dat het hekwerk van ten minste 1,20 meter aanwezig is, of dat het proefvlak daarmee moet worden afgeschermd?",
+        "passages": [
+          {
+            "citaat": "Proefvlak dat met een hekwerk van ten minste 1,20 meter hoog wordt afgeschermd.",
+            "start": 0,
+            "end": 79,
+            "functie": "Passieve afscherming kan feitelijke terreineigenschap of uit te voeren afschermplicht zijn."
+          }
+        ],
+        "normgrond": "B1 staat tussen beheervoorschriften en draagt een afschermhandeling. B2 benoemt een kaartcategorie, maar zegt niet of een rode rand gerealiseerd hekwerk of een afschermopdracht aangeeft. De kern kan daardoor een fysieke klasse beschrijven of het voorschrift overnemen; kaartplaatsing alleen beslist dat niet."
+      }
+    },
+    {
+      "id": "G045",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "herkomst": "Synthetisch geval G045; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "aanvullend stuk",
+        "kern": "Stuk ter aanvulling van een subsidieaanvraag dat na een hersteloproep binnen tien werkdagen is in te dienen.",
+        "bedoeling": "De term wordt gebruikt in de beschikkingssjablonen en in de aanvraaghandleiding van het subsidieloket.",
+        "organisatorische_context": [
+          "Subsidieloket Mispel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Subsidieregeling Mispel (fictief; geen geldend recht), art. 9: 'Na een hersteloproep is een stuk ter aanvulling van de aanvraag binnen tien werkdagen in te dienen.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Subsidieregeling Mispel (fictief; geen geldend recht), art. 4: 'Het aanvraagformulier is door de aanvrager te ondertekenen.' Art. 15: 'Tegen een besluit is binnen zes weken na bekendmaking bezwaar in te stellen bij de commissie.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "Legt artikel 9 de aanvrager een indieningsplicht op, of beschrijft het de mogelijkheid om binnen tien werkdagen een aanvullend stuk in te dienen?",
+        "passages": [
+          {
+            "citaat": "Stuk ter aanvulling van een subsidieaanvraag dat na een hersteloproep binnen tien werkdagen is in te dienen.",
+            "start": 0,
+            "end": 108,
+            "functie": "De constructie 'is in te dienen' laat in deze bronset verplichting tegenover indieningsmogelijkheid onbeslist."
+          }
+        ],
+        "normgrond": "B1 herhaalt de modale constructie zonder haar functie uit te werken. B2 gebruikt dezelfde constructie zowel bij ondertekening als bij de mogelijkheid bezwaar te maken. Daardoor ontbreekt specifieke grond om de kern als indieningsplicht of als toegestane aanvulling met termijnkenmerk te lezen."
+      }
+    },
+    {
+      "id": "G047",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "herkomst": "Synthetisch geval G047; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "afmelding",
+        "kern": "Melding aan het deelnemersregister dat een deelnemer de proef heeft verlaten, die de coördinator binnen vijf werkdagen na het laatste contact met die deelnemer doet.",
+        "bedoeling": "De term wordt gebruikt in de maandcijfers van het deelnemersregister van de proef.",
+        "organisatorische_context": [
+          "Leefstijlproef Meidoorn (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Proefprotocol Meidoorn (fictief; geen geldend recht), §8.2: 'Verlaat een deelnemer de proef, dan meldt de coördinator dat binnen vijf werkdagen na het laatste contact met die deelnemer aan het deelnemersregister.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Maandcijfers deelnemersregister Meidoorn (fictief), juni 2026: 'Nieuwe deelnemers: 12. Afmeldingen: 7. Actieve deelnemers per 30 juni: 148.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "Wordt een melding die de coördinator na vijf werkdagen doet in de maandcijfers ook als afmelding geteld?",
+        "passages": [
+          {
+            "citaat": "Melding aan het deelnemersregister dat een deelnemer de proef heeft verlaten, die de coördinator binnen vijf werkdagen na het laatste contact met die deelnemer doet.",
+            "start": 0,
+            "end": 165,
+            "functie": "Meldingsbegrip met een deadline waarvan de constitutieve tegenover uitvoeringsfunctie niet is vastgelegd."
+          }
+        ],
+        "normgrond": "De eerste zinshelft beschrijft de melding. B1 legt de coördinator een termijn op, terwijl B2 alleen een totaal aantal afmeldingen geeft. Nergens blijkt of te late meldingen onder dat begrip vallen. Daarom is niet onderbouwd of de relatieve bijzin een typekenmerk of een overgenomen uitvoeringsplicht is."
+      }
+    },
+    {
+      "id": "G060",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "herkomst": "Synthetisch geval G060; bronobject SHA-256 6309d72b5b83b5ffb30cc7571e9e9df0eb2a95707f3d470e8a5dfd5827ab160f",
+      "invoer": {
+        "begrip": "zelfopnemer",
+        "kern": "Aangeslotene die de stand van de eigen watermeter vóór de vijfde dag van iedere maand via het klantportaal doorgeeft.",
+        "bedoeling": "De term wordt gebruikt in de aansluitvoorwaarden en in de maandrapportage meteropname van de coöperatie; de gebruiker heeft uit beide stukken een passage meegestuurd.",
+        "organisatorische_context": [
+          "Watercoöperatie Kalmoes (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Aansluitvoorwaarden Watercoöperatie Kalmoes (fictief; geen geldend recht), art. 6: 'Een zelfopnemer geeft de stand van de eigen watermeter vóór de vijfde dag van iedere maand via het klantportaal door. Geeft een zelfopnemer de stand niet tijdig door, dan schat de coöperatie het verbruik over die maand.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Maandrapportage meteropname Kalmoes, augustus 2026 (fictief): 'Zelfopnemers (stand vóór 5 augustus via het klantportaal doorgegeven): 812. Verbruik geschat: 97. Opname aan huis door de meteropnemer: 1.204.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "Benoemt zelfopnemer hier een aangeslotene met een blijvende maandelijkse doorgifteplicht, ook bij te late doorgifte, of uitsluitend een aangeslotene die in de betreffende rapportagemaand tijdig heeft doorgegeven?",
+        "passages": [
+          {
+            "citaat": "Aangeslotene die de stand van de eigen watermeter vóór de vijfde dag van iedere maand via het klantportaal doorgeeft.",
+            "functie": "Onbeslist tussen een blijvende rol met maandelijkse meldplicht en een rapportagecategorie van tijdige melders.",
+            "start": 0,
+            "end": 117
+          }
+        ],
+        "normgrond": "B1 noemt ook de niet-tijdige melder zelfopnemer: daar bestaat de rol vóór en onafhankelijk van naleving van de maandelijkse opdracht. B2 operationaliseert zelfopnemers als personen die in augustus tijdig hebben doorgegeven. De kern kan daardoor een rol van een voorschrift voorzien of een categorie feitelijke melders afbakenen. De bedoeling noemt beide toepassingen zonder de bedoelde betekenis te kiezen. Dit gaat niet alleen over een onbekend individueel meetfeit: de status van tijdige doorgifte als begripscriterium of gedragsopdracht is onbeslist. Geen van beide functies is zelfstandig voor de hele aangeboden kern bewezen."
+      }
+    },
+    {
+      "id": "G070",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "herkomst": "Synthetisch geval G070; bronobject SHA-256 5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+      "invoer": {
+        "begrip": "bemiddelingsdossier",
+        "kern": "Dossier over een burenconflict waarin de coördinator een intakegesprek met beide partijen vastlegt.",
+        "bedoeling": "De term komt voor in de registratiehandleiding en in de werkprocesbeschrijving van de stichting. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd.",
+        "organisatorische_context": [
+          "Buurtbemiddeling Hertshooi (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Registratiehandleiding Buurtbemiddeling Hertshooi (fictief; geen geldend recht), vastgesteld door het bestuur op 10 februari 2026, §2 'Dossiersoorten': 'Het registratiesysteem kent twee dossiersoorten voor burenconflicten. Een bemiddelingsdossier is een dossier over een burenconflict waarin de coördinator een intakegesprek met beide partijen vastlegt. Ieder ander dossier over een burenconflict is een adviesdossier; weigert een van de partijen het intakegesprek, dan blijft het dossier een adviesdossier. Het jaarverslag telt alleen bemiddelingsdossiers als bemiddelingen.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Werkprocesbeschrijving 'Van aanmelding tot afsluiting' Buurtbemiddeling Hertshooi (fictief; geen geldend recht), vastgesteld door het bestuur op 10 februari 2026, gericht aan de coördinator: 'Stap 1: Open bij iedere aanmelding van een burenconflict een bemiddelingsdossier. Stap 2: Nodig beide partijen uit en leg in het bemiddelingsdossier een intakegesprek met beide partijen vast. Stap 3: Weigert een partij het intakegesprek, noteer de weigering dan in het bemiddelingsdossier en sluit het dossier na vier weken af.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "Moet intakevastlegging bepalen of iets een bemiddelingsdossier is, of de coördinator voorschrijven wat hij in een reeds bij aanmelding geopend bemiddelingsdossier doet?",
+        "passages": [
+          {
+            "citaat": "Dossier over een burenconflict waarin de coördinator een intakegesprek met beide partijen vastlegt.",
+            "functie": "Intakevastlegging als dossiercriterium of als opdracht binnen een al geopend dossier.",
+            "start": 0,
+            "end": 99
+          }
+        ],
+        "normgrond": "B1 maakt de vastlegging van een intake met beide partijen bepalend voor de dossiersoort; zonder intake blijft het een adviesdossier. B2 opent het bemiddelingsdossier vooraf en behoudt die benaming bij weigering; intakevastlegging is daar een taak. De kern kan daardoor een lidmaatschapscriterium of een verplaatste behandelopdracht dragen. De gezamenlijke begrippenlijst kiest niet tussen deze onverenigbare functies. B2 bewijst een bronvoorschrift, maar niet zelfstandig dat de aangeboden kern dat voorschrift uitvoert. Daarom blijft uitsluitend die functiekeuze open."
+      }
+    },
+    {
+      "id": "G076",
+      "fase": "ontwikkeling",
+      "familie": "ontbrekende_strijdige_grond",
+      "herkomst": "Synthetisch geval G076; bronobject SHA-256 5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+      "invoer": {
+        "begrip": "aanwezig lid",
+        "kern": "Lid dat bij binnenkomst van de ledenvergadering de presentielijst tekent.",
+        "bedoeling": "De term komt voor in het stemreglement en in het ordereglement van de vereniging. De gebruiker wil één omschrijving voor de begrippenlijst bij beide reglementen en heeft uit beide een passage meegestuurd, met een uittreksel uit de notulen.",
+        "organisatorische_context": [
+          "Huurdersvereniging Zevenblad (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Stemreglement Huurdersvereniging Zevenblad (fictief; geen geldend recht), vastgesteld door de ledenvergadering op 9 januari 2026, art. 2: 'Een aanwezig lid is een lid dat bij binnenkomst van de ledenvergadering de presentielijst tekent. Alleen aanwezige leden tellen mee voor het quorum en bij stemmingen. Een lid dat de presentielijst niet heeft getekend, is geen aanwezig lid, ook niet als het in de zaal zit.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Ordereglement ledenvergadering Huurdersvereniging Zevenblad (fictief; geen geldend recht), vastgesteld door de ledenvergadering op 9 januari 2026, art. 4: 'Aanwezig is ieder lid dat de ledenvergadering in de zaal bijwoont. Een aanwezig lid tekent bij binnenkomst van de ledenvergadering de presentielijst; de secretaris wijst een lid dat dat vergeet daarop. De voorzitter telt bij iedere stemming de aanwezige leden in de zaal.'"
+          },
+          {
+            "id": "B3",
+            "tekst": "Notulen ledenvergadering Huurdersvereniging Zevenblad, 12 maart 2026 (fictief): 'Presentielijst: 31 handtekeningen. Bij de stemming over agendapunt 5 telde de voorzitter 34 aanwezige leden in de zaal.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "Moet tekenen de status aanwezig lid bepalen, of schrijft de kern tekenen voor aan leden die al door hun fysieke deelname aanwezig zijn?",
+        "passages": [
+          {
+            "citaat": "Lid dat bij binnenkomst van de ledenvergadering de presentielijst tekent.",
+            "functie": "Ondertekening als constitutief lidmaatschapscriterium of registratieplicht van fysiek aanwezige leden.",
+            "start": 0,
+            "end": 73
+          }
+        ],
+        "normgrond": "B1 maakt ondertekening constitutief voor aanwezigheid bij quorum en stemming. B2 bepaalt aanwezigheid door fysieke deelname en legt die leden een ondertekenplicht op; vergeten tekenen ontneemt die aanwezigheid daar niet. De kern koppelt de term uitsluitend aan ondertekenen. Welke van deze twee functies zij vervult, is niet gekozen voor de gezamenlijke begrippenlijst. De notulen illustreren verschillende aantallen maar bewijzen geen bronvoorrang. De aanwezige context is voldoende om het conflict te beoordelen, niet om één kernfunctie vast te stellen."
+      }
+    },
+    {
+      "id": "G002",
+      "fase": "holdout",
+      "familie": "begripscriterium_afleiding",
+      "herkomst": "Synthetisch geval G002; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "overnemende route",
+        "kern": "Route die dezelfde eindpunten als de hoofdroute verbindt indien de hoofdroute door een storing onbruikbaar is.",
+        "bedoeling": "De gebruiker wil de term gebruiken als naam van een routesoort in het netwerkmodel Riet, naast de hoofdroute.",
+        "organisatorische_context": [
+          "Netwerk Riet (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Netwerkmodel Riet (fictief; geen geldend recht), §2.3 'Routesoorten': 'Het model kent hoofdroutes en overnemende routes. Een overnemende route heeft dezelfde eindpunten als de hoofdroute waaraan zij in het model is gekoppeld. Zij is in het model beschikbaar voor de toestand waarin die hoofdroute door een storing onbruikbaar is.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Netwerkmodel Riet (fictief; geen geldend recht), bijlage C 'Routekeuze bij storing', stap 1 en 2: 'De verkeersleider bevestigt de storing op de hoofdroute. De verkeersleider activeert in het verkeerssysteem de gekoppelde overnemende route.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "Het genus 'Route' wordt afgebakend door dezelfde eindpunten als de hoofdroute. De indien-zin begrenst de toestand waarvoor deze routesoort bestaat. B1 en de bedoeling behandelen de term als routesoort in het model. De activeringsstappen van de verkeersleider staan alleen in B2 en komen niet in de kern. Er is geen actor en geen afweging: dit is een voorwaardelijk begripscriterium.",
+        "passages": [
+          {
+            "citaat": "Route die dezelfde eindpunten als de hoofdroute verbindt",
+            "start": 0,
+            "end": 56,
+            "functie": "begripscriterium"
+          },
+          {
+            "citaat": "indien de hoofdroute door een storing onbruikbaar is",
+            "start": 57,
+            "end": 109,
+            "functie": "voorwaarde als onderdeel van het criterium"
+          }
+        ],
+        "normgrond": "Het genus 'Route' wordt afgebakend door dezelfde eindpunten als de hoofdroute. De indien-zin begrenst de toestand waarvoor deze routesoort bestaat. B1 en de bedoeling behandelen de term als routesoort in het model. De activeringsstappen van de verkeersleider staan alleen in B2 en komen niet in de kern. Er is geen actor en geen afweging: dit is een voorwaardelijk begripscriterium."
+      }
+    },
+    {
+      "id": "G031",
+      "fase": "holdout",
+      "familie": "begripscriterium_afleiding",
+      "herkomst": "Synthetisch geval G031; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "onvolledig raster",
+        "kern": "Raster waarin ten minste één vereiste meetpositie geen waarde bevat.",
+        "bedoeling": "Het begrip is een klasse van meetbestanden; oorzaken en vervolghandelingen staan buiten de begripsafbakening.",
+        "organisatorische_context": [
+          "Rasterlab Hulst (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Het schema vermeldt de vereiste posities. Een ontbrekende waarde maakt het raster onvolledig, ongeacht de reden van ontbreken."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "Criterium met kwantor: ten minste één vereiste meetpositie zonder waarde. “vereiste” verwijst naar het schema, niet naar een plicht van een actor. Bron en bedoeling sluiten oorzaken en vervolghandelingen uit.",
+        "passages": [
+          {
+            "citaat": "waarin ten minste één vereiste meetpositie geen waarde bevat",
+            "start": 7,
+            "end": 67,
+            "functie": "criterium met kwantor; “vereiste” verwijst naar het schema"
+          }
+        ],
+        "normgrond": "Criterium met kwantor: ten minste één vereiste meetpositie zonder waarde. “vereiste” verwijst naar het schema, niet naar een plicht van een actor. Bron en bedoeling sluiten oorzaken en vervolghandelingen uit."
+      }
+    },
+    {
+      "id": "G035",
+      "fase": "holdout",
+      "familie": "begripscriterium_afleiding",
+      "herkomst": "Synthetisch geval G035; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "herbruikbare capsule",
+        "kern": "Capsule die na de vastgelegde reinigingscyclus opnieuw een monster kan omsluiten zonder waarneembare lekkage.",
+        "bedoeling": "De term wordt gebruikt in de materiaalregistratie van de monsterbank om capsules na de reinigingscyclus in te delen.",
+        "organisatorische_context": [
+          "Monsterbank Es (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Materiaalspecificatie Monsterbank Es (fictief; geen geldend recht), §6: 'Reinigingscyclus R2 bestaat uit twintig minuten spoelen op 60 °C en drogen aan de lucht. Na R2 wordt de capsule met een testmonster gevuld en 24 uur rechtop bewaard; daarna kijkt een inspecteur of er vocht langs de afsluiting is getreden. Is er geen vocht getreden, dan heeft de capsule haar afsluitfunctie na R2 behouden.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "Een kwalitatief, waarneembaar kenmerk: na de vastgelegde reinigingscyclus kan de capsule zonder waarneembare lekkage een monster omsluiten. B1 beschrijft de inspectie als waarneming van vocht, niet als afweging of toekenning. Er is geen voorschrift aan een actor.",
+        "passages": [
+          {
+            "citaat": "Capsule die na de vastgelegde reinigingscyclus opnieuw een monster kan omsluiten zonder waarneembare lekkage",
+            "start": 0,
+            "end": 108,
+            "functie": "kwalitatief, waarneembaar begripscriterium"
+          }
+        ],
+        "normgrond": "Een kwalitatief, waarneembaar kenmerk: na de vastgelegde reinigingscyclus kan de capsule zonder waarneembare lekkage een monster omsluiten. B1 beschrijft de inspectie als waarneming van vocht, niet als afweging of toekenning. Er is geen voorschrift aan een actor."
+      }
+    },
+    {
+      "id": "G054",
+      "fase": "holdout",
+      "familie": "begripscriterium_afleiding",
+      "herkomst": "Synthetisch geval G054; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "eerstgerechtigde inschrijving",
+        "kern": "Inschrijving op de wachtlijst die op de dag waarop een tuin vrijkomt meer wachtpunten heeft dan iedere andere inschrijving of, bij een gelijk hoogste aantal wachtpunten, van de inschrijvingen met dat aantal het laagste inschrijfnummer heeft.",
+        "bedoeling": "De term wordt gebruikt in het wachtlijstoverzicht van de tuinvereniging en in de brief waarmee het bestuur een vrijgekomen tuin aanbiedt.",
+        "organisatorische_context": [
+          "Tuinvereniging Kornoelje (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Tuinreglement Kornoelje (fictief; geen geldend recht), art. 5: 'Iedere inschrijving op de wachtlijst krijgt een inschrijfnummer; inschrijfnummers worden oplopend uitgegeven en niet hergebruikt. Een inschrijving krijgt één wachtpunt voor ieder volledig jaar dat zij op de wachtlijst staat.' Art. 6: 'Komt een tuin vrij, dan biedt het bestuur die tuin binnen twee weken aan de eerstgerechtigde inschrijving aan. Eerstgerechtigd is de inschrijving die op de dag waarop de tuin vrijkomt de meeste wachtpunten heeft; hebben meer inschrijvingen dat hoogste aantal, dan is van die inschrijvingen de inschrijving met het laagste inschrijfnummer eerstgerechtigd.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "De kern bakent een inschrijving af met een deterministische rangschikking. Eerst telt het hoogste aantal wachtpunten op de dag dat een tuin vrijkomt. Bij gelijke stand beslist het laagste inschrijfnummer. Volgens B1 art. 5 liggen beide gegevens vast: wachtpunten per volledig jaar, en inschrijfnummers die oplopen en niet worden hergebruikt. De kern bevat geen actor, geen handeling en geen afweging. Het 'of' leidt een beslissende tiebreak in, geen keuze. De bestuurshandeling uit B1 art. 6 (aanbieden binnen twee weken) staat terecht niet in de kern. Een afleidingsregel voldoet.",
+        "passages": [
+          {
+            "citaat": "die op de dag waarop een tuin vrijkomt meer wachtpunten heeft dan iedere andere inschrijving",
+            "functie": "deterministische afleiding: hoogste aantal wachtpunten op de peildag",
+            "start": 30,
+            "end": 122
+          },
+          {
+            "citaat": "bij een gelijk hoogste aantal wachtpunten, van de inschrijvingen met dat aantal het laagste inschrijfnummer heeft",
+            "functie": "deterministische afleiding: beslissende tiebreak",
+            "start": 127,
+            "end": 240
+          }
+        ],
+        "normgrond": "De kern bakent een inschrijving af met een deterministische rangschikking. Eerst telt het hoogste aantal wachtpunten op de dag dat een tuin vrijkomt. Bij gelijke stand beslist het laagste inschrijfnummer. Volgens B1 art. 5 liggen beide gegevens vast: wachtpunten per volledig jaar, en inschrijfnummers die oplopen en niet worden hergebruikt. De kern bevat geen actor, geen handeling en geen afweging. Het 'of' leidt een beslissende tiebreak in, geen keuze. De bestuurshandeling uit B1 art. 6 (aanbieden binnen twee weken) staat terecht niet in de kern. Een afleidingsregel voldoet."
+      }
+    },
+    {
+      "id": "G017",
+      "fase": "holdout",
+      "familie": "normatief_begrip",
+      "herkomst": "Synthetisch geval G017; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "inzagerecht",
+        "kern": "Aanspraak van een deelnemer op het raadplegen van de eigen meetregistraties.",
+        "bedoeling": "De term benoemt een aanspraak binnen een fictief deelnemersreglement.",
+        "organisatorische_context": [
+          "Meetcollectief Spar (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Het proefreglement kent deelnemers een aanspraak toe op inzage in hun eigen registraties. De procedure voor uitoefening staat in een ander hoofdstuk."
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "Definitie van een aanspraak van een deelnemer op inzage in de eigen registraties. Een recht als begrip beschrijven is geen gedragsopdracht; de uitoefeningsprocedure staat volgens de bron elders.",
+        "passages": [
+          {
+            "citaat": "Aanspraak van een deelnemer op het raadplegen van de eigen meetregistraties",
+            "start": 0,
+            "end": 75,
+            "functie": "beschrijft een recht als begrip"
+          }
+        ],
+        "normgrond": "Definitie van een aanspraak van een deelnemer op inzage in de eigen registraties. Een recht als begrip beschrijven is geen gedragsopdracht; de uitoefeningsprocedure staat volgens de bron elders."
+      }
+    },
+    {
+      "id": "G033",
+      "fase": "holdout",
+      "familie": "normatief_begrip",
+      "herkomst": "Synthetisch geval G033; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "beoordelingsmarge",
+        "kern": "Ruimte die een regeling aan een beoordelaar laat om relevante omstandigheden naar eigen inzicht te wegen.",
+        "bedoeling": "De term wordt opgenomen in het woordenboek van het regelmodel. Daarin staan ook de termen 'beoordelaar' en 'weging'.",
+        "organisatorische_context": [
+          "Regelmodel Populier (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Woordenboek regelmodel Populier (fictief; geen geldend recht), inleiding bij de lemmata over beoordeling: 'Regelingen in het model verschillen in de mate waarin zij de uitkomst vastleggen. Sommige regelingen noemen de omstandigheden die een beoordelaar betrekt en laten het gewicht daarvan aan de beoordelaar over; andere verbinden aan vastgestelde omstandigheden een vaste uitkomst. Het lemma beoordelingsmarge heeft betrekking op de eerste groep.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "De kern definieert een begrip over discretie: de ruimte die een regeling laat. Zij schrijft zelf geen weging voor. B1 plaatst het lemma bij regelingen die het gewicht aan de beoordelaar overlaten. 'Naar eigen inzicht' beschrijft de aard van die ruimte; de S1-treffer is hier een vals alarm.",
+        "passages": [
+          {
+            "citaat": "Ruimte die een regeling aan een beoordelaar laat om relevante omstandigheden naar eigen inzicht te wegen",
+            "start": 0,
+            "end": 104,
+            "functie": "begrip over discretie; beschrijving"
+          }
+        ],
+        "normgrond": "De kern definieert een begrip over discretie: de ruimte die een regeling laat. Zij schrijft zelf geen weging voor. B1 plaatst het lemma bij regelingen die het gewicht aan de beoordelaar overlaten. 'Naar eigen inzicht' beschrijft de aard van die ruimte; de S1-treffer is hier een vals alarm."
+      }
+    },
+    {
+      "id": "G043",
+      "fase": "holdout",
+      "familie": "normatief_begrip",
+      "herkomst": "Synthetisch geval G043; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "vervaltermijn",
+        "kern": "Termijn na afloop waarvan een aanspraak die niet schriftelijk is ingeroepen vervalt, zonder dat de termijn kan worden verlengd.",
+        "bedoeling": "De term wordt opgenomen in de begrippenlijst bij het deelnemersreglement. In die lijst komt ook de term 'klachttermijn' voor.",
+        "organisatorische_context": [
+          "Spaarkring Hop (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Deelnemersreglement Spaarkring Hop (fictief; geen geldend recht), art. 11: 'Een aanspraak op teruggave van een inleg vervalt als de deelnemer haar niet binnen zes maanden na de inleg schriftelijk heeft ingeroepen. Deze termijn van zes maanden is de vervaltermijn; zij kan niet worden verlengd.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Deelnemersreglement Spaarkring Hop (fictief; geen geldend recht), art. 12: 'Een klacht wordt binnen vier weken na de gebeurtenis ingediend (klachttermijn). Het bestuur kan de klachttermijn in bijzondere gevallen verlengen.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "Een normatief begrip: een termijn beschreven via het rechtsgevolg (verval van een niet schriftelijk ingeroepen aanspraak) en de onverlengbaarheid. B1 bevestigt beide kenmerken; B2 staat er als contrast tegenover (verlengbare klachttermijn). Een rechtsgevolg beschrijven is geen voorschrift.",
+        "passages": [
+          {
+            "citaat": "Termijn na afloop waarvan een aanspraak die niet schriftelijk is ingeroepen vervalt, zonder dat de termijn kan worden verlengd",
+            "start": 0,
+            "end": 126,
+            "functie": "rechtsgevolg en eigenschap als begripskenmerk"
+          }
+        ],
+        "normgrond": "Een normatief begrip: een termijn beschreven via het rechtsgevolg (verval van een niet schriftelijk ingeroepen aanspraak) en de onverlengbaarheid. B1 bevestigt beide kenmerken; B2 staat er als contrast tegenover (verlengbare klachttermijn). Een rechtsgevolg beschrijven is geen voorschrift."
+      }
+    },
+    {
+      "id": "G056",
+      "fase": "holdout",
+      "familie": "normatief_begrip",
+      "herkomst": "Synthetisch geval G056; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "zaalwacht",
+        "kern": "Medewerker die tijdens een voorstelling de nooduitgangen van de zaal vrijhoudt en bij alarm de ontruiming van de zaal leidt.",
+        "bedoeling": "De term wordt in het dienstrooster van het theater gebruikt als functienaam, naast de functies kassa en garderobe.",
+        "organisatorische_context": [
+          "Theater Taxus (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Veiligheidsplan Theater Taxus (fictief; geen geldend recht), §3 'Bezetting': 'Bij iedere voorstelling zijn twee zaalwachten aanwezig. Een zaalwacht houdt tijdens de voorstelling de nooduitgangen van de zaal vrij en leidt bij alarm de ontruiming van de zaal.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Dienstrooster Theater Taxus (fictief), veld 'functie': 'Waarden: kassa, garderobe, zaalwacht.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "pass",
+        "reden": "De kern definieert een rol: genus 'Medewerker', met de taken tijdens een voorstelling als onderscheidende kenmerken. De handelingen worden aan het gedefinieerde begrip toegeschreven en niet aan een lezer of derde actor opgedragen. Er is geen modaal werkwoord, geen stappenvolgorde en geen afweging. De bedoeling (functienaam naast kassa en garderobe) en B2 wijzen op een indelende functie. De norm staat het beschrijven van een verplichting of procedure als begripskenmerk toe. Zekerheid middel: het register kent geen precedent voor een actor die door zijn taken wordt gedefinieerd, en B1 is een normatief veiligheidsplan.",
+        "passages": [
+          {
+            "citaat": "Medewerker",
+            "functie": "genus",
+            "start": 0,
+            "end": 10
+          },
+          {
+            "citaat": "die tijdens een voorstelling de nooduitgangen van de zaal vrijhoudt",
+            "functie": "begripskenmerk: taak als onderscheidend kenmerk van de rol",
+            "start": 11,
+            "end": 78
+          },
+          {
+            "citaat": "bij alarm de ontruiming van de zaal leidt",
+            "functie": "begripskenmerk: taak als onderscheidend kenmerk van de rol",
+            "start": 82,
+            "end": 123
+          }
+        ],
+        "normgrond": "De kern definieert een rol: genus 'Medewerker', met de taken tijdens een voorstelling als onderscheidende kenmerken. De handelingen worden aan het gedefinieerde begrip toegeschreven en niet aan een lezer of derde actor opgedragen. Er is geen modaal werkwoord, geen stappenvolgorde en geen afweging. De bedoeling (functienaam naast kassa en garderobe) en B2 wijzen op een indelende functie. De norm staat het beschrijven van een verplichting of procedure als begripskenmerk toe. Zekerheid middel: het register kent geen precedent voor een actor die door zijn taken wordt gedefinieerd, en B1 is een normatief veiligheidsplan."
+      }
+    },
+    {
+      "id": "G024",
+      "fase": "holdout",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "herkomst": "Synthetisch geval G024; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "controlebewijs",
+        "kern": "Document waarvan de controleur eerst de datum verifieert en daarna de handtekening vergelijkt met het register.",
+        "bedoeling": "De term benoemt een bewijsdocument; de kandidaat komt uit een instructie voor de verwerking van zulke documenten.",
+        "organisatorische_context": [
+          "Controleproef Eik (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "De controleur voert bij ontvangst eerst de datumcontrole uit en vergelijkt daarna de handtekening. Deze volgorde is voorgeschreven voor de afhandeling."
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "reden": "De bijzin geeft een voorgeschreven afhandelingsvolgorde van de controleur (eerst datum, daarna handtekening) en bakent niet af welke documenten controlebewijs zijn. De bron noemt die volgorde voorgeschreven; de bedoeling zegt dat de kandidaat uit een verwerkingsinstructie komt. Het genus “document” verandert de functie van de bijzin niet.",
+        "passages": [
+          {
+            "citaat": "waarvan de controleur eerst de datum verifieert en daarna de handtekening vergelijkt met het register",
+            "start": 9,
+            "end": 110,
+            "functie": "voorgeschreven afhandelingsvolgorde; bakent niet af welke documenten controlebewijs zijn"
+          }
+        ],
+        "normgrond": "De bijzin geeft een voorgeschreven afhandelingsvolgorde van de controleur (eerst datum, daarna handtekening) en bakent niet af welke documenten controlebewijs zijn. De bron noemt die volgorde voorgeschreven; de bedoeling zegt dat de kandidaat uit een verwerkingsinstructie komt. Het genus “document” verandert de functie van de bijzin niet."
+      }
+    },
+    {
+      "id": "G044",
+      "fase": "holdout",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "herkomst": "Synthetisch geval G044; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "proefmonster",
+        "kern": "Monster dat de laborant niet mag openen voordat twee medewerkers de verzegeling hebben gecontroleerd.",
+        "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de monsterregistratie en heeft daarvoor een zin uit het werkvoorschrift van het laboratorium aangeleverd.",
+        "organisatorische_context": [
+          "Laboratorium Kers (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Werkvoorschrift laboratorium Kers (fictief; geen geldend recht), art. 2.4: 'Verzegelde monsters voor de externe vergelijkingsproef mag de laborant niet openen voordat twee medewerkers de verzegeling hebben gecontroleerd en dat met hun paraaf op het begeleidingsformulier hebben bevestigd.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Handleiding monsterregistratie Kers (fictief; geen geldend recht), veld 'monstersoort': 'Waarden: regulier, proefmonster. Kies proefmonster voor een monster dat voor de externe vergelijkingsproef is verzegeld.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "reden": "De kern kenmerkt het monster via een openingsverbod voor de laborant, letterlijk uit het werkvoorschrift (B1). Volgens B2 rust de classificatie 'proefmonster' op verzegeling voor de externe vergelijkingsproef, niet op het verbod. De passage werkt als handelingsvoorschrift in de definitiekern en niet als begripsbepalend kenmerk.",
+        "passages": [
+          {
+            "citaat": "dat de laborant niet mag openen voordat twee medewerkers de verzegeling hebben gecontroleerd",
+            "start": 8,
+            "end": 100,
+            "functie": "handelingsverbod voor de laborant"
+          }
+        ],
+        "normgrond": "De kern kenmerkt het monster via een openingsverbod voor de laborant, letterlijk uit het werkvoorschrift (B1). Volgens B2 rust de classificatie 'proefmonster' op verzegeling voor de externe vergelijkingsproef, niet op het verbod. De passage werkt als handelingsvoorschrift in de definitiekern en niet als begripsbepalend kenmerk."
+      }
+    },
+    {
+      "id": "G049",
+      "fase": "holdout",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "herkomst": "Synthetisch geval G049; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "jaarverslag",
+        "kern": "Verslag over het afgelopen verenigingsjaar dat het bestuur vóór 1 april aan de ledenvergadering voorlegt.",
+        "bedoeling": "De term wordt in het ledenportaal gebruikt voor de verslagen over een verenigingsjaar. Volgens de gebruiker valt ook het verslag over 2025 eronder, dat in mei 2026 aan de ledenvergadering is voorgelegd.",
+        "organisatorische_context": [
+          "Vereniging Brem (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Statuten Vereniging Brem (fictief; geen geldend recht), art. 14 lid 1: 'Het bestuur legt jaarlijks vóór 1 april een verslag over het afgelopen verenigingsjaar aan de ledenvergadering voor.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Ledenportaal Vereniging Brem (fictief), overzicht Jaarverslagen: 'Jaarverslag 2023: voorgelegd 21 maart 2024. Jaarverslag 2024: voorgelegd 27 maart 2025. Jaarverslag 2025: voorgelegd 14 mei 2026, na uitstel van de voorjaarsvergadering.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "reden": "'Dat het bestuur vóór 1 april … voorlegt' is de statutaire plicht uit B1. De bedoeling rekent ook het in mei voorgelegde verslag over 2025 tot de term, en B2 vermeldt het als jaarverslag. De termijn is dus geen kenmerk. De bijzin werkt als handelingsvoorschrift voor het bestuur.",
+        "passages": [
+          {
+            "citaat": "dat het bestuur vóór 1 april aan de ledenvergadering voorlegt",
+            "start": 43,
+            "end": 104,
+            "functie": "statutaire handelingsplicht van het bestuur"
+          }
+        ],
+        "normgrond": "'Dat het bestuur vóór 1 april … voorlegt' is de statutaire plicht uit B1. De bedoeling rekent ook het in mei voorgelegde verslag over 2025 tot de term, en B2 vermeldt het als jaarverslag. De termijn is dus geen kenmerk. De bijzin werkt als handelingsvoorschrift voor het bestuur."
+      }
+    },
+    {
+      "id": "G053",
+      "fase": "holdout",
+      "familie": "actorvoorschrift_procedure_discretie",
+      "herkomst": "Synthetisch geval G053; bronobject SHA-256 2c1919ee143f11551d9cb643667243ecb610769aa528548286a9fe4c7bbdbe64",
+      "invoer": {
+        "begrip": "reiskostenvergoeding",
+        "kern": "De administratie berekent voor iedere gereden dienstkilometer 0,23 euro, beperkt het bedrag per dag tot 40 euro en maakt het maandtotaal over aan de vrijwilliger.",
+        "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de vrijwilligersadministratie en biedt daarvoor stap 3 uit de werkinstructie van de administratie aan.",
+        "organisatorische_context": [
+          "Vrijwilligersorganisatie Lijsterbes (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Vrijwilligersreglement Lijsterbes (fictief; geen geldend recht), art. 12: 'Voor iedere kilometer die een vrijwilliger in opdracht van de organisatie rijdt (dienstkilometer), bedraagt de reiskostenvergoeding 0,23 euro, met een maximum van 40 euro per dag. De reiskostenvergoeding wordt maandelijks uitbetaald.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Werkinstructie administratie Lijsterbes (fictief; geen geldend recht), stap 3 'Reiskosten': 'De administratie berekent voor iedere gereden dienstkilometer 0,23 euro, beperkt het bedrag per dag tot 40 euro en maakt het maandtotaal over aan de vrijwilliger.' Stap 4: 'Archiveer de rittenstaat bij de maandafrekening.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "fail",
+        "reden": "De hele kern is een procedurestap. Het grammaticale onderwerp is de administratie, niet de vergoeding. De drie werkwoorden beschrijven opeenvolgende handelingen van die actor: berekenen, begrenzen en overmaken. De bedoeling en B2 bevestigen dat stap 3 uit een werkinstructie als definitie is aangeleverd. Dat de berekening deterministisch is, maakt haar geen afleidingsregel: volgens de norm is een gebonden handelingsopdracht niet enkel door haar determinisme een afleidingsregel. B1 laat zien dat dezelfde inhoud ook als beschrijvende afleiding bestaat. Er ontbreekt dus geen betekenisgrond; het gebrek is zelfstandig aangetoond.",
+        "passages": [
+          {
+            "citaat": "De administratie berekent voor iedere gereden dienstkilometer 0,23 euro",
+            "functie": "actorvoorschrift/procedure: rekenhandeling van een actor",
+            "start": 0,
+            "end": 71
+          },
+          {
+            "citaat": "beperkt het bedrag per dag tot 40 euro",
+            "functie": "actorvoorschrift/procedure: begrenzingshandeling",
+            "start": 73,
+            "end": 111
+          },
+          {
+            "citaat": "maakt het maandtotaal over aan de vrijwilliger",
+            "functie": "actorvoorschrift/procedure: uitbetalingshandeling",
+            "start": 115,
+            "end": 161
+          }
+        ],
+        "normgrond": "De hele kern is een procedurestap. Het grammaticale onderwerp is de administratie, niet de vergoeding. De drie werkwoorden beschrijven opeenvolgende handelingen van die actor: berekenen, begrenzen en overmaken. De bedoeling en B2 bevestigen dat stap 3 uit een werkinstructie als definitie is aangeleverd. Dat de berekening deterministisch is, maakt haar geen afleidingsregel: volgens de norm is een gebonden handelingsopdracht niet enkel door haar determinisme een afleidingsregel. B1 laat zien dat dezelfde inhoud ook als beschrijvende afleiding bestaat. Er ontbreekt dus geen betekenisgrond; het gebrek is zelfstandig aangetoond."
+      }
+    },
+    {
+      "id": "G057",
+      "fase": "holdout",
+      "familie": "ontbrekende_strijdige_grond",
+      "herkomst": "Synthetisch geval G057; bronobject SHA-256 6309d72b5b83b5ffb30cc7571e9e9df0eb2a95707f3d470e8a5dfd5827ab160f",
+      "invoer": {
+        "begrip": "transitcontainer",
+        "kern": "Container die op de terminal naar een ander schip wordt overgeslagen en bij aankomst op de terminal wordt gewogen.",
+        "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de terminal en heeft de Nederlandse en de Engelse tekst van het terminalreglement meegestuurd.",
+        "organisatorische_context": [
+          "Terminal Zeekraal (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Terminalreglement Zeekraal (fictief; geen geldend recht), Nederlandse tekst, art. 4 lid 1: 'Transitcontainers zijn containers die op de terminal naar een ander schip worden overgeslagen en bij aankomst op de terminal worden gewogen.' Art. 31: 'De Nederlandse en de Engelse tekst van dit reglement zijn gelijkelijk authentiek.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Terminalreglement Zeekraal (fictief; geen geldend recht), Engelse tekst, art. 4(1): 'Containers transhipped at the terminal to another vessel shall be weighed on arrival at the terminal.' Art. 31: 'The Dutch and English texts of these regulations are equally authentic.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "Is wegen bij aankomst een voorwaarde om een container transitcontainer te noemen, of een verplichte handeling voor iedere container die naar een ander schip wordt overgeslagen?",
+        "passages": [
+          {
+            "citaat": "Container die op de terminal naar een ander schip wordt overgeslagen en bij aankomst op de terminal wordt gewogen.",
+            "functie": "Overslag als objectkenmerk; wegen is onbeslist tussen lidmaatschapscriterium en opgelegde handeling.",
+            "start": 0,
+            "end": 114
+          }
+        ],
+        "normgrond": "De Nederlandse bron verbindt overslag en wegen in een begripsomschrijving; de Engelse bron legt het wegen op aan de door overslag bepaalde categorie. De gelijkelijke authenticiteit biedt geen grond om één lezing voorrang te geven. Het verschil raakt of een ongewogen overslagcontainer buiten de categorie valt of binnen de categorie een weegvoorschrift schendt. De bedoeling kiest geen lezing. Het voorschrift in B2 bewijst daardoor nog niet zelfstandig dat de aangeboden Nederlandse kern dat voorschrift uitvoert. De INT-02-functie van het weegdeel blijft onbeslist."
+      }
+    },
+    {
+      "id": "G068",
+      "fase": "holdout",
+      "familie": "ontbrekende_strijdige_grond",
+      "herkomst": "Synthetisch geval G068; bronobject SHA-256 10b90000143356ff0e2064e4230528d68c29d7ae40a3e074f81bb311c98e8d5b",
+      "invoer": {
+        "begrip": "zichtzending",
+        "kern": "Toezending van een boek ter inzage aan een lid, waarbij het lid het boek binnen veertien dagen na ontvangst terugstuurt of de prijs betaalt.",
+        "bedoeling": "De term wordt gebruikt in de algemene voorwaarden van de leesclub en in de welkomstbrief voor nieuwe leden. De gebruiker heeft uit beide stukken een passage meegestuurd.",
+        "organisatorische_context": [
+          "Leesclub Korenbloem (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Algemene voorwaarden Leesclub Korenbloem (fictief; geen geldend recht), versie 2026, art. 6: 'Bij een zichtzending ontvangt het lid een boek ter inzage. Het lid stuurt het boek binnen veertien dagen na ontvangst onbeschadigd terug of betaalt de prijs. Heeft de club het boek na die veertien dagen niet terugontvangen, dan is het boek gekocht; de club schrijft de prijs dan van de rekening van het lid af, voor zover het lid die nog niet heeft betaald.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Welkomstbrief voor nieuwe leden Leesclub Korenbloem (fictief), 2026: 'Wat is een zichtzending? Vier keer per jaar sturen wij u een boek ter inzage. U hebt dan veertien dagen de tijd om te kiezen: stuurt u het boek terug, dan betaalt u niets; houdt u het, dan schrijven wij de prijs af. Voorbeeld: u ontvangt het boek op 3 maart; tot en met 17 maart kunt u het terugsturen.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "Beschrijft de passage over terugsturen of betalen de retour-/koopkeuze die deze toezending kenmerkt, of moet zij het lid in deze begrippenlijst rechtstreeks opdragen binnen veertien dagen terug te sturen of te betalen?",
+        "passages": [
+          {
+            "citaat": "Toezending van een boek ter inzage aan een lid, waarbij het lid het boek binnen veertien dagen na ontvangst terugstuurt of de prijs betaalt.",
+            "functie": "Onbesliste functie van de retour-/betalingspassage: kenmerk van de aangeboden keuzeconstructie of rechtstreeks voorschrift aan het ontvangende lid.",
+            "start": 0,
+            "end": 140
+          }
+        ],
+        "normgrond": "B1 draagt een concrete retour-/betalingsplicht; B2 beschrijft de keuze en automatische afrekening die de toezending begeleiden. De kern kan die constructie als begripskenmerk beschrijven, maar kan ook het handelingsvoorschrift uit B1 in het definitieveld uitvoeren. De bedoeling noemt uitsluitend de twee gebruiksplaatsen en kiest geen referent tussen toezendingsconstructie en gedragsopdracht. De bronnen spreken elkaar niet noodzakelijk tegen; onbeslist is welke functie hun handelingsinhoud in deze kern draagt. Daarom is noch een zelfstandig voorschrift noch uitsluitend beschrijvende werking voldoende bewezen. De termijn alleen rechtvaardigt geen afkeur."
+      }
+    },
+    {
+      "id": "G071",
+      "fase": "holdout",
+      "familie": "ontbrekende_strijdige_grond",
+      "herkomst": "Synthetisch geval G071; bronobject SHA-256 5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+      "invoer": {
+        "begrip": "geannuleerde rondvaart",
+        "kern": "Rondvaart die de schipper wegens windkracht 6 of meer niet laat vertrekken.",
+        "bedoeling": "De term komt voor in de vervoersvoorwaarden en in het veiligheidsplan van het rondvaartbedrijf. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd, met een uittreksel uit het vaarlogboek.",
+        "organisatorische_context": [
+          "Rondvaartbedrijf Waternavel (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Vervoersvoorwaarden Rondvaartbedrijf Waternavel (fictief; geen geldend recht), vastgesteld door de directie op 1 april 2026, art. 7: 'Een geannuleerde rondvaart is een rondvaart die de schipper wegens windkracht 6 of meer niet laat vertrekken. De beslissing van de schipper om niet te vertrekken maakt de rondvaart geannuleerd; de passagier krijgt bij een geannuleerde rondvaart de volledige ritprijs terug. Een rondvaart die is vertrokken, is niet geannuleerd, ook niet als tijdens de vaart windkracht 6 of meer wordt gemeten.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Veiligheidsplan Rondvaartbedrijf Waternavel (fictief; geen geldend recht), vastgesteld door de directie op 1 april 2026, §4, gericht aan de schipper: 'Wijst de windmeter op de steiger een kwartier voor het geplande vertrek windkracht 6 of meer aan, dan is de rondvaart geannuleerd. De schipper laat een geannuleerde rondvaart niet vertrekken en meldt de annulering aan de kassa.'"
+          },
+          {
+            "id": "B3",
+            "tekst": "Vaarlogboek Rondvaartbedrijf Waternavel (fictief), 14 juni 2026: '19.45 uur: windmeter steiger windkracht 6. 20.00 uur: rondvaart vertrokken nadat de wind was afgenomen; geen annulering aan de kassa gemeld.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "Moet niet laten vertrekken in de kern de constitutieve annuleringsbeslissing beschrijven, of het gedrag voorschrijven nadat de windmeting de rondvaart al geannuleerd maakt?",
+        "passages": [
+          {
+            "citaat": "Rondvaart die de schipper wegens windkracht 6 of meer niet laat vertrekken.",
+            "functie": "Niet laten vertrekken als constitutieve beslissing of als gedragsplicht na automatische annulering.",
+            "start": 0,
+            "end": 75
+          }
+        ],
+        "normgrond": "B1 laat de annulering ontstaan door de beslissing niet te vertrekken. B2 laat haar al ontstaan door de windmeting en schrijft vervolgens niet vertrekken voor. Dat keert de richting tussen status en handeling om. De kern bevat juist die handeling, terwijl de bedoeling beide stukken tegelijk omvat. Zij kan dus een constitutief kenmerk beschrijven of een veiligheidsopdracht als definitie aanbieden. Het logboek illustreert het verschil, maar kiest geen betekenisgrond. Er is geen zelfstandig kernvoorschrift bewezen naast deze functietwijfel."
+      }
+    },
+    {
+      "id": "G073",
+      "fase": "holdout",
+      "familie": "ontbrekende_strijdige_grond",
+      "herkomst": "Synthetisch geval G073; bronobject SHA-256 5c1674c16779e58eaa8dda12b86dd30381a84e717a0e4399a94b09bc2ba071e3",
+      "invoer": {
+        "begrip": "rustperiode",
+        "kern": "Periode waarin de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uitvoert.",
+        "bedoeling": "De term komt voor in de monitoringsmethodiek en in het beheerplan van het natuurterrein. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd, met een uittreksel uit het werklogboek.",
+        "organisatorische_context": [
+          "Natuurterrein Zwanebloem (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": [],
+        "bronnen": [
+          {
+            "id": "B1",
+            "tekst": "Monitoringsmethodiek weidevogels Natuurterrein Zwanebloem (fictief; geen geldend recht), vastgesteld door het bestuur op 20 januari 2026, §3: 'Een rustperiode is een periode waarin de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uitvoert. De rustperioden van een seizoen worden na afloop uit het werklogboek afgeleid: iedere aaneengesloten periode van ten minste dertig dagen zonder geregistreerd maai- of snoeiwerk in het weidevogelgebied is een rustperiode. Het broedsucces wordt per rustperiode berekend.'"
+          },
+          {
+            "id": "B2",
+            "tekst": "Beheerplan Natuurterrein Zwanebloem 2026 (fictief; geen geldend recht), vastgesteld door het bestuur op 20 januari 2026, §5, gericht aan de terreinbeheerder: 'Van 15 maart tot en met 15 juni is het rustperiode. In de rustperiode voert de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uit.'"
+          },
+          {
+            "id": "B3",
+            "tekst": "Werklogboek Natuurterrein Zwanebloem 2026 (fictief), uittreksel weidevogelgebied: 'Maai- of snoeiwerk op 3 maart, 2 mei (omgewaaide wilg bij de toegangsweg gesnoeid), 20 juni en 4 juli.'"
+          }
+        ]
+      },
+      "label": {
+        "status": "review_required",
+        "reden": "Moet geen maai- of snoeiwerk in de kern het tijdvak achteraf afbakenen, of de terreinbeheerder gedrag voorschrijven binnen de vooraf vastgestelde kalenderperiode?",
+        "passages": [
+          {
+            "citaat": "Periode waarin de terreinbeheerder in het weidevogelgebied geen maai- of snoeiwerk uitvoert.",
+            "functie": "Feitelijk werkvrij tijdvak als afleiding of werkverbod binnen een vooraf vastgesteld tijdvak.",
+            "start": 0,
+            "end": 92
+          }
+        ],
+        "normgrond": "Volgens B1 bepaalt geregistreerde afwezigheid van werkzaamheden achteraf welke perioden rustperioden zijn. Volgens B2 ligt het tijdvak vooraf vast en schrijft dezelfde afwezigheid van werkzaamheden gedrag voor. De kern laat juist de kalendergrond en de minimumduur weg en kan daardoor beide functies dragen. Het logboek maakt hun uiteenlopende toepassing concreet, zonder één bron te laten voorgaan. De ontbrekende dertigdagengrens is afzonderlijk een volledigheidsprobleem; de omkering tussen periodeafleiding en werkverbod raakt INT-02 zelf."
+      }
+    }
+  ]
+}

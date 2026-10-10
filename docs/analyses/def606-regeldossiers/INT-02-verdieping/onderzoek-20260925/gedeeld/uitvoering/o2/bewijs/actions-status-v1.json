@@ -1,0 +1,9 @@
+{
+  "vastgelegd_op": "2026-09-28T14:48:23.203042+02:00",
+  "command": "gh api repos/Chris-Lehnen-ICT-CONSULTING/Definitie-app-zakelijk/actions/permissions --jq {enabled: .enabled}",
+  "exit": 0,
+  "resultaat": {
+    "enabled": false
+  },
+  "mutatie": false
+}

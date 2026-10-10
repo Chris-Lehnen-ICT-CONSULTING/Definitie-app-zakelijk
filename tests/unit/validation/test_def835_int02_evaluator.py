@@ -67,6 +67,7 @@ from services.validation.evaluators.pronoun_reference_assessment import (
 )
 from services.validation.evaluators.registry import get_default_registry
 from services.validation.types_internal import EvaluationContext
+from tests.fixtures.def835_int02_v4 import bronfuncties
 from toetsregels.runtime_contract import (
     AutomationStatus,
     EvaluatorType,
@@ -194,48 +195,63 @@ CONFIG = Configuratie(
 VOLTOOID = Uitvoering(actor="ai", status="completed", tijdstip="2026-09-27T00:00:00Z")
 
 
-def _passage(kern: str, citaat: str, functie: str) -> dict:
-    start = kern.index(citaat)
-    return {
-        "quote": citaat,
-        "start": start,
-        "end": start + len(citaat),
-        "function": functie,
-        "ground": {
-            "field": "kern",
-            "ref": None,
-            "quote": None,
-            "start": None,
-            "end": None,
-        },
-    }
+#: Grondbron van CONTEXT met een letterlijk citaat (bronfuncties, contract /4).
+LOKET = "organisatorische_context/0"
+
+
+def _passage(kern: str, citaat: str, kernvorm: str, **functies: Any) -> dict:
+    # Contract /4: geen posities in de modeluitvoer; het citaat is uniek. De
+    # bronfuncties volgen pas bij de invoer (`_respons_voor`); niet genoemde
+    # grondbronnen zwijgen.
+    assert kern.count(citaat) == 1
+    return {"quote": citaat, "kernvorm": kernvorm, "functies": functies}
 
 
 def _respons(verdict: str, passages: list[dict], **over: Any) -> dict:
     return {
-        "verdict": verdict,
         "passages": passages,
         "reason": over.pop("reason", "Synthetische onderbouwing."),
         "question": over.pop("question", None),
         "uncertainty": over.pop("uncertainty", "none"),
-        "scope_reason": over.pop("scope_reason", None),
         "coverage": over.pop("coverage", "complete"),
+        "scope_reason": over.pop("scope_reason", None),
+        "verdict": verdict,
     }
 
 
-#: scenario -> (kern, beoordelaarsuitvoer, verwachte status)
+def _respons_voor(respons: dict, invoer) -> dict:
+    """De /4-uitvoer bij `invoer`: per passage één bronfunctie per grondbron."""
+    respons = copy.deepcopy(respons)
+    for passage in respons["passages"]:
+        functies = passage.pop("functies")
+        passage["bronfuncties"] = bronfuncties(
+            invoer, {LOKET if k == "loket" else k: v for k, v in functies.items()}
+        )
+    return respons
+
+
+#: scenario -> (kern, beoordelaarsuitvoer zonder bronfuncties, verwachte status)
 SCENARIO = {
     "pass": (
         KERN_PASS,
         _respons(
-            "pass", [_passage(KERN_PASS, "zonder rest door twee deelbaar", "criterion")]
+            "pass", [_passage(KERN_PASS, "zonder rest door twee deelbaar", "no_act")]
         ),
         ResultStatus.PASS,
     ),
+    # Een plichtwoord in de kern, maar de bron gebruikt het als kenmerk.
     "pass_plicht": (
         KERN_PLICHT,
         _respons(
-            "pass", [_passage(KERN_PLICHT, "een partij moet nakomen", "criterion")]
+            "pass",
+            [
+                _passage(
+                    KERN_PLICHT,
+                    "een partij moet nakomen",
+                    "obligation_form",
+                    loket=("criterion", "Synthetisch loket"),
+                )
+            ],
         ),
         ResultStatus.PASS,
     ),
@@ -247,7 +263,7 @@ SCENARIO = {
                 _passage(
                     KERN_VOORSCHRIFT,
                     "moet afwijzen bij een ontbrekende bijlage",
-                    "actor_prescription",
+                    "instruction",
                 )
             ],
         ),
@@ -258,11 +274,15 @@ SCENARIO = {
         _respons(
             "fail",
             [
+                # Besluit 16 (3A): de afwegingsvorm in de kern is het tweede
+                # signaal naast de bron; zonder bron en zonder bevestigde
+                # bedoeling zou dit review_required worden (besluit 12).
                 _passage(
                     KERN_DISCRETIE,
-                    "tenzij zij van oordeel is dat de aanvrager daardoor onevenredig "
-                    "zou worden benadeeld",
-                    "discretionary_decision_rule",
+                    "tenzij zij van oordeel is dat de aanvrager daardoor "
+                    "onevenredig zou worden benadeeld",
+                    "discretion_form",
+                    loket=("discretionary_decision_rule", "Synthetisch loket"),
                 )
             ],
         ),
@@ -272,7 +292,7 @@ SCENARIO = {
         KERN_C105,
         _respons(
             "fail",
-            [_passage(KERN_C105, "laat de aanvrager toe", "actor_prescription")],
+            [_passage(KERN_C105, "laat de aanvrager toe", "instruction")],
         ),
         ResultStatus.FAIL,
     ),
@@ -284,7 +304,8 @@ SCENARIO = {
                 _passage(
                     KERN_OPEN,
                     "na afweging van de belangen van de houder evenredig acht",
-                    "unclear",
+                    "descriptive_act",
+                    loket=("unclear", None),
                 )
             ],
             reason="De bevestigde bedoeling ontbreekt.",
@@ -333,7 +354,7 @@ def _invoer(
 def _document(scenario: str, **invoer_over: Any) -> Beoordelingsdocument:
     kern, respons, _ = SCENARIO[scenario]
     invoer = _invoer(kern, **invoer_over)
-    return beoordeel(invoer, CONFIG, copy.deepcopy(respons), VOLTOOID)
+    return beoordeel(invoer, CONFIG, _respons_voor(respons, invoer), VOLTOOID)
 
 
 def _document_mislukt() -> Beoordelingsdocument:
@@ -604,6 +625,33 @@ class TestActueelOordeel:
         assert doc.vraag and doc.vraag in (uitkomst.reason or "")
         assert _detail(uitkomst)["review"]["actuality"] == "current"
 
+    def test_omgezette_discretie_zonder_bedoeling_is_zichtbaar_open(self):
+        # Besluit 12, onder /4 de laatste tak van de beslisregel: afwegingsvorm
+        # in de kern, alle bronnen zwijgen, bedoeling onbekend; model zegt fail.
+        respons = _respons(
+            "fail",
+            [
+                _passage(
+                    KERN_DISCRETIE,
+                    "tenzij zij van oordeel is dat de aanvrager daardoor onevenredig "
+                    "zou worden benadeeld",
+                    "discretion_form",
+                )
+            ],
+        )
+        invoer = _invoer(KERN_DISCRETIE)
+        doc = beoordeel(invoer, CONFIG, _respons_voor(respons, invoer), VOLTOOID)
+        uitkomst = _evalueer(_metadata(KERN_DISCRETIE, doc))
+        detail = _assert_scoreloos_met_melding(
+            uitkomst, ResultStatus.REVIEW_REQUIRED, doc.melding
+        )
+        assert uitkomst.violation is None
+        assert uitkomst.reason == doc.melding
+        assert doc.vraag and doc.vraag in doc.melding
+        assert detail["assessment"]["omzetting"] == "discretie_zonder_bedoeling"
+        assert detail["assessment"]["oordeel"]["verdict"] == "fail"
+        assert detail["review"]["actuality"] == "current"
+
 
 # ---------------------------------------------------------------------------
 # Nog niet beoordeeld en historisch
@@ -761,15 +809,17 @@ def _assert_fout(uitkomst: EvaluationOutcome) -> dict:
 
 
 def _ongeldig_antwoord() -> Beoordelingsdocument:
-    respons = copy.deepcopy(SCENARIO["pass"][1])
+    invoer = _invoer(KERN_PASS)
+    respons = _respons_voor(SCENARIO["pass"][1], invoer)
     respons["verdict"] = "ONGELDIG"
-    return beoordeel(_invoer(KERN_PASS), CONFIG, respons, VOLTOOID)
+    return beoordeel(invoer, CONFIG, respons, VOLTOOID)
 
 
 def _verzonnen_citaat() -> Beoordelingsdocument:
-    respons = copy.deepcopy(SCENARIO["fail"][1])
-    respons["passages"][0].update({"quote": "zij vertrekt", "start": 0, "end": 12})
-    return beoordeel(_invoer(KERN_PASS), CONFIG, respons, VOLTOOID)
+    invoer = _invoer(KERN_PASS)
+    respons = _respons_voor(SCENARIO["fail"][1], invoer)
+    respons["passages"][0]["quote"] = "zij vertrekt"
+    return beoordeel(invoer, CONFIG, respons, VOLTOOID)
 
 
 def _direct_samengesteld() -> Beoordelingsdocument:
@@ -824,7 +874,7 @@ GESABOTEERD = {
     "pass-als-fail": lambda: dataclasses.replace(_document("pass"), status="fail"),
     "oordeel-vervangen": lambda: dataclasses.replace(
         _document("pass"),
-        oordeel_json=json.dumps({**SCENARIO["pass"][1], "verdict": "fail"}),
+        oordeel_json=json.dumps({**_document("pass").oordeel, "verdict": "fail"}),
     ),
     "oordeel-corrupt": lambda: dataclasses.replace(
         _document("pass"), oordeel_json="{niet-json"

@@ -1,0 +1,11 @@
+**Geen blocker gevonden in de concrete tweebestandsdiff.** De promptcorrectie past bij het voorstel en het samengevatte C107-foutbewijs.
+
+- Promptversie is `/2`; `T_TEKST`, norm, schema, contractvalidatie en statusmapping zijn ongewijzigd.
+- De [fail-instructie](/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/src/services/validation/int02_assessment_service.py:371) laat expliciet grond uit de **kern zelf** toe. Onbekende bedoeling wordt geen algemene blokkade voor `fail`; alleen ontbrekende beslissende grond bij ambiguïteit leidt naar één vraag. Geen onjuiste regelpoort gevonden.
+- Citaatinstructies vereisen letterlijke tekst, nulgebaseerde Python-codepunten en een exclusieve eindpositie. De bestaande contractcontrole blijft ongeldige posities afwijzen zonder reparatie.
+- Het rode log toont **5 failed / 57 passed**, met `/1` en ontbrekende instructies. Het groene log toont **452 passed**. De toegevoegde tests bewaken betekenisvol versie, exacte prompttekst, plaatsing en invoeronafhankelijkheid. Geen testgeval verwijderd; de bestaande versieassertie is aangepast.
+- Geen casushardcoding in de prompt of wijzigingen aan dependencies, Actions, O2-activering, push- of mergegedrag aangetroffen.
+
+**Lage ernst — beperkte bewijsherleidbaarheid:** het [groene log, regel 8](/Users/chrislehnen/Projecten/Definitie-app/.claude/worktrees/DEF-835-int02-o2/docs/analyses/def606-regeldossiers/INT-02-verdieping/onderzoek-20260925/gedeeld/uitvoering/o2/goldset-voorbereiding/goldset-freeze-v1/promptcorrectie-groen-coordinator-v1.log:8) vermeldt uitsluitend het resultaat, zonder testcommando, geselecteerde testnamen of bronhash. Daardoor is de exacte koppeling van alle 452 tests aan deze diff niet zelfstandig vast te stellen. Concrete verbetering: voeg die bestaande uitvoeringsmetadata toe in een afzonderlijk bewijsbestand.
+
+De offline tests bewaken promptrendering en mechanische contracteigenschappen; zij bewijzen geen betere modeloordelen of correcte modelcitaten. Ik heb de tests niet opnieuw uitgevoerd, geen bestanden gewijzigd, geen hold-outinhoud geopend en geen live proef of andere agents/CLI-sessies gestart.

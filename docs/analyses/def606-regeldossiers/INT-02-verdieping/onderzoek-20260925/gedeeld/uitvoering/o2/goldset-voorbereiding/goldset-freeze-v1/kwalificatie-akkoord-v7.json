@@ -1,0 +1,15 @@
+{
+  "soort": "def835-int02-kwalificatie-akkoord/1",
+  "manifest_sha256": "872482f4f201b2c5a7e04e3a0dd6589f088518adb7af99f395da08f89ccfc84b",
+  "gevallenmanifest_sha256": "af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953",
+  "protocol_sha256": "53a199fdff49c7ec40c10e84c79356fd72dcba6190cb75c715ce077c1054f18f",
+  "profiel_id": "def835-kwalificatieproef-opus5-v1",
+  "geen_def815_kwalificatie": true,
+  "live_verzending_toegestaan": true,
+  "max_inferenties": 43,
+  "max_tokenmetingen": 43,
+  "budget_usd": 12.0,
+  "akkoord_door": "Chris Lehnen",
+  "akkoord_op": "2026-10-07",
+  "akkoord_bron": "Cowork-chat 07-10-2026: keuzevraag 'Akkoord op manifest v7 (872482f4…) … en opnieuw alleen fase 1' beantwoord met 'Akkoord, draai fase 1'; vastgelegd in o2/besluit-chris-promptcorrectie-en-v3-v1.md besluit 15"
+}

@@ -42,6 +42,7 @@ from domain.int02.contract import (
     beoordeel,
     maak_invoer,
 )
+from services.ai.base_client import response_schema_sha256
 from services.interfaces import AIGenerationResult, Definition, GenerationRequest
 from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
 from services.validation.int02_assessment_service import (
@@ -51,6 +52,7 @@ from services.validation.int02_assessment_service import (
 )
 from services.validation.interfaces import ValidationContext
 from services.validation.modular_validation_service import ModularValidationService
+from tests.fixtures.def835_int02_v4 import naar_v4
 from toetsregels.manager import ToetsregelManager
 
 pytestmark = [pytest.mark.unit]
@@ -108,6 +110,11 @@ def _invoer(kern: str = KERN, **over):
     return maak_invoer(**velden)
 
 
+def _v4(respons: Any, invoer: Any = None) -> Any:
+    """Een /3-respons (fixture of hieronder) in /4-vorm bij `invoer` (standaard `_invoer()`)."""
+    return naar_v4(_invoer() if invoer is None else invoer, respons)
+
+
 def _metadata(**over) -> dict[str, Any]:
     metadata: dict[str, Any] = {**copy.deepcopy(CONTEXT), "int02_bedoeling": BEDOELING}
     metadata.update(over)
@@ -120,16 +127,8 @@ def _pass_respons(kern: str = KERN) -> dict[str, Any]:
         "passages": [
             {
                 "quote": kern,
-                "start": 0,
-                "end": len(kern),
                 "function": "criterion",
-                "ground": {
-                    "field": "kern",
-                    "ref": None,
-                    "quote": None,
-                    "start": None,
-                    "end": None,
-                },
+                "ground": {"field": "kern", "ref": None, "quote": None},
             }
         ],
         "reason": "Synthetische pass voor de mapping; geen modeloordeel.",
@@ -212,7 +211,7 @@ class FakeDienst:
         config = self.document_config or (
             self.snapshot if isinstance(self.snapshot, Configuratie) else CONFIG
         )
-        return _Beoordeling(beoordeel(doel, config, self.respons, VOLTOOID))
+        return _Beoordeling(beoordeel(doel, config, _v4(self.respons, doel), VOLTOOID))
 
 
 # --- regelsets ------------------------------------------------------------------
@@ -338,7 +337,7 @@ async def test_meegegeven_document_zonder_dienst_geeft_nooit_een_oordeel(
 async def test_verse_beoordeling_vervangt_meegegeven_document(o2_service, route):
     dienst = FakeDienst()  # C105: adviserende fail
     orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=dienst)
-    los_document = beoordeel(_invoer(), CONFIG, _pass_respons(), VOLTOOID)
+    los_document = beoordeel(_invoer(), CONFIG, _v4(_pass_respons()), VOLTOOID)
 
     resultaat = await route(
         orch, int02_document=los_document, int02_configuratie=CONFIG
@@ -346,7 +345,7 @@ async def test_verse_beoordeling_vervangt_meegegeven_document(o2_service, route)
 
     (invoer,) = dienst.calls
     assert invoer == _invoer()
-    verwacht = beoordeel(invoer, CONFIG, C105["modelrespons"], VOLTOOID)
+    verwacht = beoordeel(invoer, CONFIG, _v4(C105["modelrespons"], invoer), VOLTOOID)
     detail = _int02(resultaat)
     assert detail["status"] == "fail"
     assert detail["review"]["actuality"] == "current"
@@ -519,8 +518,20 @@ class FakeAI:
             tokens_used=None,
             generation_time=0.01,
             cached=False,
-            metadata={"stop_reason": "end_turn"},
+            metadata={"stop_reason": "end_turn", **_schemabevestiging(kwargs)},
         )
+
+
+def _schemabevestiging(kwargs: dict) -> dict:
+    """Zoals AIServiceV2 (besluit 14): bij een meegegeven antwoordschema de
+    lokale schemahash en de bloktypen van de respons."""
+    schema = kwargs.get("response_schema")
+    if schema is None:
+        return {}
+    return {
+        "response_schema_sha256": response_schema_sha256(schema),
+        "content_block_types": ["text"],
+    }
 
 
 def _profiel(**over) -> Modelprofiel:
@@ -584,7 +595,8 @@ async def test_ontwerpgevallen_via_echte_dienst_en_modulaire_service(
     o2_service, geval_id, status, aanvaard
 ):
     geval = _geval(*geval_id)
-    ai = FakeAI(geval["modelrespons"])
+    respons = _v4(geval["modelrespons"], maak_invoer(**geval["invoer"]))
+    ai = FakeAI(respons)
     spion = Spion(
         Int02AssessmentService(ai, FakeRouter(), profiel=_profiel(), budget=_budget())
     )
@@ -603,7 +615,16 @@ async def test_ontwerpgevallen_via_echte_dienst_en_modulaire_service(
     assert detail["parts"][0]["reason"] == beoordeling.document.melding
     if aanvaard:
         assert detail["assessment"] == beoordeling.document.als_dict()
-        assert detail["assessment"]["oordeel"] == geval["modelrespons"]
+        # Contract /4: het oordeel is de modelrespons plus afgeleide posities en
+        # het dienstblok.
+        oordeel = copy.deepcopy(detail["assessment"]["oordeel"])
+        assert oordeel.pop("dienst")["modelstatus"] == status
+        kern = geval["invoer"]["kern"]
+        for passage in oordeel["passages"]:
+            assert kern[passage.pop("start") : passage.pop("end")] == passage["quote"]
+            for bronfunctie in passage["bronfuncties"]:
+                bronfunctie.pop("start"), bronfunctie.pop("end")
+        assert oordeel == respons
         assert detail["assessment"]["invoer"] == geval["invoer"]
     else:
         assert beoordeling.document.foutcategorie == "invalid_citation"
@@ -621,7 +642,7 @@ async def test_ontwerpgevallen_via_echte_dienst_en_modulaire_service(
 async def test_ontbrekend_profiel_blijft_expliciet_open_zonder_modelaanroep(
     o2_service,
 ):
-    ai = FakeAI(C105["modelrespons"])
+    ai = FakeAI(_v4(C105["modelrespons"]))
     dienst = Int02AssessmentService(ai, FakeRouter(), profiel=None, budget=_budget())
     orch = ValidationOrchestratorV2(o2_service, int02_assessment_service=dienst)
 
@@ -641,7 +662,9 @@ async def test_not_applicable_komt_via_de_wrapper_in_rule_results(o2_service):
 
     detail = _int02(resultaat)
     assert detail["status"] == "not_applicable"
-    assert detail["assessment"]["oordeel"] == _na_respons()
+    oordeel = detail["assessment"]["oordeel"]
+    assert oordeel.pop("dienst")["afleiding"] == "niet_van_toepassing"
+    assert oordeel == _v4(_na_respons())
 
 
 # --- generatieroute (DefinitionOrchestratorV2) ------------------------------------------------
@@ -683,7 +706,9 @@ async def test_generatieroute_toetst_exact_de_kandidaat(o2_service):
     assert ruw["rule_results"]["INT-02"]["status"] == "fail"
     assert (
         ruw["rule_results"]["INT-02"]["assessment"]
-        == beoordeel(invoer, CONFIG, C105["modelrespons"], VOLTOOID).als_dict()
+        == beoordeel(
+            invoer, CONFIG, _v4(C105["modelrespons"], invoer), VOLTOOID
+        ).als_dict()
     )
 
 
@@ -793,7 +818,7 @@ async def test_f1_zonder_context_beslist_de_o2_evaluator_zonder_aanroep(
 
 async def test_f2_reviewerrepro_oud_document_voor_ander_model_is_error(o2_service):
     oud = await Int02AssessmentService(
-        FakeAI(_pass_respons()), FakeRouter(), profiel=_profiel(), budget=_budget()
+        FakeAI(_v4(_pass_respons())), FakeRouter(), profiel=_profiel(), budget=_budget()
     ).assess(_invoer())
     assert oud.document.status == "pass"
 
@@ -805,7 +830,7 @@ async def test_f2_reviewerrepro_oud_document_voor_ander_model_is_error(o2_servic
         async def assess(self, invoer, **kwargs):
             return oud
 
-    nieuwe_ai = FakeAI(_pass_respons())
+    nieuwe_ai = FakeAI(_v4(_pass_respons()))
     dienst = _GeeftOudResultaat(
         nieuwe_ai,
         _NieuweRouter(),
@@ -928,7 +953,7 @@ async def test_f2_routerwissel_tussen_snapshot_en_aanroep_is_error(o2_service):
             self.aantal += 1
             return PROVIDER, MODEL if self.aantal == 1 else "gewisseld-model"
 
-    ai = FakeAI(_pass_respons())
+    ai = FakeAI(_v4(_pass_respons()))
     dienst = Int02AssessmentService(
         ai, _WisselendeRouter(), profiel=_profiel(), budget=_budget()
     )
@@ -953,7 +978,7 @@ async def test_f2_snapshot_wordt_voor_de_aanroep_vastgelegd(o2_service):
     assert detail["status"] == "pass"
     assert detail["review"]["actuality"] == "current"
     assert detail["assessment"] == (
-        beoordeel(_invoer(), CONFIG, _pass_respons(), VOLTOOID).als_dict()
+        beoordeel(_invoer(), CONFIG, _v4(_pass_respons()), VOLTOOID).als_dict()
     )
 
 
@@ -977,7 +1002,7 @@ class _WijzigtTijdensAI(FakeAI):
     """Wijzigt het routerbeleid tijdens de awaited modelcall (na de routering)."""
 
     def __init__(self, router):
-        super().__init__(_pass_respons())
+        super().__init__(_v4(_pass_respons()))
         self.router = router
 
     async def generate_definition(self, prompt, **kwargs):
@@ -1010,7 +1035,7 @@ async def test_f2_beleidswijziging_tijdens_modelcall_is_error(o2_service, route)
 @pytest.mark.parametrize("route", ROUTES)
 async def test_f2_stabiele_configuratie_blijft_pass_current(o2_service, route):
     router = _WijzigendeRouter()
-    ai = FakeAI(_pass_respons())
+    ai = FakeAI(_v4(_pass_respons()))
     orch = ValidationOrchestratorV2(
         o2_service,
         int02_assessment_service=Int02AssessmentService(

@@ -1,0 +1,16 @@
+{
+  "files": {
+    ".gitleaks.toml": "5e74df0cc7dd29999e11ce4e5ebac0542d729ef4a340933fce88145d81219e1f",
+    "Makefile": "1083b45bcf7ba358862e887771418cbe3619d966f9132f140c151d4dd35fae49",
+    "docs/technisch/def522-secret-scan-runbook.md": "cd485f28bebcbe705623fa856a77a5c8e2af20be9e672cf61e11608376e1067b",
+    "scripts/ci/test_secret_scan_def835_metadata.py": "1a0135c2de16ed7d84fa5f683ca574f76aecee1450cc4fc13ecb1962ab122041",
+    "scripts/ci/test_secret_scan_metadata.py": "f277d92320cf9579c5f08b87c86ba57437a19ec8d712f7594bb67c4832aa3516"
+  },
+  "stable": true,
+  "exits": [
+    0,
+    0,
+    0
+  ],
+  "fixture_root": "/private/tmp/def835-gitleaks-correctie-coordinator-vc6snv9s"
+}

@@ -1,0 +1,4 @@
+{"akkoord_sha256": "5bc122bc205fc995cfaa2cd1997fa63106df1f7b64fa94192462721dfcce767d", "gebeurtenis": "mandaat", "manifest_sha256": "d67659fa7fe06801b4a6c744269d06405a3eab1b3c434622605e5bd18e4bdb29", "soort": "def835-int02-kwalificatie-grootboek/1", "tijd": "2026-09-30T12:55:22.821353+00:00"}
+{"akkoord_sha256": "5bc122bc205fc995cfaa2cd1997fa63106df1f7b64fa94192462721dfcce767d", "fase": "regressie", "gebeurtenis": "fase_start", "tijd": "2026-09-30T12:55:22.821928+00:00"}
+{"gebeurtenis": "tel_reservering", "geval": "C105", "tel": 1, "tijd": "2026-09-30T12:55:22.823657+00:00"}
+{"bewijs_opgeslagen": true, "fase": "regressie", "gebeurtenis": "fase_einde", "looptijd_seconden": 0.872, "mechanisch_geslaagd": false, "stopreden": "tokenmeting_mislukt", "tijd": "2026-09-30T12:55:22.828194+00:00"}

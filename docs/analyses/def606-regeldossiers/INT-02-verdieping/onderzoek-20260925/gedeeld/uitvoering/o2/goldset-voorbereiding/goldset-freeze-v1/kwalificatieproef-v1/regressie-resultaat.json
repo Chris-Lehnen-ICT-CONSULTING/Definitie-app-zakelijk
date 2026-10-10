@@ -1,0 +1,181 @@
+{
+  "soort": "def835-int02-kwalificatie-resultaat/1",
+  "claim": "Kwalificatieproef van het bestaande INT-02-profiel volgens kwalificatieprotocol-v1: mechanische vergelijking van de hoofdstatus met vooraf bevroren labels. Inhoudelijke passagegronden beoordeelt Chris; geen DEF-815-kwalificatie of activering. Kosten = gemelde usage x routerprijzen, een onzekere call telt voor de volle reservering; geen providerfactuurplafond.",
+  "fase": "regressie",
+  "manifest_sha256": "d67659fa7fe06801b4a6c744269d06405a3eab1b3c434622605e5bd18e4bdb29",
+  "akkoord_sha256": "5bc122bc205fc995cfaa2cd1997fa63106df1f7b64fa94192462721dfcce767d",
+  "identiteit_sha256": "ba72109ea0b89254ee70b2d4aaf008fcd2ac5dcf8f1a8814de9db256851a027c",
+  "gevallenmanifest_sha256": "af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953",
+  "technische_testfixture": false,
+  "afronding": "Opgesteld vóór fase_einde. Het grootboek is leidend: zonder fase_einde met bewijs_opgeslagen=true geldt de fase niet als geslaagd.",
+  "gestart": "2026-09-30T12:55:21.955293+00:00",
+  "beeindigd": "2026-09-30T12:55:22.827102+00:00",
+  "looptijd_seconden": 0.872,
+  "stopreden": "tokenmeting_mislukt",
+  "tellingen": {
+    "inferenties": 0,
+    "telverzoeken": 1
+  },
+  "cumulatief": {
+    "inferenties": 0,
+    "telverzoeken": 1,
+    "kosten_usd_conservatief": 0,
+    "onzekere_calls": [],
+    "looptijd_seconden": 0.872
+  },
+  "kosten_onzeker": [],
+  "evaluatie": {
+    "mechanisch_geslaagd": false,
+    "redenen": [
+      "niet_volledig_uitgevoerd",
+      "technische_of_citaatfout",
+      "te_weinig_juist"
+    ],
+    "tellers": {
+      "juist": {
+        "teller": 0,
+        "noemer": 1
+      },
+      "false_pass": {
+        "teller": 0,
+        "noemer": 1
+      },
+      "kritieke_false_pass": {
+        "teller": 0,
+        "noemer": 1
+      },
+      "false_fail": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "gemiste_overtreding": {
+        "teller": 1,
+        "noemer": 1
+      },
+      "gepaste_onthouding": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "onterechte_onthouding": {
+        "teller": 0,
+        "noemer": 1
+      },
+      "onzekerheid": {
+        "teller": 0,
+        "noemer": 1
+      },
+      "juist_fail": {
+        "teller": 0,
+        "noemer": 1
+      },
+      "juist_pass": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "juist_review_required": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "technische_fout": {
+        "teller": 1,
+        "noemer": 1
+      },
+      "citaatfout": {
+        "teller": 0,
+        "noemer": 1
+      }
+    },
+    "criteria": {
+      "aantal": 3,
+      "min_juist": 3,
+      "min_juist_per_label": {},
+      "max_false_pass": 0,
+      "verdeling": null,
+      "max_p95_ms": null
+    }
+  },
+  "inhoudelijke_beoordeling": {
+    "status": "open",
+    "beoordelaar": "Chris (acceptatie-eigenaar)",
+    "toelichting": "Passagegronden, normgrond en relevantie van de vraag zijn niet mechanisch vastgesteld; de runner vult hier geen akkoord in."
+  },
+  "latentie": {
+    "max_ms": null,
+    "p95_ms": null
+  },
+  "gevallen": [
+    {
+      "id": "C105",
+      "status": "error",
+      "reden": "connection",
+      "verdict": null,
+      "stop_reason": null,
+      "uitzonderingstype": "AIServiceError",
+      "prompt_sha256": "b9d8cb8c5d2efa822017e96999136260d3150c0001bcf5dda1ad314553baf582",
+      "antwoord_sha256": null,
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "e2a8d9a68498110ed05865de644c5531bbeb097cae64ea14697e8f299fbd4537",
+        "telpayload_sha256": "36c2ffaca6e8f76f1a07b56f56883a68a8d40067863dc099958f3e71e1aa954a",
+        "fouttype": "ConnectError",
+        "tel_http_status": null
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/1",
+        "invoer": {
+          "begrip": "toelating",
+          "kern": "De medewerker laat de aanvrager toe.",
+          "bedoeling": "opdracht aan medewerker",
+          "organisatorische_context": [
+            "synthetische procedure"
+          ],
+          "juridische_context": [],
+          "wettelijke_basis": [],
+          "bronnen": []
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/1",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/1",
+          "routeringshash": "b786306aa543217eda814328452eb9908f54db15eb9e62e0feaeb8f7d05c9fe7",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "ff56293e13aad0c2a9a8ffa34d4bd9b440925ac6f5ebe3dbc18959e40a7d4824",
+          "kern_hash": "14a75bb6a5ef7507caaa8db4655dc2bce49b7737c19b8d98e671f5a816fb7705",
+          "bedoeling_hash": "0621a08481a5d1e4a7b50ba406bd9e02ee84bd8753b229b4aeb3078e253b7715",
+          "context_hash": "bd1cdeff8a4b4a8fe7ee7432926c8ace9ebc6276712600a489533ec9b23d0345",
+          "bronnen_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "failed",
+          "foutcategorie": "transport",
+          "tijdstip": "2026-09-30T12:55:22.822309+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 5,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "error",
+        "reden": null,
+        "melding": "INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.",
+        "vraag": null,
+        "foutcategorie": "transport",
+        "oordeel": null
+      },
+      "fase": "regressie",
+      "label_status": "fail",
+      "evaluatie": {
+        "verwacht": "fail",
+        "waargenomen": "error",
+        "juist": false,
+        "technische_fout": true,
+        "citaatfout": false,
+        "kritieke_false_pass": false
+      }
+    }
+  ]
+}

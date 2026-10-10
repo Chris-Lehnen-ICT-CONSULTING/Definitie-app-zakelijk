@@ -1,0 +1,15 @@
+# DEF-835 positiecorrectie-v1 — GROENE run 1: alle nieuwe en gewijzigde testbestanden (na implementatie)
+# basis-HEAD 3ba526daefe7da71d8332faba9e5d25fb1df06a3 + niet-gecommitte wijzigingen; 2026-10-07T11:50:56Z; exit=0
+# /Users/chrislehnen/Projecten/Definitie-app/.venv/bin/python -m pytest tests/unit/domain/test_def835_int02_citaatposities.py tests/unit/domain/test_def835_int02_contract.py tests/unit/services/prompts/test_def835_int02_prompt.py tests/unit/validation/test_def835_int02_assessment_service.py tests/unit/validation/test_def835_int02_evaluator.py tests/unit/validation/test_def835_int02_modelproef.py tests/unit/validation/test_def835_int02_modular.py tests/unit/services/orchestrators/test_def835_int02_wrappers.py -o addopts= --import-mode=importlib -q -ra
+........................................................................ [  9%]
+........................................................................ [ 18%]
+........................................................................ [ 28%]
+........................................................................ [ 37%]
+........................................................................ [ 46%]
+........................................................................ [ 56%]
+........................................................................ [ 65%]
+........................................................................ [ 74%]
+........................................................................ [ 84%]
+........................................................................ [ 93%]
+..................................................                       [100%]
+770 passed in 33.78s

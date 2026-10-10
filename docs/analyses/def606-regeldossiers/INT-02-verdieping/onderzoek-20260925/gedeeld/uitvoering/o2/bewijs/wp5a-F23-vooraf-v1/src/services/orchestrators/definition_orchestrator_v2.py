@@ -1,0 +1,2216 @@
+"""
+rug: noqa: PLR0912, PLR0915
+DefinitionOrchestratorV2 - Next-generation stateless orchestrator.
+
+This orchestrator replaces the monolithic _generate_definition() method with
+a clean, modular service architecture following proven session state elimination patterns.
+
+Key improvements:
+- 11-phase structured orchestration flow
+- GVI Rode Kabel feedback integration
+- DPIA/AVG compliance with PII redaction
+- Performance optimization with caching
+- Ontological category support (fixes template selection bug)
+- Story 2.4: Uses ValidationOrchestratorInterface for clean separation of concerns
+"""
+
+import logging
+import time
+import uuid
+from copy import deepcopy
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Optional, cast
+
+from domain.categorie_herkomst import lees_keuze_invoer
+from domain.rechtsgebieden import normaliseer_rechtsgebied
+from services.exceptions import (
+    DatabaseConnectionError,
+    DatabaseConstraintError,
+    DuplicateDefinitionError,
+    RepositoryError,
+)
+from services.interfaces import (
+    AIServiceInterface as IntelligentAIService,
+    CleaningServiceInterface,
+    Definition,
+    DefinitionOrchestratorInterface,
+    DefinitionRepositoryInterface,
+    DefinitionResponse,
+    DefinitionResponseV2,
+    EnhancementServiceInterface as EnhancementService,
+    FeedbackEngineInterface as FeedbackEngine,
+    GenerationRequest,
+    MonitoringServiceInterface as MonitoringService,
+    OrchestratorConfig,
+    PromptServiceInterface as PromptServiceV2,
+    SecurityServiceInterface as SecurityService,
+    ValidationServiceInterface,
+)
+
+# DEF-439: de V2-pipeline werkt met de TypedDict-ValidationResult (output van de
+# modulaire validatie via ensure_schema_compliance), niet met de legacy dataclass
+# services.interfaces.ValidationResult. Annotaties uitgelijnd op het runtime-type.
+from services.validation.interfaces import (
+    ValidationContext,
+    ValidationOrchestratorInterface,
+    ValidationResult,
+)
+from utils.dict_helpers import safe_dict_get
+from utils.type_helpers import ensure_dict, ensure_list, ensure_string
+
+UTC = UTC  # Python 3.10 compatibility - must be after all imports
+
+logger = logging.getLogger(__name__)
+
+#: DEF-622 (B-01, besloten vervolg): een nieuwe definitiegeneratie vraagt
+#: minstens één inhoudelijke waarde in de drie contextlijsten. Ontbreekt die,
+#: dan vraagt de app om context en wordt het model niet aangeroepen. Dit is
+#: de definitiegeneratiegrens; de AI-laag zelf (synoniemen, classificatie)
+#: krijgt géén algemene contextplicht.
+CONTEXT_VEREIST_MELDING = (
+    "Vul minimaal één contextwaarde in (organisatorische context, juridische "
+    "context of wettelijke basis) voordat een definitie wordt gegenereerd. De "
+    "context hoort bij het record en stuurt de generatie; zonder context wordt "
+    "het model niet aangeroepen."
+)
+
+
+class KandidaatNietStabielError(RuntimeError):
+    """De validatie bleef de kandidaattekst wijzigen; het oordeel is niet aan
+    exact de getoonde/opgeslagen tekst te koppelen (DEF-622)."""
+
+
+def heeft_inhoudelijke_context(request: GenerationRequest) -> bool:
+    """Minstens één niet-lege waarde in de drie contextlijsten van de aanvraag."""
+    from domain.context.normalisatie import lees_contextwaarden
+
+    return any(
+        waarde.strip()
+        for veld in (
+            request.organisatorische_context,
+            request.juridische_context,
+            request.wettelijke_basis,
+        )
+        for waarde in lees_contextwaarden(veld)
+    )
+
+
+if TYPE_CHECKING:
+    # Forward-declared interfaces for type checking without import errors
+    from services.interfaces import PromptResult, WebLookupServiceInterface
+    from services.synonym_orchestrator import SynonymOrchestrator
+
+
+class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
+    """
+    Next-generation stateless orchestrator following proven session state
+    elimination patterns. Replaces monolithic _generate_definition().
+
+    Core architectural principles:
+    - No session state access - all data passed explicitly
+    - Structured 11-phase orchestration flow
+    - GVI Rode Kabel feedback loop integration
+    - DPIA/AVG compliance built-in
+    - Comprehensive error handling and monitoring
+    """
+
+    def __init__(
+        self,
+        # Core generation services (required)
+        prompt_service: Optional[
+            "PromptServiceV2"
+        ] = None,  # DEF-66: Now optional for lazy loading
+        ai_service: Optional["IntelligentAIService"] = None,
+        validation_service: Optional[
+            "ValidationOrchestratorInterface"
+        ] = None,  # DEF-90: Now optional for lazy loading
+        cleaning_service: Optional["CleaningServiceInterface"] = None,
+        repository: Optional["DefinitionRepositoryInterface"] = None,
+        # Optional services
+        enhancement_service: Optional["EnhancementService"] = None,
+        security_service: Optional["SecurityService"] = None,
+        monitoring: Optional["MonitoringService"] = None,
+        feedback_engine: Optional["FeedbackEngine"] = None,
+        # Configuration
+        config: OrchestratorConfig | None = None,
+        # Web lookup (Epic 3)
+        web_lookup_service: Optional["WebLookupServiceInterface"] = None,
+        # Synonym enrichment (Architecture v3.1)
+        synonym_orchestrator: Optional["SynonymOrchestrator"] = None,
+        # RAG context retrieval (DEF-271)
+        rag_service: Any | None = None,
+        # DEF-743: AI-bronbeoordeling (CON-02); lazy opgebouwd op ai_service
+        source_assessment_service: Any | None = None,
+        # DEF-766: AI-telbaarheidsbeoordeling (ESS-03); idem
+        ess03_assessment_service: Any | None = None,
+        # DEF-772: AI-verwijzingsbeoordeling (INT-03); idem
+        int03_assessment_service: Any | None = None,
+        # DEF-835 WP5a: INT-02-beoordeling (O2); alleen expliciet, geen lazy default
+        int02_assessment_service: Any | None = None,
+    ):
+        """
+        Clean dependency injection - no session state access.
+
+        DEF-66: PromptServiceV2 is now lazy-loaded to reduce initialization time from 509ms to <180ms.
+        DEF-90: ValidationOrchestratorV2 is now lazy-loaded to reduce initialization from 616ms to 271ms (-345ms, 56%!).
+        If not provided, they will be created on first access.
+        """
+        # V2 Services (required, except prompt_service and validation_service which are lazy)
+        if not ai_service:
+            msg = "AIServiceInterface is required"
+            raise ValueError(msg)
+        if not cleaning_service:
+            msg = "CleaningServiceInterface is required"
+            raise ValueError(msg)
+        if not repository:
+            msg = "DefinitionRepositoryInterface is required"
+            raise ValueError(msg)
+
+        # DEF-66: Store prompt_service for lazy loading (private to force property usage)
+        self._prompt_service = prompt_service
+        self.ai_service = ai_service
+        # DEF-90: Store validation_service for lazy loading (private to force property usage)
+        self._validation_service = validation_service
+        self.enhancement_service = enhancement_service
+
+        # Security (V2 only)
+        self.security_service = security_service
+
+        # Infrastructure
+        self.cleaning_service = cleaning_service
+        self.repository = repository
+        self.monitoring = monitoring
+
+        # Feedback system
+        self.feedback_engine = feedback_engine
+
+        # Configuration
+        self.config = config or OrchestratorConfig()
+
+        # Epic 3: optional web lookup service
+        self.web_lookup_service = web_lookup_service
+
+        # Architecture v3.1: optional synonym enrichment
+        self.synonym_orchestrator = synonym_orchestrator
+
+        # DEF-271: RAG context retrieval
+        self.rag_service = rag_service
+
+        # DEF-743: bronbeoordeling; None → lazy op de gedeelde AI-service
+        self._source_assessment_service = source_assessment_service
+        # DEF-766: telbaarheidsbeoordeling; idem
+        self._ess03_assessment_service = ess03_assessment_service
+        # DEF-772: verwijzingsbeoordeling; idem
+        self._int03_assessment_service = int03_assessment_service
+        # DEF-835 WP5a: bewust geen lazy property — zonder injectie geen dienst
+        self.int02_assessment_service = int02_assessment_service
+
+        logger.info(
+            "DefinitionOrchestratorV2 initialized with configuration: "
+            f"feedback_loop={self.config.enable_feedback_loop}, "
+            f"enhancement={self.config.enable_enhancement}, "
+            f"caching={self.config.enable_caching}, "
+            f"synonym_enrichment={'enabled' if synonym_orchestrator else 'disabled'}, "
+            f"rag_service={'enabled' if rag_service else 'disabled'}"
+        )
+
+    @property
+    def prompt_service(self) -> "PromptServiceV2":
+        """
+        Lazy-load PromptServiceV2 on first access (DEF-66 performance optimization).
+
+        This reduces TabbedInterface initialization from 509ms to <180ms by deferring
+        the expensive PromptServiceV2 creation (435ms, 85% of init time) until first use.
+
+        Returns:
+            PromptServiceV2 instance (cached after first access)
+        """
+        if self._prompt_service is None:
+            logger.debug("DEF-66: Lazy-loading PromptServiceV2 on first access")
+            # DEF-439: concrete impl implementeert PromptServiceInterface duck-typed
+            # (geen nominale subclass). Lokaal anders aliassen zodat de module-alias
+            # PromptServiceV2 (= de interface) beschikbaar blijft voor de cast.
+            from services.prompts.prompt_service_v2 import (
+                PromptServiceV2 as _PromptServiceV2Impl,
+            )
+
+            self._prompt_service = cast("PromptServiceV2", _PromptServiceV2Impl())
+            logger.debug("DEF-66: PromptServiceV2 initialized successfully")
+
+        return self._prompt_service
+
+    @property
+    def source_assessment_service(self) -> Any:
+        """De AI-bronbeoordeling voor CON-02 (DEF-743), lazy op de gedeelde AI-service.
+
+        Provider-agnostisch via `AIServiceInterface.generate_definition` en de
+        ModelRouter (taak `validation`); hier staat geen modelnaam. Een
+        aanroeper kan een eigen dienst injecteren (tests: fake-AI-grens).
+        """
+        if self._source_assessment_service is None:
+            from services.ai.model_router import ModelRouter
+            from services.validation.source_assessment_service import (
+                SourceAssessmentService,
+            )
+
+            self._source_assessment_service = SourceAssessmentService(
+                self.ai_service, model_router=ModelRouter.from_config()
+            )
+        return self._source_assessment_service
+
+    @property
+    def ess03_assessment_service(self) -> Any:
+        """De AI-telbaarheidsbeoordeling voor ESS-03 (DEF-766), lazy op de gedeelde AI-service.
+
+        Provider-agnostisch via `AIServiceInterface.generate_definition` en de
+        ModelRouter (taak `validation`); hier staat geen modelnaam. Een
+        aanroeper kan een eigen dienst injecteren (tests: fake-AI-grens).
+        """
+        if self._ess03_assessment_service is None:
+            from services.ai.model_router import ModelRouter
+            from services.validation.ess03_assessment_service import (
+                Ess03AssessmentService,
+            )
+
+            self._ess03_assessment_service = Ess03AssessmentService(
+                self.ai_service, model_router=ModelRouter.from_config()
+            )
+        return self._ess03_assessment_service
+
+    @property
+    def int03_assessment_service(self) -> Any:
+        """De AI-verwijzingsbeoordeling voor INT-03 (DEF-772), lazy op de gedeelde AI-service.
+
+        Provider-agnostisch via `AIServiceInterface.generate_definition` en de
+        ModelRouter (taak `validation`); hier staat geen modelnaam. Een
+        aanroeper kan een eigen dienst injecteren (tests: fake-AI-grens).
+        """
+        if self._int03_assessment_service is None:
+            from services.ai.model_router import ModelRouter
+            from services.validation.int03_assessment_service import (
+                Int03AssessmentService,
+            )
+
+            self._int03_assessment_service = Int03AssessmentService(
+                self.ai_service, model_router=ModelRouter.from_config()
+            )
+        return self._int03_assessment_service
+
+    @property
+    def validation_service(self) -> "ValidationOrchestratorInterface":
+        """
+        Lazy-load ValidationOrchestratorV2 on first access (DEF-90 performance optimization).
+
+        This reduces ServiceContainer initialization from 616ms to 271ms by deferring
+        the expensive validation creation (345ms, 56% of init time) until first use.
+
+        The validation orchestrator wraps ModularValidationService and loads 53 validation
+        rules from the toetsregels manager. This is deferred until the first definition
+        validation call, which happens AFTER GPT-4 generation (plenty of time to load).
+
+        Returns:
+            ValidationOrchestratorInterface instance (cached after first access)
+        """
+        if self._validation_service is None:
+            logger.debug(
+                "DEF-90: Lazy-loading ValidationOrchestratorV2 on first access"
+            )
+
+            # Import validation components
+            from services.orchestrators.validation_orchestrator_v2 import (
+                ValidationOrchestratorV2,
+            )
+            from services.validation.config import ValidationConfig
+            from services.validation.modular_validation_service import (
+                ModularValidationService,
+            )
+
+            # Load validation rules if JSON rules are enabled
+            # (tests can disable for golden-accept verification)
+            if self.config.use_json_rules:
+                from toetsregels.cached_manager import get_cached_toetsregel_manager
+
+                manager = get_cached_toetsregel_manager()
+                vcfg = ValidationConfig.from_yaml("src/config/validation_rules.yaml")
+            else:
+                manager = None
+                vcfg = None
+
+            # Create ModularValidationService
+            modular_validation_service = ModularValidationService(
+                manager,
+                None,  # second parameter unused
+                vcfg,
+                repository=self.repository,
+            )
+
+            # DEF-232: Use cleaning service directly - now native async (no adapter needed)
+            # CleaningService is async, no wrapping required
+            cleaning_adapter = self.cleaning_service
+
+            # Create ValidationOrchestratorV2
+            # DEF-439: ModularValidationService implementeert ValidationServiceInterface
+            # duck-typed (geen nominale subclass) → cast naar het contract-type.
+            self._validation_service = ValidationOrchestratorV2(
+                validation_service=cast(
+                    ValidationServiceInterface, modular_validation_service
+                ),
+                cleaning_service=cleaning_adapter,
+                # DEF-743: de wrapper verkrijgt de bronbeoordeling standaard.
+                source_assessment_service=self.source_assessment_service,
+                # DEF-766: idem voor de telbaarheidsbeoordeling (ESS-03).
+                ess03_assessment_service=self.ess03_assessment_service,
+                # DEF-772: idem voor de verwijzingsbeoordeling (INT-03).
+                int03_assessment_service=self.int03_assessment_service,
+                # DEF-835 WP5a: INT-02 (O2) alleen als hij expliciet is geïnjecteerd.
+                int02_assessment_service=self.int02_assessment_service,
+            )
+
+            logger.debug("DEF-90: ValidationOrchestratorV2 initialized successfully")
+
+        return self._validation_service
+
+    def get_service_info(self) -> dict[str, Any]:
+        """Return service info voor UI quality control."""
+        info: dict[str, Any] = {
+            "service_mode": "orchestrator_v2",
+            "architecture": "microservices",
+            "version": "2.0",
+            "validation_service": "V2",
+        }
+
+        # Get rule count from validation service if available
+        if hasattr(self.validation_service, "get_stats"):
+            try:
+                stats = self.validation_service.get_stats()
+                info["rule_count"] = safe_dict_get(stats, "total_rules", 0)
+            except (AttributeError, TypeError, RuntimeError) as e:
+                # DEF-229: Log validation stats retrieval failures
+                logger.debug(f"Could not get validation stats for service info: {e}")
+                info["rule_count"] = 0
+        else:
+            info["rule_count"] = 0
+
+        return info
+
+    def get_stats(self) -> dict:
+        """Get statistics from orchestrator and services."""
+        # dict[str, dict[str, Any]] om gemengde value types toe te staan
+        # (numerieke counters + error/status strings in fallback paden)
+        stats: dict[str, dict[str, Any]] = {
+            "orchestrator": {"requests_processed": 0, "success_rate": 0.0}
+        }
+
+        # Include validation stats if available
+        if hasattr(self.validation_service, "get_stats"):
+            try:
+                stats["validation"] = self.validation_service.get_stats()
+            except Exception as e:
+                # DEF-215: Provide safe fallback dict instead of leaving key missing
+                logger.warning(
+                    f"Validation stats ophalen gefaald: {e}",
+                    extra={
+                        "component": "definition_orchestrator_v2",
+                        "operation": "get_validation_stats",
+                        "error_type": type(e).__name__,
+                    },
+                )
+                stats["validation"] = {
+                    "error": str(e),
+                    "error_type": type(e).__name__,
+                    "status": "unavailable",
+                }
+        else:
+            # DEF-215: Explicit status when service doesn't support stats
+            stats["validation"] = {
+                "status": "not_supported",
+                "reason": "validation_service lacks get_stats method",
+            }
+
+        return stats
+
+    async def create_definition(
+        self, request: GenerationRequest, context: dict[str, Any] | None = None
+    ) -> DefinitionResponseV2:
+        """
+        Main orchestration method - stateless and testable.
+
+        Replaces the monolithic _generate_definition() with clean service calls.
+        No session state access - all data passed explicitly.
+
+        The 11-phase orchestration flow:
+        1. Security & Privacy (DPIA/AVG Compliance)
+        2. Feedback Integration (GVI Rode Kabel)
+        3. Intelligent Prompt Generation (with ontological category fix)
+        4. AI Generation with Retry Logic
+        5. Text Cleaning & Normalization
+        6. Validation
+        7. Enhancement (if validation failed)
+        8. Definition Object Creation
+        9. Storage (Conditional on Quality Gate)
+        10. Feedback Loop Update (GVI Rode Kabel)
+        11. Monitoring & Metrics
+        """
+        start_time = time.time()
+        generation_id = request.id if request.id else str(uuid.uuid4())
+
+        # DEF-622 (B-01): de definitiegeneratiegrens. Vóór elke fase die een
+        # model kan aanroepen (synoniemverrijking, web lookup, generatie):
+        # zonder inhoudelijke context geen generatie, maar een vraag om context.
+        if not heeft_inhoudelijke_context(request):
+            logger.warning(
+                f"Generation {generation_id}: geen context voor '{request.begrip}'; "
+                "generatie niet gestart"
+            )
+            return DefinitionResponseV2(
+                success=False,
+                error=CONTEXT_VEREIST_MELDING,
+                metadata={
+                    "generation_id": generation_id,
+                    "duration": time.time() - start_time,
+                    "error_type": "context_required",
+                    "orchestrator_version": "v2.0",
+                    "phases_completed": 0,
+                },
+            )
+
+        try:
+            # Track generation start
+            if self.monitoring:
+                await self.monitoring.start_generation(generation_id)
+
+            logger.info(
+                f"Generation {generation_id}: Starting orchestration for '{request.begrip}' "
+                f"with category '{request.ontologische_categorie}'"
+            )
+
+            # =====================================
+            # PHASE 1: Security & Privacy (DPIA/AVG Compliance)
+            # =====================================
+            sanitized_request = request
+            if self.security_service:
+                sanitized_request = await self.security_service.sanitize_request(
+                    request
+                )
+                logger.info(
+                    f"Generation {generation_id}: Request sanitized for privacy compliance"
+                )
+            else:
+                logger.debug(
+                    f"Generation {generation_id}: Security service not available, using original request"
+                )
+
+            # =====================================
+            # PHASE 2: Feedback Integration (GVI Rode Kabel)
+            # =====================================
+            feedback_history = None
+            if self.config.enable_feedback_loop and self.feedback_engine:
+                feedback_history = await self.feedback_engine.get_feedback_for_request(
+                    sanitized_request.begrip, sanitized_request.ontologische_categorie
+                )
+                logger.info(
+                    f"Generation {generation_id}: Feedback loaded ({len(feedback_history or [])} entries)"
+                )
+            else:
+                logger.debug(
+                    f"Generation {generation_id}: Feedback system disabled or unavailable"
+                )
+
+            # =====================================
+            # PHASE 2.4: Synonym Enrichment (Architecture v3.1)
+            # =====================================
+            enriched_synonyms: list[Any] = []
+            ai_pending_count = 0
+            synonym_enrichment_status = "not_available"
+
+            if self.synonym_orchestrator:
+                logger.info(
+                    f"Generation {generation_id}: Starting synonym enrichment for term: {sanitized_request.begrip}"
+                )
+                try:
+                    # Build context for synonym enrichment
+                    synonym_context = {
+                        "organisatorisch": sanitized_request.organisatorische_context
+                        or [],
+                        "juridisch": sanitized_request.juridische_context or [],
+                        "wettelijk": sanitized_request.wettelijke_basis or [],
+                    }
+
+                    # Ensure synonyms (GPT-4 enrichment if needed)
+                    # min_count=5 matches architecture specification (line 613)
+                    enriched_synonyms, ai_pending_count = (
+                        await self.synonym_orchestrator.ensure_synonyms(
+                            term=sanitized_request.begrip,
+                            min_count=5,
+                            context=synonym_context,
+                        )
+                    )
+
+                    logger.info(
+                        f"Generation {generation_id}: Synonym enrichment complete - "
+                        f"found {len(enriched_synonyms)} synonyms "
+                        f"({ai_pending_count} AI-pending for review)"
+                    )
+                    synonym_enrichment_status = (
+                        "success" if enriched_synonyms else "no_synonyms"
+                    )
+
+                except Exception as e:
+                    logger.error(
+                        f"Generation {generation_id}: Synonym enrichment failed: {type(e).__name__}: {e!s} - "
+                        f"proceeding without synonym expansion"
+                    )
+                    synonym_enrichment_status = "error"
+                    # Continue without synonyms - definition generation proceeds
+            else:
+                logger.debug(
+                    f"Generation {generation_id}: Synonym orchestrator not available - "
+                    f"proceeding without synonym enrichment"
+                )
+
+            # =====================================
+            # PHASE 2.5: Web Lookup Context Enrichment (Epic 3)
+            # =====================================
+            provenance_sources = []
+            web_lookup_status = "not_available"  # Track status for metadata
+            debug_info = None  # Ensure defined even when web lookup is unavailable
+            # Allow timeout override via env for environments with slower network
+            import os
+
+            try:
+                web_lookup_timeout = float(
+                    os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0")
+                )
+            except ValueError as e:
+                # DEF-229: Log invalid env var configuration
+                logger.warning(
+                    f"Invalid WEB_LOOKUP_TIMEOUT_SECONDS value, using default 10.0: {e}",
+                    exc_info=True,
+                )
+                web_lookup_timeout = 10.0
+
+            # Web lookup runs ALWAYS when service is available (no feature flag)
+            if self.web_lookup_service:
+                logger.info(
+                    f"Generation {generation_id}: Starting web lookup for term: {sanitized_request.begrip}"
+                )
+                try:
+                    from services.interfaces import LookupRequest
+                    from services.web_lookup.provenance import build_provenance
+
+                    # Build a compact context string to guide provider selection
+                    ctx_parts = []
+                    if sanitized_request.organisatorische_context:
+                        ctx_parts.extend(sanitized_request.organisatorische_context)
+                    if sanitized_request.juridische_context:
+                        ctx_parts.extend(sanitized_request.juridische_context)
+                    if sanitized_request.wettelijke_basis:
+                        ctx_parts.extend(sanitized_request.wettelijke_basis)
+                    context_str = " | ".join([str(x) for x in ctx_parts if x]) or None
+
+                    # Allow broader result set so UI can show all hits
+                    import os as _os
+
+                    try:
+                        _max_res = int(_os.getenv("WEB_LOOKUP_MAX_RESULTS", "20"))
+                    except ValueError as e:
+                        # DEF-229: Log invalid env var configuration
+                        logger.warning(
+                            f"Invalid WEB_LOOKUP_MAX_RESULTS value, using default 20: {e}",
+                            exc_info=True,
+                        )
+                        _max_res = 20
+                    lookup_request = LookupRequest(
+                        term=sanitized_request.begrip,
+                        sources=None,
+                        context=context_str,
+                        max_results=_max_res,
+                        include_examples=False,
+                        timeout=web_lookup_timeout,  # Configurable via env var
+                    )
+
+                    # Add timeout protection for web lookup
+                    import asyncio
+
+                    web_results = await asyncio.wait_for(
+                        self.web_lookup_service.lookup(lookup_request),
+                        timeout=web_lookup_timeout,
+                    )
+                    logger.info(
+                        f"Generation {generation_id}: Web lookup returned {len(web_results) if web_results else 0} results"
+                    )
+                    # Capture debug info from service if available
+                    # Note: getattr with default never raises AttributeError
+                    debug_info = getattr(self.web_lookup_service, "_last_debug", None)
+
+                    # Build provenance records
+                    # Convert LookupResults to minimal dicts expected by build_provenance
+                    prepared = []
+                    for r in web_results or []:
+                        prepared.append(
+                            {
+                                "provider": r.source.name.lower(),
+                                "title": (
+                                    safe_dict_get(r.metadata, "dc_title")
+                                    if isinstance(r.metadata, dict)
+                                    else None
+                                )
+                                or r.source.name,
+                                "url": r.source.url,
+                                "snippet": r.definition or r.context or "",
+                                "score": float(r.source.confidence or 0.0),
+                                "used_in_prompt": False,
+                                "retrieved_at": (
+                                    safe_dict_get(r.metadata, "retrieved_at")
+                                    if isinstance(r.metadata, dict)
+                                    else None
+                                ),
+                            }
+                        )
+
+                    # STORY 3.1: Extract legal metadata for juridical sources
+                    provenance_sources = build_provenance(prepared, extract_legal=True)
+
+                    # Mark top-K as used_in_prompt (we'll include these first in any context pack)
+                    top_k = max(0, int(getattr(self.config, "web_lookup_top_k", 3)))
+                    for i, src in enumerate(provenance_sources):
+                        if i < top_k:
+                            src["used_in_prompt"] = True
+
+                    # Attach to context so prompt service can optionally use it
+                    context = context or {}
+                    # DEF-743: een eigen lijst, geen alias van
+                    # `provenance_sources`. Vóór deze fix werden de RAG-
+                    # bronnen die hieronder aan `provenance_sources` worden
+                    # toegevoegd stil óók webbronnen voor de promptservice
+                    # (dubbele injectie), en klopte de kwitantie-index van het
+                    # webkanaal niet meer met de werkelijk aangeleverde lijst.
+                    context["web_lookup"] = {
+                        "sources": list(provenance_sources),
+                        "top_k": top_k,
+                        "debug": debug_info,
+                    }
+                    logger.info(
+                        f"Generation {generation_id}: Web lookup enriched context with {len(provenance_sources)} sources"
+                    )
+                    web_lookup_status = (
+                        "success" if provenance_sources else "no_results"
+                    )
+
+                except TimeoutError:
+                    logger.warning(
+                        f"Generation {generation_id}: Web lookup timeout after {web_lookup_timeout} seconds - "
+                        f"prompt service will use cached lookup results or proceed without"
+                    )
+                    web_lookup_status = "timeout"
+                    # Continue without web context - definition generation proceeds
+
+                except Exception as e:
+                    logger.error(
+                        f"Generation {generation_id}: Web lookup failed: {type(e).__name__}: {e!s} - "
+                        f"proceeding WITHOUT external context"
+                    )
+                    web_lookup_status = "error"
+                    # Continue without web context - definition generation proceeds
+            else:
+                # Log that web lookup service is NOT available
+                logger.warning(
+                    f"Generation {generation_id}: Web lookup service not available - "
+                    f"proceeding WITHOUT external context enrichment"
+                )
+
+            # =====================================
+            # PHASE 2.6: RAG Context Retrieval (DEF-271)
+            # =====================================
+            rag_chunks: list[Any] = []
+            all_rag_chunks: list[Any] = []
+            rag_status = "not_available"
+            rag_collection_id: int | None = None
+            rag_min_score = float(os.getenv("RAG_MIN_SCORE", "0.3"))
+
+            if self.rag_service:
+                try:
+                    import asyncio
+
+                    # DEF-366: Multi-collection support
+                    rag_collection_ids = getattr(
+                        sanitized_request, "rag_collection_ids", None
+                    )
+                    # Fallback naar single collection_id (backward compatible)
+                    if not rag_collection_ids:
+                        rag_collection_id = getattr(
+                            sanitized_request, "rag_collection_id", None
+                        )
+                        if rag_collection_id is None:
+                            rag_collection_id = self.rag_service._ensure_collection(
+                                "user_documents"
+                            )
+
+                    # Normaliseer rechtsgebied uit juridische_context (DEF-373)
+                    # juridische_context is een list[str]; truthiness vangt
+                    # zowel None als [] op — beide resulteren in geen filter.
+                    juridische_context = getattr(
+                        sanitized_request, "juridische_context", None
+                    )
+                    rag_rechtsgebied = (
+                        normaliseer_rechtsgebied(juridische_context[0])
+                        if juridische_context  # False voor None én []
+                        else None
+                    )
+
+                    # DEF-366: Gebruik multi-collection als collection_ids opgegeven
+                    if rag_collection_ids:
+                        rag_context = await asyncio.to_thread(
+                            self.rag_service.retrieve_context_multi,
+                            query=sanitized_request.begrip,
+                            collection_ids=rag_collection_ids,
+                            top_k=5,
+                            rechtsgebied=rag_rechtsgebied,
+                        )
+                        rag_collection_id = rag_context.collection_id
+                    else:
+                        # Async wrap: retrieve_context() is synchroon (numpy)
+                        rag_context = await asyncio.to_thread(
+                            self.rag_service.retrieve_context,
+                            query=sanitized_request.begrip,
+                            collection_id=rag_collection_id,
+                            top_k=5,
+                            rechtsgebied=rag_rechtsgebied,
+                        )
+
+                    # Score threshold: filter lage-score chunks
+                    all_rag_chunks = rag_context.chunks
+                    rag_chunks = [
+                        c for c in all_rag_chunks if c.get("score", 0) >= rag_min_score
+                    ]
+
+                    context = context or {}
+                    context["rag_chunks"] = rag_chunks
+
+                    rag_status = "success"
+                    logger.info(
+                        "Generation %s: RAG retrieval: %d chunks retrieved, "
+                        "%d after filtering (min_score=%.2f), collection=%d",
+                        generation_id,
+                        len(all_rag_chunks),
+                        len(rag_chunks),
+                        rag_min_score,
+                        rag_collection_id,
+                    )
+                except Exception as e:
+                    rag_status = "error"
+                    logger.warning(
+                        "Generation %s: RAG retrieval failed: %s - proceeding without",
+                        generation_id,
+                        e,
+                    )
+            else:
+                logger.debug(
+                    "Generation %s: RAG service not available - "
+                    "proceeding without RAG context",
+                    generation_id,
+                )
+
+            # =====================================
+            # PHASE 2.7: RAG chunks → provenance_sources (DEF-364)
+            # =====================================
+            # DEF-743: de werkelijk aangeleverde kanaallijsten, in de volgorde
+            # die de promptservice ziet, zodat de kwitantie (E, v2) per
+            # (kanaal, positie) + oorspronkelijke hash aan precies deze
+            # bronobjecten wordt gekoppeld — geen reconstructie achteraf.
+            kanaal_web: list[dict[str, Any]] = list(
+                ensure_list(
+                    safe_dict_get(
+                        ensure_dict(safe_dict_get(context, "web_lookup", {})),
+                        "sources",
+                        [],
+                    )
+                )
+                if context
+                else []
+            )
+            kanaal_rag: list[dict[str, Any]] = []
+            kanaal_docs: list[dict[str, Any]] = []
+            if rag_chunks:
+                for chunk in rag_chunks:
+                    title = (
+                        chunk.get("wet_regeling")
+                        or chunk.get("rechtsgebied")
+                        or "RAG document"
+                    )
+                    citation_parts = [
+                        p
+                        for p in [
+                            chunk.get("rechtsgebied"),
+                            chunk.get("wet_regeling"),
+                            chunk.get("artikel_lid"),
+                        ]
+                        if p
+                    ]
+                    rag_bron = {
+                        "provider": "rag",
+                        **{
+                            key: chunk[key]
+                            for key in (
+                                "chunk_id",
+                                "document_id",
+                                "chunk_index",
+                                "created_at",
+                                "filename",
+                                "bron_type",
+                                "rechtsgebied",
+                                "wet_regeling",
+                                "artikel_lid",
+                            )
+                            if chunk.get(key) is not None
+                        },
+                        **(
+                            {"metadata": deepcopy(chunk["metadata"])}
+                            if isinstance(chunk.get("metadata"), dict)
+                            else {}
+                        ),
+                        "title": title,
+                        "url": None,
+                        "snippet": chunk.get("chunk_text", ""),
+                        "score": float(chunk.get("score", 0.0)),
+                        "used_in_prompt": True,
+                        "source_label": f"RAG: {title}",
+                        "is_authoritative": False,
+                        "legal": (
+                            {"citation_text": " · ".join(citation_parts)}
+                            if citation_parts
+                            else None
+                        ),
+                    }
+                    provenance_sources.append(rag_bron)
+                    kanaal_rag.append(rag_bron)
+
+            # =====================================
+            # PHASE 2.9: Merge document snippets into provenance sources (EPIC-018)
+            # =====================================
+            try:
+                docs_ctx = (
+                    ensure_dict(safe_dict_get(context, "documents", {}))
+                    if context
+                    else {}
+                )
+                doc_snippets = ensure_list(safe_dict_get(docs_ctx, "snippets", []))
+                if doc_snippets:
+                    normalized_docs = []
+                    for s in doc_snippets:
+                        try:
+                            normalized_docs.append(
+                                {
+                                    "provider": "documents",
+                                    **{
+                                        key: safe_dict_get(s, key)
+                                        for key in (
+                                            "filename",
+                                            "citation_label",
+                                            "selection_basis",
+                                            # DEF-808: opgegeven bronversie,
+                                            # vindplaats en herkomstblok reizen
+                                            # mee (url staat hieronder al).
+                                            "source_version",
+                                            "locator",
+                                            "declared_metadata",
+                                        )
+                                        if safe_dict_get(s, key) is not None
+                                    },
+                                    "title": ensure_string(
+                                        safe_dict_get(s, "title")
+                                        or safe_dict_get(s, "filename")
+                                        or "document"
+                                    ),
+                                    "url": safe_dict_get(s, "url"),
+                                    "snippet": ensure_string(
+                                        safe_dict_get(s, "snippet", "")
+                                    ),
+                                    "score": float(
+                                        safe_dict_get(s, "score", 0.0) or 0.0
+                                    ),
+                                    "used_in_prompt": True,
+                                    "doc_id": safe_dict_get(s, "doc_id"),
+                                    "source_label": "Geüpload document",
+                                }
+                            )
+                        except (TypeError, ValueError) as e:
+                            # DEF-229: Log individual snippet normalization failures
+                            # Note: KeyError/AttributeError removed - safe_dict_get never raises
+                            snippet_keys = (
+                                list(s.keys())
+                                if isinstance(s, dict)
+                                else type(s).__name__
+                            )
+                            logger.debug(
+                                f"Skipping malformed document snippet: {type(e).__name__}: {e} [keys={snippet_keys}]"
+                            )
+                            continue
+                    if normalized_docs:
+                        provenance_sources = normalized_docs + (
+                            provenance_sources or []
+                        )
+                        kanaal_docs = normalized_docs
+                        context = context or {}
+                        context["documents"] = {
+                            **docs_ctx,
+                            "snippets": normalized_docs,
+                        }
+            except TypeError as e:
+                # DEF-229: Log document snippet merge failures
+                # Note: Only TypeError possible in outer block (list concatenation)
+                logger.warning(
+                    f"Generation {generation_id}: Failed to merge document snippets: {type(e).__name__}: {e}",
+                    exc_info=True,
+                )
+
+            # =====================================
+            # PHASE 3: Intelligent Prompt Generation (with ontological category fix)
+            # =====================================
+            # DEF-751 stap 2 (reviewcorrectie 1): een te lang antwoord op een
+            # betekenisconflict wordt hier zichtbaar geweigerd — nooit stil
+            # afgekapt en toch als toegepast geregistreerd.
+            geweigerd = await self._weiger_te_lange_verduidelijking(
+                sanitized_request, generation_id, start_time
+            )
+            if geweigerd is not None:
+                return geweigerd
+
+            # Promptbouw met de weigeringen vóór het model (prompt_te_lang,
+            # verduidelijking_niet_in_prompt); zie `_bouw_prompt_of_weiger`.
+            prompt_result, geweigerd = await self._bouw_prompt_of_weiger(
+                sanitized_request, feedback_history, context, generation_id, start_time
+            )
+            if geweigerd is not None:
+                return geweigerd
+            logger.info(
+                f"Generation {generation_id}: V2 Prompt built ({prompt_result.token_count} tokens, "
+                f"ontological_category={sanitized_request.ontologische_categorie})"
+            )
+
+            # DEF-743: de kwitantie van de promptservice zegt welke bronnen
+            # wérkelijk (en met welke exacte, gesanitiseerde/afgekapte inhoud)
+            # in de prompt stonden. Koppel haar aan de aangeleverde bronnen:
+            # gebruikte bronnen krijgen `used_in_prompt=True` + `prompt_content`,
+            # weggelaten bronnen `used_in_prompt=False` + reden. Zonder
+            # kwitantie blijft de lijst zoals de bronselectie haar leverde.
+            source_receipt = self._kwitantie_uit(prompt_result)
+            source_receipt_correlation: dict[str, int] | None = None
+            if source_receipt is not None:
+                from domain.sources.normalisatie import (
+                    koppel_kwitantie,
+                    kwitantie_koppelrapport,
+                )
+
+                provenance_sources = koppel_kwitantie(
+                    provenance_sources,
+                    source_receipt,
+                    kanalen={
+                        "rag": kanaal_rag,
+                        "web": kanaal_web,
+                        "document": kanaal_docs,
+                    },
+                )
+                source_receipt_correlation = kwitantie_koppelrapport(provenance_sources)
+                if (
+                    source_receipt_correlation["unmatched"]
+                    or source_receipt_correlation["ambiguous"]
+                ):
+                    logger.warning(
+                        "Generation %s: kwitantie niet volledig te koppelen: %s",
+                        generation_id,
+                        source_receipt_correlation,
+                    )
+            peildatum = (
+                safe_dict_get(sanitized_request.options, "peildatum")
+                if sanitized_request.options
+                else None
+            )
+
+            # Debug summary: how many sources vs injected snippets in prompt
+            try:
+                text = prompt_result.text or ""
+                header = "### Contextinformatie uit bronnen:"
+                injected_snippets = 0
+                if header in text:
+                    # Count list items following the header (lines starting with "- ")
+                    tail = text.split(header, 1)[1]
+                    injected_snippets = tail.count("\n- ")
+                logger.info(
+                    "Web lookup summary: sources=%s, injected_snippets=%s",
+                    len(provenance_sources or []),
+                    injected_snippets,
+                )
+            except (AttributeError, ValueError) as e:
+                # DEF-229: Non-fatal debug summary failure
+                logger.debug(f"Could not generate web lookup summary: {e}")
+
+            # =====================================
+            # PHASE 4: AI Generation with Retry Logic
+            # =====================================
+            # Get temperature from config (0.1 for consistent legal definitions)
+            from config.config_manager import get_prompt_temperature
+
+            temperature = (
+                safe_dict_get(sanitized_request.options, "temperature")
+                if sanitized_request.options
+                else None
+            )
+            if temperature is None:
+                temperature = get_prompt_temperature("definition")
+
+            generation_result = await self.ai_service.generate_definition(
+                prompt=prompt_result.text,
+                temperature=temperature,
+                max_tokens=(
+                    safe_dict_get(sanitized_request.options, "max_tokens", 500)
+                    if sanitized_request.options
+                    else 500
+                ),
+                model=(
+                    safe_dict_get(sanitized_request.options, "model")
+                    if sanitized_request.options
+                    else None
+                ),
+            )
+            logger.info(f"Generation {generation_id}: AI generation complete")
+
+            # DEF-751 stap 2: aftakking vóór voorbeelden, opschoning, validatie
+            # en opslag. Een door het model gemeld betekenisconflict (of een
+            # ongeldige melding) is geen kandidaat en krijgt geen oordeel.
+            afgetakt = await self._verwerk_modelantwoord(
+                generation_result,
+                sanitized_request,
+                source_receipt,
+                generation_id,
+                start_time,
+            )
+            if afgetakt is not None:
+                return afgetakt
+
+            # =====================================
+            # PHASE 5: Generate Voorbeelden (Examples)
+            # =====================================
+            voorbeelden = {}
+            try:
+                from utils.voorbeelden_debug import DEBUG_ENABLED, debugger
+                from voorbeelden.unified_voorbeelden import (
+                    genereer_alle_voorbeelden_async,
+                )
+
+                # Build context_dict for voorbeelden generation (V2-only fields)
+                voorbeelden_context = {
+                    "organisatorisch": sanitized_request.organisatorische_context or [],
+                    "juridisch": sanitized_request.juridische_context or [],
+                    "wettelijk": sanitized_request.wettelijke_basis or [],
+                }
+
+                # Debug logging point C - Before voorbeelden generation
+                if DEBUG_ENABLED:
+                    debug_gen_id = debugger.start_generation(
+                        begrip=sanitized_request.begrip,
+                        definitie=(
+                            generation_result.text
+                            if hasattr(generation_result, "text")
+                            else str(generation_result)
+                        ),
+                    )
+                    debugger.log_point(
+                        "C",
+                        debug_gen_id,
+                        context_keys=list(voorbeelden_context.keys()),
+                        orchestrator="V2",
+                    )
+                    debugger.log_session_state(debug_gen_id, "C")
+
+                # Generate voorbeelden using async for better performance (US-052)
+                voorbeelden = await genereer_alle_voorbeelden_async(
+                    begrip=sanitized_request.begrip,
+                    definitie=(
+                        generation_result.text
+                        if hasattr(generation_result, "text")
+                        else str(generation_result)
+                    ),
+                    context_dict=voorbeelden_context,
+                )
+
+                # Debug: Log antoniemen count
+                if "antoniemen" in voorbeelden:
+                    logger.info(
+                        f"Orchestrator generated {len(voorbeelden['antoniemen'])} antoniemen for {sanitized_request.begrip}"
+                    )
+
+                # Debug logging point C2 - After voorbeelden generation
+                if DEBUG_ENABLED:
+                    debugger.log_point(
+                        "C2",
+                        debug_gen_id,
+                        voorbeelden_types=list(voorbeelden.keys()),
+                        voorbeelden_counts={
+                            k: len(v) if isinstance(v, list) else 1
+                            for k, v in voorbeelden.items()
+                        },
+                    )
+                    debugger.log_session_state(debug_gen_id, "C2")
+
+                # Debug logging point A - After voorbeelden generation in V2
+                if os.getenv("DEBUG_EXAMPLES"):
+                    logger.info(
+                        "[EXAMPLES-A] V2 generated | gen_id=%s | begrip=%s | keys=%s | counts=%s",
+                        generation_id,
+                        sanitized_request.begrip,
+                        (
+                            list(voorbeelden.keys())
+                            if isinstance(voorbeelden, dict)
+                            else "NOT_DICT"
+                        ),
+                        {
+                            k: len(v) if isinstance(v, list | str) else "INVALID"
+                            for k, v in (voorbeelden or {}).items()
+                        },
+                    )
+
+                logger.info(
+                    f"Generation {generation_id}: Voorbeelden generated ({len(voorbeelden)} types)"
+                )
+            except Exception as e:
+                # DEF-229: Add stack trace for debugging voorbeelden failures
+                logger.warning(
+                    f"Generation {generation_id}: Voorbeelden generation failed: {type(e).__name__}: {e}",
+                    exc_info=True,
+                )
+                if DEBUG_ENABLED and "debug_gen_id" in locals():
+                    debugger.log_error(debug_gen_id, "C", e)
+                # Continue without voorbeelden
+
+            # =====================================
+            # PHASE 6: Text Cleaning & Normalization
+            # =====================================
+            # V2 cleaning service (always available through adapter)
+            raw_gpt_output = (
+                generation_result.text
+                if hasattr(generation_result, "text")
+                else str(generation_result)
+            )
+            cleaning_result = await self.cleaning_service.clean_text(
+                raw_gpt_output,
+                sanitized_request.begrip,
+            )
+            cleaned_text = cleaning_result.cleaned_text
+
+            # Extract clean definition for "origineel" display
+            # Uses full cleaning to remove ALL unwanted patterns:
+            # - "Ontologische categorie:" metadata header
+            # - "[term]:" prefix (e.g., "Vervoersverbod:")
+            # - Forbidden words, circular definitions, etc.
+            from opschoning.opschoning_enhanced import (
+                extract_definition_from_gpt_response,
+                opschonen_enhanced,
+            )
+
+            definitie_zonder_header = opschonen_enhanced(
+                raw_gpt_output, sanitized_request.begrip, handle_gpt_format=True
+            )
+            # DEF-622 (besluit tekstvergelijking): de echte definitiekern vóór
+            # nabewerking — alleen de GPT-kop eraf, niets opgeschoond. Het al
+            # opgeschoonde `definitie_origineel` hierboven is géén vóórtekst.
+            definitie_kern_geextraheerd = extract_definition_from_gpt_response(
+                raw_gpt_output
+            )
+
+            logger.info(f"Generation {generation_id}: Text cleaned with V2 service")
+
+            # =====================================
+            # PHASE 6: Validation
+            # =====================================
+            # Tolerant correlation_id: als generation_id geen geldige UUID is, genereer er één
+            try:
+                corr = uuid.UUID(generation_id)
+            except ValueError:
+                # DEF-229: UUID.parse only raises ValueError for invalid strings
+                corr = uuid.uuid4()
+            # Voeg opties toe aan metadata zodat validator context flags kan lezen
+            meta: dict[str, Any] = {"generation_id": generation_id}
+            try:
+                if sanitized_request.options:
+                    # Expliciet doorgeven van force_duplicate voor duplicate-escalatie
+                    if bool(
+                        safe_dict_get(
+                            sanitized_request.options, "force_duplicate", False
+                        )
+                    ):
+                        meta["force_duplicate"] = True
+                    # Bewaar volledige options voor toekomstig gebruik (niet verplicht)
+                    meta["options"] = dict(sanitized_request.options)
+            except (TypeError, AttributeError) as e:
+                # DEF-229: Log options extraction failures
+                logger.debug(f"Could not extract generation options for metadata: {e}")
+            # DEF-743: dezelfde bronset (gekoppeld aan de kwitantie) gaat
+            # naar de validatie; de wrapper verkrijgt daar de bronbeoordeling
+            # voor exact de getoetste kandidaat en geeft haar terug.
+            bronmeta = {
+                "provenance_sources": deepcopy(provenance_sources),
+                "source_receipt": deepcopy(source_receipt),
+                "source_review": None,
+                "peildatum": peildatum,
+                # DEF-766 (R4): de door de gebruiker opgegeven bedoeling
+                # (DEF-751) hoort bij de ESS-03-beoordeling van de kandidaat.
+                "betekenisverduidelijking": (
+                    sanitized_request.betekenisverduidelijking or None
+                ),
+            }
+            validation_context = ValidationContext(
+                correlation_id=corr,
+                metadata={**meta, **bronmeta},
+            )
+            # DEF-622: de getoetste kandidaat is exact de kandidaat die wordt
+            # getoond en opgeslagen. De validatie-orchestrator schoont een
+            # Definition in-place; daarom gaat een kopie mee en wordt, als de
+            # validatie de tekst tóch wijzigt, die tekst de kandidaat en
+            # opnieuw getoetst (wijziging na toetsing vereist hertoetsing).
+            cleaned_text, raw_validation, source_assessment = (
+                await self._toets_kandidaat(
+                    sanitized_request, cleaned_text, validation_context, generation_id
+                )
+            )
+            validation_result = self._normaliseer_validatie(
+                raw_validation, generation_id
+            )
+
+            logger.info(
+                f"Generation {generation_id}: Validation complete (valid: {safe_dict_get(validation_result, 'is_acceptable', False)})"
+            )
+
+            # =====================================
+            # PHASE 7: Enhancement (if validation failed and enabled)
+            # =====================================
+            # DEF-622 (besloten vervolg): geen automatisch tekstherstel op
+            # CON-01. De herstelgrond is uitsluitend een overtreding van een
+            # andere regel; een CON-01-uitkomst (Voldoet niet / Nog te
+            # beoordelen / technisch probleem) of een gate die alleen dicht
+            # is door de ontbrekende totaalscore is géén herstelgrond. Het
+            # herstelontwerp zelf (DEF-638) wordt hier niet beslist.
+            was_enhanced = False
+            herstelbare_overtredingen = self._herstelbare_overtredingen(
+                validation_result
+            )
+            if (
+                herstelbare_overtredingen
+                and self.config.enable_enhancement
+                and self.enhancement_service
+            ):
+                enhanced_text = await self.enhancement_service.enhance_definition(
+                    cleaned_text,
+                    herstelbare_overtredingen,
+                    context=sanitized_request,
+                )
+
+                # Hertoetsing van de daadwerkelijk bewaarde kandidaat: de
+                # verbeterde tekst wordt opnieuw getoetst; een oud oordeel
+                # geldt niet voor gewijzigde inhoud.
+                try:
+                    corr2 = uuid.UUID(generation_id)
+                except ValueError:
+                    # DEF-229: UUID.parse only raises ValueError for invalid strings
+                    corr2 = uuid.uuid4()
+                enhanced_context = ValidationContext(
+                    correlation_id=corr2,
+                    metadata={
+                        "generation_id": generation_id,
+                        "enhanced": True,
+                        **deepcopy(bronmeta),
+                    },
+                )
+                cleaned_text, raw_validation, source_assessment = (
+                    await self._toets_kandidaat(
+                        sanitized_request,
+                        enhanced_text,
+                        enhanced_context,
+                        generation_id,
+                    )
+                )
+                validation_result = self._normaliseer_validatie(
+                    raw_validation, generation_id
+                )
+                was_enhanced = True
+                logger.info(
+                    f"Generation {generation_id}: Enhancement applied, re-validated"
+                )
+
+            # =====================================
+            # PHASE 8: Definition Object Creation
+            # =====================================
+            definition = self._create_definition_object(
+                request=sanitized_request,
+                text=cleaned_text,
+                validation_result=validation_result,
+                generation_metadata={
+                    "model": getattr(generation_result, "model", "unknown"),
+                    "tokens_used": getattr(generation_result, "tokens_used", 0),
+                    "prompt_components": (
+                        prompt_result.components_used if prompt_result else []
+                    ),
+                    "has_feedback": bool(feedback_history),
+                    "enhanced": was_enhanced,
+                    "generation_time": time.time() - start_time,
+                    "generated_at": datetime.now(UTC).isoformat(),
+                    "orchestrator_version": "v2.0",
+                    "ontological_category_used": sanitized_request.ontologische_categorie,
+                    # Epic 3: Web lookup metadata
+                    "sources": provenance_sources,
+                    # DEF-743: één bronbasis. `provenance_sources` is de
+                    # canonieke validatiesleutel (zelfde inhoud als `sources`);
+                    # de kwitantie, de verkregen AI-beoordeling (gebonden aan
+                    # exact de opgeslagen kandidaat) en de nog lege
+                    # deskundigenbeoordeling reizen vóór opslag mee.
+                    "provenance_sources": deepcopy(provenance_sources),
+                    "source_receipt": deepcopy(source_receipt),
+                    "source_receipt_correlation": source_receipt_correlation,
+                    "source_assessment": source_assessment,
+                    "source_review": None,
+                    # DEF-766: de AI-telbaarheidsbeoordeling (ESS-03) van exact
+                    # de definitieve kandidaat, vóór opslag op het record.
+                    "ess03_assessment": self._beoordeling_uit(
+                        raw_validation, "ess03_assessment"
+                    ),
+                    # DEF-772: de AI-verwijzingsbeoordeling (INT-03) van exact
+                    # de definitieve kandidaat, vóór opslag op het record.
+                    "int03_assessment": self._int03_beoordeling_uit(raw_validation),
+                    "peildatum": peildatum,
+                    "generation_id": generation_id,
+                    "web_lookup_status": web_lookup_status,
+                    "web_lookup_available": self.web_lookup_service is not None,
+                    "web_lookup_timeout": web_lookup_timeout,
+                    "web_sources_count": len(provenance_sources),
+                    "web_lookup_debug": debug_info,
+                    "web_lookup_debug_available": debug_info is not None,
+                    # Architecture v3.1: Synonym enrichment metadata
+                    "synonym_enrichment_status": synonym_enrichment_status,
+                    "synonym_enrichment_available": self.synonym_orchestrator
+                    is not None,
+                    "enriched_synonyms_count": len(enriched_synonyms),
+                    "ai_pending_synonyms_count": ai_pending_count,
+                    "enriched_synonyms": (
+                        [
+                            {"term": ws.term, "weight": ws.weight}
+                            for ws in enriched_synonyms
+                        ]
+                        if enriched_synonyms
+                        else []
+                    ),
+                    # DEF-271: RAG context metadata
+                    "rag_status": rag_status,
+                    "rag_chunks_count": len(rag_chunks),
+                    "rag_chunks_filtered": (
+                        len(all_rag_chunks) - len(rag_chunks)
+                        if rag_status == "success"
+                        else 0
+                    ),
+                    "rag_collection_id": rag_collection_id,
+                    "rag_min_score_used": rag_min_score,
+                    # Add voorbeelden to metadata so UI can display them
+                    "voorbeelden": voorbeelden if voorbeelden else {},
+                    # DEF-151: Store complete generation prompt metadata for audit trail
+                    "prompt_text": prompt_result.text if prompt_result else "",
+                    "prompt_template": prompt_result.text if prompt_result else "",
+                    "temperature": temperature,
+                    "tokens_prompt": (
+                        generation_result.metadata.get("tokens_prompt")
+                        if generation_result and generation_result.metadata
+                        else None
+                    ),
+                    "tokens_completion": (
+                        generation_result.metadata.get("tokens_completion")
+                        if generation_result and generation_result.metadata
+                        else None
+                    ),
+                    # Store original definition without metadata headers (for UI display)
+                    # This is the GPT output with "Ontologische categorie:" header removed
+                    "definitie_origineel": definitie_zonder_header,
+                    # DEF-622 (besluit tekstvergelijking): de echte tekststadia.
+                    # `definitie_kern_geextraheerd` is de modeltekst vóór
+                    # nabewerking; `definitie_eindtekst` de getoetste, getoonde
+                    # én opgeslagen kandidaat; de vlag zegt of de app de tekst
+                    # ná generatie heeft gewijzigd (opschoning of enhancement).
+                    "definitie_kern_geextraheerd": definitie_kern_geextraheerd,
+                    "definitie_eindtekst": cleaned_text,
+                    "tekst_na_generatie_aangepast": (
+                        definitie_kern_geextraheerd != cleaned_text
+                    ),
+                    # DEF-751 stap 2: het gebruikersantwoord op een eerder
+                    # gemeld betekenisconflict, herleidbaar op het record als
+                    # gebruikersbedoeling — geen bronfeit, geen oordeel.
+                    "betekenisverduidelijking": (
+                        sanitized_request.betekenisverduidelijking or None
+                    ),
+                    # Doorgeven van force_duplicate voor downstream repository
+                    "force_duplicate": (
+                        bool(
+                            safe_dict_get(
+                                sanitized_request.options, "force_duplicate", False
+                            )
+                        )
+                        if getattr(sanitized_request, "options", None)
+                        else False
+                    ),
+                    # DEF-622 (besluit 5): de reden voor een bewust geforceerd
+                    # duplicaat reist mee naar de audit van het nieuwe concept.
+                    "force_duplicate_reason": (
+                        safe_dict_get(
+                            sanitized_request.options, "force_duplicate_reason", None
+                        )
+                        if getattr(sanitized_request, "options", None)
+                        else None
+                    ),
+                },
+            )
+
+            # =====================================
+            # PHASE 9: Storage (Conditional on Quality Gate)
+            # =====================================
+            # Opslag ONGEACHT scores: altijd opslaan (als draft/review) en ID teruggeven
+            definition_id = await self._safe_save_definition(definition)
+            logger.info(
+                f"Generation {generation_id}: Definition saved (ID: {definition_id})"
+            )
+            try:
+                if definition_id:
+                    definition.id = int(definition_id)
+            except (TypeError, ValueError) as e:  # pragma: no cover
+                # DEF-229: Log definition ID assignment failures
+                logger.warning(
+                    f"Generation {generation_id}: Could not assign definition ID {definition_id}: {e}"
+                )
+
+            # Optioneel: sla mislukte poging ook op voor feedback-learning
+            if not safe_dict_get(validation_result, "is_acceptable", False):
+                await self._save_failed_attempt(
+                    definition, validation_result, generation_id
+                )
+                logger.warning(
+                    f"Generation {generation_id}: Stored as saved definition and logged failed attempt for learning"
+                )
+
+            # =====================================
+            # PHASE 10: Feedback Loop Update (GVI Rode Kabel)
+            # =====================================
+            if (
+                not safe_dict_get(validation_result, "is_acceptable", False)
+                and self.feedback_engine
+            ):
+                await self.feedback_engine.process_validation_feedback(
+                    definition_id=generation_id,
+                    validation_result=validation_result,
+                    original_request=sanitized_request,
+                )
+                logger.info(
+                    f"Generation {generation_id}: Feedback processed for future improvements"
+                )
+
+            # =====================================
+            # PHASE 11: Monitoring & Metrics
+            # =====================================
+            if self.monitoring:
+                # Ensure token_count is int or None
+                token_count = getattr(generation_result, "tokens_used", None)
+                if token_count is not None:
+                    token_count = int(token_count)
+
+                await self.monitoring.complete_generation(
+                    generation_id=generation_id,
+                    success=safe_dict_get(validation_result, "is_acceptable", False),
+                    duration=time.time() - start_time,
+                    token_count=token_count,
+                    components_used=(
+                        prompt_result.components_used if prompt_result else []
+                    ),
+                    had_feedback=bool(feedback_history),
+                )
+
+            # =====================================
+            # FINAL RESPONSE CREATION
+            # =====================================
+            final_duration = time.time() - start_time
+            logger.info(
+                f"Generation {generation_id}: Complete in {final_duration:.2f}s, "
+                f"valid={safe_dict_get(validation_result, 'is_acceptable', False)}"
+            )
+
+            return DefinitionResponseV2(
+                success=True,
+                definition=definition,
+                validation_result=raw_validation,
+                metadata={
+                    "generation_id": generation_id,
+                    "duration": final_duration,
+                    "feedback_integrated": bool(feedback_history),
+                    "ontological_category": sanitized_request.ontologische_categorie,
+                    "orchestrator_version": "v2.0",
+                    "phases_completed": 11,
+                    "enhanced": was_enhanced,
+                    # DEF-751 stap 2: of deze generatie een gebruikers-
+                    # verduidelijking droeg (zichtbaar in de UI; geen oordeel).
+                    "betekenisverduidelijking_gebruikt": bool(
+                        sanitized_request.betekenisverduidelijking
+                    ),
+                    # Web lookup status for transparency
+                    "web_lookup_status": web_lookup_status,
+                    "web_lookup_available": self.web_lookup_service is not None,
+                    "web_sources_count": len(provenance_sources),
+                    # Synonym enrichment status for transparency (Architecture v3.1)
+                    "synonym_enrichment_status": synonym_enrichment_status,
+                    "enriched_synonyms_count": len(enriched_synonyms),
+                    "ai_pending_synonyms_count": ai_pending_count,
+                    # DEF-271: RAG status
+                    "rag_status": rag_status,
+                    "rag_chunks_count": len(rag_chunks),
+                    "rag_available": self.rag_service is not None,
+                },
+            )
+
+        except Exception as e:
+            logger.error(f"Generation {generation_id} failed: {e!s}", exc_info=True)
+            if self.monitoring:
+                await self.monitoring.track_error(
+                    generation_id, e, error_type=type(e).__name__
+                )
+
+            return DefinitionResponseV2(
+                success=False,
+                error=f"Generation failed: {e!s}",
+                metadata={
+                    "generation_id": generation_id,
+                    "duration": time.time() - start_time,
+                    "error_type": type(e).__name__,
+                    "orchestrator_version": "v2.0",
+                },
+            )
+
+    # =====================================
+    # LEGACY INTERFACE COMPATIBILITY
+    # =====================================
+
+    # Note: Main create_definition method is already implemented above
+
+    # DEF-439: deze legacy-stubs implementeren DefinitionOrchestratorInterface, dat
+    # DefinitionResponse (niet de V2-variant) als returntype declareert. Stubs geven
+    # nu de base-response terug (message i.p.v. error) — contract-conform.
+    async def update_definition(
+        self, definition_id: int, updates: dict[str, Any]
+    ) -> DefinitionResponse:
+        """Update definition - placeholder for future implementation."""
+        _ = definition_id, updates  # Mark as used
+        logger.warning("update_definition not yet implemented in V2")
+        return DefinitionResponse(
+            success=False,
+            message="update_definition not yet implemented in V2 orchestrator",
+        )
+
+    async def validate_and_save(self, definition: Definition) -> DefinitionResponse:
+        """Validate and save - placeholder for future implementation."""
+        _ = definition  # Mark as used
+        logger.warning("validate_and_save not yet implemented in V2")
+        return DefinitionResponse(
+            success=False,
+            message="validate_and_save not yet implemented in V2 orchestrator",
+        )
+
+    # =====================================
+    # PRIVATE HELPER METHODS
+    # =====================================
+
+    async def _verwerk_modelantwoord(
+        self,
+        generation_result: Any,
+        request: GenerationRequest,
+        source_receipt: dict[str, Any] | None,
+        generation_id: str,
+        start_time: float,
+    ) -> DefinitionResponseV2 | None:
+        """DEF-751 stap 2: lees het ruwe modelantwoord vóór elke verdere fase.
+
+        Geeft None terug voor een gewoon definitieantwoord (het bestaande pad
+        loopt dan byte-identiek door). Bij een structureel geldige
+        conflictmelding waarvan elke grond naar een werkelijk aangeleverde
+        bron of contextwaarde verwijst: een specifieke non-success met de
+        melding in de metadata (`error_type="betekenisconflict"`), zonder
+        definitie, oordeel of categoriebevestiging. Bij een ongeldige of
+        vermengde melding, of een onverifieerbare grond: veilig falen
+        (`error_type="modelantwoord_ongeldig"`) zonder de ruwe modeltekst in
+        response of log. In beide gevallen wordt de monitoring afgerond en
+        wordt niets opgeslagen of gevalideerd.
+        """
+        from services.modelantwoord import (
+            SOORT_CONFLICT,
+            SOORT_DEFINITIE,
+            bron_nrs_uit_kwitantie,
+            contextwaarden_uit,
+            lees_modelantwoord,
+            verifieer_gronden,
+        )
+
+        raw = (
+            generation_result.text
+            if hasattr(generation_result, "text")
+            else str(generation_result)
+        )
+        antwoord = lees_modelantwoord(raw)
+        if antwoord.soort == SOORT_DEFINITIE:
+            return None
+
+        # Reviewcorrectie 3: uitsluitend een vaste foutcode en haar vaste
+        # omschrijving (`FOUTCODES`) — nooit een sleutel, bronwaarde of ander
+        # fragment uit de modelpayload — in log en response.
+        fout: tuple[str, str] | None = (
+            (antwoord.code, antwoord.reden)
+            if antwoord.code and antwoord.reden
+            else None
+        )
+        conflict = antwoord.conflict
+        if antwoord.soort == SOORT_CONFLICT and conflict is not None:
+            fout = verifieer_gronden(
+                conflict,
+                bron_nrs=bron_nrs_uit_kwitantie(source_receipt),
+                contextwaarden=contextwaarden_uit(request),
+            )
+
+        basis_metadata: dict[str, Any] = {
+            "generation_id": generation_id,
+            "duration": time.time() - start_time,
+            "orchestrator_version": "v2.0",
+            "phases_completed": 4,
+        }
+        if conflict is None or fout is not None:
+            code, reden = fout or ("onbekend", "onbekende afwijzingsreden")
+            logger.warning(
+                "Generation %s: ongeldige conflictmelding van het model "
+                "(code=%s: %s)",
+                generation_id,
+                code,
+                reden,
+            )
+            response = DefinitionResponseV2(
+                success=False,
+                error=(
+                    "Het model gaf geen bruikbare definitie en geen geldige "
+                    "conflictmelding; genereer opnieuw."
+                ),
+                metadata={
+                    **basis_metadata,
+                    "error_type": "modelantwoord_ongeldig",
+                    "code": code,
+                    "reden": reden,
+                },
+            )
+        else:
+            logger.info(
+                "Generation %s: model meldt een betekenisconflict (%d lezingen); "
+                "geen definitie, geen opslag",
+                generation_id,
+                len(conflict.lezingen),
+            )
+            response = DefinitionResponseV2(
+                success=False,
+                error=conflict.vraag,
+                metadata={
+                    **basis_metadata,
+                    "error_type": "betekenisconflict",
+                    "betekenisconflict": {
+                        **conflict.to_dict(),
+                        "gemeld_door": "model",
+                        "begrip": request.begrip,
+                        "ontologische_categorie": request.ontologische_categorie,
+                        "organisatorische_context": list(
+                            request.organisatorische_context or []
+                        ),
+                        "juridische_context": list(request.juridische_context or []),
+                        "wettelijke_basis": list(request.wettelijke_basis or []),
+                        "generation_id": generation_id,
+                    },
+                },
+            )
+
+        if self.monitoring:
+            token_count = getattr(generation_result, "tokens_used", None)
+            await self.monitoring.complete_generation(
+                generation_id=generation_id,
+                success=False,
+                duration=time.time() - start_time,
+                token_count=int(token_count) if token_count is not None else None,
+                components_used=[],
+                had_feedback=False,
+            )
+        return response
+
+    async def _weiger_voor_model(
+        self,
+        generation_id: str,
+        start_time: float,
+        *,
+        error_type: str,
+        melding: str,
+        extra: dict[str, Any] | None = None,
+    ) -> DefinitionResponseV2:
+        """Expliciete weigering vóór de modelaanroep (DEF-751 stap 2).
+
+        Geen definitie, geen oordeel, niets opgeslagen; de monitoring wordt
+        afgerond als niet-geslaagde generatie. De melding bevat alleen vaste
+        tekst en getallen — nooit het antwoord of andere gebruikersdata.
+        """
+        logger.warning(
+            "Generation %s: geweigerd vóór de modelaanroep (%s)",
+            generation_id,
+            error_type,
+        )
+        if self.monitoring:
+            await self.monitoring.complete_generation(
+                generation_id=generation_id,
+                success=False,
+                duration=time.time() - start_time,
+                token_count=None,
+                components_used=[],
+                had_feedback=False,
+            )
+        return DefinitionResponseV2(
+            success=False,
+            error=melding,
+            metadata={
+                "generation_id": generation_id,
+                "duration": time.time() - start_time,
+                "orchestrator_version": "v2.0",
+                "phases_completed": 2,
+                "error_type": error_type,
+                **(extra or {}),
+            },
+        )
+
+    async def _weiger_te_lange_verduidelijking(
+        self, request: GenerationRequest, generation_id: str, start_time: float
+    ) -> DefinitionResponseV2 | None:
+        """Reviewcorrectie 1: antwoord boven het antwoordbudget (ná escaping)
+        wordt zichtbaar geweigerd; het antwoord blijft bij de gebruiker."""
+        from services.prompts.modules.context_awareness_module import (
+            MAX_VERDUIDELIJKING_LEN,
+            verduidelijking_te_lang,
+        )
+
+        verduidelijking = request.betekenisverduidelijking
+        if not verduidelijking or not verduidelijking_te_lang(verduidelijking):
+            return None
+        return await self._weiger_voor_model(
+            generation_id,
+            start_time,
+            error_type="verduidelijking_te_lang",
+            melding=(
+                "De verduidelijking is te lang voor de prompt (maximaal "
+                f"{MAX_VERDUIDELIJKING_LEN} tekens na technische escaping); er is "
+                "niet gegenereerd. Kort het antwoord in en verzend het opnieuw."
+            ),
+            extra={"max_lengte": MAX_VERDUIDELIJKING_LEN},
+        )
+
+    async def _bouw_prompt_of_weiger(
+        self,
+        request: GenerationRequest,
+        feedback_history: Any,
+        context: dict[str, Any] | None,
+        generation_id: str,
+        start_time: float,
+    ) -> tuple[Any, DefinitionResponseV2 | None]:
+        """Fase 3: bouw de prompt, of weiger vóór het model (DEF-751 stap 2).
+
+        Reviewcorrectie 2: boven de harde kap wordt niet afgekapt maar
+        geweigerd (`prompt_te_lang`). Reviewcorrectie 1 (postconditie):
+        "gebruikt" betekent werkelijk en volledig in de prompt aanwezig;
+        anders `verduidelijking_niet_in_prompt` en geen modelaanroep.
+        Geeft (prompt_result, None) of (None, weigering) terug.
+        """
+        # Lokale imports: de promptketen blijft lazy (DEF-66).
+        from services.prompts.modular_prompt_adapter import PromptTeLangError
+        from services.prompts.modules.context_awareness_module import (
+            verduidelijking_datalijn,
+        )
+
+        try:
+            prompt_result = await self.prompt_service.build_generation_prompt(
+                request, feedback_history=feedback_history, context=context
+            )
+        except PromptTeLangError as e:
+            return None, await self._weiger_voor_model(
+                generation_id,
+                start_time,
+                error_type="prompt_te_lang",
+                melding=(
+                    "De samengestelde prompt is te lang "
+                    f"({e.lengte} tekens, maximum {e.maximum}); beperk de "
+                    "context, documentselectie of het antwoord en genereer "
+                    "opnieuw."
+                ),
+                extra={"lengte": e.lengte, "maximum": e.maximum},
+            )
+        verduidelijking = request.betekenisverduidelijking
+        if verduidelijking and (
+            verduidelijking_datalijn(verduidelijking) not in prompt_result.text
+        ):
+            return None, await self._weiger_voor_model(
+                generation_id,
+                start_time,
+                error_type="verduidelijking_niet_in_prompt",
+                melding=(
+                    "De verduidelijking kon niet volledig in de prompt worden "
+                    "opgenomen; er is niet gegenereerd. Kort het antwoord in "
+                    "of beperk de context en genereer opnieuw."
+                ),
+            )
+        return prompt_result, None
+
+    @staticmethod
+    def _kwitantie_uit(prompt_result: Any) -> dict[str, Any] | None:
+        """De bronkwitantie van de promptservice (DEF-743), of None."""
+        metadata = getattr(prompt_result, "metadata", None)
+        if not isinstance(metadata, dict):
+            return None
+        receipt = metadata.get("source_receipt")
+        return deepcopy(receipt) if isinstance(receipt, dict) else None
+
+    async def _toets_kandidaat(
+        self,
+        request: GenerationRequest,
+        tekst: str,
+        validation_context: ValidationContext,
+        generation_id: str,
+    ) -> tuple[str, Any, dict[str, Any] | None]:
+        """Toets een kandidaattekst; geef (definitieve tekst, ruw resultaat, bronbeoordeling).
+
+        DEF-622/747: uitsluitend toetsen wijzigt het Definition-object niet.
+        De mutatieguard blijft als vangnet: wijzigt de validatie toch de tekst,
+        dan is dát de
+        kandidaat die getoond en opgeslagen wordt, en die wordt opnieuw
+        getoetst (wijziging na toetsing vereist hertoetsing). Zo is de
+        opgeslagen tekst altijd exact de getoetste tekst.
+
+        DEF-743: de bronset uit `validation_context.metadata` gaat elke
+        poging ongewijzigd mee; de wrapper verkrijgt per kandidaattekst een
+        eigen bronbeoordeling en geeft haar terug in
+        `raw_validation["source_assessment"]` — die hoort dus altijd bij
+        exact de definitieve tekst.
+
+        DEF-766 (R1): de kandidaat draagt zelf de bedoelde betekenis mee, in
+        dezelfde vorm als het record dat straks wordt opgeslagen.
+        """
+        kandidaat = tekst
+        raw_validation: Any = None
+        for poging in (1, 2):
+            kopie = Definition(
+                begrip=request.begrip,
+                definitie=kandidaat,
+                organisatorische_context=request.organisatorische_context or [],
+                juridische_context=request.juridische_context or [],
+                wettelijke_basis=request.wettelijke_basis or [],
+                ontologische_categorie=request.ontologische_categorie,
+                created_by=request.actor,
+                metadata=self._kandidaatregistratie(request),
+            )
+            raw_validation = await self.validation_service.validate_definition(
+                definition=kopie, context=validation_context
+            )
+            if kopie.definitie == kandidaat:
+                return (
+                    kandidaat,
+                    raw_validation,
+                    self._bronbeoordeling_uit(raw_validation),
+                )
+            if poging == 2:
+                # Aanhoudende mutatie: het oordeel hoort bij een andere tekst
+                # dan de kandidaat. Fail-closed — geen oordeel koppelen aan een
+                # tekst die niet exact getoetst is, en niets opslaan.
+                raise KandidaatNietStabielError(
+                    "de nabewerking in de validatie blijft de kandidaattekst "
+                    "wijzigen; de definitie is niet stabiel te toetsen en wordt "
+                    "niet opgeslagen"
+                )
+            logger.info(
+                f"Generation {generation_id}: validatie wijzigde de kandidaattekst; "
+                "hertoetsing op de definitieve tekst"
+            )
+            kandidaat = kopie.definitie
+        return (
+            kandidaat,
+            raw_validation,
+            None,
+        )  # pragma: no cover - lus eindigt altijd eerder
+
+    @staticmethod
+    def _kandidaatregistratie(request: GenerationRequest) -> dict[str, Any]:
+        """De generatieregistratie die de te toetsen kandidaat zelf draagt (DEF-766, R1).
+
+        De validatiewrapper leest de bedoelde betekenis van een `Definition`
+        uitsluitend van het record zelf (`metadata["generation_prompt_data"]`)
+        en nooit uit aanroepermetadata: bij een record zónder die sleutel zou
+        een algemene terugval een vreemde of vervallen bedoeling activeren.
+        Het tussentijdse object dat hier wordt getoetst kreeg daardoor geen
+        betekenis mee, terwijl de opslag haar wél vastlegt — waarmee ESS-03
+        zonder de aangeleverde verduidelijking oordeelde en het oordeel bij
+        heropenen meteen historisch was. Daarom draagt de kandidaat exact
+        dezelfde waarde als `generation_prompt_data["betekenisverduidelijking"]`
+        van het record; normalisatie (strip) gebeurt in de wrapper, dus aan
+        beide kanten gelijk. Er komt hier niets bij wat het record niet krijgt.
+        """
+        return {
+            "generation_prompt_data": {
+                "betekenisverduidelijking": request.betekenisverduidelijking or None
+            }
+        }
+
+    @classmethod
+    def _bronbeoordeling_uit(cls, raw_validation: Any) -> dict[str, Any] | None:
+        """De door de wrapper verkregen bronbeoordeling (contract 1.4.0), of None."""
+        return cls._beoordeling_uit(raw_validation, "source_assessment")
+
+    @staticmethod
+    def _int03_beoordeling_uit(raw_validation: Any) -> dict[str, Any] | None:
+        """De door de wrapper verkregen INT-03-beoordeling (DEF-772), of None.
+
+        Het contract (2.1.0) kent geen top-level sleutel voor INT-03: het
+        document reist in `rule_results["INT-03"]["assessment"]`. Alleen een
+        echt object telt; anders is er geen beoordeling en wordt er geen
+        verzonnen.
+        """
+        detail = ensure_dict(
+            ensure_dict(safe_dict_get(raw_validation, "rule_results", {})).get("INT-03")
+        )
+        beoordeling = detail.get("assessment")
+        return deepcopy(beoordeling) if isinstance(beoordeling, dict) else None
+
+    @staticmethod
+    def _beoordeling_uit(raw_validation: Any, sleutel: str) -> dict[str, Any] | None:
+        """Een door de wrapper verkregen beoordeling (`source_assessment`,
+        `ess03_assessment`), of None.
+
+        Alleen een echt object telt; een validatiedubbel zonder dit veld
+        levert `None` — dan is er geen beoordeling, en wordt er geen verzonnen.
+        """
+        beoordeling = safe_dict_get(raw_validation, sleutel)
+        return deepcopy(beoordeling) if isinstance(beoordeling, dict) else None
+
+    @staticmethod
+    def _normaliseer_validatie(raw_validation: Any, generation_id: str) -> Any:
+        """Schema-conforme dict voor interne beslissingen, met defensieve fallback."""
+        try:
+            from services.validation.mappers import ensure_schema_compliance
+
+            return ensure_schema_compliance(raw_validation)
+        except (ImportError, TypeError, ValueError, AttributeError) as e:
+            # DEF-229: Log schema compliance failures with context
+            logger.warning(
+                f"Generation {generation_id}: Validation schema mapping failed, "
+                f"using fallback: {e}",
+                extra={"error_type": type(e).__name__, "generation_id": generation_id},
+                exc_info=True,
+            )
+            is_ok = getattr(raw_validation, "is_valid", False)
+            vio_list = getattr(raw_validation, "violations", None)
+            if vio_list is None:
+                vio_list = getattr(raw_validation, "errors", []) or []
+            return {
+                "is_acceptable": bool(is_ok),
+                "violations": vio_list,
+                "passed_rules": [],
+                "detailed_scores": {},
+                "version": "v2",
+                "system": {},
+            }
+
+    @staticmethod
+    def _herstelbare_overtredingen(validation_result: Any) -> list[Any]:
+        """Overtredingen die de bestaande enhancement mogen bereiken.
+
+        Uitgesloten: regels zonder cijfer (`rule_results`, i.e. CON-01): hun
+        uitkomst vraagt een expertbeoordeling of een bewuste gebruikersactie,
+        geen automatisch tekstherstel (DEF-622; herstelontwerp is DEF-638).
+
+        Runtimecontract ongewijzigd: net als vóór DEF-622 gaan de
+        schema-conforme violation-dicts van het validatieresultaat door
+        (`list[Any]`, zoals `ensure_list` ze leverde); de interface annoteert
+        de dataclass `ValidationViolation` — die bestaande discrepantie wordt
+        hier niet beslist.
+        """
+        zonder_cijfer = set(
+            ensure_dict(safe_dict_get(validation_result, "rule_results", {})).keys()
+        )
+        overtredingen: list[Any] = []
+        for overtreding in ensure_list(
+            safe_dict_get(validation_result, "violations", [])
+        ):
+            if not isinstance(overtreding, dict):
+                continue
+            code = overtreding.get("code") or overtreding.get("rule_id")
+            if code in zonder_cijfer:
+                continue
+            overtredingen.append(overtreding)
+        return overtredingen
+
+    def _create_definition_object(
+        self,
+        request: GenerationRequest,
+        text: str,
+        validation_result: ValidationResult,
+        generation_metadata: dict[str, Any],
+    ) -> Definition:
+        """Create definition object with all metadata."""
+        metadata = dict(generation_metadata)
+        # DEF-751 B2: de categoriekeuze van deze generatie als onbevestigde
+        # invoer voor de repository. `lees_keuze_invoer` is de grens: alleen
+        # herkomst manual/model (+ reasoning/scores) uit de UI-actie; een
+        # meegestuurde actor/status wordt genegeerd, een herkomst die alleen
+        # in een eigen route mag ontstaan (editor/import/default) faalt
+        # fail-closed vóór opslag.
+        keuze_invoer = lees_keuze_invoer(
+            ensure_dict(request.options or {}).get("category_choice")
+        )
+        if keuze_invoer is not None:
+            metadata["category_choice_input"] = keuze_invoer
+        return Definition(
+            begrip=request.begrip,
+            definitie=text,
+            organisatorische_context=request.organisatorische_context or [],
+            juridische_context=request.juridische_context or [],
+            wettelijke_basis=request.wettelijke_basis or [],
+            # EPIC-010: domein field verwijderd
+            ontologische_categorie=request.ontologische_categorie,  # V2: Properly set
+            categorie=request.ontologische_categorie,  # DEF-53 fix: explicit mapping to DB field
+            ufo_categorie=getattr(request, "ufo_categorie", None),
+            valid=safe_dict_get(validation_result, "is_acceptable", False),
+            validation_violations=ensure_list(
+                safe_dict_get(validation_result, "violations", [])
+            ),
+            metadata=metadata,
+            created_by=request.actor,
+            created_at=datetime.now(UTC),
+        )
+
+    async def _safe_save_definition(self, definition: Definition) -> int | None:
+        """
+        Safely save definition with comprehensive error handling.
+
+        Returns:
+            Definition ID if successful, None if repository doesn't support save
+
+        Raises:
+            DuplicateDefinitionError: If definition already exists
+            DatabaseConstraintError: If database constraints violated
+            DatabaseConnectionError: If database unavailable
+            RepositoryError: For other repository errors
+        """
+        # Check if repository supports save
+        if not hasattr(self.repository, "save"):
+            logger.error(
+                f"Repository {type(self.repository).__name__} does not have save() method! "
+                f"Available methods: {[m for m in dir(self.repository) if not m.startswith('_')]}"
+            )
+            return None
+
+        # Log save attempt
+        logger.info(
+            f"Attempting to save definition: begrip='{definition.begrip}', "
+            f"categorie={definition.categorie}, "
+            f"ontologische_categorie={definition.ontologische_categorie}"
+        )
+
+        try:
+            result = self.repository.save(definition)
+            logger.info(
+                f"Successfully saved definition '{definition.begrip}' with ID: {result}"
+            )
+            return cast(int, result)
+
+        except DuplicateDefinitionError as e:
+            logger.warning(
+                f"Duplicate definition detected: {e.begrip}. "
+                "User may want to update existing definition instead."
+            )
+            raise  # Let caller handle duplicate (may want to offer update option)
+
+        except DatabaseConstraintError as e:
+            logger.error(
+                f"Database constraint violation for '{e.begrip}': "
+                f"field='{e.field}', error={e}"
+            )
+            raise  # Critical error - should not happen after Fix 1
+
+        except DatabaseConnectionError as e:
+            logger.error(f"Database connection failed: {e.db_path}, error={e}")
+            raise  # Infrastructure issue - needs immediate attention
+
+        except RepositoryError as e:
+            logger.error(f"Repository error during {e.operation}: {e}")
+            raise  # Unexpected repository issue
+
+        except Exception as e:
+            # Catch any unexpected errors
+            logger.exception(
+                f"CRITICAL: Unexpected error saving '{definition.begrip}': {e!s}",
+                exc_info=True,
+            )
+            raise RepositoryError(
+                operation="save", begrip=definition.begrip, message=str(e)
+            ) from e
+
+    async def _save_failed_attempt(
+        self,
+        definition: Definition,
+        validation_result: ValidationResult,
+        generation_id: str,
+    ) -> None:
+        """Save failed attempt for feedback learning."""
+        try:
+            if hasattr(self.repository, "save_failed_attempt"):
+                await self.repository.save_failed_attempt(
+                    definition, validation_result, feedback_data=True
+                )
+            else:
+                logger.debug("Repository does not support failed attempt tracking")
+        except Exception as e:
+            # DEF-229: Add stack trace for debugging repository failures
+            logger.error(
+                f"Failed to save failed attempt: {type(e).__name__}: {e}",
+                exc_info=True,
+            )
+
+    def _create_basic_prompt(self, request: GenerationRequest) -> str:
+        """Create basic fallback prompt when prompt service unavailable."""
+        ontological_hint = ""
+        if request.ontologische_categorie:
+            ontological_hint = f"\n\nDit begrip is een {request.ontologische_categorie}. Houd hier rekening mee in de definitie."
+
+        return f"""Genereer een Nederlandse definitie voor het begrip: {request.begrip}
+
+Context: {request.context or 'Geen specifieke context gegeven'}
+# EPIC-010: domein field verwijderd - gebruik juridische_context
+{ontological_hint}
+
+Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitseisen voor juridisch gebruik."""
+
+    async def _generate_legacy_prompt(
+        self,
+        request: GenerationRequest,
+        feedback_history: list | None,
+        context: dict[str, Any] | None,
+    ) -> "PromptResult":
+        """Generate prompt using legacy services as fallback."""
+        from services.interfaces import PromptResult
+
+        basic_prompt = self._create_basic_prompt(request)
+
+        return PromptResult(
+            text=basic_prompt,
+            token_count=int(len(basic_prompt.split()) * 1.3),  # Rough estimate
+            components_used=("legacy_fallback",),  # frozen dataclass needs tuple
+            feedback_integrated=False,
+            optimization_applied=False,
+            metadata={"fallback_reason": "prompt_service_unavailable"},
+        )
+
+    # =====================================
+    # LEGACY SERVICE FALLBACKS
+    # ====================================

@@ -1,0 +1,174 @@
+{
+  "status": "concept_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "gevallen": [
+    {
+      "id": "G064",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "risicoselectie",
+      "kern": "Selectie van declaraties uit de maandlijst waarin de controleur eerst alle declaraties boven 1.000 euro opneemt en die hij daarna door loting uit de resterende declaraties aanvult tot twintig.",
+      "bedoeling": "De term komt voor in het controleplan en in de werkinstructie voor de maandcontrole van de sportbond. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Declaratiecontrole Sportbond Pijlkruid (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Controleplan declaraties Sportbond Pijlkruid 2026 (fictief; geen geldend recht), vastgesteld door de auditcommissie op 12 januari 2026, §3 'Selectiesoorten': 'Het plan kent twee selectiesoorten voor de maandcontrole. Bij een aselecte selectie worden twintig declaraties door loting uit de hele maandlijst getrokken, zodat iedere declaratie dezelfde kans heeft. Bij een risicoselectie wordt eerst iedere declaratie boven 1.000 euro opgenomen en worden de overige plaatsen tot twintig door loting uit de resterende declaraties gevuld; zijn er twintig of meer declaraties boven 1.000 euro, dan bestaat de risicoselectie alleen uit die declaraties. Omdat de kansen bij een risicoselectie ongelijk zijn, wordt het foutpercentage van een risicoselectie niet doorgetrokken naar de hele maandlijst; dat van een aselecte selectie wel.' §3.4: 'De uitvoering van beide selectiesoorten staat in werkinstructie WI-7.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Werkinstructie WI-7 'Maandcontrole declaraties' Sportbond Pijlkruid (fictief; geen geldend recht), vastgesteld door de auditcommissie op 12 januari 2026, gericht aan de controleur: 'Stap 2: Neem alle declaraties boven 1.000 euro van de maandlijst op in de risicoselectie. Stap 3: Vul de risicoselectie, als zij minder dan twintig declaraties telt, aan tot twintig door loting uit de resterende declaraties met de lotingsfunctie van het declaratiesysteem. Stap 4: Leg de selectie vast in het controlelogboek en wijzig haar daarna niet meer.' Voorbeeld uit het controlelogboek, maart 2026: 'Maandlijst 312 declaraties, waarvan 7 boven 1.000 euro. Risicoselectie: deze 7 en 13 door loting getrokken declaraties.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G065",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "spoedmelding",
+      "kern": "Melding van een dier in nood waarin de beller ten minste één van de drie spoedvragen met ja beantwoordt of waarbij de centralist een antwoord niet kan vaststellen en de melding daarom als spoed aanmerkt.",
+      "bedoeling": "De gebruiker wil de term opnemen in de begrippenlijst van de dierenambulance. Die lijst wordt gebruikt door de centralisten en door de vrijwillige chauffeurspoule; de gebruiker heeft uit het uitvraagprotocol en uit de samenwerkingsafspraak een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Dierenambulance Watermunt (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Uitvraagprotocol centralisten Dierenambulance Watermunt (fictief; geen geldend recht), versie 1 maart 2026, vastgesteld door het bestuur, gericht aan de centralist: 'Stel bij iedere melding van een dier in nood de drie spoedvragen: 1. Bloedt het dier hevig? 2. Ligt het dier op of direct naast de rijbaan? 3. Zit het dier klem? Is één antwoord ja, of kunt u een antwoord niet vaststellen, merk de melding dan aan als spoed. Een melding die u als spoed hebt aangemerkt, blijft spoed, ook als ter plaatse blijkt dat het meevalt.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Samenwerkingsafspraak tussen Dierenambulance Watermunt en de vrijwillige chauffeurspoule (fictief; geen geldend recht), ingegaan op 1 maart 2026, art. 2: 'Bij iedere spoedmelding vertrekt een ambulance binnen tien minuten nadat de centralist de rit heeft uitgezet. Voor de maandelijkse evaluatie van de vertrektijden telt iedere melding die de centralist als spoed heeft aangemerkt als spoedmelding, ook als achteraf blijkt dat geen van de spoedvragen met ja had hoeven te worden beantwoord.' Voorbeeld uit de evaluatie van maart 2026: 'Melding 0412: vogel in een tuin; de beller kon niet zien of het dier bloedde; aangemerkt als spoed; ter plaatse geen bloeding; vertrek na 8 minuten.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G066",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "zorgvuldige overdracht",
+      "kern": "Overdracht van een lopend dossier waarbij de vertrekkende coach de openstaande termijnen en toezeggingen in een overdrachtsnotitie vastlegt en die notitie met de nieuwe coach bespreekt voordat deze het dossier overneemt.",
+      "bedoeling": "De term komt voor in de gedragscode voor coaches en in het auditkader dossierkwaliteit van de organisatie. De gebruiker wil één omschrijving voor de begrippenlijst bij beide stukken en heeft uit beide een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Budgetcoaching Kattenstaart (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Gedragscode coaches Budgetcoaching Kattenstaart (fictief; geen geldend recht), vastgesteld door het bestuur op 5 januari 2026, principe 4 'Zorgvuldige overdracht': 'Wisselt een huishouden van coach, dan legt de vertrekkende coach de openstaande termijnen en toezeggingen vast in een overdrachtsnotitie en bespreekt hij die notitie met de nieuwe coach voordat deze het dossier overneemt.' Slotbepaling: 'Deze code werkt volgens pas toe of leg uit: een team dat van een principe afwijkt, vermeldt de afwijking en de reden daarvan in het jaarverslag.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Auditkader dossierkwaliteit Budgetcoaching Kattenstaart (fictief; geen geldend recht), vastgesteld door het bestuur op 5 januari 2026, criterium D3 'Zorgvuldige overdracht': 'Het dossier bevat een overdrachtsnotitie met de openstaande termijnen en toezeggingen en een aantekening dat de notitie vóór de overname met de nieuwe coach is besproken. De auditor scoort D3 per overdracht met ja of nee; het auditrapport vermeldt het aantal zorgvuldige overdrachten per team.' Voorbeeld uit de proefaudit van januari 2026: 'Dossier 118, overdracht 12 januari: notitie met drie termijnen, bespreking aangetekend op 9 januari; D3 ja. Dossier 131, overdracht 20 januari: notitie aanwezig, geen aantekening van een bespreking; D3 nee.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G067",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "streekproduct",
+      "kern": "Product van een licentiehouder van het streeklabel waarvan ten minste 80 procent van de grondstoffen naar gewicht binnen 30 kilometer van de productielocatie is ingekocht en waarvan de licentiehouder de inkoopfacturen vijf jaar bewaart.",
+      "bedoeling": "De term wordt gebruikt in de licentieovereenkomst, in het certificatieschema en in de productlijst op de website van de stichting. De gebruiker heeft uit de overeenkomst en uit het schema een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Stichting Streeklabel Klaproos (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Licentieovereenkomst streeklabel Klaproos (fictief; geen geldend recht), modelversie 2026. Art. 2: 'Het certificatieschema is een bijlage bij en maakt deel uit van deze overeenkomst.' Art. 5: 'De licentiehouder koopt voor ieder product waarop hij het streeklabel voert ten minste 80 procent van de grondstoffen, naar gewicht, in binnen 30 kilometer van zijn productielocatie. Hij bewaart de inkoopfacturen van die grondstoffen vijf jaar en toont ze op verzoek aan de keurmeester.' Art. 11: 'Komt de licentiehouder artikel 5 niet na, dan kan de stichting de licentie schorsen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Certificatieschema streeklabel Klaproos (fictief; geen geldend recht), bijlage bij de licentieovereenkomst, modelversie 2026, §2 'Eisen aan een product met het streeklabel': 'a. Ten minste 80 procent van de grondstoffen, naar gewicht, is binnen 30 kilometer van de productielocatie ingekocht. b. De inkoopfacturen van die grondstoffen zijn vijf jaar beschikbaar.' §4: 'Een product dat niet meer aan §2 voldoet, verliest het streeklabel en wordt uit de productlijst van streekproducten verwijderd.' Voorbeeld uit de productlijst, september 2026: 'Klaprooskaas: 96 procent streekgrondstoffen. Klaproosmosterd: 84 procent streekgrondstoffen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G068",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "zichtzending",
+      "kern": "Toezending van een boek ter inzage aan een lid, waarbij het lid het boek binnen veertien dagen na ontvangst terugstuurt of de prijs betaalt.",
+      "bedoeling": "De term wordt gebruikt in de algemene voorwaarden van de leesclub en in de welkomstbrief voor nieuwe leden. De gebruiker heeft uit beide stukken een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Leesclub Korenbloem (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Algemene voorwaarden Leesclub Korenbloem (fictief; geen geldend recht), versie 2026, art. 6: 'Bij een zichtzending ontvangt het lid een boek ter inzage. Het lid stuurt het boek binnen veertien dagen na ontvangst onbeschadigd terug of betaalt de prijs. Heeft de club het boek na die veertien dagen niet terugontvangen, dan is het boek gekocht; de club schrijft de prijs dan van de rekening van het lid af, voor zover het lid die nog niet heeft betaald.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Welkomstbrief voor nieuwe leden Leesclub Korenbloem (fictief), 2026: 'Wat is een zichtzending? Vier keer per jaar sturen wij u een boek ter inzage. U hebt dan veertien dagen de tijd om te kiezen: stuurt u het boek terug, dan betaalt u niets; houdt u het, dan schrijven wij de prijs af. Voorbeeld: u ontvangt het boek op 3 maart; tot en met 17 maart kunt u het terugsturen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    },
+    {
+      "id": "G069",
+      "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs.",
+      "begrip": "geldige worp",
+      "kern": "Worp waarbij de speler de boule met beide voeten binnen de werpcirkel werpt en die voeten op de grond houdt tot de boule de grond raakt.",
+      "bedoeling": "De term wordt gebruikt in de spelregels en in de handleiding voor scheidsrechters van de vereniging. De gebruiker wil de term opnemen in de begrippenlijst bij het spelreglement en heeft uit beide stukken een passage meegestuurd.",
+      "context": {
+        "organisatorische_context": [
+          "Jeu-de-boulesvereniging Vlasbekje (fictief)"
+        ],
+        "juridische_context": [
+          "Synthetisch afsprakenmodel; alle namen, bronnen en gegevens zijn fictief; geen claim over bestaand recht"
+        ],
+        "wettelijke_basis": []
+      },
+      "bronnen": [
+        {
+          "id": "B1",
+          "tekst": "Spelregels Jeu-de-boulesvereniging Vlasbekje (fictief; geen geldend recht), vastgesteld door de ledenvergadering op 14 maart 2026. Regel 1: 'Deze spelregels en de handleiding voor scheidsrechters vormen samen het spelreglement.' Regel 12: 'De speler werpt met beide voeten binnen de werpcirkel en houdt die voeten op de grond tot de geworpen boule de grond raakt. Een worp die daaraan niet voldoet, is ongeldig; een ongeldig geworpen boule wordt uit het spel genomen.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        },
+        {
+          "id": "B2",
+          "tekst": "Handleiding voor scheidsrechters Jeu-de-boulesvereniging Vlasbekje (fictief; geen geldend recht), vastgesteld door de ledenvergadering op 14 maart 2026, bij regel 12: 'De scheidsrechter beoordeelt een voetfout alleen op verzoek van de tegenpartij, gedaan vóór de volgende worp. Zonder zo'n verzoek blijft de boule in het spel, ook als de scheidsrechter de voetfout heeft gezien. Een speler die herhaaldelijk voetfouten maakt, wijst de scheidsrechter op regel 12; bij herhaling daarna geeft hij een waarschuwing.' Voorbeeld uit het wedstrijdverslag van 7 juni 2026: 'Speler A tilde bij het werpen een hiel op; de tegenpartij vroeg geen beoordeling; de boule bleef in het spel en telde mee voor het punt.'",
+          "herkomst": "Synthetisch concept, voorbereid door Claude Code CLI op 30 september 2026 voor DEF-835; geen praktijk- of expertbewijs."
+        }
+      ]
+    }
+  ]
+}

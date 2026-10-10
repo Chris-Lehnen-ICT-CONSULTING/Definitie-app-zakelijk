@@ -3,8 +3,9 @@
 Deze evaluator is synchroon en zuiver: hij doet geen modelaanroep en beslist
 zelf niets over de norm. Hij past een getypeerd beoordelingsdocument
 (`domain.int02.contract.Beoordelingsdocument`, contract
-def835-int02-assessment/1) toe op de *actuele* invoer en de *expliciete
-actuele* configuratie, uitsluitend via de bestaande WP1-controle
+def835-int02-assessment/4; een bewaard /1–/3-document is historisch) toe op
+de *actuele* invoer en de *expliciete actuele* configuratie, uitsluitend via
+de bestaande WP1-controle
 `toets_actualiteit` (NE → nog niet beoordeeld → fout/niet herleidbaar →
 historisch → bewaard oordeel). Het oordeel zelf komt van de beoordelaar
 (model of mens); de async verkrijging hoort bij de integratie (WP5).

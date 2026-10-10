@@ -1,0 +1,13 @@
+{
+  "cmd": [
+    "gh",
+    "pr",
+    "merge",
+    "488",
+    "--merge",
+    "--admin",
+    "--match-head-commit",
+    "a9fb4a0b7444d073813182b662056e7c3265fc7c"
+  ],
+  "exit": 0
+}

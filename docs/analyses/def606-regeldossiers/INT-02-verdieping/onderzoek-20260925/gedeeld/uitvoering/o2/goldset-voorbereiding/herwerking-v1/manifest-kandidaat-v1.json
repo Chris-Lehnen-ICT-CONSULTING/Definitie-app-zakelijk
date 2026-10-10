@@ -1,0 +1,122 @@
+{
+  "status": "kandidaat_geen_freeze",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "casuspool-kandidaat-v1.json": "428b1d2e70895ed51484b919ad176f8fc50a4c717f8b877b5777e1c2aaf61128",
+    "normcontract.md": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten-chris.md": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister.md": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734",
+    "oorspronkelijke-casuspool.json": "d70c645e12667c1a46bf8c192b6b13dfa794fa112425da371ddc5bfcb0cebb11"
+  },
+  "beoordelingsscope": [
+    "G001",
+    "G002",
+    "G003",
+    "G005",
+    "G006",
+    "G014",
+    "G016",
+    "G018",
+    "G021",
+    "G023",
+    "G030",
+    "G033",
+    "G035",
+    "G036",
+    "G039",
+    "G041",
+    "G042",
+    "G043",
+    "G044",
+    "G045",
+    "G046",
+    "G047",
+    "G048",
+    "G049",
+    "G050",
+    "G051",
+    "G052"
+  ],
+  "herwerkte_ids": [
+    "G001",
+    "G002",
+    "G003",
+    "G005",
+    "G006",
+    "G014",
+    "G016",
+    "G018",
+    "G021",
+    "G023",
+    "G030",
+    "G033",
+    "G035",
+    "G036",
+    "G039"
+  ],
+  "vervangingsmapping": [
+    {
+      "oud": "G009",
+      "nieuw": "G041"
+    },
+    {
+      "oud": "G010",
+      "nieuw": "G042"
+    },
+    {
+      "oud": "G013",
+      "nieuw": "G043"
+    },
+    {
+      "oud": "G020",
+      "nieuw": "G044"
+    },
+    {
+      "oud": "G022",
+      "nieuw": "G045"
+    },
+    {
+      "oud": "G025",
+      "nieuw": "G046"
+    },
+    {
+      "oud": "G026",
+      "nieuw": "G047"
+    },
+    {
+      "oud": "G028",
+      "nieuw": "G048"
+    },
+    {
+      "oud": "G032",
+      "nieuw": "G049"
+    },
+    {
+      "oud": "G034",
+      "nieuw": "G050"
+    },
+    {
+      "oud": "G038",
+      "nieuw": "G051"
+    },
+    {
+      "oud": "G040",
+      "nieuw": "G052"
+    }
+  ],
+  "alleen_overlapcontext": [
+    "G004",
+    "G007",
+    "G008",
+    "G011",
+    "G012",
+    "G015",
+    "G017",
+    "G019",
+    "G024",
+    "G027",
+    "G029",
+    "G031",
+    "G037"
+  ]
+}

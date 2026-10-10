@@ -1,0 +1,233 @@
+{
+  "beoordelaar": "B",
+  "status": "voorstel_niet_geaccepteerd",
+  "normversie": "def771-int02/2",
+  "bronhashes": {
+    "normcontract.md": "bc16c128c43e247b25db996d25059af48fe56dccea5cdc4012ceb401746b043c",
+    "besluiten-chris.md": "bcf736d9e84e005237e8026785350639ac0f571c0babb61544d401b7edf5ebd2",
+    "ontwerpregister.md": "76dbfa26f19eed24e8d844ac459b50ff607e1b34f09944718d7bef1287d66734",
+    "oorspronkelijke-casuspool.json": "d70c645e12667c1a46bf8c192b6b13dfa794fa112425da371ddc5bfcb0cebb11",
+    "casuspool-kandidaat-v2.json": "b119ad780dbe08c5171a94e50027d62118f8ed60091e5859d29c7bf888e0856e"
+  },
+  "gevallen": [
+    {
+      "id": "G003",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Meetobject dat na aanwijzing door de commissie als referentie wordt gebruikt.",
+          "functie": "Meetobject afgebakend door aanwijzing en daaropvolgend gebruik als referentie.",
+          "start": 0,
+          "end": 77
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "De aanwijzing van een meetobject als referentie door de commissie is de registratie van dat object onder het type referentie in het objectregister.",
+          "start": 76,
+          "end": 223
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Een meetobject wordt na aanwijzing door de commissie door het laboratorium voortaan als referentie gebruikt.",
+          "start": 76,
+          "end": 184
+        }
+      ],
+      "motivering": "B1 maakt aanwijzing en typeregistratie dezelfde gebeurtenis; B2 beschrijft het daaropvolgende referentiegebruik. De kern karakteriseert het meetobject met die relatie. Zij bevat geen opdracht om aan te wijzen, te registreren of een kalibratiestap uit te voeren. De passages zijn inhoudelijk verenigbaar; het bestaan van twee versies levert zonder concrete tegenspraak geen beslissende functietwijfel op.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C69",
+          "C107",
+          "C60"
+        ],
+        "motivering": "De combinatie van constitutieve typeregistratie en daaropvolgend gebruik verschilt van een besluituitkomst of kwalitatief beoordelingskenmerk. Anders dan C60 bevat de huidige bronset geen aangetoonde strijdige afbakening."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Het afzonderlijke moment van registratie van een aanwijzingsbesluit en het intrekkingsmoment zijn verwijderd. Aanwijzing is nu zelf de registratie, overeenkomstig de oorspronkelijke betekenisgrond.",
+        "Ook de instructie om het object bij iedere kalibratiereeks als eerste te meten is verdwenen. Die eerdere aanvullende proceduregrond kan niet voor v2 worden hergebruikt.",
+        "Pass berust op de beschreven objectrelatie, niet op de documenttitel of op het ontbreken van een gebiedende wijs. Geen concrete resterende bronfout of noodzakelijke bronkeuze voor INT-02 vastgesteld."
+      ]
+    },
+    {
+      "id": "G006",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Arrangement dat de commissie bij een evenwichtige belangenverdeling aanvaardt.",
+          "functie": "Arrangementcategorie gekenmerkt door aanvaarding en het constitutieve evenwichtsoordeel van de commissie.",
+          "start": 0,
+          "end": 78
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Deze rubriek bevat de arrangementen die de commissie heeft aanvaard. Het oordeel van de commissie dat de belangen van de deelnemers evenwichtig zijn verdeeld, maakt een arrangement aanvaardbaar.",
+          "start": 116,
+          "end": 310
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "De commissie weegt bij ieder voorgelegd arrangement de belangen van de deelnemers af en aanvaardt het arrangement bij een evenwichtige belangenverdeling.",
+          "start": 70,
+          "end": 223
+        }
+      ],
+      "motivering": "B1 verbindt de categorie expliciet met reeds aanvaarde arrangementen en het constitutieve oordeel over evenwicht. De kern beschrijft arrangementen met dat aanvaardingskenmerk. B2 regelt de voorafgaande weging en aanvaarding, zonder een afwijkende categoriegrond te geven. De kern schrijft niet zelf voor welke belangen hoe moeten worden gewogen; de twee bronnen kunnen elkaar aanvullen.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C107",
+          "C69"
+        ],
+        "motivering": "Een concrete categorie van aanvaarde arrangementen met constitutief evenwichtsoordeel staat naast een afzonderlijke handelingsregel. Dat biedt andere functiegrond dan alleen een onduidelijk oordeel of afwijzingsstatus."
+      },
+      "redundantie_met": [
+        "G014"
+      ],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "B1 benoemt weer reeds aanvaarde arrangementen. De afzonderlijke vaststellingsdatum en de status in behandeling uit v1 zijn vervallen.",
+        "Aanvaarding en constitutief oordeel hoeven voor deze beoordeling niet tot één exact tijdstip te worden samengevoegd. De huidige passages stellen geen daarmee strijdige tijdsvolgorde vast.",
+        "De expliciete betekenisgrond stuurt inhoudelijk, maar schrijft geen INT-02-label voor. Geen resterend bronconflict of kunstmatig noodzakelijke keuze tussen register en reglement vastgesteld."
+      ]
+    },
+    {
+      "id": "G018",
+      "voorstel": "pass",
+      "familie": "normatief_begrip",
+      "passages": [
+        {
+          "citaat": "Uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt.",
+          "functie": "Uitzonderingstype gekenmerkt door een voorbehoud van verval bij een negatief voortzettingsoordeel.",
+          "start": 0,
+          "end": 91
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Herroepbare uitzondering: uitzondering die de toezichthouder laat vervallen zodra hij voortzetting onwenselijk vindt. Bij een vaste uitzondering ontbreekt dat voorbehoud. Het register vermeldt bij iedere verleende uitzondering een van beide typen.",
+          "start": 140,
+          "end": 387
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "De toezichthouder weegt of voortzetting van een herroepbare uitzondering wenselijk is en laat de uitzondering vervallen zodra hij voortzetting onwenselijk vindt.",
+          "start": 68,
+          "end": 229
+        }
+      ],
+      "motivering": "B1 maakt het voorbehoud inhoudelijk onderscheidend tussen twee typen verleende uitzonderingen. De kern beschrijft dat herroepingskenmerk. B2 schrijft daarnaast de weging en uitvoering voor, met hetzelfde vervalmoment. Die aanvullende handelingsregel maakt de typebeschrijving niet zelf tot een beslisprocedure; de kern draagt geen afzonderlijke afwegingstaak op.",
+      "vraag": null,
+      "zekerheid": "hoog",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C83",
+          "C30"
+        ],
+        "motivering": "Het concrete contrast tussen vaste en herroepbare verleende uitzonderingen onderbouwt een constitutief voorbehoud. Daarmee verschilt de functiegrond van een los discretionair handelingsvoorbeeld."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "Het verschil tussen verval vanaf de volgende dag en verval zodra het oordeel ontstaat is verdwenen: kern, B1 en B2 gebruiken nu dezelfde voorwaarde.",
+        "B1 herhaalt de kern, maar geeft daarnaast zelfstandig betekenisbewijs door het ontbrekende voorbehoud bij vaste uitzonderingen en de tweedeling van verleende uitzonderingen.",
+        "B2 bevat niet langer de periodieke bezoeken uit v1. Dat is een wijziging van de aanvullende procedurecontext, geen nieuwe kernvoorwaarde. Geen resterende concrete betekenisstrijd vastgesteld."
+      ]
+    },
+    {
+      "id": "G030",
+      "voorstel": "pass",
+      "familie": "begripscriterium_afleiding",
+      "passages": [
+        {
+          "citaat": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+          "functie": "Aanbiedingstype beschreven door voortzetting zolang een belanghebbende beschikbaar blijft.",
+          "start": 0,
+          "end": 84
+        }
+      ],
+      "gronden": [
+        {
+          "veld": "bron",
+          "bron_id": "B1",
+          "citaat": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Kolom registerstatus: 'open'. Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten).",
+          "start": 109,
+          "end": 412
+        },
+        {
+          "veld": "bron",
+          "bron_id": "B2",
+          "citaat": "Kopregel van de kaart: 'Actieve aanbieding — Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Werkwijze op de kaart: 'Controleer per actieve aanbieding of er nog een belanghebbende beschikbaar is. Zet de aanbieding voort zolang dat het geval is.'",
+          "start": 92,
+          "end": 375
+        }
+      ],
+      "motivering": "B1 plaatst voortgezette aanbiedingen inhoudelijk tegenover vervallen en gegunde aanbiedingen. B2 gebruikt dezelfde omschrijving voor het type en richt de afzonderlijke werkwijze vervolgens tot reeds als actief aangeduide aanbiedingen. Die samenhang ondersteunt een beschrijvende kern. Het voorschrift tot controleren en voortzetten staat apart; er is geen zelfstandig bewezen uitvoeringsopdracht in de aangeboden kern.",
+      "vraag": null,
+      "zekerheid": "middel",
+      "afstand_ontwerp": {
+        "oordeel": "zelfstandig",
+        "nabije_casus_ids": [
+          "C03",
+          "C25",
+          "C85"
+        ],
+        "motivering": "De categorie wordt door open/gesloten aanbodtypen ondersteund, terwijl een afzonderlijke werkwijze op die categorie aangrijpt. Dat is meer functie-informatie dan een losse voorwaardelijke behandelzin."
+      },
+      "redundantie_met": [],
+      "geschiktheid": "bruikbaar",
+      "opmerkingen": [
+        "De nominale zin staat nu in een benoemde kopregel; de uitvoeringsinstructie is een zelfstandige, grammaticaal volledige werkwijze.",
+        "De typetegenstellingen in B1 en het aangrijpen van B2 op actieve aanbiedingen dragen het oordeel. Alleen de plaatsing als kopregel zou onvoldoende zijn.",
+        "De maandagfrequentie en de expliciete opdracht tot vervallenverklaring uit v1 ontbreken nu. Zij stonden niet in de kern en zijn niet als actuele broninhoud hergebruikt.",
+        "De eerdere vraag over niet-naleving door een behandelaar is met deze concrete scheiding geen noodzakelijke vraag voor INT-02. Onbekend gedrag van een individueel geval bewijst geen ontbrekende betekenisgrond."
+      ]
+    }
+  ],
+  "dispositie_per_geval": [
+    {
+      "id": "G003",
+      "bronpunt_opgelost": "ja",
+      "reden": "Aanwijzing en registratie zijn nu dezelfde gebeurtenis; afzonderlijke registratie- en intrekkingsmomenten ontbreken. De aanvullende kalibratieopdracht is eveneens verwijderd. De huidige passages ondersteunen een objectbeschrijving zonder aangetoonde onderlinge strijd.",
+      "resterend_open": []
+    },
+    {
+      "id": "G006",
+      "bronpunt_opgelost": "ja",
+      "reden": "De bron benoemt weer reeds aanvaarde arrangementen en het constitutieve evenwichtsoordeel. De eerder geïntroduceerde afzonderlijke vaststellingsdatum is verdwenen; een keuze tussen registerbeschrijving en aanvullende commissietaak is voor INT-02 niet noodzakelijk.",
+      "resterend_open": []
+    },
+    {
+      "id": "G018",
+      "bronpunt_opgelost": "ja",
+      "reden": "B2 laat de uitzondering nu vervallen zodra voortzetting onwenselijk wordt gevonden. Dat sluit aan op kern en B1; het eerdere verschil van één dag is weg.",
+      "resterend_open": []
+    },
+    {
+      "id": "G030",
+      "bronpunt_opgelost": "ja",
+      "reden": "De omschrijving staat als kopregel boven een afzonderlijk geformuleerde werkwijze. Het eerdere onnatuurlijke nominale fragment tussen imperatieven is weg. De categoriecontext en daarop gerichte werkwijze ondersteunen een beschrijvende lezing.",
+      "resterend_open": []
+    }
+  ]
+}

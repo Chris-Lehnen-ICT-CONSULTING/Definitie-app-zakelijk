@@ -1,0 +1,6 @@
+feat(DEF-835): Verbind O2 expliciet met de validatieketen
+
+Controleer invoer en onafhankelijke configuratie voor en na beoordeling.
+Herstel reviewbevindingen F1-F4 en de dertien O2-typefouten.
+Bewaar RED/GREEN, onafhankelijke review en eindcontrole.
+O1 blijft actief; geen modelkwalificatie of activering.

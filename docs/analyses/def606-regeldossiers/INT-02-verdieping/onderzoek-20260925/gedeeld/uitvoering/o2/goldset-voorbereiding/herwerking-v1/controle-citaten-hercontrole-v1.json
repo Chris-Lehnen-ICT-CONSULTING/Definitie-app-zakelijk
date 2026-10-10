@@ -1,0 +1,215 @@
+{
+  "methode": "Unicode-posities deterministisch afgeleid uit unieke letterlijke citaten; label, citaattekst en motivering niet gewijzigd.",
+  "checks": [
+    {
+      "beoordelaar": "A",
+      "citaten": 16,
+      "fouten": [],
+      "afgeleide_posities": [
+        {
+          "id": "G003",
+          "type": "kern",
+          "index": 0,
+          "start": 11,
+          "end": 76
+        },
+        {
+          "id": "G003",
+          "type": "grond",
+          "index": 0,
+          "start": 76,
+          "end": 222
+        },
+        {
+          "id": "G003",
+          "type": "grond",
+          "index": 1,
+          "start": 76,
+          "end": 183
+        },
+        {
+          "id": "G003",
+          "type": "grond",
+          "index": 2,
+          "start": 80,
+          "end": 155
+        },
+        {
+          "id": "G006",
+          "type": "kern",
+          "index": 0,
+          "start": 12,
+          "end": 77
+        },
+        {
+          "id": "G006",
+          "type": "grond",
+          "index": 0,
+          "start": 185,
+          "end": 309
+        },
+        {
+          "id": "G006",
+          "type": "grond",
+          "index": 1,
+          "start": 116,
+          "end": 183
+        },
+        {
+          "id": "G006",
+          "type": "grond",
+          "index": 2,
+          "start": 70,
+          "end": 222
+        },
+        {
+          "id": "G018",
+          "type": "kern",
+          "index": 0,
+          "start": 13,
+          "end": 90
+        },
+        {
+          "id": "G018",
+          "type": "grond",
+          "index": 0,
+          "start": 140,
+          "end": 256
+        },
+        {
+          "id": "G018",
+          "type": "grond",
+          "index": 1,
+          "start": 68,
+          "end": 228
+        },
+        {
+          "id": "G018",
+          "type": "grond",
+          "index": 2,
+          "start": 105,
+          "end": 176
+        },
+        {
+          "id": "G030",
+          "type": "kern",
+          "index": 0,
+          "start": 0,
+          "end": 83
+        },
+        {
+          "id": "G030",
+          "type": "grond",
+          "index": 0,
+          "start": 195,
+          "end": 223
+        },
+        {
+          "id": "G030",
+          "type": "grond",
+          "index": 1,
+          "start": 92,
+          "end": 134
+        },
+        {
+          "id": "G030",
+          "type": "grond",
+          "index": 2,
+          "start": 223,
+          "end": 373
+        }
+      ]
+    },
+    {
+      "beoordelaar": "B",
+      "citaten": 12,
+      "fouten": [],
+      "afgeleide_posities": [
+        {
+          "id": "G003",
+          "type": "kern",
+          "index": 0,
+          "start": 0,
+          "end": 77
+        },
+        {
+          "id": "G003",
+          "type": "grond",
+          "index": 0,
+          "start": 76,
+          "end": 223
+        },
+        {
+          "id": "G003",
+          "type": "grond",
+          "index": 1,
+          "start": 76,
+          "end": 184
+        },
+        {
+          "id": "G006",
+          "type": "kern",
+          "index": 0,
+          "start": 0,
+          "end": 78
+        },
+        {
+          "id": "G006",
+          "type": "grond",
+          "index": 0,
+          "start": 116,
+          "end": 310
+        },
+        {
+          "id": "G006",
+          "type": "grond",
+          "index": 1,
+          "start": 70,
+          "end": 223
+        },
+        {
+          "id": "G018",
+          "type": "kern",
+          "index": 0,
+          "start": 0,
+          "end": 91
+        },
+        {
+          "id": "G018",
+          "type": "grond",
+          "index": 0,
+          "start": 140,
+          "end": 387
+        },
+        {
+          "id": "G018",
+          "type": "grond",
+          "index": 1,
+          "start": 68,
+          "end": 229
+        },
+        {
+          "id": "G030",
+          "type": "kern",
+          "index": 0,
+          "start": 0,
+          "end": 84
+        },
+        {
+          "id": "G030",
+          "type": "grond",
+          "index": 0,
+          "start": 109,
+          "end": 412
+        },
+        {
+          "id": "G030",
+          "type": "grond",
+          "index": 1,
+          "start": 92,
+          "end": 375
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1124 @@
+{
+  "soort": "def835-int02-kwalificatie-resultaat/1",
+  "claim": "Kwalificatieproef van het bestaande INT-02-profiel volgens kwalificatieprotocol-v1: mechanische vergelijking van de hoofdstatus met vooraf bevroren labels. Inhoudelijke passagegronden beoordeelt Chris; geen DEF-815-kwalificatie of activering. Kosten = gemelde usage x routerprijzen, een onzekere call telt voor de volle reservering; geen providerfactuurplafond.",
+  "fase": "ontwikkeling",
+  "manifest_sha256": "e45f97ff213a0585e47aba10406b2a076fc8f22e2fb219af0cf4dea2af6050ae",
+  "akkoord_sha256": "f729b5370002de6f34347c34afc7b3fb890304f495d0cbcc4303a4c136a2f376",
+  "identiteit_sha256": "843d9126970bf9569f2448d50f12eb553d109c44e1784402d9c5df51a98fd350",
+  "gevallenmanifest_sha256": "af1ab46ce22c51308a58738bb7e91534dd67a2b2454c76ee2340e4e2037c6953",
+  "technische_testfixture": false,
+  "afronding": "Opgesteld vóór fase_einde. Het grootboek is leidend: zonder fase_einde met bewijs_opgeslagen=true geldt de fase niet als geslaagd.",
+  "gestart": "2026-10-08T14:50:12.658387+00:00",
+  "beeindigd": "2026-10-08T15:22:38.444771+00:00",
+  "looptijd_seconden": 160.936,
+  "stopreden": "timeout",
+  "tellingen": {
+    "inferenties": 6,
+    "telverzoeken": 6
+  },
+  "cumulatief": {
+    "inferenties": 9,
+    "telverzoeken": 9,
+    "kosten_usd_conservatief": 0.559055,
+    "onzekere_calls": [
+      9
+    ],
+    "looptijd_seconden": 180.138
+  },
+  "kosten_onzeker": [
+    "G039"
+  ],
+  "evaluatie": {
+    "mechanisch_geslaagd": false,
+    "redenen": [
+      "niet_volledig_uitgevoerd",
+      "technische_of_citaatfout",
+      "te_weinig_juist"
+    ],
+    "tellers": {
+      "juist": {
+        "teller": 4,
+        "noemer": 6
+      },
+      "false_pass": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "kritieke_false_pass": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "false_fail": {
+        "teller": 0,
+        "noemer": 6
+      },
+      "gemiste_overtreding": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "gepaste_onthouding": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "onterechte_onthouding": {
+        "teller": 1,
+        "noemer": 6
+      },
+      "onzekerheid": {
+        "teller": 1,
+        "noemer": 6
+      },
+      "juist_fail": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "juist_pass": {
+        "teller": 4,
+        "noemer": 6
+      },
+      "juist_review_required": {
+        "teller": 0,
+        "noemer": 0
+      },
+      "technische_fout": {
+        "teller": 1,
+        "noemer": 6
+      },
+      "citaatfout": {
+        "teller": 0,
+        "noemer": 6
+      }
+    },
+    "afleidingen": {
+      "bronnen_beschrijvend": 4,
+      "conflict": 1
+    },
+    "omzettingen": {
+      "totaal": 1,
+      "per_richting": {
+        "pass→review_required": 1
+      },
+      "per_regel": {
+        "conflict": 1
+      }
+    },
+    "criteria": {
+      "aantal": 24,
+      "min_juist": 21,
+      "min_juist_per_label": {},
+      "max_false_pass": 0,
+      "verdeling": null,
+      "max_p95_ms": null
+    },
+    "bewijsstatus": "consistentietoets_7a",
+    "bewijstoelichting": "Fase 1 en 2 (regressie, ontwikkeling) zijn onder v8 een consistentietoets (keuze 7A): contract /4 is op deze gevallen afgestemd; een geslaagde fase is geen onafhankelijk bewijs."
+  },
+  "inhoudelijke_beoordeling": {
+    "status": "open",
+    "beoordelaar": "Chris (acceptatie-eigenaar)",
+    "toelichting": "Passagegronden, normgrond en relevantie van de vraag zijn niet mechanisch vastgesteld; de runner vult hier geen akkoord in."
+  },
+  "latentie": {
+    "max_ms": 119731,
+    "p95_ms": 119731
+  },
+  "gevallen": [
+    {
+      "id": "G011",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "ec02f6b472d572def400203c93c5353bf264b99a78cc222f0fa42ca49ff0a49a",
+      "antwoord_sha256": "47c7c630ff41812e148059ecd95b856e43d305a5a2c0060e839af6c0f09316ea",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "4f940f6054c07d5a319ccb2efcc62394a7de69c67c354c315c9b6c967684d0ea",
+        "telpayload_sha256": "e74770f9b5f4621025d41d88acdd296a8b3c0a71bf7004a01d523347ab3b11e0",
+        "geschatte_invoertokens": 5778,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.039490000000000004,
+        "duur_ms": 6470,
+        "http_status": 200,
+        "request_id": "req_011CfpxRvhgfLUAhHRyd5eqk",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5778,
+          "output_tokens": 424
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/5",
+        "invoer": {
+          "begrip": "overdrachtsvenster",
+          "kern": "Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.",
+          "bedoeling": "De term benoemt een afgebakend interval in een waarnemingsmodel.",
+          "organisatorische_context": [
+            "Transportproef Wilg (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Ontvangst en bevestiging zijn gelogde gebeurtenissen. Het venster wordt met die twee tijdstippen beschreven."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/5",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "1ab4c6ede97eb326d20dfa36baa2b33553da497974de63b4193bd6f7cc68cea2",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "5ce954ff5728108ea8e80c21811df9d7d87b365865dce315ea9fb6b21249f6ee",
+          "kern_hash": "3c630d020a0a8b45107d39ac1fb4c7494fc0ef27cd5a37eda612d43598ca25ff",
+          "bedoeling_hash": "bb6cbfb5855af832556f7f69e6871b7cc08e077c719644861e6084595f1b8037",
+          "context_hash": "52c81151f98cb28a8b1642645f01ddcf4105bf7d631a6b0d7829dc219ab9fa09",
+          "bronnen_hash": "d5867d8e0bb1cc6bf64093f5138530dc1b170f52a448ed7b5782115b4c73dd76"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T14:50:13.566494+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 6863,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.' beschrijft een criterium; grond: de bevestigde bedoeling ('De term benoemt een afgebakend interval in een waarnemingsmodel.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 111,
+                "function": "criterion",
+                "ground": {
+                  "end": 64,
+                  "field": "bedoeling",
+                  "quote": "De term benoemt een afgebakend interval in een waarnemingsmodel.",
+                  "ref": null,
+                  "start": 0
+                },
+                "quote": "Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 64,
+                  "function": "criterion",
+                  "quote": "De term benoemt een afgebakend interval in een waarnemingsmodel.",
+                  "start": 0
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 108,
+                  "function": "criterion",
+                  "quote": "Het venster wordt met die twee tijdstippen beschreven.",
+                  "start": 54
+                }
+              ],
+              "end": 111,
+              "kernvorm": "no_act",
+              "quote": "Tijdsinterval dat begint bij ontvangst van het eerste pakket en eindigt bij bevestiging van het laatste pakket.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern beschrijft een tijdsinterval met twee begrenzende gebeurtenissen (ontvangst en bevestiging) als begripskenmerken; er wordt geen handeling aan een actor voorgeschreven en geen afweging voorgeschreven. Bedoeling en bron B1 bevestigen dat het om een beschrijvend, met gelogde tijdstippen afgebakend interval gaat.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G015",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "26db6c1fe82204622723bd278bd052ebcaae99afa8d4fff8b0798f95547c823f",
+      "antwoord_sha256": "a74b858ba67e7939d487b2f6927ebc4b31da204b60bc2cac966c2f20087f8159",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "41d39246924f88be9ab29d7521ffe0154a2a497d9dd6a0c6fcb2b6bba923f2f0",
+        "telpayload_sha256": "4e229736153f727b80fb3ee534e0f56c1c07386333790068f99deca84c0166b5",
+        "geschatte_invoertokens": 5824,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.045895000000000005,
+        "duur_ms": 8580,
+        "http_status": 200,
+        "request_id": "req_011CfpxSRjBhHu2UrY5JuxYk",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5824,
+          "output_tokens": 671
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/5",
+        "invoer": {
+          "begrip": "ondertekende herstelkopie",
+          "kern": "Herstelkopie waarvan de inhoud overeenkomt met het origineel en waarvan de controlesom is ondertekend door de archiefdienst.",
+          "bedoeling": "Het begrip duidt een digitaal object aan; ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister.",
+          "organisatorische_context": [
+            "Atlasarchief (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "In de inventaris wordt een herstelkopie ondertekend genoemd als haar inhoud gelijk is aan het origineel en de archiefdienst haar controlesom heeft ondertekend."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/5",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "1ab4c6ede97eb326d20dfa36baa2b33553da497974de63b4193bd6f7cc68cea2",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "1fbc7563c77051048f1414c0db3928813df23d76400bb95cfa8bf6072f63d93e",
+          "kern_hash": "8131a6ce385442aeafa37d4a69b34bef5b8490442664475749d59ecf69ee87e0",
+          "bedoeling_hash": "1d39a0ce6a6b0dc58734f0b86c6465b4cbdc3f53aa4d9557f91080eba8cadbaa",
+          "context_hash": "a5049de91399b3c8b13fe9479e86d7bdada09fce13fa6f19309bf6784fa7f599",
+          "bronnen_hash": "d7ebba6f422cb6cc313e3013d2e0c2dcc990715d48dc290d13b41e9ca0ed4569"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T14:50:20.430133+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 8873,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Herstelkopie waarvan de inhoud overeenkomt met het origineel' beschrijft een criterium; grond: de bevestigde bedoeling ('ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 60,
+                "function": "criterion",
+                "ground": {
+                  "end": 121,
+                  "field": "bedoeling",
+                  "quote": "ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister",
+                  "ref": null,
+                  "start": 42
+                },
+                "quote": "Herstelkopie waarvan de inhoud overeenkomt met het origineel",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              },
+              {
+                "end": 123,
+                "function": "criterion",
+                "ground": {
+                  "end": 121,
+                  "field": "bedoeling",
+                  "quote": "ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister",
+                  "ref": null,
+                  "start": 42
+                },
+                "quote": "waarvan de controlesom is ondertekend door de archiefdienst",
+                "regel": "bronnen_beschrijvend",
+                "start": 64,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 121,
+                  "function": "criterion",
+                  "quote": "ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister",
+                  "start": 42
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 103,
+                  "function": "criterion",
+                  "quote": "wordt een herstelkopie ondertekend genoemd als haar inhoud gelijk is aan het origineel",
+                  "start": 17
+                }
+              ],
+              "end": 60,
+              "kernvorm": "no_act",
+              "quote": "Herstelkopie waarvan de inhoud overeenkomt met het origineel",
+              "start": 0
+            },
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 121,
+                  "function": "criterion",
+                  "quote": "ondertekening en inhoudsgelijkheid zijn eigenschappen in het inventarisregister",
+                  "start": 42
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 158,
+                  "function": "criterion",
+                  "quote": "de archiefdienst haar controlesom heeft ondertekend",
+                  "start": 107
+                }
+              ],
+              "end": 123,
+              "kernvorm": "descriptive_act",
+              "quote": "waarvan de controlesom is ondertekend door de archiefdienst",
+              "start": 64
+            }
+          ],
+          "question": null,
+          "reason": "De kern beschrijft het begrip met twee kenmerken: inhoudsgelijkheid met het origineel en een door de archiefdienst ondertekende controlesom. Het tweede kenmerk is een handeling van een actor in beschrijvende (voltooide, passieve) vorm en functioneert als eigenschap, niet als opdracht; bedoeling en B1 bevestigen dat beide als eigenschappen/criteria gelden. Geen discretionaire afweging aanwezig.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G019",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "658a77b564299f8130527b498e303c383bc57c871219544ce2094de164b367e4",
+      "antwoord_sha256": "1392fdecb84c3de753b91614bcb11213af8403557d95d75e0212cc3fbbb370aa",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "70776bc6d06efd8870a4c4008c420cdfd914a203424ef6ef6ac6e097e31e83d1",
+        "telpayload_sha256": "a13f6a97b0505d3c4e8f8966fce8be2becd9a2c41b28b8f9be20206068cdc2b7",
+        "geschatte_invoertokens": 5744,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.03932,
+        "duur_ms": 6433,
+        "http_status": 200,
+        "request_id": "req_011CfpxT5s88cQo2QckcBTM6",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5744,
+          "output_tokens": 424
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/5",
+        "invoer": {
+          "begrip": "gepaarde registratie",
+          "kern": "Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.",
+          "bedoeling": "De term duidt een structuur in een logboek aan.",
+          "organisatorische_context": [
+            "Logboek Duin (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/5",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "1ab4c6ede97eb326d20dfa36baa2b33553da497974de63b4193bd6f7cc68cea2",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "4ea8c733b183619150ce76ff64c961bd61d46f2537304bb87ada640752a6bf51",
+          "kern_hash": "4aaa85b1c4dfc60c6611b6826a699545f09f6b57d2c4a73da53521ce53f0dbe9",
+          "bedoeling_hash": "65109725ba5f33a2a4142e5a7b58fa9f3dc23bcf73c302ea8ed42fd3abda025d",
+          "context_hash": "fcb45ade46320a26f6fbd3a7b3394dfb46d6224e0e0fbfd4993ad6818489f6c8",
+          "bronnen_hash": "70cb62e1e67ca72724d44c408b5dcef5c55c98bc8590ad29894905920dade0b0"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T14:50:29.304182+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 6734,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.' beschrijft een criterium; grond: bronpassage B1 ('Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 84,
+                "function": "criterion",
+                "ground": {
+                  "end": 103,
+                  "field": "bron",
+                  "quote": "Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties.",
+                  "ref": "B1",
+                  "start": 0
+                },
+                "quote": "Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 103,
+                  "function": "criterion",
+                  "quote": "Een paar bestaat uit één heenverwijzing en haar inverse. Het register kent ook ongepaarde registraties.",
+                  "start": 0
+                }
+              ],
+              "end": 84,
+              "kernvorm": "no_act",
+              "quote": "Registratie die precies één heenverwijzing en de bijbehorende terugverwijzing bevat.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern is één beschrijvende zin met genus ('Registratie') en een onderscheidend kenmerk (precies één heenverwijzing met bijbehorende terugverwijzing). Er is geen actor, geen handelingsvoorschrift en geen afweging. Bron B1 bevestigt dat het paar-kenmerk bepaalt wat eronder valt en dat er ongepaarde registraties buiten vallen, wat de criteriumfunctie draagt.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G027",
+      "status": "pass",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "9329a49a5d45393342ec8e811f3e5bc484280be7ae33c16cdb72bab7a5754c2e",
+      "antwoord_sha256": "4eb852797195b51d5522146ec7b8f12ea7eb66b1f0b3f13fef23830c9c4a1828",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "94216d1d9f9c0a9a7a08119272bfd6190402664cbc9df19b8ea4db1f2c4b5c16",
+        "telpayload_sha256": "5a86f3ae0cc33bfa120da48e86218183a066be447bef00ec1a88afc892bf203e",
+        "geschatte_invoertokens": 5818,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.03974,
+        "duur_ms": 4978,
+        "http_status": 200,
+        "request_id": "req_011CfpxTaR7JzJ1kKKjBu9w1",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 5818,
+          "output_tokens": 426
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/5",
+        "invoer": {
+          "begrip": "gewogen verblijfsduur",
+          "kern": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.",
+          "bedoeling": "Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.",
+          "organisatorische_context": [
+            "Procesmodel Berk (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Voor iedere deelpartij zijn hoeveelheid en verblijfsduur bekend. De gewogen verblijfsduur gebruikt de hoeveelheid als gewicht; de totale hoeveelheid is positief."
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/5",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "1ab4c6ede97eb326d20dfa36baa2b33553da497974de63b4193bd6f7cc68cea2",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "0971c3f3932d30c5749dfafdbec703bda52cca8abdd92df0b5edd17cc64d8c56",
+          "kern_hash": "2c38b8619d69880d4022460153f42299a8b34c9c81a9ae537188afc7f4162cc2",
+          "bedoeling_hash": "bcc192acbcd1dab8a88879b7164e77ba8b61ef62feed7c8392be3174bbd46dd2",
+          "context_hash": "f88f08fee8fa4d5f6b803ae8f26492261a977766dab8ffd9079ad814b1fcc6d8",
+          "bronnen_hash": "bd06117f4561f1a5cd785bc4f31ce85140bd1c9e417af57909a2a5127df20eba"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T14:50:36.038234+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 5257,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "pass",
+        "reden": null,
+        "melding": "INT-02 — Voldoet. 'Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.' beschrijft een afleiding; grond: de bevestigde bedoeling ('Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.'). Andere toetsregels zijn hiermee niet beoordeeld.",
+        "vraag": null,
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "bronnen_beschrijvend",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 100,
+                "function": "derivation",
+                "ground": {
+                  "end": 89,
+                  "field": "bedoeling",
+                  "quote": "Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.",
+                  "ref": null,
+                  "start": 0
+                },
+                "quote": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.",
+                "regel": "bronnen_beschrijvend",
+                "start": 0,
+                "uitkomst": "beschrijvend"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": 89,
+                  "function": "derivation",
+                  "quote": "Het begrip is een afgeleide meetgrootheid voor partijen met verschillende verblijfsduren.",
+                  "start": 0
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 161,
+                  "function": "derivation",
+                  "quote": "De gewogen verblijfsduur gebruikt de hoeveelheid als gewicht; de totale hoeveelheid is positief.",
+                  "start": 65
+                }
+              ],
+              "end": 100,
+              "kernvorm": "no_act",
+              "quote": "Quotiënt van de som van de met hoeveelheid vermenigvuldigde verblijfsduren en de totale hoeveelheid.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern is een rekenkundige, deterministische afleiding (quotiënt van gewogen som en totale hoeveelheid) zonder actor, handeling, procedure of afweging. Bedoeling en bron B1 bevestigen het karakter van afgeleide meetgrootheid met hoeveelheid als gewicht.",
+          "scope_reason": null,
+          "uncertainty": "none",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "pass",
+        "juist": true,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "bronnen_beschrijvend",
+        "modelstatus": "pass",
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    },
+    {
+      "id": "G030",
+      "status": "review_required",
+      "reden": null,
+      "verdict": "pass",
+      "stop_reason": "end_turn",
+      "uitzonderingstype": null,
+      "prompt_sha256": "a99f732e46c633ed36c84f0ae3d8fe6a8e8daa506c7749a2a3d7e6e65038654e",
+      "antwoord_sha256": "a5c63dfa6bcda222d9b2e8576443f1ee4f1e7675b428aa7b1c3fada94ce60cd1",
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "111073683b7202c4f483d59761b1c4883cce1e34a066d3c5b301f8d501bc1278",
+        "telpayload_sha256": "95255634cecd96ba801ab709adb04ac6384b890aff5d9907056489c179543104",
+        "geschatte_invoertokens": 6185,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": 0.051275,
+        "duur_ms": 11796,
+        "http_status": 200,
+        "request_id": "req_011CfpxTytVcU5qugdx7t1mS",
+        "gerapporteerd_model": "claude-opus-5",
+        "stop_reason": "end_turn",
+        "inhoudsblokken": [
+          "text"
+        ],
+        "usage": {
+          "input_tokens": 6185,
+          "output_tokens": 814
+        },
+        "service_tier": "standard",
+        "inference_geo": "global",
+        "thinking_tokens": 0
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/5",
+        "invoer": {
+          "begrip": "actieve aanbieding",
+          "kern": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+          "bedoeling": "De gebruiker wil de term opnemen in het begrippenregister van de proef. De zin staat letterlijk in de tabel met aanbiedingstypen en op de instructiekaart voor behandelaars; de gebruiker heeft beide stukken meegestuurd.",
+          "organisatorische_context": [
+            "Aanbiedingsproef Robinia (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Tabel aanbiedingstypen Robinia (fictief; geen geldend recht), rij 'actieve aanbieding', kolom omschrijving: 'Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Kolom registerstatus: 'open'. Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten)."
+            },
+            {
+              "id": "B2",
+              "tekst": "Instructiekaart behandelaars Robinia (fictief; geen geldend recht), kaart 3 'Voortzetting'. Kopregel van de kaart: 'Actieve aanbieding — Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.' Werkwijze op de kaart: 'Controleer per actieve aanbieding of er nog een belanghebbende beschikbaar is. Zet de aanbieding voort zolang dat het geval is.'"
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/5",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "1ab4c6ede97eb326d20dfa36baa2b33553da497974de63b4193bd6f7cc68cea2",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "4045681e4f7fa7cf6b053ab1f7dd20d34f4cd0add285a9d063528ec715dbd88a",
+          "kern_hash": "67e1842f7054e0dc9831b3306fb9ead75fad18f27a6d939ac75c39b04c5ab70f",
+          "bedoeling_hash": "961b926126b4988de99f569a4845dcb5fffe0527c318b64204fac475ae035c1e",
+          "context_hash": "0063a1e89ed19f6577cfd822a6682e25eac187ee348ee50868af2268b9e58b28",
+          "bronnen_hash": "fab1f48788c060dfcc82909a8cf0ba76a582a938d6a95e960178fd85a3ae30c0"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "completed",
+          "foutcategorie": null,
+          "tijdstip": "2026-10-08T14:50:41.295659+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 12282,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "review_required",
+        "reden": "insufficient_information",
+        "melding": "INT-02 — Onvoldoende informatie. Strijdige betekenisgrond voor 'Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.': bronpassage B1 ('Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten).') gebruikt de inhoud als kenmerk van het begrip; bronpassage B2 ('Controleer per actieve aanbieding of er nog een belanghebbende beschikbaar is. Zet de aanbieding voort zolang dat het geval is.') stelt de inhoud als plicht of afweging van een actor; de bevestigde bedoeling beslist dat niet. Vraag: Bepaalt deze passage wat tot het begrip behoort, of schrijft zij een actor een handeling of afweging voor?",
+        "vraag": "Bepaalt deze passage wat tot het begrip behoort, of schrijft zij een actor een handeling of afweging voor?",
+        "foutcategorie": null,
+        "foutdetail": null,
+        "omzetting": "conflict",
+        "oordeel": {
+          "coverage": "complete",
+          "dienst": {
+            "afleiding": "conflict",
+            "modelstatus": "pass",
+            "passages": [
+              {
+                "end": 84,
+                "function": "unclear",
+                "ground": {
+                  "end": 412,
+                  "field": "bron",
+                  "quote": "Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten).",
+                  "ref": "B1",
+                  "start": 225
+                },
+                "quote": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+                "regel": "conflict",
+                "start": 0,
+                "uitkomst": "review"
+              }
+            ]
+          },
+          "passages": [
+            {
+              "bronfuncties": [
+                {
+                  "bron": "bedoeling",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "organisatorische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "juridische_context/0",
+                  "end": null,
+                  "function": "not_addressed",
+                  "quote": null,
+                  "start": null
+                },
+                {
+                  "bron": "bron/B1",
+                  "end": 412,
+                  "function": "criterion",
+                  "quote": "Overige rijen: 'vervallen aanbieding' (geen belanghebbende meer beschikbaar; registerstatus gesloten) en 'gegunde aanbieding' (aan een belanghebbende toegewezen; registerstatus gesloten).",
+                  "start": 225
+                },
+                {
+                  "bron": "bron/B2",
+                  "end": 374,
+                  "function": "actor_prescription",
+                  "quote": "Controleer per actieve aanbieding of er nog een belanghebbende beschikbaar is. Zet de aanbieding voort zolang dat het geval is.",
+                  "start": 247
+                }
+              ],
+              "end": 84,
+              "kernvorm": "descriptive_act",
+              "quote": "Aanbieding die de behandelaar voortzet zolang een belanghebbende beschikbaar blijft.",
+              "start": 0
+            }
+          ],
+          "question": null,
+          "reason": "De kern is in beschrijvende vorm (betrekkelijke bijzin met indicatief 'voortzet'), geen gebiedende wijs of modale verplichting. B1 plaatst de zin in een typentabel waarin 'actieve aanbieding' wordt onderscheiden van 'vervallen' en 'gegunde' aanbieding op basis van beschikbaarheid van een belanghebbende: de inhoud functioneert daar als onderscheidend begripskenmerk. B2 bevat dezelfde zin alleen als kopregel; de werkwijze ('Controleer...', 'Zet ... voort') is op die kaart als handelingsvoorschrift geformuleerd, maar dat voorschrift is de werkwijze naast de kopregel, en de kern zelf voert geen afweging uit en schrijft niet in voorschrijvende vorm handelen voor. De grondbronnen spreken elkaar hier gedeeltelijk tegen; ik heb ze afzonderlijk ingevuld. Er is geen discretionaire afweging: de voortzetting hangt af van een feitelijk criterium (beschikbaarheid van een belanghebbende), niet van goedvinden van de behandelaar.",
+          "scope_reason": null,
+          "uncertainty": "non_decisive",
+          "verdict": "pass"
+        }
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "review_required",
+        "juist": false,
+        "technische_fout": false,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": "conflict",
+        "modelstatus": "pass",
+        "omzetting": "conflict",
+        "omzettingsrichting": "pass→review_required"
+      }
+    },
+    {
+      "id": "G039",
+      "status": "error",
+      "reden": "timeout",
+      "verdict": null,
+      "stop_reason": null,
+      "uitzonderingstype": "TimeoutError",
+      "prompt_sha256": "bd2914246db1b13d39f78bd851a60f0eec38bdc982a08d56f691b5ad11322e0c",
+      "antwoord_sha256": null,
+      "gecachet": false,
+      "meting": {
+        "payload_sha256": "e4bb6cb29411e823ca6e47d469ee286327d9dc87308424df40ea68adddf01825",
+        "telpayload_sha256": "49e50eebe5ee3604f777815a8b7b8ee5255e9561f1d41f63826855977663cd02",
+        "geschatte_invoertokens": 5906,
+        "reservering_usd": 0.22999999999999998,
+        "verstuurd": true,
+        "kosten_usd": null,
+        "fouttype": "CancelledError",
+        "duur_ms": 119731
+      },
+      "document": {
+        "contractversie": "def835-int02-assessment/5",
+        "invoer": {
+          "begrip": "adviesprocedure",
+          "kern": "Samenhang van activiteiten waarmee een adviesvraag wordt ontvangen, onderzocht en van een gemotiveerd antwoord voorzien.",
+          "bedoeling": "De term wordt opgenomen in de procescatalogus van de organisatie. Die catalogus rubriceert processen naar hun eindresultaat.",
+          "organisatorische_context": [
+            "Procescatalogus Jeneverbes (fictief)"
+          ],
+          "juridische_context": [
+            "Synthetisch afsprakenmodel; geen claim over bestaand recht"
+          ],
+          "wettelijke_basis": [],
+          "bronnen": [
+            {
+              "id": "B1",
+              "tekst": "Procescatalogus Jeneverbes (fictief; geen geldend recht), rubriek Advisering: 'Het proces met als eindresultaat een gemotiveerd advies omvat drie fasen: ontvangst van de adviesvraag, onderzoek en beantwoording. Per afdeling staat in de werkinstructies W-12 tot en met W-15 wie een fase uitvoert en binnen welke termijn.'"
+            }
+          ]
+        },
+        "binding": {
+          "contractversie": "def835-int02-assessment/5",
+          "normversie": "def771-int02/2",
+          "normhash": "df1ff9a992ac059820240aa8ff268a7e6f9902547535533291a2dedffccf207e",
+          "promptversie": "def835-int02-prompt/6",
+          "routeringshash": "1ab4c6ede97eb326d20dfa36baa2b33553da497974de63b4193bd6f7cc68cea2",
+          "provider": "anthropic",
+          "model": "claude-opus-5",
+          "begrip_hash": "7dc88c78ca48ab19f3ea50b2e8ba246a2a009758cc492f500f13b4404762df5e",
+          "kern_hash": "d523dfedcf12eded7210d0af779608d7e8723e26dfde147eb7f726dc86149ae6",
+          "bedoeling_hash": "476a4c733c9e679d8f5c3448e34caf693893f6142308819ad1d43e5114506133",
+          "context_hash": "5baa01d5504579a53619ffb597441d36254f2d180e5ffe4d8df395c373602ec2",
+          "bronnen_hash": "15c908df8e8c1abb40e6492c9dec6e7053ccfef442f157466f23792f01b426bb"
+        },
+        "uitvoering": {
+          "actor": "ai",
+          "status": "failed",
+          "foutcategorie": "timeout",
+          "tijdstip": "2026-10-08T14:50:53.578846+00:00",
+          "transportpogingen": "unknown",
+          "invoertokens": "unknown",
+          "uitvoertokens": "unknown",
+          "duur_ms": 120013,
+          "kosten": "unknown",
+          "modelversie": "unknown"
+        },
+        "status": "error",
+        "reden": null,
+        "melding": "INT-02 — De beoordeling kon niet worden uitgevoerd door een technische fout. Er is geen inhoudelijk oordeel; de tekst is ongewijzigd.",
+        "vraag": null,
+        "foutcategorie": "timeout",
+        "foutdetail": null,
+        "omzetting": null,
+        "oordeel": null
+      },
+      "fase": "ontwikkeling",
+      "label_status": "pass",
+      "evaluatie": {
+        "verwacht": "pass",
+        "waargenomen": "error",
+        "juist": false,
+        "technische_fout": true,
+        "citaatfout": false,
+        "kritieke_false_pass": false,
+        "afleiding": null,
+        "modelstatus": null,
+        "omzetting": null,
+        "omzettingsrichting": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+ssssssss.sss............................................................ [  6%]
+........................................................................ [ 13%]
+........................................................................ [ 20%]
+........................................................................ [ 27%]
+........................................................................ [ 34%]
+........................................................................ [ 41%]
+........................................................................ [ 48%]
+........................................................................ [ 55%]
+........................................................................ [ 62%]
+........................................................................ [ 69%]
+........................................................................ [ 76%]
+........................................................................ [ 83%]
+........................................................................ [ 90%]
+........................................................................ [ 96%]
+................................                                         [100%]
+=============================== warnings summary ===============================
+../../../.venv/lib/python3.13/site-packages/pythonjsonlogger/jsonlogger.py:11
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+../../../.venv/lib/python3.13/site-packages/fastapi/testclient.py:1
+  /Users/chrislehnen/Projecten/Definitie-app/.venv/lib/python3.13/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:160: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:138: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [3] tests/unit/validation/test_def771_int02_contract.py:165: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:142: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:153: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:131: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [2] tests/unit/validation/test_def771_int02_contract.py:183: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd
+SKIPPED [1] tests/unit/validation/test_def771_int02_contract.py:172: DEF771_SKILLS_ROOT niet gezet: skillcontract (tweede repository _claude-global-setup) niet gecontroleerd

@@ -1,0 +1,11 @@
+{
+  "head": "ebe9c1b7c26ffe6040bffb66db4937b932406dc8",
+  "files_match_review": {
+    "scripts/analysis/def835_int02_modelproef.py": true,
+    "tests/unit/validation/test_def835_int02_modelproef.py": true,
+    "tests/fixtures/def835_int02_kwalificatie_runner.json": true
+  },
+  "index_empty": true,
+  "tracked_source_clean": true,
+  "no_push_merge_activation": true
+}

@@ -1,0 +1,57 @@
+{
+  "fouten": [],
+  "wijzigingen": [
+    {
+      "id": "G003",
+      "gewijzigd": [
+        "bedoeling",
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G006",
+      "gewijzigd": [
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G018",
+      "gewijzigd": [
+        "bronnen"
+      ]
+    },
+    {
+      "id": "G030",
+      "gewijzigd": [
+        "bronnen"
+      ]
+    }
+  ],
+  "overige_36_gevallen_gelijk": true,
+  "beoordelingshergebruik_23_gevallen": [
+    "G001",
+    "G002",
+    "G005",
+    "G014",
+    "G016",
+    "G021",
+    "G023",
+    "G033",
+    "G035",
+    "G036",
+    "G039",
+    "G041",
+    "G042",
+    "G043",
+    "G044",
+    "G045",
+    "G046",
+    "G047",
+    "G048",
+    "G049",
+    "G050",
+    "G051",
+    "G052"
+  ],
+  "reikwijdte": "Veld- en gelijkheidscontrole; geen inhoudelijk labelakkoord."
+}

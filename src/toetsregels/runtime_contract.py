@@ -121,7 +121,7 @@ class EvaluatorType(StrEnum):
     # binding, gesloten structuur en citaatbestaan in de definitie), INT-03.
     PRONOUN_REFERENCE_ASSESSMENT = "pronoun_reference_assessment"
     # DEF-835 (WP3): toepassing van een getypeerde INT-02-beoordeling
-    # (contract def835-int02-assessment/1) op de actuele invoer en
+    # (contract def835-int02-assessment/4) op de actuele invoer en
     # configuratie; de code toetst binding, citaten en status, niet de norm.
     # Nog door geen actief record gekozen (INT-02 blijft judgment_review).
     DECISION_RULE_ASSESSMENT = "decision_rule_assessment"
