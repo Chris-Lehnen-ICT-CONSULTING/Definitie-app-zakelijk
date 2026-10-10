@@ -7,6 +7,7 @@ gebeurt sequentieel; parallelisme volgt in een latere iteratie.
 
 from __future__ import annotations
 
+import asyncio
 import copy
 import logging
 import uuid
@@ -246,22 +247,20 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
 
                 # DEF-743: de bronbeoordeling hoort bij exact deze tekst en
                 # wordt hier standaard verkregen (nooit uit aanroepermetadata).
-                assessment = await self._beoordeel_bronnen(
+                # DEF-766/772: idem voor de telbaarheids- (ESS-03) en de
+                # verwijzingsbeoordeling (INT-03; de payload reist via de
+                # evaluator in `rule_results`). De drie lopen gelijktijdig.
+                (
+                    assessment,
+                    telbaarheid,
+                    verwijzingen,
+                ) = await self._beoordeel_gelijktijdig(
                     begrip, text, context_dict, correlation_id
                 )
                 if assessment is not None:
                     context_dict["source_assessment"] = assessment
-                # DEF-766: idem voor de telbaarheidsbeoordeling (ESS-03).
-                telbaarheid = await self._beoordeel_telbaarheid(
-                    begrip, text, context_dict, correlation_id
-                )
                 if telbaarheid is not None:
                     context_dict["ess03_assessment"] = telbaarheid
-                # DEF-772: idem voor de verwijzingsbeoordeling (INT-03); de
-                # payload reist via de evaluator in `rule_results`.
-                verwijzingen = await self._beoordeel_verwijzingen(
-                    begrip, text, context_dict, correlation_id
-                )
                 if verwijzingen is not None:
                     context_dict["int03_assessment"] = verwijzingen
                 # DEF-835 WP5a: INT-02 (O2) alleen via de expliciete dienst.
@@ -329,24 +328,21 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
 
                 # DEF-743/747: bronbeoordeling en toetsing delen exact de
                 # ongewijzigde recordtekst en dezelfde contextbinding.
+                # DEF-766/772: telbaarheids- en verwijzingsbeoordeling binden
+                # aan dezelfde recordtekst, contextlijsten en de toelichting
+                # van het record. De drie lopen gelijktijdig.
                 recordtekst = context_dict["record_text"]
-                assessment = await self._beoordeel_bronnen(
+                (
+                    assessment,
+                    telbaarheid,
+                    verwijzingen,
+                ) = await self._beoordeel_gelijktijdig(
                     definition.begrip, recordtekst, context_dict, correlation_id
                 )
                 if assessment is not None:
                     context_dict["source_assessment"] = assessment
-                # DEF-766: de telbaarheidsbeoordeling bindt aan dezelfde
-                # recordtekst, contextlijsten en de toelichting van het record.
-                telbaarheid = await self._beoordeel_telbaarheid(
-                    definition.begrip, recordtekst, context_dict, correlation_id
-                )
                 if telbaarheid is not None:
                     context_dict["ess03_assessment"] = telbaarheid
-                # DEF-772: de verwijzingsbeoordeling bindt aan dezelfde
-                # recordtekst, contextlijsten en de toelichting van het record.
-                verwijzingen = await self._beoordeel_verwijzingen(
-                    definition.begrip, recordtekst, context_dict, correlation_id
-                )
                 if verwijzingen is not None:
                     context_dict["int03_assessment"] = verwijzingen
                 # DEF-835 WP5a: idem INT-02 (O2), op de gezaghebbende recordkern.
@@ -410,6 +406,43 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         return results
 
     # Internal helpers
+    async def _beoordeel_gelijktijdig(
+        self,
+        begrip: str,
+        tekst: str,
+        context_dict: dict[str, Any],
+        correlation_id: str,
+    ) -> tuple[dict[str, Any] | None, dict[str, Any] | None, dict[str, Any] | None]:
+        """CON-02, ESS-03 en INT-03 gelijktijdig; uitkomst als sequentieel.
+
+        De drie zijn onafhankelijk: geen leest de uitkomst van een ander, en
+        wat ze in `context_dict` schrijven (alias-normalisatie, afkapgrens,
+        bindingen) lezen de andere niet — vingerafdrukken en diensten lezen
+        alleen de contextlijsten, toelichting en categorie. Elke methode vangt
+        haar eigen dienstfout of timeout af. De taken starten in de oude
+        volgorde (de bronalias is genormaliseerd vóór ESS-03 de bronlijst
+        leest) en worden in die volgorde afgewacht: een fout die een methode
+        uitloopt bereikt de aanroeper zoals sequentieel — bij meerdere de
+        eerste in volgorde — en de rest wordt geannuleerd. Annulering van
+        buitenaf (budget op) annuleert alle drie; er blijft geen taak hangen.
+        Taken erven de contextvariabelen, dus ook de generatiedeadline.
+        """
+        taken = [
+            asyncio.create_task(beoordeel(begrip, tekst, context_dict, correlation_id))
+            for beoordeel in (
+                self._beoordeel_bronnen,
+                self._beoordeel_telbaarheid,
+                self._beoordeel_verwijzingen,
+            )
+        ]
+        try:
+            assessment, telbaarheid, verwijzingen = [await taak for taak in taken]
+        finally:
+            for taak in taken:
+                taak.cancel()
+            await asyncio.gather(*taken, return_exceptions=True)
+        return assessment, telbaarheid, verwijzingen
+
     async def _beoordeel_bronnen(
         self,
         begrip: str,

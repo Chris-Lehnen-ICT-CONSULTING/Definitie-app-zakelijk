@@ -60,9 +60,11 @@ import hashlib
 import json
 import logging
 import re
+import threading
 import time
 from collections import OrderedDict
 from collections.abc import Mapping
+from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -757,6 +759,19 @@ class Ess03AssessmentService:
             self._cache.popitem(last=False)
 
 
+#: De teller van de lopende aanroep in deze taak. Taken en werkthreads
+#: (`asyncio.to_thread`) die binnen de aanroep ontstaan erven hem; een
+#: gelijktijdige andere beoordeling (CON-02, ESS-03, INT-03) heeft haar eigen.
+_ACTIEVE_TELLER: ContextVar[_Pogingenteller | None] = ContextVar(
+    "ess03_actieve_pogingenteller", default=None
+)
+#: Gedeeld niveaubeheer over gelijktijdig actieve tellers (ook over threads):
+#: alleen de eerste verhoogt het niveau, alleen de laatste zet het terug.
+_NIVEAUSLOT = threading.Lock()
+_actieve_tellers = 0
+_oorspronkelijke_niveaus: dict[str, int] = {}
+
+
 class _Pogingenteller(logging.Filter):
     """Telt werkelijk waargenomen herhaalde transportpogingen tijdens één aanroep.
 
@@ -764,15 +779,19 @@ class _Pogingenteller(logging.Filter):
     herhaling in hun log. Deze filter hangt tijdens de aanroep aan die loggers
     en telt de meldingen; `attempts_observed` = 1 + waargenomen herhalingen.
     Dit is een meting via de logs van die lagen, geen hardgecodeerde 0.
+    Alleen meldingen uit de eigen aanroep tellen (`_ACTIEVE_TELLER`), ook als
+    andere beoordelingen gelijktijdig op dezelfde loggers loggen.
     """
 
     def __init__(self) -> None:
         super().__init__()
         self.herhalingen = 0
         self._loggers = [logging.getLogger(naam) for naam in _RETRY_LOGGERS]
-        self._oude_niveaus: dict[str, int] = {}
+        self._token: Any = None
 
     def filter(self, record: logging.LogRecord) -> bool:
+        if _ACTIEVE_TELLER.get() is not self:
+            return True
         try:
             bericht = record.getMessage()
         except Exception:  # pragma: no cover - defensief
@@ -782,20 +801,33 @@ class _Pogingenteller(logging.Filter):
         return True
 
     def __enter__(self) -> _Pogingenteller:
-        for log in self._loggers:
-            # De herhalingsmeldingen zijn INFO/WARNING; staat de logger hoger,
-            # dan ontstaat het record niet en valt er niets te tellen. Tijdelijk
-            # (alleen tijdens deze aanroep) op INFO; daarna hersteld.
-            self._oude_niveaus[log.name] = log.level
-            if log.getEffectiveLevel() > logging.INFO:
-                log.setLevel(logging.INFO)
-            log.addFilter(self)
+        global _actieve_tellers
+        self._token = _ACTIEVE_TELLER.set(self)
+        with _NIVEAUSLOT:
+            if _actieve_tellers == 0:
+                for log in self._loggers:
+                    # De herhalingsmeldingen zijn INFO/WARNING; staat de logger
+                    # hoger, dan ontstaat het record niet en valt er niets te
+                    # tellen. Tijdelijk (zolang een teller actief is) op INFO;
+                    # daarna hersteld.
+                    _oorspronkelijke_niveaus[log.name] = log.level
+                    if log.getEffectiveLevel() > logging.INFO:
+                        log.setLevel(logging.INFO)
+            _actieve_tellers += 1
+            for log in self._loggers:
+                log.addFilter(self)
         return self
 
     def __exit__(self, *exc: object) -> None:
-        for log in self._loggers:
-            log.removeFilter(self)
-            log.setLevel(self._oude_niveaus.get(log.name, logging.NOTSET))
+        global _actieve_tellers
+        with _NIVEAUSLOT:
+            for log in self._loggers:
+                log.removeFilter(self)
+            _actieve_tellers -= 1
+            if _actieve_tellers == 0:
+                for log in self._loggers:
+                    log.setLevel(_oorspronkelijke_niveaus.pop(log.name, logging.NOTSET))
+        _ACTIEVE_TELLER.reset(self._token)
 
     def attributie(self) -> dict[str, int]:
         return {
