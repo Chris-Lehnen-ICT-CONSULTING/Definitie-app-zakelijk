@@ -60,6 +60,14 @@ DEFAULT_EXAMPLE_COUNTS = {
     "toelichting": 1,
 }
 
+# max_tokens in de resilient-route. Praktijk- en tegenvoorbeelden werden bij
+# 1500 afgekapt (stop_reason=max_tokens; gemeten gebruik 1.830-1.849 tokens).
+RESILIENT_MAX_TOKENS_STANDAARD = 1500
+RESILIENT_MAX_TOKENS_PER_TYPE = {
+    "praktijkvoorbeelden": 3000,
+    "tegenvoorbeelden": 3000,
+}
+
 # DEF-840: bovengrens voor gelijktijdige voorbeeldtypen binnen één generatie.
 # Zes = alle typen tegelijk; blijft onder `rate_limit_max_concurrent` (standaard
 # 10) van de AsyncRateLimiter in utils/async_api.py; die begrenst per event loop.
@@ -586,7 +594,9 @@ class UnifiedExamplesGenerator:
                 task_type=self._get_task_type(request.example_type),
                 # DEF-439: temperature is non-None na generate_examples (regel 244-245).
                 temperature=cast(float, request.temperature),
-                max_tokens=1500,
+                max_tokens=RESILIENT_MAX_TOKENS_PER_TYPE.get(
+                    request.example_type.value, RESILIENT_MAX_TOKENS_STANDAARD
+                ),
             )
             return self._parse_response(response.text, request.example_type)
         except Exception as e:
