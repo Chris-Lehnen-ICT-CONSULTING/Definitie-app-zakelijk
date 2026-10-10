@@ -83,15 +83,14 @@ base_jur_options = [
     "Anders...",
 ]
 
-base_wet_options = [
-    "Wetboek van Strafvordering (huidige versie)",
-    "Wetboek van strafvordering (nieuwe versie)",
-    "Wet op de Identificatieplicht",
-    "Wet op de politiegegevens",
-    "Wetboek van Strafrecht",
-    "Algemene verordening gegevensbescherming",
-    "Anders...",
-]
+# DEF-846: geldige opties uit het regelingenregister (config/bronnenlijst.yaml).
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+from domain.sources.regelingen import register
+
+base_wet_options = [*register().labels(), "Anders..."]
 
 problems_found = False
 

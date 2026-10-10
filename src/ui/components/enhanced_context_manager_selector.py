@@ -95,10 +95,7 @@ class EnhancedContextManagerSelector:
             wet_context = self._render_context_selector(
                 title="📜 Wettelijke basis",
                 base_options=wettelijke_basis_opties(),
-                # DEF-846: eerdere labels (aliassen) tonen als het huidige label.
-                current_values=register().normaliseer(
-                    current_data.get("wettelijke_basis", []) or []
-                ),
+                current_values=current_data.get("wettelijke_basis", []),
                 custom_key="custom_wet_input",
                 multiselect_key="wet_multiselect",
                 help_text="Selecteer relevante wetgeving",

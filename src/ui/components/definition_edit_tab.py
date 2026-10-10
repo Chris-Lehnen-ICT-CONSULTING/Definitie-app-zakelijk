@@ -725,7 +725,7 @@ class DefinitionEditTab:
             # DEF-846: keuzelijst uit het regelingenregister (één lijst).
             from domain.sources.regelingen import register
 
-            wet_options = [*register().labels(), "Anders..."]
+            wet_options = register().labels()
             edit_wet_from_generator = SessionStateManager.get_value(
                 "edit_wettelijke_basis"
             )
@@ -737,7 +737,6 @@ class DefinitionEditTab:
                 )
                 else (getattr(definition, "wettelijke_basis", []) or [])
             )
-            current_wet = register().normaliseer(current_wet)
             wet_known = [v for v in current_wet if v in wet_options]
             wet_other = [v for v in current_wet if v not in wet_options]
             wet_default = wet_known + (["Anders..."] if wet_other else [])

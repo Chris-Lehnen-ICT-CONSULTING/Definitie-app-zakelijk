@@ -86,6 +86,21 @@ def test_zoeken_op_label_alias_en_hoofdletters(tmp_path):
     assert reg.zoek("") is None
 
 
+def test_normaliseren_leest_ook_json_tekst_en_losse_tekst(tmp_path):
+    """Reviewbevinding 8: geen splitsing per teken, geen None."""
+    reg = _register(tmp_path)
+    assert reg.normaliseer("Wet op de politiegegevens") == ["Wet politiegegevens"]
+    assert reg.normaliseer('["Wet op de politiegegevens", null]') == [
+        "Wet politiegegevens"
+    ]
+    assert reg.normaliseer(None) == []
+
+
+def test_bronnen_moet_een_lijst_zijn(tmp_path):
+    with pytest.raises(RegisterError, match="lijst onder 'bronnen'"):
+        _register(tmp_path, "bronnen:\n  sleutel: x\n")
+
+
 def test_normaliseren_vertaalt_aliassen_en_laat_vrije_invoer_staan(tmp_path):
     reg = _register(tmp_path)
     assert reg.normaliseer(
@@ -162,6 +177,29 @@ def test_collecties_vergelijken_met_de_bibliotheek(tmp_path):
         (("    label: Wet politiegegevens\n", ""), "label"),
         (("    naam: Wet politiegegevens\n", ""), "naam"),
         (('    collectie: "Sv (nieuw)"\n', ""), "collectie"),
+        # reviewbevinding 7: typen, lege waarden, tegenstrijdige kenmerken
+        (
+            ("aliassen: [Wet op de politiegegevens]", 'aliassen: "Xy"'),
+            "moet een lijst zijn",
+        ),
+        (
+            (
+                "rechtsgebieden: [strafrecht, bestuursrecht]",
+                "rechtsgebieden: strafrecht",
+            ),
+            "moet een lijst zijn",
+        ),
+        (("aliassen: [Wet op de politiegegevens]", 'aliassen: [""]'), "lege waarde"),
+        (
+            (
+                "kenmerken: [alle_rechtsgebieden]",
+                "kenmerken: [alle_rechtsgebieden, alleen_expliciete_keuze]",
+            ),
+            "sluiten elkaar uit",
+        ),
+        (("label: Wet politiegegevens", 'label: "Anders..."'), "gereserveerd"),
+        (("    formaat: op\n", "    formaat: pdf\n"), "onbekend formaat"),
+        (("  - sleutel: evrm\n", "  - evrm\n  - sleutel: evrm\n"), "geen mapping"),
     ],
 )
 def test_ongeldig_register_wordt_geweigerd(tmp_path, vervang, fout):
@@ -194,7 +232,7 @@ def test_echt_register_vastgestelde_besluiten():
     )
     assert sv_nieuw not in reg.voor_rechtsgebied("strafrecht")
     # B-5: EVRM hoort bij alle rechtsgebieden
-    assert zoek("EVRM (inclusief protocollen)").alle_rechtsgebieden
+    assert zoek("Europees Verdrag voor de Rechten van de Mens").alle_rechtsgebieden
     # AVG niet onder strafrecht (art. 2 lid 2 onder d AVG); wel bestuursrecht
     avg = zoek("Algemene verordening gegevensbescherming")
     assert not avg.hoort_bij("strafrecht")
@@ -204,7 +242,7 @@ def test_echt_register_vastgestelde_besluiten():
         "Algemene wet bestuursrecht",
         "Algemene verordening gegevensbescherming",
         "Uitvoeringswet Algemene verordening gegevensbescherming",
-        "Wet politiegegevens",
+        "Wet op de politiegegevens",
     ):
         assert not zoek(label).hoort_bij("sanctierecht"), label
     # B-3: Wet RO breed
@@ -228,31 +266,51 @@ def test_echt_register_vastgestelde_besluiten():
 
 
 @pytest.mark.parametrize(
-    ("oud", "nieuw"),
+    "opgeslagen",
     [
-        ("Wet op de politiegegevens", "Wet politiegegevens"),
-        ("Vreemdelingenwet", "Vreemdelingenwet 2000"),
-        ("Wet op de Identificatieplicht", "Wet op de identificatieplicht"),
-        (
-            "Europees Verdrag voor de Rechten van de Mens",
-            "EVRM (inclusief protocollen)",
-        ),
-        ("Wetboek van Strafvordering (huidig)", "Wetboek van Strafvordering (huidig)"),
+        "Wetboek van Strafvordering (huidig)",
+        "Wetboek van Strafvordering (toekomstig)",
+        "Wet op de politiegegevens",
+        "Vreemdelingenwet",
+        "Wet op de Identificatieplicht",
+        "Europees Verdrag voor de Rechten van de Mens",
+        "Wetboek van Strafrecht",
+        "Algemene verordening gegevensbescherming",
     ],
 )
-def test_oude_keuzelijstwaarden_blijven_herkend(oud, nieuw):
-    assert register().normaliseer([oud]) == [nieuw]
+def test_bestaande_keuzelijstwaarden_zijn_ongewijzigd_label(opgeslagen):
+    """Reviewbevinding 1/2: een label hernoemen breekt contextsleutel,
+    duplicaatcontrole en wijzigingsdetectie op opgeslagen definities. De
+    bestaande waarden blijven daarom exact het label (hernoemen → DEF-854)."""
+    assert opgeslagen in register().labels()
+
+
+def test_vrijgekomen_waarden_blijven_vrije_invoer():
+    """ "Burgerlijk Wetboek" en "Uitvoeringswet EU-richtlijnen" worden niet vertaald."""
+    reg = register()
+    assert reg.normaliseer(["Burgerlijk Wetboek", "Uitvoeringswet EU-richtlijnen"]) == [
+        "Burgerlijk Wetboek",
+        "Uitvoeringswet EU-richtlijnen",
+    ]
 
 
 def test_echte_bibliotheekcollecties_hebben_een_registerregel():
-    """De 21 collecties van 9 oktober 2026 (data/bronnen.db) staan erin."""
+    """De 21 collecties in data/bronnen.db op 10 oktober 2026 (plus uploads)."""
     collecties = [
         "Sv (nieuw, i.w.t. 1-4-2029)", "Sv (geldend, versie 1-7-2026)",
         "Sr (versie 1-7-2026)", "Gratiewet (versie 1-4-2021)",
         "Pbw (versie 1-11-2025)", "Reclasseringsregeling 1995 (versie 26-6-2019)",
         "Wet RO (versie 1-7-2025)", "Wpg (versie 1-9-2026)",
         "Wjsg (versie 1-9-2026)", "UAVG (versie 1-9-2026)",
-        "AVG (Verordening (EU) 2016/679)",
+        "AVG (Verordening (EU) 2016/679)", "Awb (versie 15-8-2026)",
+        "Wdo (versie 11-11-2025)",
+        "Besluit Sturing Digitale Overheid 2022 (versie 19-7-2022)",
+        "Tijdelijk besluit digitale toegankelijkheid overheid (versie 1-7-2018)",
+        "Wet BRP (versie 1-10-2026)", "Wabb (versie 11-11-2025)",
+        "Handelsregisterwet 2007 (versie 16-7-2025)",
+        "eIDAS (geconsolideerd 18-10-2024)", "BW Boek 1 (versie 5-7-2025)",
+        "BW Boek 2 (versie 1-7-2026)",
     ]  # fmt: skip
-    zonder_regel, _ = lees_register(ECHT).vergelijk_collecties(collecties)
-    assert zonder_regel == []
+    assert len(collecties) == 21
+    zonder_regel, ontbrekend = lees_register(ECHT).vergelijk_collecties(collecties)
+    assert (zonder_regel, ontbrekend) == ([], [])

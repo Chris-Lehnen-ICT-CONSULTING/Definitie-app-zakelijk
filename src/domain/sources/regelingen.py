@@ -21,6 +21,14 @@ Kenmerken:
     De regeling hoort bij elk rechtsgebied (B-5: het EVRM). Dan staat er geen
     ``rechtsgebieden``-lijst bij.
 
+De labels zijn de waarden die in opgeslagen definities staan; een label
+wijzigen vraagt dus een datamigratie (contextsleutel, duplicaatcontrole en
+vaststelling vergelijken op de opgeslagen tekst). ``aliassen`` vangen een
+hernoeming op in de keuzelijst, niet in die opgeslagen data.
+
+Het register wordt bij het opstarten van de app gelezen (``main``) en daarna
+per proces bewaard; een wijziging in de YAML vraagt een herstart.
+
 Deze module bevat alleen het register zelf. De bronselectie op basis van het
 register is DEF-631; de waarschuwing bij een combinatie buiten de matrix is
 DEF-849.
@@ -35,6 +43,7 @@ from pathlib import Path
 
 import yaml
 
+from domain.context.normalisatie import lees_contextwaarden
 from domain.rechtsgebieden import RECHTSGEBIEDEN
 
 STANDAARD_PAD = Path(__file__).resolve().parents[3] / "config" / "bronnenlijst.yaml"
@@ -42,10 +51,13 @@ STANDAARD_PAD = Path(__file__).resolve().parents[3] / "config" / "bronnenlijst.y
 ALLEEN_EXPLICIETE_KEUZE = "alleen_expliciete_keuze"
 ALLE_RECHTSGEBIEDEN = "alle_rechtsgebieden"
 KENMERKEN = frozenset({ALLEEN_EXPLICIETE_KEUZE, ALLE_RECHTSGEBIEDEN})
+FORMATEN = frozenset({"bwb", "op", "eu"})
+# "Anders..." is de vaste UI-keuze voor vrije invoer; geen regelingnaam.
+GERESERVEERD = frozenset({"anders..."})
 
 
 class RegisterError(ValueError):
-    """Het regelingenregister is ongeldig; de app hoort dan niet te starten."""
+    """Het regelingenregister is ongeldig; de app toont dan bij het opstarten een fout."""
 
 
 def _vergelijkvorm(tekst: str) -> str:
@@ -96,13 +108,14 @@ class Regelingenregister:
                 return regeling
         return None
 
-    def normaliseer(self, waarden: Iterable[str]) -> list[str]:
+    def normaliseer(self, waarden: object) -> list[str]:
         """Vertaal labels en aliassen naar het huidige label; vrije invoer blijft.
 
-        Dubbelingen vallen weg, de volgorde blijft.
+        Accepteert alles wat ``lees_contextwaarden`` accepteert (lijst,
+        JSON-tekst, losse tekst). Dubbelingen vallen weg, de volgorde blijft.
         """
         uit: list[str] = []
-        for waarde in waarden:
+        for waarde in lees_contextwaarden(waarden):
             regeling = self.zoek(waarde)
             nieuw = regeling.label if regeling else waarde
             if nieuw not in uit:
@@ -145,35 +158,45 @@ def lees_register(pad: Path = STANDAARD_PAD) -> Regelingenregister:
             of een dubbele collectie.
     """
     data = yaml.safe_load(Path(pad).read_text(encoding="utf-8")) or {}
+    if not isinstance(data, dict) or not isinstance(data.get("bronnen"), list):
+        raise RegisterError("verwacht een lijst onder 'bronnen'")
     regelingen: list[Regeling] = []
     sleutels: set[str] = set()
     namen: dict[str, str] = {}
     collecties: set[str] = set()
 
-    for item in data.get("bronnen") or []:
+    for nr, item in enumerate(data["bronnen"], 1):
+        if not isinstance(item, dict):
+            raise RegisterError(f"regeling {nr} is geen mapping")
         sleutel = str(item.get("sleutel") or "").strip()
         if not sleutel:
-            raise RegisterError("regeling zonder sleutel")
+            raise RegisterError(f"regeling {nr} heeft geen sleutel")
         if sleutel in sleutels:
             raise RegisterError(f"dubbele sleutel: {sleutel}")
         sleutels.add(sleutel)
 
         label = _verplicht(item, "label", sleutel)
         naam = _verplicht(item, "naam", sleutel)
-        aliassen = tuple(str(a).strip() for a in item.get("aliassen") or [])
+        aliassen = _tekstlijst(item, "aliassen", sleutel)
         for tekst in (label, *aliassen):
             vorm = _vergelijkvorm(tekst)
+            if vorm in GERESERVEERD:
+                raise RegisterError(f"{sleutel}: {tekst!r} is gereserveerd")
             if vorm in namen:
                 raise RegisterError(
                     f"{sleutel}: dubbel label of alias {tekst!r} (ook bij {namen[vorm]})"
                 )
             namen[vorm] = sleutel
 
-        kenmerken = set(item.get("kenmerken") or [])
+        kenmerken = set(_tekstlijst(item, "kenmerken", sleutel))
         if onbekend := kenmerken - KENMERKEN:
             raise RegisterError(f"{sleutel}: onbekend kenmerk {sorted(onbekend)}")
+        if kenmerken >= KENMERKEN:
+            raise RegisterError(
+                f"{sleutel}: alle_rechtsgebieden en alleen_expliciete_keuze sluiten elkaar uit"
+            )
 
-        rechtsgebieden = tuple(item.get("rechtsgebieden") or [])
+        rechtsgebieden = _tekstlijst(item, "rechtsgebieden", sleutel)
         if ALLE_RECHTSGEBIEDEN in kenmerken:
             if rechtsgebieden:
                 raise RegisterError(
@@ -187,7 +210,9 @@ def lees_register(pad: Path = STANDAARD_PAD) -> Regelingenregister:
             raise RegisterError(f"{sleutel}: rechtsgebied dubbel genoemd")
 
         collectie = None
-        if item.get("formaat"):
+        if formaat := item.get("formaat"):
+            if formaat not in FORMATEN:
+                raise RegisterError(f"{sleutel}: onbekend formaat {formaat!r}")
             collectie = _verplicht(item, "collectie", sleutel)
             if collectie in collecties:
                 raise RegisterError(f"{sleutel}: dubbele collectie {collectie!r}")
@@ -208,6 +233,19 @@ def lees_register(pad: Path = STANDAARD_PAD) -> Regelingenregister:
     if not regelingen:
         raise RegisterError("het register is leeg")
     return Regelingenregister(tuple(regelingen))
+
+
+def _tekstlijst(item: dict, veld: str, sleutel: str) -> tuple[str, ...]:
+    """Een optionele lijst niet-lege teksten (een losse tekst is een fout)."""
+    waarde = item.get(veld)
+    if waarde is None:
+        return ()
+    if not isinstance(waarde, list):
+        raise RegisterError(f"{sleutel}: {veld!r} moet een lijst zijn")
+    teksten = tuple(str(w).strip() for w in waarde if w is not None)
+    if len(teksten) != len(waarde) or not all(teksten):
+        raise RegisterError(f"{sleutel}: lege waarde in {veld!r}")
+    return teksten
 
 
 def _verplicht(item: dict, veld: str, sleutel: str) -> str:

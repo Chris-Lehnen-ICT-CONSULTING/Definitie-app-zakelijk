@@ -32,6 +32,8 @@ ROOT = Path(__file__).resolve().parents[3]
 LIJST = """
 bronnen:
   - sleutel: testwet
+    label: Testwet
+    naam: Testwet
     formaat: bwb
     bwb_id: BWBR0009999
     versie: "2026-01-01"
@@ -39,6 +41,8 @@ bronnen:
     wet_regeling: "Testwet (versie 1-1-2026)"
     rechtsgebieden: [penitentiair_recht, strafrecht]
   - sleutel: avg
+    label: AVG
+    naam: AVG
     formaat: eu
     celex: 32016R0679
     collectie: "AVG"
@@ -140,7 +144,7 @@ def test_ongeldige_bronnenlijst(bl, vervang, fout):
 def test_bestandsnaam_met_pad_geweigerd(bl):
     mod, lijst, _tmp = bl
     lijst.write_text(
-        "bronnen:\n  - sleutel: x\n    formaat: op\n    urls: [https://x/y.xml]\n"
+        "bronnen:\n  - sleutel: x\n    label: X\n    naam: X\n    formaat: op\n    urls: [https://x/y.xml]\n"
         "    bestanden: [../buiten.xml]\n    collectie: X\n    wet_regeling: X\n"
         "    rechtsgebieden: [strafrecht]\n",
         encoding="utf-8",
@@ -244,6 +248,43 @@ def test_importeren_weigert_ontbrekend_of_gewijzigd_bestand(import_klaar, capsys
     (map_ / "BWBR0009999_2026-01-01_0.xml").unlink()
     assert mod.importeren(bronnen, str(db), map_, module=imp) == 1
     assert "ontbreekt" in capsys.readouterr().out
+
+
+def test_cli_sleutel_zonder_bibliotheekbron(bl, capsys):
+    """DEF-846: een kiesbare regeling zonder bron heeft een eigen melding."""
+    mod, lijst, _tmp = bl
+    assert mod.main(["ophalen", "--lijst", str(lijst), "--alleen", "evrm"]) == 1
+    assert "geen bibliotheekbron voor ['evrm']" in capsys.readouterr().out
+
+
+def test_regeling_met_bron_zonder_rechtsgebieden_geweigerd(bl):
+    mod, lijst, _tmp = bl
+    lijst.write_text(
+        LIJST.replace("    rechtsgebieden: [europees_recht]\n", ""), encoding="utf-8"
+    )
+    with pytest.raises(mod.BronError, match="geen rechtsgebied"):
+        mod.lees_lijst(lijst)
+
+
+def test_vergelijk_register_met_bibliotheek(bl, capsys):
+    """DEF-846: register naast de collecties in bronnen.db (alleen lezen)."""
+    mod, lijst, tmp = bl
+    db = tmp / "bronnen.db"
+    zorg_voor_bronnen_schema(db)
+    conn = sqlite3.connect(db)
+    for naam in ("Testwet (versie 1-1-2026)", "user_documents", "Oud"):
+        conn.execute(
+            "INSERT INTO rag_collections (collection_name) VALUES (?)", (naam,)
+        )
+    conn.commit()
+    conn.close()
+    assert mod.main(["vergelijk", "--lijst", str(lijst), "--db", str(db)]) == 1
+    uit = capsys.readouterr().out
+    assert "collectie zonder registerregel: Oud" in uit
+    assert "registercollectie niet in de bibliotheek: AVG" in uit
+    assert "user_documents" not in uit
+    assert mod.main(["vergelijk", "--lijst", str(lijst)]) == 1
+    assert "--db is verplicht bij vergelijk" in capsys.readouterr().out
 
 
 def test_cli_onbekende_sleutel_en_ontbrekende_db(bl, capsys):
