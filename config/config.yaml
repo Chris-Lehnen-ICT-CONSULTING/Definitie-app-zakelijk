@@ -113,14 +113,6 @@ ui:
     NP: Nederlands Politie
     OM: Openbaar Ministerie
     ZM: Zittende Magistratuur
-  common_laws:
-  - Wetboek van Strafvordering (huidig)
-  - Wetboek van Strafvordering (toekomstig)
-  - Wet op de Identificatieplicht
-  - Wet op de politiegegevens
-  - Wetboek van Strafrecht
-  - Algemene verordening gegevensbescherming
-  - Anders...
   ketenpartners:
   - ZM
   - DJI

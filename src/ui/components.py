@@ -91,7 +91,9 @@ class UIComponents:
             juridische_contexten.append(custom_juridisch.strip())
 
         # Legal basis (from config)
-        law_options = list(getattr(ui_cfg, "common_laws", []) or [])
+        from domain.sources.regelingen import register
+
+        law_options = [*register().labels(), "Anders..."]  # DEF-846
         wetopties = st.multiselect(
             "Wettelijke basis (meerdere mogelijk)",
             law_options,

@@ -1,6 +1,9 @@
 """Bronnenlijst van de bronbibliotheek: ophalen en importeren (DEF-620, RAG fase 3).
 
-Leest ``config/bronnenlijst.yaml``. Twee stappen, elk apart te draaien:
+Leest ``config/bronnenlijst.yaml``; die lijst is sinds DEF-846 ook het
+regelingenregister (``domain.sources.regelingen``). Regelingen zonder
+``formaat`` hebben geen bibliotheekbron en worden hier overgeslagen. Twee
+stappen, elk apart te draaien:
 
 ``ophalen``
     Download per bron het XML/XHTML-bestand naar de bronnenmap (standaard
@@ -14,11 +17,16 @@ Leest ``config/bronnenlijst.yaml``. Twee stappen, elk apart te draaien:
     (``scripts/rag_importeer_officiele_publicatie.importeer``). ``--droog``
     parst en telt alleen. Een compleet aanwezig document wordt overgeslagen,
     een incompleet document stopt de import (exitcode 2).
+``vergelijk``
+    Leg het register naast de collecties in de bibliotheek (alleen lezen):
+    collecties zonder registerregel en registercollecties die ontbreken
+    (DEF-846). De uploadcollectie telt niet mee.
 
 Voorbeeld:
     python scripts/rag_bronnenlijst.py ophalen
     python scripts/rag_bronnenlijst.py importeren --db <kopie van bronnen.db> --droog
     python scripts/rag_bronnenlijst.py importeren --db data/bronnen.db --alleen sr pbw
+    python scripts/rag_bronnenlijst.py vergelijk --db data/bronnen.db
 """
 
 from __future__ import annotations
@@ -28,6 +36,7 @@ import hashlib
 import importlib.util
 import json
 import re
+import sqlite3
 import sys
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -38,6 +47,17 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(ROOT / "src"))
+
+from domain.sources.regelingen import (
+    RegisterError,
+    lees_register,
+)
+
+# De collectie voor eigen uploads (RAGService "user_documents") hoort niet in
+# het register; ``vergelijk`` telt haar niet als afwijking.
+UPLOADCOLLECTIE = "user_documents"
 LIJST = ROOT / "config" / "bronnenlijst.yaml"
 BRONNENMAP = ROOT / "data" / "bronnen" / "xml"
 
@@ -76,16 +96,33 @@ class Bron:
 
 
 def lees_lijst(pad: Path = LIJST) -> list[Bron]:
-    """Lees en valideer de bronnenlijst."""
+    """Lees en valideer de bronnenlijst.
+
+    DEF-846: eerst de controle van het regelingenregister (labels,
+    rechtsgebieden, kenmerken, dubbelingen); daarna de importvelden van de
+    regelingen met een bibliotheekbron.
+    """
+    try:
+        lees_register(pad)
+    except RegisterError as exc:
+        raise BronError(f"regelingenregister: {exc}") from exc
     data = yaml.safe_load(pad.read_text(encoding="utf-8")) or {}
     bronnen: list[Bron] = []
     gezien: set[str] = set()
     for item in data.get("bronnen", []):
         sleutel = item["sleutel"]
-        formaat = item["formaat"]
         if sleutel in gezien:
             raise BronError(f"dubbele sleutel in bronnenlijst: {sleutel}")
         gezien.add(sleutel)
+        # DEF-846: de lijst is ook het regelingenregister. Een regeling zonder
+        # formaat is wel kiesbaar als wettelijke basis, maar heeft geen
+        # bibliotheekbron en hoort dus niet bij ophalen/importeren.
+        formaat = item.get("formaat")
+        if not formaat:
+            continue
+        rechtsgebieden = item.get("rechtsgebieden") or []
+        if not rechtsgebieden:
+            raise BronError(f"{sleutel}: geen rechtsgebieden")
         if formaat == "bwb":
             bwb_id, versie = item["bwb_id"], str(item["versie"])
             if not re.fullmatch(r"BWBR\d{7}", bwb_id) or not re.fullmatch(
@@ -115,7 +152,9 @@ def lees_lijst(pad: Path = LIJST) -> list[Bron]:
                 formaat=formaat,
                 collectie=item["collectie"],
                 wet_regeling=item["wet_regeling"],
-                rechtsgebied=item["rechtsgebied"],
+                # Het eerste rechtsgebied is het hoofdrechtsgebied; dat gaat bij
+                # import mee als fragmentmetadata (zoals vóór DEF-846).
+                rechtsgebied=rechtsgebieden[0],
                 urls=urls,
                 bestanden=bestanden,
                 bwb_id=item.get("bwb_id"),
@@ -344,14 +383,44 @@ def importeren(
     return 0
 
 
+def vergelijk(lijst: Path, db: str | Path) -> int:
+    """Leg het register naast de collecties in de bronbibliotheek (DEF-846).
+
+    Alleen lezen. Meldt collecties zonder registerregel en registercollecties
+    die (nog) niet in de bibliotheek staan. Exitcode 1 bij een afwijking.
+    """
+    if not Path(db).exists():
+        print(f"FOUT: {db} bestaat niet")
+        return 1
+    conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    try:
+        namen = [
+            r[0] for r in conn.execute("SELECT collection_name FROM rag_collections")
+        ]
+    finally:
+        conn.close()
+    zonder_regel, ontbrekend = lees_register(lijst).vergelijk_collecties(
+        n for n in namen if n != UPLOADCOLLECTIE
+    )
+    for naam in zonder_regel:
+        print(f"collectie zonder registerregel: {naam}")
+    for naam in ontbrekend:
+        print(f"registercollectie niet in de bibliotheek: {naam}")
+    if not zonder_regel and not ontbrekend:
+        print("register en bibliotheek komen overeen")
+    return 1 if zonder_regel or ontbrekend else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("stap", choices=("ophalen", "importeren"))
+    ap.add_argument("stap", choices=("ophalen", "importeren", "vergelijk"))
     ap.add_argument("--lijst", type=Path, default=LIJST)
     ap.add_argument("--map", type=Path, default=BRONNENMAP, dest="map_")
     ap.add_argument("--alleen", nargs="+", help="alleen deze sleutels")
     ap.add_argument("--opnieuw", action="store_true", help="ophalen: overschrijf")
-    ap.add_argument("--db", help="importeren: bronnenbestand (bijv. data/bronnen.db)")
+    ap.add_argument(
+        "--db", help="importeren/vergelijk: bronnenbestand (bijv. data/bronnen.db)"
+    )
     ap.add_argument("--droog", action="store_true", help="importeren: alleen tellen")
     args = ap.parse_args(argv)
     try:
@@ -359,10 +428,23 @@ def main(argv: list[str] | None = None) -> int:
     except (BronError, KeyError, yaml.YAMLError) as exc:
         print(f"FOUT in bronnenlijst: {exc}")
         return 1
+    if args.stap == "vergelijk":
+        if not args.db:
+            print("FOUT: --db is verplicht bij vergelijk")
+            return 1
+        return vergelijk(args.lijst, args.db)
     if args.alleen:
         onbekend = set(args.alleen) - {b.sleutel for b in bronnen}
+        zonder_bron = onbekend & {
+            r.sleutel for r in lees_register(args.lijst).regelingen
+        }
+        if zonder_bron:
+            print(
+                f"FOUT: geen bibliotheekbron voor {sorted(zonder_bron)} (alleen kiesbaar)"
+            )
+        if onbekend - zonder_bron:
+            print(f"FOUT: onbekende sleutel(s) {sorted(onbekend - zonder_bron)}")
         if onbekend:
-            print(f"FOUT: onbekende sleutel(s) {sorted(onbekend)}")
             return 1
         bronnen = [b for b in bronnen if b.sleutel in args.alleen]
     if args.stap == "ophalen":

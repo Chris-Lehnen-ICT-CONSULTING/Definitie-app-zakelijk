@@ -20,14 +20,10 @@ class ContextStateCleaner:
         """
         # Basis opties voor validatie
 
-        base_wet_options = [
-            "Wetboek van Strafvordering (huidig)",
-            "Wetboek van Strafvordering (toekomstig)",
-            "Wet op de Identificatieplicht",
-            "Wet op de politiegegevens",
-            "Wetboek van Strafrecht",
-            "Algemene verordening gegevensbescherming",
-        ]
+        # DEF-846: geldige opties uit het regelingenregister.
+        from domain.sources.regelingen import register
+
+        base_wet_options = register().labels()
 
         # Clean organisatorische context
         org_context_values = SessionStateManager.get_value("org_context_values")

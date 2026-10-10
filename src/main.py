@@ -114,6 +114,11 @@ def main() -> None:
         # Measure Streamlit initialization overhead only
         init_start = time.perf_counter()
         SessionStateManager.initialize_session_state()
+        # DEF-846: lees het regelingenregister bij het opstarten, zodat een
+        # ongeldige config/bronnenlijst.yaml meteen zichtbaar faalt.
+        from domain.sources.regelingen import register
+
+        register()
         init_ms = (time.perf_counter() - init_start) * 1000
 
         # Create interface (CACHED via @st.cache_resource)

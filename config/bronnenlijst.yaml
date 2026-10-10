@@ -11,6 +11,25 @@
 #   op   officiële publicatie (Staatsblad) uit officielebekendmakingen.nl
 #   eu   EU-verordening (Nederlands, XHTML) uit Cellar (publications.europa.eu)
 #
+# Regelingenregister (DEF-846, vastgesteld met Chris op 10-10-2026): deze lijst
+# is ook de matrix wet- en regelgeving × rechtsgebied en de enige bron voor de
+# keuzelijst "wettelijke basis" (domain.sources.regelingen).
+#   label           naam in de keuzelijst (uniek, ook ongeacht hoofdletters)
+#   naam            officiële naam
+#   aliassen        eerdere labels die nog in opgeslagen definities staan
+#   rechtsgebieden  sleutels uit domain.rechtsgebieden; het eerste is het
+#                   hoofdrechtsgebied dat bij import als fragmentmetadata meegaat
+#   kenmerken       alleen_expliciete_keuze: telt niet mee via een rechtsgebied
+#                   alle_rechtsgebieden: hoort bij elk rechtsgebied (geen lijst)
+#   toelichting     motivering van de rechtsgebieden
+# Een regeling zonder formaat is kiesbaar, maar heeft geen bibliotheekbron.
+# Een combinatie buiten de matrix geeft een waarschuwing, geen blokkade
+# (DEF-849, nog te bouwen).
+# Labels zijn de waarden in opgeslagen definities; een label hernoemen vraagt
+# een datamigratie (zie DEF-854). Daarom houden Wpg, Vw 2000, WID en EVRM hun
+# bestaande label; de officiële naam staat in naam.
+# Achtergrond: docs/analyses/2026-10-09-rag-meting/matrix-concept-v2.md
+#
 # Bewust NIET opgenomen (wijzigingswetten; hun BWB-tekst bevat alleen
 # wijzigingsopdrachten, de inhoud staat in de wetten hieronder):
 #   Wet identiteitsvaststelling verdachten, veroordeelden en getuigen (BWBR0026180)
@@ -19,6 +38,16 @@
 
 bronnen:
   # --- Strafrecht en strafprocesrecht -------------------------------------
+  - sleutel: sv-geldend
+    formaat: bwb
+    bwb_id: BWBR0001903
+    versie: "2026-07-01"
+    collectie: "Sv (geldend, versie 1-7-2026)"
+    wet_regeling: "Wetboek van Strafvordering (geldend, versie 1-7-2026)"
+    label: "Wetboek van Strafvordering (huidig)"
+    naam: "Wetboek van Strafvordering"
+    rechtsgebieden: [strafrecht, jeugdrecht, sanctierecht, penitentiair_recht, europees_recht, internationaal_recht]
+    toelichting: "Boek 5 internationale en Europese samenwerking; Boek 6 tenuitvoerlegging; jeugdzaken (art. 488 e.v.)."
   - sleutel: sv-nieuw
     formaat: op
     urls:
@@ -29,49 +58,61 @@ bronnen:
       - Nieuw-Wetboek-van-Strafvordering-Tweede-vaststellingswet-Staatsblad-2026-57.xml
     collectie: "Sv (nieuw, i.w.t. 1-4-2029)"
     wet_regeling: "Wetboek van Strafvordering (nieuw, i.w.t. 1-4-2029)"
-    rechtsgebied: strafrecht
-  - sleutel: sv-geldend
-    formaat: bwb
-    bwb_id: BWBR0001903
-    versie: "2026-07-01"
-    collectie: "Sv (geldend, versie 1-7-2026)"
-    wet_regeling: "Wetboek van Strafvordering (geldend, versie 1-7-2026)"
-    rechtsgebied: strafrecht
+    label: "Wetboek van Strafvordering (toekomstig)"
+    naam: "Wetboek van Strafvordering"
+    rechtsgebieden: [strafrecht, jeugdrecht, sanctierecht, penitentiair_recht, europees_recht, internationaal_recht]
+    kenmerken: [alleen_expliciete_keuze]
+    toelichting: "Boek 6 bijzondere regelingen o.a. jeugdigen; Boek 7 tenuitvoerlegging; Boek 8 internationale samenwerking. Inwerkingtreding bij KB (art. 9.2), beoogd 1-4-2029. Alleen bij expliciete keuze (B-2); bij inwerkingtreding omdraaien met sv-geldend."
   - sleutel: sr
     formaat: bwb
     bwb_id: BWBR0001854
     versie: "2026-07-01"
     collectie: "Sr (versie 1-7-2026)"
     wet_regeling: "Wetboek van Strafrecht (versie 1-7-2026)"
-    rechtsgebied: strafrecht
+    label: "Wetboek van Strafrecht"
+    naam: "Wetboek van Strafrecht"
+    rechtsgebieden: [strafrecht, jeugdrecht, sanctierecht]
+    toelichting: "Jeugdigen en jongvolwassenen art. 77a e.v.; straffen en maatregelen (o.a. tbs art. 37a e.v., pij art. 77s e.v.)."
   - sleutel: gratiewet
     formaat: bwb
     bwb_id: BWBR0004257
     versie: "2021-04-01"
     collectie: "Gratiewet (versie 1-4-2021)"
     wet_regeling: "Gratiewet (versie 1-4-2021)"
-    rechtsgebied: strafrecht
+    label: "Gratiewet"
+    naam: "Gratiewet"
+    rechtsgebieden: [strafrecht, sanctierecht]
+    toelichting: "Gratie van straffen en maatregelen (art. 2)."
   - sleutel: pbw
     formaat: bwb
     bwb_id: BWBR0009709
     versie: "2025-11-01"
     collectie: "Pbw (versie 1-11-2025)"
     wet_regeling: "Penitentiaire beginselenwet (versie 1-11-2025)"
-    rechtsgebied: penitentiair_recht
+    label: "Penitentiaire beginselenwet"
+    naam: "Penitentiaire beginselenwet"
+    rechtsgebieden: [penitentiair_recht, strafrecht, sanctierecht]
+    toelichting: "Vrijheidsstraffen, vrijheidsbenemende maatregelen en voorlopige hechtenis (art. 2, 4, 9); omvat ook niet-strafrechtelijke detentie zoals vreemdelingenbewaring en gijzeling (art. 9)."
   - sleutel: reclasseringsregeling
     formaat: bwb
     bwb_id: BWBR0007120
     versie: "2019-06-26"
     collectie: "Reclasseringsregeling 1995 (versie 26-6-2019)"
     wet_regeling: "Reclasseringsregeling 1995 (versie 26-6-2019)"
-    rechtsgebied: strafrecht
+    label: "Reclasseringsregeling 1995"
+    naam: "Reclasseringsregeling 1995"
+    rechtsgebieden: [strafrecht, sanctierecht, penitentiair_recht, bestuursrecht]
+    toelichting: "Gedetineerden (art. 8, 11, 13); subsidiëring hoofdstuk 4 (art. 15, 18-20)."
   - sleutel: wet-ro
     formaat: bwb
     bwb_id: BWBR0001830
     versie: "2025-07-01"
     collectie: "Wet RO (versie 1-7-2025)"
     wet_regeling: "Wet op de rechterlijke organisatie (versie 1-7-2025)"
-    rechtsgebied: staatsrecht
+    label: "Wet op de rechterlijke organisatie"
+    naam: "Wet op de rechterlijke organisatie"
+    rechtsgebieden: [staatsrecht, strafrecht, burgerlijk_recht, bestuursrecht, belastingrecht, ondernemingsrecht, europees_recht]
+    toelichting: "Hoofdstuk 4 Openbaar Ministerie (art. 124 e.v.); bevoegdheden art. 42-44, 62; ondernemingskamer art. 66; EOM hoofdstuk 4a (art. 144a-144e). Breed (B-3)."
 
   # --- Gegevensverwerking en privacy --------------------------------------
   - sleutel: wpg
@@ -80,27 +121,39 @@ bronnen:
     versie: "2026-09-01"
     collectie: "Wpg (versie 1-9-2026)"
     wet_regeling: "Wet politiegegevens (versie 1-9-2026)"
-    rechtsgebied: strafrecht
+    label: "Wet op de politiegegevens"
+    naam: "Wet politiegegevens"
+    rechtsgebieden: [strafrecht, bestuursrecht]
+    toelichting: "Beslissingen zijn Awb-besluiten (art. 29); bestuurlijke handhaving (art. 35c); let op uitzonderingen in art. 1 onder a. Label = opgeslagen waarde; officiële naam: Wet politiegegevens."
   - sleutel: wjsg
     formaat: bwb
     bwb_id: BWBR0014194
     versie: "2026-09-01"
     collectie: "Wjsg (versie 1-9-2026)"
     wet_regeling: "Wet justitiële en strafvorderlijke gegevens (versie 1-9-2026)"
-    rechtsgebied: strafrecht
+    label: "Wet justitiële en strafvorderlijke gegevens"
+    naam: "Wet justitiële en strafvorderlijke gegevens"
+    rechtsgebieden: [strafrecht, bestuursrecht, penitentiair_recht, sanctierecht]
+    toelichting: "VOG en rechtsbescherming (art. 23, 28-39); tenuitvoerleggingsgegevens titel 3a (art. 51a-51d; beheer door directeuren PI art. 51a lid 2)."
   - sleutel: uavg
     formaat: bwb
     bwb_id: BWBR0040940
     versie: "2026-09-01"
     collectie: "UAVG (versie 1-9-2026)"
     wet_regeling: "Uitvoeringswet Algemene verordening gegevensbescherming (versie 1-9-2026)"
-    rechtsgebied: bestuursrecht
+    label: "Uitvoeringswet Algemene verordening gegevensbescherming"
+    naam: "Uitvoeringswet Algemene verordening gegevensbescherming"
+    rechtsgebieden: [bestuursrecht, burgerlijk_recht, arbeidsrecht, europees_recht]
+    toelichting: "Civiele verzoekprocedure (art. 35); re-integratie/personeelsgegevens (art. 30, 33 lid 3); Commissiebesluiten (art. 20); boetes (art. 16-18, bestuurlijk). Niet strafrecht: opsporing/vervolging valt onder Wpg/Wjsg; strafrechtelijke persoonsgegevens buiten justitie wel hier (art. 31-33)."
   - sleutel: avg
     formaat: eu
     celex: 32016R0679
     collectie: "AVG (Verordening (EU) 2016/679)"
     wet_regeling: "Algemene verordening gegevensbescherming (Verordening (EU) 2016/679)"
-    rechtsgebied: europees_recht
+    label: "Algemene verordening gegevensbescherming"
+    naam: "Algemene verordening gegevensbescherming"
+    rechtsgebieden: [europees_recht, bestuursrecht, burgerlijk_recht, arbeidsrecht]
+    toelichting: "Schadevergoeding (art. 82); arbeidsverhouding (art. 88); boetes (art. 83-84, bestuurlijk). Niet strafrecht: art. 2 lid 2 onder d; art. 10 regelt strafrechtelijke gegevens wel."
 
   # --- Bestuursrecht en digitale overheid ---------------------------------
   - sleutel: awb
@@ -109,28 +162,38 @@ bronnen:
     versie: "2026-08-15"
     collectie: "Awb (versie 15-8-2026)"
     wet_regeling: "Algemene wet bestuursrecht (versie 15-8-2026)"
-    rechtsgebied: bestuursrecht
+    label: "Algemene wet bestuursrecht"
+    naam: "Algemene wet bestuursrecht"
+    rechtsgebieden: [bestuursrecht]
+    toelichting: "Bestuurlijke sancties (hfdst. 5) vallen onder bestuursrecht (B-1)."
   - sleutel: wdo
     formaat: bwb
     bwb_id: BWBR0048156
     versie: "2025-11-11"
     collectie: "Wdo (versie 11-11-2025)"
     wet_regeling: "Wet digitale overheid (versie 11-11-2025)"
-    rechtsgebied: bestuursrecht
+    label: "Wet digitale overheid"
+    naam: "Wet digitale overheid"
+    rechtsgebieden: [bestuursrecht]
   - sleutel: bsdo
     formaat: bwb
     bwb_id: BWBR0046935
     versie: "2022-07-19"
     collectie: "Besluit Sturing Digitale Overheid 2022 (versie 19-7-2022)"
     wet_regeling: "Besluit Sturing Digitale Overheid 2022 (versie 19-7-2022)"
-    rechtsgebied: bestuursrecht
+    label: "Besluit Sturing Digitale Overheid 2022"
+    naam: "Besluit Sturing Digitale Overheid 2022"
+    rechtsgebieden: [bestuursrecht]
   - sleutel: tbdto
     formaat: bwb
     bwb_id: BWBR0040936
     versie: "2018-07-01"
     collectie: "Tijdelijk besluit digitale toegankelijkheid overheid (versie 1-7-2018)"
     wet_regeling: "Tijdelijk besluit digitale toegankelijkheid overheid (versie 1-7-2018)"
-    rechtsgebied: bestuursrecht
+    label: "Tijdelijk besluit digitale toegankelijkheid overheid"
+    naam: "Tijdelijk besluit digitale toegankelijkheid overheid"
+    rechtsgebieden: [bestuursrecht]
+    toelichting: "Versie 2018; actualiteit niet gecontroleerd."
 
   # --- Basisregistraties en identificatie ---------------------------------
   - sleutel: wet-brp
@@ -139,21 +202,28 @@ bronnen:
     versie: "2026-10-01"
     collectie: "Wet BRP (versie 1-10-2026)"
     wet_regeling: "Wet basisregistratie personen (versie 1-10-2026)"
-    rechtsgebied: bestuursrecht
+    label: "Wet basisregistratie personen"
+    naam: "Wet basisregistratie personen"
+    rechtsgebieden: [bestuursrecht]
   - sleutel: wabb
     formaat: bwb
     bwb_id: BWBR0022428
     versie: "2025-11-11"
     collectie: "Wabb (versie 11-11-2025)"
     wet_regeling: "Wet algemene bepalingen burgerservicenummer (versie 11-11-2025)"
-    rechtsgebied: bestuursrecht
+    label: "Wet algemene bepalingen burgerservicenummer"
+    naam: "Wet algemene bepalingen burgerservicenummer"
+    rechtsgebieden: [bestuursrecht]
   - sleutel: handelsregisterwet
     formaat: bwb
     bwb_id: BWBR0021777
     versie: "2025-07-16"
     collectie: "Handelsregisterwet 2007 (versie 16-7-2025)"
     wet_regeling: "Handelsregisterwet 2007 (versie 16-7-2025)"
-    rechtsgebied: ondernemingsrecht
+    label: "Handelsregisterwet 2007"
+    naam: "Handelsregisterwet 2007"
+    rechtsgebieden: [ondernemingsrecht, burgerlijk_recht, bestuursrecht]
+    toelichting: "Derdenwerking (art. 25); besluiten, bezwaar en beroep, klachten (art. 34, 36, 48)."
 
   # --- Europees recht -----------------------------------------------------
   - sleutel: eidas
@@ -161,7 +231,10 @@ bronnen:
     celex: 02014R0910-20241018
     collectie: "eIDAS (geconsolideerd 18-10-2024)"
     wet_regeling: "eIDAS-verordening (Verordening (EU) 910/2014, gewijzigd bij 2024/1183; geconsolideerd 18-10-2024)"
-    rechtsgebied: europees_recht
+    label: "eIDAS-verordening (Verordening (EU) nr. 910/2014)"
+    naam: "Verordening (EU) nr. 910/2014 (eIDAS)"
+    rechtsgebieden: [europees_recht, bestuursrecht, burgerlijk_recht]
+    toelichting: "Elektronische identificatie (art. 6); rechtsgevolgen e-handtekening en elektronische documenten (art. 25, 46); art. 2 lid 3 laat contractenrecht onverlet."
 
   # --- Burgerlijk Wetboek -------------------------------------------------
   - sleutel: bw1
@@ -170,11 +243,65 @@ bronnen:
     versie: "2025-07-05"
     collectie: "BW Boek 1 (versie 5-7-2025)"
     wet_regeling: "Burgerlijk Wetboek Boek 1 (versie 5-7-2025)"
-    rechtsgebied: burgerlijk_recht
+    label: "Burgerlijk Wetboek Boek 1 – Personen- en familierecht"
+    naam: "Burgerlijk Wetboek Boek 1"
+    rechtsgebieden: [burgerlijk_recht, familierecht, jeugdrecht]
+    toelichting: "Kinderbeschermingsmaatregelen; voogdij en gezag."
   - sleutel: bw2
     formaat: bwb
     bwb_id: BWBR0003045
     versie: "2026-07-01"
     collectie: "BW Boek 2 (versie 1-7-2026)"
     wet_regeling: "Burgerlijk Wetboek Boek 2 (versie 1-7-2026)"
-    rechtsgebied: burgerlijk_recht
+    label: "Burgerlijk Wetboek Boek 2 – Rechtspersonen"
+    naam: "Burgerlijk Wetboek Boek 2"
+    rechtsgebieden: [burgerlijk_recht, ondernemingsrecht]
+
+  # --- Kiesbaar als wettelijke basis, (nog) geen bibliotheekbron (DEF-846) ---
+  # Geen formaat = niet ophalen/importeren. Citeertitels en BWB-id's van
+  # bjj, rjj, bvt, rvt en pm nog te bevestigen bij een eventuele import.
+  - sleutel: rv
+    label: "Wetboek van Burgerlijke Rechtsvordering"
+    naam: "Wetboek van Burgerlijke Rechtsvordering"
+    rechtsgebieden: [burgerlijk_recht, familierecht, ondernemingsrecht]
+    toelichting: "Procedures in zaken van personen- en familierecht (art. 798 e.v.) en rechtspersonen (art. 995 e.v.); nog te verifiëren."
+  - sleutel: vw2000
+    label: "Vreemdelingenwet"
+    naam: "Vreemdelingenwet 2000"
+    rechtsgebieden: [vreemdelingenrecht, migratierecht, bestuursrecht]
+    toelichting: "Toelating en verblijf, toezicht, rechtsbescherming; vreemdelingenbewaring (art. 59 e.v.) [nog te verifiëren]. Label = opgeslagen waarde."
+  - sleutel: wid
+    label: "Wet op de Identificatieplicht"
+    naam: "Wet op de identificatieplicht"
+    rechtsgebieden: [strafrecht, bestuursrecht]
+    toelichting: "Identificatieplicht art. 2 WID; strafrechtelijke handhaving via art. 447e Sr. Label = opgeslagen waarde."
+  - sleutel: evrm
+    label: "Europees Verdrag voor de Rechten van de Mens"
+    naam: "Verdrag tot bescherming van de rechten van de mens en de fundamentele vrijheden (EVRM), inclusief protocollen"
+    kenmerken: [alle_rechtsgebieden]
+    toelichting: "Rechtsgebiedoverstijgend (B-5), inclusief protocollen (Eerste Protocol art. 1 raakt o.a. belastingrecht)."
+  - sleutel: bjj
+    label: "Beginselenwet justitiële jeugdinrichtingen"
+    naam: "Beginselenwet justitiële jeugdinrichtingen"
+    rechtsgebieden: [jeugdrecht, penitentiair_recht, strafrecht, sanctierecht]
+    toelichting: "Tenuitvoerlegging jeugddetentie en pij-maatregel (B-6)."
+  - sleutel: rjj
+    label: "Reglement justitiële jeugdinrichtingen"
+    naam: "Reglement justitiële jeugdinrichtingen"
+    rechtsgebieden: [jeugdrecht, penitentiair_recht, strafrecht, sanctierecht]
+    toelichting: "Uitwerking Bjj (B-6)."
+  - sleutel: bvt
+    label: "Beginselenwet verpleging ter beschikking gestelden"
+    naam: "Beginselenwet verpleging ter beschikking gestelden"
+    rechtsgebieden: [sanctierecht, strafrecht, penitentiair_recht]
+    toelichting: "Tenuitvoerlegging tbs-maatregel; rechtspositie verpleegden (B-6)."
+  - sleutel: rvt
+    label: "Reglement verpleging ter beschikking gestelden"
+    naam: "Reglement verpleging ter beschikking gestelden"
+    rechtsgebieden: [sanctierecht, strafrecht, penitentiair_recht]
+    toelichting: "Uitwerking Bvt (B-6)."
+  - sleutel: pm
+    label: "Penitentiaire maatregel"
+    naam: "Penitentiaire maatregel"
+    rechtsgebieden: [penitentiair_recht, strafrecht, sanctierecht]
+    toelichting: "Uitwerking Pbw (B-6)."

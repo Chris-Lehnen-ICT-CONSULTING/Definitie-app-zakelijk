@@ -1,0 +1,1408 @@
+[
+ {
+  "begrip": "diefstal",
+  "rg_filter": "strafrecht",
+  "kandidaten": 5,
+  "definitie_rangen": [],
+  "kern": [
+   "Wetboek van Strafrecht|310",
+   "Wetboek van Strafrecht|311"
+  ],
+  "kern_in_top5": [
+   "Wetboek van Strafrecht|310",
+   "Wetboek van Strafrecht|311"
+  ],
+  "top5": [
+   {
+    "wet": "Wetboek van Strafrecht (versie 1-7-2026)",
+    "art": "310",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.631,
+    "len": 378,
+    "begrip_pos": 79,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafrecht (versie 1-7-2026)",
+    "art": "311",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.572,
+    "len": 1292,
+    "begrip_pos": 79,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafrecht (versie 1-7-2026)",
+    "art": "312",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.547,
+    "len": 1481,
+    "begrip_pos": 79,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafrecht (versie 1-7-2026)",
+    "art": "313",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.541,
+    "len": 254,
+    "begrip_pos": 79,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafrecht (versie 1-7-2026)",
+    "art": "284a",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.402,
+    "len": 515,
+    "begrip_pos": 175,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "rechtspersoon",
+  "rg_filter": "burgerlijk_recht",
+  "kandidaten": 203,
+  "definitie_rangen": [],
+  "kern": [
+   "Burgerlijk Wetboek Boek 2|3",
+   "Burgerlijk Wetboek Boek 2|1",
+   "Wetboek van Strafrecht|51"
+  ],
+  "kern_in_top5": [
+   "Burgerlijk Wetboek Boek 2|3",
+   "Burgerlijk Wetboek Boek 2|1"
+  ],
+  "top5": [
+   {
+    "wet": "Burgerlijk Wetboek Boek 2 (versie 1-7-2026)",
+    "art": "3",
+    "type": "artikel",
+    "rg": "burgerlijk_recht",
+    "score": 0.613,
+    "len": 300,
+    "begrip_pos": 278,
+    "door_drempel": true
+   },
+   {
+    "wet": "Burgerlijk Wetboek Boek 2 (versie 1-7-2026)",
+    "art": "1",
+    "type": "artikel",
+    "rg": "burgerlijk_recht",
+    "score": 0.594,
+    "len": 588,
+    "begrip_pos": 268,
+    "door_drempel": true
+   },
+   {
+    "wet": "Burgerlijk Wetboek Boek 2 (versie 1-7-2026)",
+    "art": "5",
+    "type": "artikel",
+    "rg": "burgerlijk_recht",
+    "score": 0.593,
+    "len": 245,
+    "begrip_pos": 114,
+    "door_drempel": true
+   },
+   {
+    "wet": "Burgerlijk Wetboek Boek 2 (versie 1-7-2026)",
+    "art": "2",
+    "type": "artikel",
+    "rg": "burgerlijk_recht",
+    "score": 0.559,
+    "len": 560,
+    "begrip_pos": 214,
+    "door_drempel": true
+   },
+   {
+    "wet": "Burgerlijk Wetboek Boek 2 (versie 1-7-2026)",
+    "art": "4",
+    "type": "artikel",
+    "rg": "burgerlijk_recht",
+    "score": 0.55,
+    "len": 1838,
+    "begrip_pos": 116,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "dagvaarding",
+  "rg_filter": "strafrecht",
+  "kandidaten": 83,
+  "definitie_rangen": [],
+  "kern": [
+   "Wetboek van Strafvordering (geldend|258",
+   "Wetboek van Strafvordering (geldend|260"
+  ],
+  "kern_in_top5": [],
+  "top5": [
+   {
+    "wet": "Wetboek van Strafvordering (geldend, versie 1",
+    "art": "261",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.607,
+    "len": 810,
+    "begrip_pos": 174,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (geldend, versie 1",
+    "art": "383",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.6,
+    "len": 346,
+    "begrip_pos": 334,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (geldend, versie 1",
+    "art": "386",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.584,
+    "len": 850,
+    "begrip_pos": 269,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (geldend, versie 1",
+    "art": "370",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.576,
+    "len": 465,
+    "begrip_pos": 211,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (geldend, versie 1",
+    "art": "262",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.576,
+    "len": 2556,
+    "begrip_pos": 180,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "procesinleiding",
+  "rg_filter": "strafrecht",
+  "kandidaten": 49,
+  "definitie_rangen": [],
+  "kern": [
+   "Wetboek van Strafvordering (nieuw|4.1.1",
+   "Wetboek van Strafvordering (nieuw|4.1.2"
+  ],
+  "kern_in_top5": [
+   "Wetboek van Strafvordering (nieuw|4.1.1",
+   "Wetboek van Strafvordering (nieuw|4.1.2"
+  ],
+  "top5": [
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "4.1.1",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.62,
+    "len": 1722,
+    "begrip_pos": 140,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "4.1.2",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.595,
+    "len": 1096,
+    "begrip_pos": 140,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "4.5.4",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.563,
+    "len": 1816,
+    "begrip_pos": 251,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "2.10.69",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.547,
+    "len": 917,
+    "begrip_pos": 238,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "4.1.15",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.54,
+    "len": 1558,
+    "begrip_pos": 194,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "gedetineerde",
+  "rg_filter": "penitentiair_recht",
+  "kandidaten": 94,
+  "definitie_rangen": [
+   1
+  ],
+  "kern": [
+   "Penitentiaire beginselenwet|1"
+  ],
+  "kern_in_top5": [
+   "Penitentiaire beginselenwet|1"
+  ],
+  "top5": [
+   {
+    "wet": "Penitentiaire beginselenwet (versie 1-11-2025",
+    "art": "1",
+    "type": "definitie",
+    "rg": "penitentiair_recht",
+    "score": 0.467,
+    "len": 232,
+    "begrip_pos": 80,
+    "door_drempel": true
+   },
+   {
+    "wet": "Penitentiaire beginselenwet (versie 1-11-2025",
+    "art": "1",
+    "type": "definitie",
+    "rg": "penitentiair_recht",
+    "score": 0.44,
+    "len": 229,
+    "begrip_pos": 125,
+    "door_drempel": true
+   },
+   {
+    "wet": "Penitentiaire beginselenwet (versie 1-11-2025",
+    "art": "1",
+    "type": "definitie",
+    "rg": "penitentiair_recht",
+    "score": 0.425,
+    "len": 250,
+    "begrip_pos": 128,
+    "door_drempel": true
+   },
+   {
+    "wet": "Penitentiaire beginselenwet (versie 1-11-2025",
+    "art": "1",
+    "type": "definitie",
+    "rg": "penitentiair_recht",
+    "score": 0.411,
+    "len": 191,
+    "begrip_pos": 108,
+    "door_drempel": true
+   },
+   {
+    "wet": "Penitentiaire beginselenwet (versie 1-11-2025",
+    "art": "13",
+    "type": "artikel",
+    "rg": "penitentiair_recht",
+    "score": 0.385,
+    "len": 590,
+    "begrip_pos": 456,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "reclasseringsinstelling",
+  "rg_filter": "strafrecht",
+  "kandidaten": 65,
+  "definitie_rangen": [
+   1
+  ],
+  "kern": [
+   "Reclasseringsregeling 1995|1"
+  ],
+  "kern_in_top5": [
+   "Reclasseringsregeling 1995|1"
+  ],
+  "top5": [
+   {
+    "wet": "Reclasseringsregeling 1995 (versie 26-6-2019)",
+    "art": "1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.754,
+    "len": 152,
+    "begrip_pos": 79,
+    "door_drempel": true
+   },
+   {
+    "wet": "Reclasseringsregeling 1995 (versie 26-6-2019)",
+    "art": "1",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.669,
+    "len": 580,
+    "begrip_pos": 227,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "1.11.9",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.638,
+    "len": 749,
+    "begrip_pos": 359,
+    "door_drempel": true
+   },
+   {
+    "wet": "Reclasseringsregeling 1995 (versie 26-6-2019)",
+    "art": "2",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.637,
+    "len": 818,
+    "begrip_pos": 218,
+    "door_drempel": true
+   },
+   {
+    "wet": "Reclasseringsregeling 1995 (versie 26-6-2019)",
+    "art": "11",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.619,
+    "len": 770,
+    "begrip_pos": 163,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "politiegegeven",
+  "rg_filter": "strafrecht",
+  "kandidaten": 83,
+  "definitie_rangen": [
+   1
+  ],
+  "kern": [
+   "Wet politiegegevens|1"
+  ],
+  "kern_in_top5": [
+   "Wet politiegegevens|1"
+  ],
+  "top5": [
+   {
+    "wet": "Wet politiegegevens (versie 1-9-2026)",
+    "art": "1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.626,
+    "len": 560,
+    "begrip_pos": 4,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet politiegegevens (versie 1-9-2026)",
+    "art": "1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.585,
+    "len": 168,
+    "begrip_pos": 4,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet politiegegevens (versie 1-9-2026)",
+    "art": "1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.574,
+    "len": 251,
+    "begrip_pos": 4,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet politiegegevens (versie 1-9-2026)",
+    "art": "1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.57,
+    "len": 133,
+    "begrip_pos": 4,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet politiegegevens (versie 1-9-2026)",
+    "art": "1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.554,
+    "len": 334,
+    "begrip_pos": 4,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "justitiële gegevens",
+  "rg_filter": "strafrecht",
+  "kandidaten": 54,
+  "definitie_rangen": [
+   2
+  ],
+  "kern": [
+   "Wet justitiële en strafvorderlijke gegevens|1"
+  ],
+  "kern_in_top5": [
+   "Wet justitiële en strafvorderlijke gegevens|1"
+  ],
+  "top5": [
+   {
+    "wet": "Wet justitiële en strafvorderlijke gegevens (",
+    "art": "1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.661,
+    "len": 265,
+    "begrip_pos": 200,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet justitiële en strafvorderlijke gegevens (",
+    "art": "1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.646,
+    "len": 331,
+    "begrip_pos": 95,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet justitiële en strafvorderlijke gegevens (",
+    "art": "1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.6,
+    "len": 514,
+    "begrip_pos": -1,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet justitiële en strafvorderlijke gegevens (",
+    "art": "19",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.595,
+    "len": 297,
+    "begrip_pos": 90,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet justitiële en strafvorderlijke gegevens (",
+    "art": "2",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.59,
+    "len": 389,
+    "begrip_pos": 90,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "persoonsgegevens",
+  "rg_filter": "europees_recht",
+  "kandidaten": 92,
+  "definitie_rangen": [
+   1,
+   2
+  ],
+  "kern": [
+   "Algemene verordening gegevensbescherming|4"
+  ],
+  "kern_in_top5": [
+   "Algemene verordening gegevensbescherming|4"
+  ],
+  "top5": [
+   {
+    "wet": "Algemene verordening gegevensbescherming (Ver",
+    "art": "4",
+    "type": "definitie",
+    "rg": "europees_recht",
+    "score": 0.587,
+    "len": 636,
+    "begrip_pos": 101,
+    "door_drempel": true
+   },
+   {
+    "wet": "eIDAS-verordening (Verordening (EU) 910/2014,",
+    "art": "3",
+    "type": "definitie",
+    "rg": "europees_recht",
+    "score": 0.536,
+    "len": 236,
+    "begrip_pos": 131,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene verordening gegevensbescherming (Ver",
+    "art": "4",
+    "type": "definitie",
+    "rg": "europees_recht",
+    "score": 0.528,
+    "len": 465,
+    "begrip_pos": 125,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene verordening gegevensbescherming (Ver",
+    "art": "4",
+    "type": "definitie",
+    "rg": "europees_recht",
+    "score": 0.521,
+    "len": 556,
+    "begrip_pos": 137,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene verordening gegevensbescherming (Ver",
+    "art": "4",
+    "type": "definitie",
+    "rg": "europees_recht",
+    "score": 0.518,
+    "len": 501,
+    "begrip_pos": 160,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "besluit",
+  "rg_filter": "bestuursrecht",
+  "kandidaten": 221,
+  "definitie_rangen": [],
+  "kern": [
+   "Algemene wet bestuursrecht|1:3"
+  ],
+  "kern_in_top5": [
+   "Algemene wet bestuursrecht|1:3"
+  ],
+  "top5": [
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "1:3",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.547,
+    "len": 793,
+    "begrip_pos": 141,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "8:2",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.523,
+    "len": 982,
+    "begrip_pos": 252,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.60",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.487,
+    "len": 1099,
+    "begrip_pos": 1047,
+    "door_drempel": true
+   },
+   {
+    "wet": "Besluit Sturing Digitale Overheid 2022 (versi",
+    "art": "20",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.483,
+    "len": 144,
+    "begrip_pos": 0,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "3:1",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.468,
+    "len": 563,
+    "begrip_pos": 85,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "bestuursorgaan",
+  "rg_filter": "bestuursrecht",
+  "kandidaten": 293,
+  "definitie_rangen": [],
+  "kern": [
+   "Algemene wet bestuursrecht|1:1"
+  ],
+  "kern_in_top5": [
+   "Algemene wet bestuursrecht|1:1"
+  ],
+  "top5": [
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "1:1",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.571,
+    "len": 2261,
+    "begrip_pos": 141,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "8:23",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.52,
+    "len": 530,
+    "begrip_pos": 246,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "2:4",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.486,
+    "len": 385,
+    "begrip_pos": 143,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.62",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.485,
+    "len": 420,
+    "begrip_pos": 249,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "4:59",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.481,
+    "len": 576,
+    "begrip_pos": 252,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "burgerservicenummer",
+  "rg_filter": "bestuursrecht",
+  "kandidaten": 32,
+  "definitie_rangen": [
+   1
+  ],
+  "kern": [
+   "Wet algemene bepalingen burgerservicenummer|1",
+   "Wet algemene bepalingen burgerservicenummer|2",
+   "Wet basisregistratie personen|1.1"
+  ],
+  "kern_in_top5": [
+   "Wet algemene bepalingen burgerservicenummer|1"
+  ],
+  "top5": [
+   {
+    "wet": "Wet algemene bepalingen burgerservicenummer (",
+    "art": "1",
+    "type": "definitie",
+    "rg": "bestuursrecht",
+    "score": 0.595,
+    "len": 203,
+    "begrip_pos": 24,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet algemene bepalingen burgerservicenummer (",
+    "art": "1",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.549,
+    "len": 965,
+    "begrip_pos": 24,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet algemene bepalingen burgerservicenummer (",
+    "art": "8",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.529,
+    "len": 1526,
+    "begrip_pos": 24,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet algemene bepalingen burgerservicenummer (",
+    "art": "3",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.519,
+    "len": 1187,
+    "begrip_pos": 24,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.24",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.518,
+    "len": 663,
+    "begrip_pos": 186,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "ingezetene",
+  "rg_filter": "bestuursrecht",
+  "kandidaten": 40,
+  "definitie_rangen": [],
+  "kern": [
+   "Wet basisregistratie personen|1.1"
+  ],
+  "kern_in_top5": [
+   "Wet basisregistratie personen|1.1"
+  ],
+  "top5": [
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "1.1",
+    "type": "definitie",
+    "rg": "bestuursrecht",
+    "score": 0.438,
+    "len": 291,
+    "begrip_pos": 87,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "1.1",
+    "type": "definitie",
+    "rg": "bestuursrecht",
+    "score": 0.394,
+    "len": 345,
+    "begrip_pos": 88,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.1",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.39,
+    "len": 750,
+    "begrip_pos": 114,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.82",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.376,
+    "len": 1276,
+    "begrip_pos": 114,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.86",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.346,
+    "len": 570,
+    "begrip_pos": 114,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "elektronische handtekening",
+  "rg_filter": "europees_recht",
+  "kandidaten": 35,
+  "definitie_rangen": [
+   1
+  ],
+  "kern": [
+   "eIDAS-verordening|3",
+   "eIDAS-verordening|25"
+  ],
+  "kern_in_top5": [
+   "eIDAS-verordening|3"
+  ],
+  "top5": [
+   {
+    "wet": "eIDAS-verordening (Verordening (EU) 910/2014,",
+    "art": "3",
+    "type": "definitie",
+    "rg": "europees_recht",
+    "score": 0.648,
+    "len": 343,
+    "begrip_pos": 131,
+    "door_drempel": true
+   },
+   {
+    "wet": "eIDAS-verordening (Verordening (EU) 910/2014,",
+    "art": "3",
+    "type": "definitie",
+    "rg": "europees_recht",
+    "score": 0.616,
+    "len": 242,
+    "begrip_pos": 144,
+    "door_drempel": true
+   },
+   {
+    "wet": "eIDAS-verordening (Verordening (EU) 910/2014,",
+    "art": "3",
+    "type": "definitie",
+    "rg": "europees_recht",
+    "score": 0.606,
+    "len": 213,
+    "begrip_pos": 177,
+    "door_drempel": true
+   },
+   {
+    "wet": "eIDAS-verordening (Verordening (EU) 910/2014,",
+    "art": "3",
+    "type": "definitie",
+    "rg": "europees_recht",
+    "score": 0.584,
+    "len": 297,
+    "begrip_pos": 162,
+    "door_drempel": true
+   },
+   {
+    "wet": "eIDAS-verordening (Verordening (EU) 910/2014,",
+    "art": "3",
+    "type": "definitie",
+    "rg": "europees_recht",
+    "score": 0.582,
+    "len": 406,
+    "begrip_pos": 147,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "verdachte",
+  "rg_filter": "strafrecht",
+  "kandidaten": 1003,
+  "definitie_rangen": [],
+  "kern": [],
+  "kern_in_top5": [],
+  "top5": [
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "1.4.1",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.466,
+    "len": 584,
+    "begrip_pos": 109,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (geldend, versie 1",
+    "art": "27",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.462,
+    "len": 993,
+    "begrip_pos": 103,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "1.4.2",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.414,
+    "len": 979,
+    "begrip_pos": 109,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (geldend, versie 1",
+    "art": "27d",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.408,
+    "len": 626,
+    "begrip_pos": 103,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "2.5.4",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.403,
+    "len": 1022,
+    "begrip_pos": 289,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "beschikking",
+  "rg_filter": "bestuursrecht",
+  "kandidaten": 111,
+  "definitie_rangen": [],
+  "kern": [],
+  "kern_in_top5": [],
+  "top5": [
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "1:3",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.538,
+    "len": 793,
+    "begrip_pos": 277,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "5:37",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.505,
+    "len": 484,
+    "begrip_pos": 236,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "4:86",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.486,
+    "len": 435,
+    "begrip_pos": 287,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "5:9",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.473,
+    "len": 340,
+    "begrip_pos": 120,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "4:20c",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.468,
+    "len": 457,
+    "begrip_pos": 109,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "besluit",
+  "rg_filter": "bestuursrecht",
+  "kandidaten": 221,
+  "definitie_rangen": [],
+  "kern": [],
+  "kern_in_top5": [],
+  "top5": [
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "1:3",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.547,
+    "len": 793,
+    "begrip_pos": 141,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "8:2",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.523,
+    "len": 982,
+    "begrip_pos": 252,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.60",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.487,
+    "len": 1099,
+    "begrip_pos": 1047,
+    "door_drempel": true
+   },
+   {
+    "wet": "Besluit Sturing Digitale Overheid 2022 (versi",
+    "art": "20",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.483,
+    "len": 144,
+    "begrip_pos": 0,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "3:1",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.468,
+    "len": 563,
+    "begrip_pos": 85,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "persoonsgegevens",
+  "rg_filter": "bestuursrecht",
+  "kandidaten": 79,
+  "definitie_rangen": [
+   1
+  ],
+  "kern": [],
+  "kern_in_top5": [],
+  "top5": [
+   {
+    "wet": "Uitvoeringswet Algemene verordening gegevensb",
+    "art": "1",
+    "type": "definitie",
+    "rg": "bestuursrecht",
+    "score": 0.543,
+    "len": 319,
+    "begrip_pos": 98,
+    "door_drempel": true
+   },
+   {
+    "wet": "Uitvoeringswet Algemene verordening gegevensb",
+    "art": "1",
+    "type": "definitie",
+    "rg": "bestuursrecht",
+    "score": 0.512,
+    "len": 232,
+    "begrip_pos": 125,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "1.1",
+    "type": "definitie",
+    "rg": "bestuursrecht",
+    "score": 0.506,
+    "len": 441,
+    "begrip_pos": 271,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.84",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.495,
+    "len": 1217,
+    "begrip_pos": 173,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "1.2",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.473,
+    "len": 371,
+    "begrip_pos": 175,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "bestuursorgaan",
+  "rg_filter": "bestuursrecht",
+  "kandidaten": 293,
+  "definitie_rangen": [],
+  "kern": [],
+  "kern_in_top5": [],
+  "top5": [
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "1:1",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.571,
+    "len": 2261,
+    "begrip_pos": 141,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "8:23",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.52,
+    "len": 530,
+    "begrip_pos": 246,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "2:4",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.486,
+    "len": 385,
+    "begrip_pos": 143,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.62",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.485,
+    "len": 420,
+    "begrip_pos": 249,
+    "door_drempel": true
+   },
+   {
+    "wet": "Algemene wet bestuursrecht (versie 15-8-2026)",
+    "art": "4:59",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.481,
+    "len": 576,
+    "begrip_pos": 252,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "inbeslagneming",
+  "rg_filter": "strafrecht",
+  "kandidaten": 88,
+  "definitie_rangen": [
+   1
+  ],
+  "kern": [],
+  "kern_in_top5": [],
+  "top5": [
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "2.1.1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.653,
+    "len": 200,
+    "begrip_pos": 80,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (geldend, versie 1",
+    "art": "134",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.621,
+    "len": 929,
+    "begrip_pos": 186,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (geldend, versie 1",
+    "art": "94",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.601,
+    "len": 1078,
+    "begrip_pos": 150,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (geldend, versie 1",
+    "art": "99",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.599,
+    "len": 867,
+    "begrip_pos": 150,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "2.7.5",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.598,
+    "len": 1417,
+    "begrip_pos": 166,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "voorlopige hechtenis",
+  "rg_filter": "strafrecht",
+  "kandidaten": 158,
+  "definitie_rangen": [
+   1
+  ],
+  "kern": [],
+  "kern_in_top5": [],
+  "top5": [
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "2.1.1",
+    "type": "definitie",
+    "rg": "strafrecht",
+    "score": 0.684,
+    "len": 191,
+    "begrip_pos": 80,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "2.5.27",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.649,
+    "len": 2847,
+    "begrip_pos": 168,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "2.5.26",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.648,
+    "len": 707,
+    "begrip_pos": 168,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "2.5.31",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.632,
+    "len": 496,
+    "begrip_pos": 168,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wetboek van Strafvordering (nieuw, i.w.t. 1-4",
+    "art": "2.5.28",
+    "type": "artikel",
+    "rg": "strafrecht",
+    "score": 0.631,
+    "len": 569,
+    "begrip_pos": 168,
+    "door_drempel": true
+   }
+  ]
+ },
+ {
+  "begrip": "ingezetene",
+  "rg_filter": "bestuursrecht",
+  "kandidaten": 40,
+  "definitie_rangen": [],
+  "kern": [],
+  "kern_in_top5": [],
+  "top5": [
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "1.1",
+    "type": "definitie",
+    "rg": "bestuursrecht",
+    "score": 0.438,
+    "len": 291,
+    "begrip_pos": 87,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "1.1",
+    "type": "definitie",
+    "rg": "bestuursrecht",
+    "score": 0.394,
+    "len": 345,
+    "begrip_pos": 88,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.1",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.39,
+    "len": 750,
+    "begrip_pos": 114,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.82",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.376,
+    "len": 1276,
+    "begrip_pos": 114,
+    "door_drempel": true
+   },
+   {
+    "wet": "Wet basisregistratie personen (versie 1-10-20",
+    "art": "2.86",
+    "type": "artikel",
+    "rg": "bestuursrecht",
+    "score": 0.346,
+    "len": 570,
+    "begrip_pos": 114,
+    "door_drempel": true
+   }
+  ]
+ }
+]

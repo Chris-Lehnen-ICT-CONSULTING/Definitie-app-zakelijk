@@ -722,7 +722,10 @@ class DefinitionEditTab:
             SessionStateManager.set_value(k("juridische_context"), jur_resolved)
 
             # Wettelijke basis (multiselect met Anders...)
-            wet_options = list(getattr(ui_cfg, "common_laws", []) or [])
+            # DEF-846: keuzelijst uit het regelingenregister (één lijst).
+            from domain.sources.regelingen import register
+
+            wet_options = register().labels()
             edit_wet_from_generator = SessionStateManager.get_value(
                 "edit_wettelijke_basis"
             )

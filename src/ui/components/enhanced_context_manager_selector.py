@@ -8,11 +8,17 @@ from typing import Any, ClassVar, cast
 
 import streamlit as st
 
+from domain.sources.regelingen import register
 from services.context.context_manager import ContextSource
 from services.rag.constants import RECHTSGEBIEDEN
 from validation.sanitizer import ContentType, SanitizationLevel, get_sanitizer
 
 logger = logging.getLogger(__name__)
+
+
+def wettelijke_basis_opties() -> list[str]:
+    """De keuzelijst "wettelijke basis": de labels uit het regelingenregister (DEF-846)."""
+    return register().labels()
 
 
 class EnhancedContextManagerSelector:
@@ -35,22 +41,6 @@ class EnhancedContextManagerSelector:
     ]
 
     JUR_OPTIONS: ClassVar[list[str]] = list(RECHTSGEBIEDEN.values())
-
-    WET_OPTIONS: ClassVar[list[str]] = [
-        "Wetboek van Strafrecht",
-        "Wetboek van Strafvordering (huidig)",
-        "Wetboek van Strafvordering (toekomstig)",
-        "Wet op de rechterlijke organisatie",
-        "Algemene wet bestuursrecht",
-        "Burgerlijk Wetboek",
-        "Wetboek van Burgerlijke Rechtsvordering",
-        "Vreemdelingenwet",
-        "Wet op de Identificatieplicht",
-        "Wet op de politiegegevens",
-        "Algemene verordening gegevensbescherming",
-        "Uitvoeringswet EU-richtlijnen",
-        "Europees Verdrag voor de Rechten van de Mens",
-    ]
 
     def __init__(self) -> None:
         """Initialize with de sessie-gescopede ContextAdapter en sanitizer.
@@ -104,7 +94,7 @@ class EnhancedContextManagerSelector:
         with col3:
             wet_context = self._render_context_selector(
                 title="📜 Wettelijke basis",
-                base_options=self.WET_OPTIONS,
+                base_options=wettelijke_basis_opties(),
                 current_values=current_data.get("wettelijke_basis", []),
                 custom_key="custom_wet_input",
                 multiselect_key="wet_multiselect",
