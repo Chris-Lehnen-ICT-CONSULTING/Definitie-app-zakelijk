@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import sqlite3
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import cast
 
@@ -20,6 +20,7 @@ from services.rag.document_chunker import DocumentChunker
 from services.rag.embedding_service import EmbeddingService
 from services.rag.embedding_store import EmbeddingStore
 from services.rag.metadata_schemas import valideer_chunk_metadata
+from services.rag.models import ChunkingResult
 from utils.xml_source_formatter import format_bron, wrap_bronnen
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,9 @@ class RAGContext:
     formatted_context: str
     collection_id: int
     query: str
+    # DEF-620 (hybride zoeken): aantal chunks dat een zoekterm noemt, vóór
+    # top_k. None = zonder zoektermen gezocht (alleen op betekenis).
+    kandidaten: int | None = None
 
 
 class RAGService:
@@ -104,8 +108,14 @@ class RAGService:
         rechtsgebied: str | None = None,
         file_path: str | None = None,
         bron_type: str | None = None,
+        chunking_result: ChunkingResult | None = None,
     ) -> int:
         """Chunk, embed en sla een document op in één call.
+
+        DEF-620 (RAG fase 2): met ``chunking_result`` wordt de chunkstap
+        overgeslagen en worden de al geknipte chunks opgeslagen (bijvoorbeeld
+        per artikel uit een officiële publicatie); ``tekst`` mag dan leeg zijn.
+        Registratie, embedding, opslag en rollback blijven gelijk.
 
         Flow:
         1. Insert rij in rag_documents
@@ -118,7 +128,7 @@ class RAGService:
         Returns:
             document_id
         """
-        if not tekst or not tekst.strip():
+        if chunking_result is None and (not tekst or not tekst.strip()):
             raise ValueError("tekst mag niet leeg zijn")
 
         # DEF-371: Normaliseer rechtsgebied naar gestandaardiseerde key
@@ -134,6 +144,12 @@ class RAGService:
         else:
             rechtsgebied = None
 
+        # DEF-620: al geknipte chunks dragen hun eigen rechtsgebied; normaliseer
+        # dat net als het documentrechtsgebied, zodat filters (exacte match op
+        # de genormaliseerde key) ze vinden. Onbekend → fout vóór de INSERT.
+        if chunking_result is not None:
+            chunking_result = _normaliseer_chunk_rechtsgebied(chunking_result)
+
         # DEF-378 Bug 5: valideer bron_type vóór stap 1 (voor INSERT + chunking + embedding)
         if bron_type is not None and bron_type not in BRON_TYPES:
             raise ValueError(
@@ -141,37 +157,51 @@ class RAGService:
                 f"Geldige waarden: {', '.join(BRON_TYPES)}"
             )
 
-        # Stap 1: Registreer document
-        conn = self._connect()
+        # Stap 1: Registreer document. Registratie valt binnen hetzelfde
+        # opruimblok als stap 2-4 (DEF-620): elke fout of onderbreking ná de
+        # commit verwijdert de rij weer. document_id wordt vóór de commit gezet,
+        # zodat er geen moment is waarop een gecommitte rij onbekend is; bij een
+        # teruggedraaide registratie wordt het weer None.
+        document_id: int | None = None
         try:
-            cursor = conn.execute(
-                "INSERT INTO rag_documents "
-                "(collection_id, filename, file_type, rechtsgebied, chunk_count, file_path) "
-                "VALUES (?, ?, ?, ?, 0, ?)",
-                (collection_id, filename, file_type, rechtsgebied, file_path),
+            conn = self._connect()
+            try:
+                cursor = conn.execute(
+                    "INSERT INTO rag_documents "
+                    "(collection_id, filename, file_type, rechtsgebied, chunk_count, file_path) "
+                    "VALUES (?, ?, ?, ?, 0, ?)",
+                    (collection_id, filename, file_type, rechtsgebied, file_path),
+                )
+                # Expliciete check (geen assert) zodat het ook onder python -O werkt
+                # en bij INSERT OR IGNORE op duplicate geen None doorpropageert.
+                if cursor.lastrowid is None:
+                    raise RuntimeError("INSERT gaf geen lastrowid terug")
+                document_id = cursor.lastrowid
+                conn.commit()
+            except BaseException:
+                if conn.in_transaction:
+                    # Niet gecommit: terugdraaien en het id vergeten. SQLite kan
+                    # een teruggedraaid id opnieuw uitgeven aan een andere
+                    # ingest; de opruimstap mag dat document niet raken.
+                    conn.rollback()
+                    document_id = None
+                raise
+            finally:
+                conn.close()
+
+            logger.info(
+                "Document geregistreerd: id=%d, filename=%s, collection=%d",
+                document_id,
+                filename,
+                collection_id,
             )
-            conn.commit()
-            # Expliciete check (geen assert) zodat het ook onder python -O werkt
-            # en bij INSERT OR IGNORE op duplicate geen None doorpropageert.
-            document_id = cursor.lastrowid
-            if document_id is None:
-                raise RuntimeError("INSERT gaf geen lastrowid terug")
-        except Exception:
-            conn.rollback()
-            raise
-        finally:
-            conn.close()
 
-        logger.info(
-            "Document geregistreerd: id=%d, filename=%s, collection=%d",
-            document_id,
-            filename,
-            collection_id,
-        )
-
-        try:
             # Stap 2: Chunk de tekst
-            result = self._chunker.chunk_tekst(tekst, filename, file_type, rechtsgebied)
+            result = (
+                chunking_result
+                if chunking_result is not None
+                else self._chunker.chunk_tekst(tekst, filename, file_type, rechtsgebied)
+            )
 
             if result.fout_melding:
                 raise RuntimeError(f"Chunking mislukt: {result.fout_melding}")
@@ -241,8 +271,11 @@ class RAGService:
             )
             return document_id
 
-        except Exception:
-            # Rollback: verwijder de rag_documents rij
+        except BaseException:
+            # Rollback: verwijder de rag_documents rij — ook bij een onderbreking
+            # (KeyboardInterrupt), zodat er geen document zonder chunks achterblijft.
+            if document_id is None:
+                raise  # niets gecommit
             logger.warning(
                 "Ingest mislukt voor document %d — rollback rag_documents rij",
                 document_id,
@@ -261,6 +294,35 @@ class RAGService:
                 conn.close()
             raise
 
+    def ingest_chunks(
+        self,
+        chunking_result: ChunkingResult,
+        collection_id: int,
+        filename: str,
+        file_type: str = "application/xml",
+        rechtsgebied: str | None = None,
+        file_path: str | None = None,
+        bron_type: str | None = None,
+    ) -> int:
+        """Sla al geknipte chunks op als één document (DEF-620, RAG fase 2).
+
+        Dunne laag over ``ingest_document``: zelfde validatie (rechtsgebied,
+        bron_type), registratie, embedding, opslag en rollback.
+
+        Returns:
+            document_id
+        """
+        return self.ingest_document(
+            tekst="",
+            collection_id=collection_id,
+            filename=filename,
+            file_type=file_type,
+            rechtsgebied=rechtsgebied,
+            file_path=file_path,
+            bron_type=bron_type,
+            chunking_result=chunking_result,
+        )
+
     def retrieve_context(
         self,
         query: str,
@@ -269,6 +331,7 @@ class RAGService:
         rechtsgebied: str | None = None,
         wet_regeling: str | None = None,
         bron_type: str | None = None,
+        zoektermen: list[str] | None = None,
     ) -> RAGContext:
         """Embed query, zoek vergelijkbare chunks, return RAGContext.
 
@@ -279,6 +342,9 @@ class RAGService:
             rechtsgebied: Filter op rechtsgebied (optioneel).
             wet_regeling: Filter op wet/regeling (optioneel).
             bron_type: Filter op brontype (optioneel).
+            zoektermen: DEF-620. Indien opgegeven: hybride zoeken met
+                relevantiepoort (zie ``_zoek_hybride``); anders alleen op
+                betekenis, zoals voorheen.
 
         Returns:
             RAGContext met raw chunks en formatted context string.
@@ -289,6 +355,18 @@ class RAGService:
                 formatted_context="",
                 collection_id=collection_id,
                 query=query or "",
+            )
+
+        if zoektermen:
+            return self._zoek_hybride(
+                query,
+                [collection_id],
+                top_k,
+                zoektermen,
+                rechtsgebied=rechtsgebied,
+                wet_regeling=wet_regeling,
+                bron_type=bron_type,
+                collection_id_resultaat=collection_id,
             )
 
         query_embedding = self._embedder.embed(query)
@@ -334,6 +412,7 @@ class RAGService:
         rechtsgebied: str | None = None,
         wet_regeling: str | None = None,
         bron_type: str | None = None,
+        zoektermen: list[str] | None = None,
     ) -> RAGContext:
         """Zoek in meerdere collections tegelijk (DEF-366).
 
@@ -357,6 +436,20 @@ class RAGService:
         if not collection_ids:
             return RAGContext(
                 chunks=[], formatted_context="", collection_id=0, query=query
+            )
+
+        if zoektermen:
+            return self._zoek_hybride(
+                query,
+                collection_ids,
+                top_k,
+                zoektermen,
+                rechtsgebied=rechtsgebied,
+                wet_regeling=wet_regeling,
+                bron_type=bron_type,
+                collection_id_resultaat=(
+                    collection_ids[0] if len(collection_ids) == 1 else 0
+                ),
             )
 
         # Embed query eenmalig (review fix: voorkom N API calls bij N collections)
@@ -395,6 +488,86 @@ class RAGService:
             formatted_context=formatted,
             collection_id=collection_ids[0] if len(collection_ids) == 1 else 0,
             query=query,
+        )
+
+    def _zoek_hybride(
+        self,
+        query: str,
+        collection_ids: list[int],
+        top_k: int,
+        zoektermen: list[str],
+        *,
+        rechtsgebied: str | None,
+        wet_regeling: str | None,
+        bron_type: str | None,
+        collection_id_resultaat: int,
+    ) -> RAGContext:
+        """Zoeken met relevantiepoort (DEF-620, RAG fase 1).
+
+        1. Poort (trefwoord): alleen chunks die het begrip of een zoekterm
+           noemen (``EmbeddingStore.search_keyword``; genormaliseerde tekst,
+           het begrip plus vervoegde vormen als heel woord, bv. "onttrekking"
+           → ook "onttrekt"). Een fragment dat het begrip niet noemt, wordt
+           nooit als bron geleverd.
+        2. Filters: anders dan de driestaps-fallback van het betekenispad (bij
+           < 2 resultaten) wordt hier alleen verruimd bij **nul** treffers mét
+           filters over alle geselecteerde collecties samen, en dan in één keer
+           zonder filters (DEF-620 fase 3; daarvoor per collection).
+        3. Rangorde (betekenis): binnen de poort op cosine-score ten opzichte
+           van één embedding van begrip + zoektermen. Gemeten op de Sv-meetset
+           (``scripts/rag_meting.py``) beter dan een RRF-menging met het aantal
+           vermeldingen, dat lange opsommingsartikelen bevoordeelt.
+
+        ``score`` blijft de cosine-score; ``trefwoord_treffers`` komt erbij. De
+        orchestrator houdt daarbovenop ``RAG_MIN_SCORE`` aan; die helpt homoniemen
+        (andere betekenis, lage cosine) te weren, maar garandeert dat niet.
+        Geen treffers → lege context.
+        """
+        termen = list(
+            dict.fromkeys(t.strip() for t in [query, *zoektermen] if t and t.strip())
+        )
+        query_embedding = self._embedder.embed("; ".join(termen))
+
+        treffers: list[dict] = []
+        for cid in collection_ids:
+            treffers.extend(
+                self._store.search_keyword(
+                    query_embedding,
+                    cid,
+                    termen,
+                    rechtsgebied=rechtsgebied,
+                    wet_regeling=wet_regeling,
+                    bron_type=bron_type,
+                )
+            )
+        # DEF-620 fase 3: verruimen over álle geselecteerde collecties samen.
+        # Met één collectie per wet (elk met één rechtsgebied) zou verruimen per
+        # collectie het filter onwerkzaam maken: elke andere wet viel dan terug
+        # op "zonder filter". Nu geldt: treffers binnen het rechtsgebied gaan
+        # voor; alleen als er nergens één is, wordt zonder filters gezocht.
+        if not treffers and (rechtsgebied or wet_regeling or bron_type):
+            for cid in collection_ids:
+                treffers.extend(
+                    self._store.search_keyword(query_embedding, cid, termen)
+                )
+
+        treffers.sort(key=lambda c: c.get("score", 0), reverse=True)
+        geselecteerd = treffers[:top_k]
+
+        logger.info(
+            "RAG-zoekactie met relevantiepoort: termen=%s, %d collections, "
+            "%d chunks noemen een zoekterm, %d geleverd",
+            [t[:30] for t in termen],
+            len(collection_ids),
+            len(treffers),
+            len(geselecteerd),
+        )
+        return RAGContext(
+            chunks=geselecteerd,
+            formatted_context=self._format_context(geselecteerd),
+            collection_id=collection_id_resultaat,
+            query=query,
+            kandidaten=len(treffers),
         )
 
     def _format_context(self, chunks: list[dict]) -> str:
@@ -514,3 +687,26 @@ class RAGService:
             }
         finally:
             conn.close()
+
+
+def _normaliseer_chunk_rechtsgebied(resultaat: ChunkingResult) -> ChunkingResult:
+    """Zelfde normalisatie als het documentrechtsgebied, per chunk (DEF-620)."""
+    chunks = []
+    for chunk in resultaat.chunks:
+        ruw = chunk.metadata.rechtsgebied
+        if ruw and ruw.strip():
+            genormaliseerd = normaliseer_rechtsgebied(ruw)
+            if genormaliseerd is None:
+                geldige = ", ".join(RECHTSGEBIEDEN.values())
+                raise ValueError(
+                    f"Onbekend rechtsgebied '{ruw}' in chunk "
+                    f"{chunk.metadata.chunk_index}. Geldige waarden: {geldige}"
+                )
+        else:
+            genormaliseerd = None
+        if genormaliseerd != ruw:
+            chunk = replace(
+                chunk, metadata=replace(chunk.metadata, rechtsgebied=genormaliseerd)
+            )
+        chunks.append(chunk)
+    return replace(resultaat, chunks=tuple(chunks))

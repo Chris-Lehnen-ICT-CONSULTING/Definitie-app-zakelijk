@@ -12,6 +12,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any, cast
 
+from utils.term_match import noemt_term
+
 from .interfaces import (
     JuridicalReference,
     LookupRequest,
@@ -53,6 +55,23 @@ class SourceConfig:
     is_juridical: bool = False
     confidence_weight: float = 1.0
     enabled: bool = True
+
+
+def _contextscore(item: dict[str, Any]) -> float:
+    """De contextrelevantie die ContextFilter aan een gerankt resultaat hing (0.0 als die ontbreekt)."""
+    match = item.get("context_match")
+    if isinstance(match, dict):
+        try:
+            return float(match.get("relevance_score", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            return 0.0
+    return 0.0
+
+
+def _noemt_begrip(item: dict[str, Any], term: str | None) -> bool:
+    """Of titel of snippet het begrip noemt (zie ``utils.term_match``)."""
+    tekst = " ".join(str(item.get(veld) or "") for veld in ("title", "snippet"))
+    return noemt_term(tekst, term)
 
 
 class ModernWebLookupService(WebLookupServiceInterface):
@@ -340,23 +359,33 @@ class ModernWebLookupService(WebLookupServiceInterface):
             # Provider keys mapping based on source names
             ranked = rank_and_dedup(prepared, self._provider_weights)
 
-            # FASE 2 FIX: Context filtering met min_score=0.1
-            # Filter irrelevante resultaten (softer threshold)
-            # Pas context filtering toe NA ranking maar VOOR limitering
+            # DEF-620: het contextfilter scoort en sorteert alleen nog. Vroeger
+            # (min_score=0.1) viel elk resultaat weg waarin niet letterlijk een
+            # contextterm stond (OM, strafrecht, Sv …) — ook een passend
+            # Wikipedia-artikel over het begrip zelf. Meting 4-10-2026: bij 7 van
+            # 8 juridische termen bleef er zo niets over. Nu valt een resultaat
+            # alleen weg als het noch een contextmatch heeft, noch het begrip
+            # zelf in titel of tekst noemt.
             if request.context:
                 org, jur, wet = self._classify_context_tokens(request.context)
                 context_filter = ContextFilter()
-                # Filter met min_score=0.1 (10% threshold - softer filtering)
-                ranked = context_filter.filter_results(
+                gescoord = context_filter.filter_results(
                     ranked,
                     org_context=org if org else None,
                     jur_context=jur if jur else None,
                     wet_context=wet if wet else None,
-                    min_score=0.1,  # CHANGED: 0.0 → 0.3 → 0.1
+                    min_score=0.0,
                 )
+                ranked = [
+                    item
+                    for item in gescoord
+                    if _contextscore(item) > 0.0 or _noemt_begrip(item, request.term)
+                ]
                 logger.info(
-                    f"Context filtering applied: {len(ranked)} results "
-                    f"scored with context relevance"
+                    "Context scoring applied: %d van %d resultaten behouden "
+                    "(contextmatch of begrip genoemd)",
+                    len(ranked),
+                    len(gescoord),
                 )
 
             # Reorder/filter original results according to ranked unique set

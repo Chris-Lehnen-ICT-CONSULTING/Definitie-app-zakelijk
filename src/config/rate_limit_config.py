@@ -73,7 +73,9 @@ ENDPOINT_CONFIGS: dict[str, EndpointConfig] = {
         bucket_capacity=10,
         burst_capacity=5,
         target_response_time=2.5,
-        timeout=120.0,  # Verhoogd van 20s naar 120s voor complete V2 flow met voorbeelden
+        # Budget van de complete V2-keten met voorbeelden. DEF-840: ook het
+        # UI-budget in definition_generation_handler (was daar hardcoded 120).
+        timeout=120.0,
     ),
     "definition_validation": EndpointConfig(
         tokens_per_second=2.5,

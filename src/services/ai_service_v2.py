@@ -169,6 +169,7 @@ class AIServiceV2(AIServiceInterface):
         token_estimate: str = "auto",
         offload_postprocessing: bool = False,
         response_schema: Mapping[str, Any] | None = None,
+        request_timeout: float | None = None,
     ) -> AIGenerationResult:
         """
         Generate a definition using AI based on the given prompt.
@@ -200,6 +201,10 @@ class AIServiceV2(AIServiceInterface):
                 de providerclient; None = niets meesturen (bestaand gedrag).
                 Een niet-ondersteunde combinatie is een fout vóór de
                 modelaanroep, nooit een stille terugval naar vrije tekst.
+            request_timeout: DEF-842 opt-in: requesttimeout (seconden) per
+                aanroep bij de providerclient, i.p.v. de clientdefault (30 s).
+                Voor routes met een groot uitvoerbudget, zodat de SDK het
+                verzoek niet afbreekt vóór `timeout_seconds`. None = default.
 
         Returns:
             AIGenerationResult with generated text and metadata
@@ -263,7 +268,7 @@ class AIServiceV2(AIServiceInterface):
                             r, gestructureerd=response_schema is not None
                         )
                     ),
-                    **self._clientopties(max_attempts, max_retries),
+                    **self._clientopties(max_attempts, max_retries, request_timeout),
                     **(
                         {"response_schema": response_schema}
                         if response_schema is not None
@@ -437,14 +442,18 @@ class AIServiceV2(AIServiceInterface):
 
     @staticmethod
     def _clientopties(
-        max_attempts: int | None, max_retries: int | None
-    ) -> dict[str, int]:
-        """DEF-766 opt-ins voor de client; alleen aanwezig wanneer gezet."""
-        opties: dict[str, int] = {}
+        max_attempts: int | None,
+        max_retries: int | None,
+        request_timeout: float | None = None,
+    ) -> dict[str, float]:
+        """DEF-766/DEF-842 opt-ins voor de client; alleen aanwezig wanneer gezet."""
+        opties: dict[str, float] = {}
         if max_attempts is not None:
             opties["max_attempts"] = int(max_attempts)
         if max_retries is not None:
             opties["max_retries"] = int(max_retries)
+        if request_timeout is not None:
+            opties["request_timeout"] = float(request_timeout)
         return opties
 
     @staticmethod

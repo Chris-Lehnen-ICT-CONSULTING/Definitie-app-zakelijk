@@ -1,0 +1,80 @@
+{
+  "_toelichting": "Meetset RAG fase 1 (DEF-620). Collectie: WvSv (BWBR0001903, pdf-import 24-02-2026, 1.423 fragmenten); het script zoekt uitsluitend in deze collectie. 'patroon' is het onafhankelijke orakel (regex, hoofdletterongevoelig) of een fragment het begrip noemt: dat meet LEXICALE precisie, geen betekenis. 'homoniem' (optioneel) herkent een vermelding in een andere betekenis; die wordt apart geteld. 'kernartikelen' zijn artikelen die het begrip aantoonbaar behandelen (zelf gekozen met grep op rag_chunks.artikel_lid, 06-10-2026; kleine set, risico op overfitting). Negatieven komen niet voor in de collectie (grep: 0 treffers).",
+  "rechtsgebied": "strafrecht",
+  "top_k": 5,
+  "positief": [
+    {
+      "begrip": "onttrekking",
+      "patroon": "(?<!\\w)onttr[eo]k",
+      "kernartikelen": [
+        "68",
+        "80",
+        "83",
+        "6:6:32",
+        "552e",
+        "552b"
+      ],
+      "homoniem": "onttrekking aan het verkeer|aan het verkeer (te )?onttr"
+    },
+    {
+      "begrip": "voorlopige hechtenis",
+      "patroon": "voorlo{1,2}pige hechtenis",
+      "kernartikelen": [
+        "63",
+        "64",
+        "65",
+        "66",
+        "66a",
+        "67",
+        "67a"
+      ]
+    },
+    {
+      "begrip": "strafbeschikking",
+      "patroon": "(?<!\\w)strafbeschikking",
+      "kernartikelen": [
+        "257a",
+        "257b",
+        "257c"
+      ]
+    },
+    {
+      "begrip": "inbeslagneming",
+      "patroon": "(?<!\\w)inbeslagneming",
+      "kernartikelen": [
+        "94",
+        "94a",
+        "95",
+        "96"
+      ]
+    },
+    {
+      "begrip": "dagvaarding",
+      "patroon": "(?<!\\w)dagvaarding",
+      "kernartikelen": [
+        "258",
+        "260",
+        "261"
+      ]
+    },
+    {
+      "begrip": "verdachte",
+      "patroon": "(?<!\\w)verdachte",
+      "kernartikelen": [
+        "27",
+        "27a"
+      ]
+    }
+  ],
+  "negatief": [
+    {
+      "begrip": "zelfmelder",
+      "patroon": "zelfmeld"
+    },
+    {
+      "begrip": "ontvluchting",
+      "patroon": "ontvlucht"
+    }
+  ],
+  "collectie": "WvSv"
+}

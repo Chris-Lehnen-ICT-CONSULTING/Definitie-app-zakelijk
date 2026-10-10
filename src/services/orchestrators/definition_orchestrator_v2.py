@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any, Optional, cast
 
 from domain.categorie_herkomst import lees_keuze_invoer
 from domain.rechtsgebieden import normaliseer_rechtsgebied
+from domain.sources.rangorde import rangschik_bronnen
 from services.exceptions import (
     DatabaseConnectionError,
     DatabaseConstraintError,
@@ -665,6 +666,13 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                                     if isinstance(r.metadata, dict)
                                     else None
                                 ),
+                                # DEF-844: SRU-documenttype; bepaalt of een
+                                # gemengd publicatiedomein als wetgeving telt.
+                                "document_type": (
+                                    safe_dict_get(r.metadata, "dc_type")
+                                    if isinstance(r.metadata, dict)
+                                    else None
+                                ),
                             }
                         )
 
@@ -727,6 +735,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             rag_status = "not_available"
             rag_collection_id: int | None = None
             rag_min_score = float(os.getenv("RAG_MIN_SCORE", "0.3"))
+            # DEF-620 (RAG fase 1): relevantiepoort op het begrip (plus stamvorm,
+            # zie RAGService._zoek_hybride). Bewust (nog) zonder synoniemen: het
+            # register bevat ook als 'active' te brede termen (bv. "mens",
+            # "individu" bij "verdachte"), die de poort zouden openzetten.
+            rag_zoektermen: list[str] = [sanitized_request.begrip]
+            rag_kandidaten: int | None = None
 
             if self.rag_service:
                 try:
@@ -766,6 +780,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             collection_ids=rag_collection_ids,
                             top_k=5,
                             rechtsgebied=rag_rechtsgebied,
+                            zoektermen=rag_zoektermen,
                         )
                         rag_collection_id = rag_context.collection_id
                     else:
@@ -776,10 +791,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             collection_id=rag_collection_id,
                             top_k=5,
                             rechtsgebied=rag_rechtsgebied,
+                            zoektermen=rag_zoektermen,
                         )
 
                     # Score threshold: filter lage-score chunks
                     all_rag_chunks = rag_context.chunks
+                    kandidaten = getattr(rag_context, "kandidaten", None)
+                    rag_kandidaten = kandidaten if isinstance(kandidaten, int) else None
+                    # De relevantiepoort (begrip genoemd) komt bovenop deze
+                    # drempel: een fragment moet het begrip noemen én er in
+                    # betekenis bij passen. Homoniemen als "onttrekking aan het
+                    # verkeer" scoren doorgaans laag op betekenis; de drempel
+                    # helpt die te weren, maar is geen garantie.
                     rag_chunks = [
                         c for c in all_rag_chunks if c.get("score", 0) >= rag_min_score
                     ]
@@ -858,6 +881,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                                 "created_at",
                                 "filename",
                                 "bron_type",
+                                # DEF-844: herkomst voor de bronrangorde
+                                "collection_name",
                                 "rechtsgebied",
                                 "wet_regeling",
                                 "artikel_lid",
@@ -963,6 +988,15 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     f"Generation {generation_id}: Failed to merge document snippets: {type(e).__name__}: {e}",
                     exc_info=True,
                 )
+
+            # DEF-844: één bronvolgorde voor weergave en opslag — brontype
+            # eerst (wetgeving → eigen bronnen → overig web), daarbinnen de
+            # eigen score; scores van verschillende schalen worden niet
+            # vergeleken. Alleen volgorde: de selectie hierboven (top-K,
+            # RAG-drempel) is al gedaan. De promptservice ordent haar
+            # opgenomen bronnen met dezelfde sleutel. Zelfde objecten, dus de
+            # kanaalkoppeling van de kwitantie (op identiteit) blijft intact.
+            provenance_sources = rangschik_bronnen(provenance_sources)
 
             # =====================================
             # PHASE 3: Intelligent Prompt Generation (with ontological category fix)
@@ -1378,6 +1412,30 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "int03_assessment": self._int03_beoordeling_uit(raw_validation),
                     "peildatum": peildatum,
                     "generation_id": generation_id,
+                    # DEF-620: hoeveel bronnen werkelijk in de prompt stonden
+                    # (uit de kwitantie). 0 = de definitie steunt alleen op
+                    # modelkennis; None = geen kwitantie beschikbaar.
+                    "bronnen_in_prompt": (
+                        len(source_receipt.get("sources") or [])
+                        if isinstance(source_receipt, dict)
+                        else None
+                    ),
+                    # DEF-620: per kanaal aangeleverd/gebruikt (kwitantie), zodat
+                    # "gevonden maar niet in de prompt" zichtbaar is.
+                    "bronkanalen": (
+                        {
+                            kanaal: {
+                                "aangeleverd": int(info.get("supplied", 0) or 0),
+                                "gebruikt": int(info.get("used", 0) or 0),
+                            }
+                            for kanaal, info in (
+                                source_receipt.get("channels") or {}
+                            ).items()
+                            if isinstance(info, dict)
+                        }
+                        if isinstance(source_receipt, dict)
+                        else None
+                    ),
                     "web_lookup_status": web_lookup_status,
                     "web_lookup_available": self.web_lookup_service is not None,
                     "web_lookup_timeout": web_lookup_timeout,
@@ -1401,6 +1459,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     # DEF-271: RAG context metadata
                     "rag_status": rag_status,
                     "rag_chunks_count": len(rag_chunks),
+                    # DEF-620: waarom er wel/geen bibliotheekbron is
+                    "rag_zoektermen": rag_zoektermen,
+                    "rag_kandidaten": rag_kandidaten,
                     "rag_chunks_filtered": (
                         len(all_rag_chunks) - len(rag_chunks)
                         if rag_status == "success"

@@ -15,6 +15,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, TypedDict
 
+from domain.sources.rangorde import sorteersleutel
 from services.definition_generator_config import ContextConfig, UnifiedGeneratorConfig
 from services.definition_generator_context import (
     EnrichedContext,
@@ -22,6 +23,8 @@ from services.definition_generator_context import (
 )
 from services.definition_generator_prompts import UnifiedPromptBuilder
 from services.interfaces import GenerationRequest
+from services.prompts.modules.definition_task_module import OPDRACHT_KOP
+from services.prompts.sanitization import DATABLOK_AFSPRAAK
 from services.web_lookup.config_loader import load_web_lookup_config
 from services.web_lookup.sanitization import sanitize_snippet
 from utils.type_helpers import ensure_string
@@ -198,6 +201,16 @@ class _ChannelResult:
     supplied: int
     used: list[dict[str, Any]] = field(default_factory=list)
     omitted: list[dict[str, Any]] = field(default_factory=list)
+    # DEF-844: per gebruikt record (zelfde positie) de bron voor de gedeelde
+    # rangordesleutel en de `format_bron`-argumenten zonder `nr`, zodat de
+    # kwitantie na selectie gezamenlijk kan worden geordend en hernummerd.
+    rang: list[tuple[dict[str, Any], dict[str, Any]]] = field(default_factory=list)
+
+    def neem_op(
+        self, record: dict[str, Any], rangbron: dict[str, Any], opmaak: dict[str, Any]
+    ) -> None:
+        self.used.append(record)
+        self.rang.append((rangbron, opmaak))
 
 
 def _web_sources(enriched_context: EnrichedContext) -> list[dict[str, Any]]:
@@ -284,6 +297,32 @@ def _web_limits(aug: dict[str, Any], selected_count: int) -> tuple[int, int, int
     return max_snippets, max_tokens_per_snippet, total_budget
 
 
+def _voeg_bronnen_in(prompt_text: str, block: str) -> str:
+    """DEF-620: zet het bronnenblok vóór de definitieopdracht.
+
+    Voorheen werd het blok achter de slotopdracht geplakt, als bijlage na
+    "Geef nu de definitie …". Nu staat het vóór de DATA-AFSPRAAK die de
+    opdracht inleidt (DEF-590: die afspraak blijft vlak vóór de opdracht), of
+    — als die er niet direct voor staat — vóór de opdrachtkop.
+
+    Er wordt alleen op een verankerde vorm gezocht: een lege regel, dan de
+    vaste tekst, dan een regeleinde. Gesaniteerde gebruikersdata (context,
+    verduidelijking, documenten) kan geen lege regel bevatten, dus een kop in
+    de data kan het invoegpunt niet verplaatsen. Het eerste verankerde
+    voorkomen is het echte; ontbreekt het, dan blijft het oude gedrag:
+    achteraan. De inhoud van het blok en de kwitantie veranderen niet.
+    """
+    kandidaten = (
+        f"\n\n{DATABLOK_AFSPRAAK}\n\n{OPDRACHT_KOP}\n",
+        f"\n\n{OPDRACHT_KOP}\n",
+    )
+    for anker in kandidaten:
+        positie = prompt_text.find(anker)
+        if positie >= 0:
+            return f"{prompt_text[:positie]}\n\n{block}{prompt_text[positie:]}"
+    return f"{prompt_text}\n\n{block}"
+
+
 @dataclass
 class _SourceReceipt:
     """Per-aanroep verzamelstaat; leeft alleen binnen één build_generation_prompt."""
@@ -297,6 +336,8 @@ class _SourceReceipt:
         }
     )
 
+    rang: list[tuple[dict[str, Any], dict[str, Any]]] = field(default_factory=list)
+
     @property
     def xml(self) -> list[str]:
         return [record["xml"] for record in self.sources]
@@ -308,7 +349,32 @@ class _SourceReceipt:
             "used": len(result.used),
         }
         self.sources.extend(result.used)
+        self.rang.extend(result.rang)
         self.omitted.extend(result.omitted)
+
+    def rangschik(self) -> None:
+        """DEF-844: orden de opgenomen bronnen met de sleutel van de weergave.
+
+        Alleen volgorde: welke bronnen erin staan is per kanaal al bepaald.
+        Daarna definitieve nummering; de XML wordt met het nieuwe nummer
+        opnieuw opgemaakt, verder ongewijzigd. Bij gelijke sleutel geldt de
+        aangeleverde positie binnen het kanaal — net als in de weergave, die
+        de kanaallijsten in aangeleverde volgorde stabiel sorteert.
+        """
+        volgorde = sorted(
+            range(len(self.sources)),
+            key=lambda i: (
+                sorteersleutel(self.rang[i][0]),
+                self.sources[i]["input_index"],
+            ),
+        )
+        self.sources = [self.sources[i] for i in volgorde]
+        self.rang = [self.rang[i] for i in volgorde]
+        for nr, (record, (_bron, opmaak)) in enumerate(
+            zip(self.sources, self.rang, strict=True), start=1
+        ):
+            record["nr"] = nr
+            record["xml"] = format_bron(nr=nr, **opmaak)
 
     def fail(self, stage: str, exc: BaseException) -> None:
         # Alleen fase en exceptietype: geen boodschap (kan broninhoud bevatten).
@@ -317,6 +383,7 @@ class _SourceReceipt:
     def discard_all(self) -> None:
         """Weggegooide XML = niets gebruikt; de tellingen volgen."""
         self.sources.clear()
+        self.rang.clear()
         for channel in self.channels.values():
             channel["used"] = 0
 
@@ -564,7 +631,8 @@ class PromptServiceV2:
 
         Per kanaal (rag → web → document) gelden de bestaande flags, limieten,
         sanitisatie, truncatie en budgetten; pas wat daarna overblijft wordt
-        geformatteerd én in de kwitantie opgenomen. Faalt een kanaal, dan wordt
+        geformatteerd én in de kwitantie opgenomen — in de DEF-844-rangorde van
+        de bronweergave, die alleen de volgorde bepaalt. Faalt een kanaal, dan wordt
         zijn XML weggegooid en de fout apart geregistreerd — er wordt nooit
         gebruik geclaimd van een bron die niet in de prompt staat. Staat is
         per aanroep; er is geen gedeelde 'laatste kwitantie'.
@@ -595,9 +663,12 @@ class PromptServiceV2:
             receipt.commit(channel, result)
 
         try:
+            # DEF-844: na de selectie per kanaal één gezamenlijke volgorde,
+            # gelijk aan die van de bronweergave.
+            receipt.rangschik()
             if receipt.sources:
                 block = wrap_bronnen(receipt.xml)
-                prompt_text = f"{prompt_text}\n\n{block}"
+                prompt_text = _voeg_bronnen_in(prompt_text, block)
         except Exception as e:
             # Fail-safe: generatie gaat door zonder bronnen, en zegt dat ook.
             logger.warning(
@@ -661,22 +732,22 @@ class PromptServiceV2:
             meta = meta if isinstance(meta, dict) else {}
             score = _retrieval_score(chunk.get("score"))
             nr = nr_offset + len(result.used) + 1
-            xml = format_bron(
-                nr=nr,
-                type="rag",
-                chunk_text=content,
-                score=score,
-                rechtsgebied=chunk.get("rechtsgebied"),
-                regeling=chunk.get("wet_regeling"),
-                artikel=chunk.get("artikel_lid"),
-                lid=meta.get("lid_nummer"),
+            opmaak: dict[str, Any] = {
+                "type": "rag",
+                "chunk_text": content,
+                "score": score,
+                "rechtsgebied": chunk.get("rechtsgebied"),
+                "regeling": chunk.get("wet_regeling"),
+                "artikel": chunk.get("artikel_lid"),
+                "lid": meta.get("lid_nummer"),
                 # DEF-378: fallback op filename voor chunks zonder bronbestand
-                bronbestand=meta.get("bronbestand") or chunk.get("filename"),
-                pagina=meta.get("pagina_nummer"),
-                sectie=meta.get("sectie"),
-                url=meta.get("url"),
-            )
-            result.used.append(
+                "bronbestand": meta.get("bronbestand") or chunk.get("filename"),
+                "pagina": meta.get("pagina_nummer"),
+                "sectie": meta.get("sectie"),
+                "url": meta.get("url"),
+            }
+            xml = format_bron(nr=nr, **opmaak)
+            result.neem_op(
                 _used_record(
                     nr=nr,
                     source_type="rag",
@@ -688,7 +759,14 @@ class PromptServiceV2:
                     content=content,
                     truncated=content != raw,
                     xml=xml,
-                )
+                ),
+                {
+                    "provider": "rag",
+                    "bron_type": chunk.get("bron_type"),
+                    "collection_name": chunk.get("collection_name"),
+                    "score": chunk.get("score"),
+                },
+                opmaak,
             )
             tokens_used += est
 
@@ -793,16 +871,16 @@ class PromptServiceV2:
             title = s.get("title") or s.get("filename") or "document"
             filename = s.get("filename")
             nr = nr_offset + len(result.used) + 1
-            xml = format_bron(
-                nr=nr,
-                type="document",
-                chunk_text=content,
-                titel=title,
-                bestand=filename if filename and filename != title else None,
-                citatie=s.get("citation_label") or "",
-                selectie=s.get("selection_basis"),
-            )
-            result.used.append(
+            opmaak: dict[str, Any] = {
+                "type": "document",
+                "chunk_text": content,
+                "titel": title,
+                "bestand": filename if filename and filename != title else None,
+                "citatie": s.get("citation_label") or "",
+                "selectie": s.get("selection_basis"),
+            }
+            xml = format_bron(nr=nr, **opmaak)
+            result.neem_op(
                 _used_record(
                     nr=nr,
                     source_type="document",
@@ -814,7 +892,10 @@ class PromptServiceV2:
                     content=content,
                     truncated=content != _sanitized_passage(raw, max_length=0),
                     xml=xml,
-                )
+                ),
+                # Geüpload document: altijd een eigen bron (DEF-844).
+                {"provider": "documents"},
+                opmaak,
             )
             total += len(content)
 
@@ -964,21 +1045,21 @@ class PromptServiceV2:
             legal = src.get("legal", {}) or {}
             score = _retrieval_score(src.get("score"))
             nr = nr_offset + len(result.used) + 1
-            xml = format_bron(
-                nr=nr,
-                type="web",
-                chunk_text=content,
-                score=score,
-                provider=src.get("provider", ""),
-                url=src.get("url", ""),
-                titel=src.get("title"),
-                ecli=legal.get("ecli", ""),
-                wet=legal.get("law", ""),
-                artikel=legal.get("article", ""),
-                citatie=legal.get("citation_text", ""),
-                opgehaald=src.get("retrieved_at"),
-            )
-            result.used.append(
+            opmaak: dict[str, Any] = {
+                "type": "web",
+                "chunk_text": content,
+                "score": score,
+                "provider": src.get("provider", ""),
+                "url": src.get("url", ""),
+                "titel": src.get("title"),
+                "ecli": legal.get("ecli", ""),
+                "wet": legal.get("law", ""),
+                "artikel": legal.get("article", ""),
+                "citatie": legal.get("citation_text", ""),
+                "opgehaald": src.get("retrieved_at"),
+            }
+            xml = format_bron(nr=nr, **opmaak)
+            result.neem_op(
                 _used_record(
                     nr=nr,
                     source_type="web",
@@ -990,7 +1071,9 @@ class PromptServiceV2:
                     content=content,
                     truncated=content != _sanitized_passage(raw, max_length=0),
                     xml=xml,
-                )
+                ),
+                src,
+                opmaak,
             )
             tokens_used += est
         return tokens_used

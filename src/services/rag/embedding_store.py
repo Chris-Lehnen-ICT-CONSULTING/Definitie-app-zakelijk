@@ -15,6 +15,8 @@ from typing import cast
 
 import numpy as np
 
+from utils.term_match import tel_treffers_rag, zoekpatronen
+
 logger = logging.getLogger(__name__)
 
 
@@ -303,6 +305,179 @@ class EmbeddingStore:
         except (json.JSONDecodeError, TypeError):
             return {}
 
+    def _lees_rijen(
+        self,
+        conn: sqlite3.Connection,
+        collection_id: int,
+        rechtsgebied: str | None,
+        wet_regeling: str | None,
+        bron_type: str | None,
+        met_embedding: bool = True,
+    ) -> list[sqlite3.Row]:
+        """Lees chunk-rijen van een collection, optioneel gefilterd.
+
+        ``met_embedding=False`` laat de vectorkolom weg (de trefwoordscan heeft
+        alleen tekst nodig); alleen chunks mét embedding komen in aanmerking.
+        """
+        conn.row_factory = sqlite3.Row
+        # DEF-378 Bug 9: JOIN met rag_documents om filename als fallback
+        # beschikbaar te stellen voor chunks zonder bronbestand in metadata
+        # (pre-DEF-372 geïngeste documenten).
+        sql = (
+            "SELECT rc.id, rc.chunk_text, "
+            + ("rc.embedding, " if met_embedding else "")
+            + "rc.rechtsgebied, "
+            "rc.wet_regeling, rc.artikel_lid, rc.bron_type, "
+            "json(rc.metadata) AS metadata, "
+            "rc.document_id, rc.chunk_index, rc.created_at, "
+            "rd.filename, rcol.collection_name "
+            "FROM rag_chunks rc "
+            "LEFT JOIN rag_documents rd ON rc.document_id = rd.id "
+            # DEF-844: herkomst van het fragment (uploadcollectie of
+            # bronbibliotheek) reist mee voor de bronrangorde.
+            "LEFT JOIN rag_collections rcol ON rc.collection_id = rcol.id "
+            "WHERE rc.collection_id = ? AND rc.embedding IS NOT NULL"
+        )
+        params: list = [collection_id]
+        if rechtsgebied is not None:
+            sql += " AND rc.rechtsgebied = ?"
+            params.append(rechtsgebied)
+        if wet_regeling is not None:
+            sql += " AND rc.wet_regeling = ?"
+            params.append(wet_regeling)
+        if bron_type is not None:
+            sql += " AND rc.bron_type = ?"
+            params.append(bron_type)
+        return list(conn.execute(sql, params).fetchall())
+
+    def _naar_resultaat(self, row: sqlite3.Row, score: float) -> dict:
+        """Zet een chunk-rij om naar het resultaatformaat van de zoekmethoden."""
+        meta = self._parse_metadata(row["metadata"])
+        # Lees-conventie: metadata.artikel_nummer met fallback op
+        # legacy artikel_lid kolom
+        artikel_lid = meta.get("artikel_nummer") or row["artikel_lid"]
+        return {
+            "chunk_id": row["id"],
+            "chunk_text": row["chunk_text"],
+            "score": score,
+            "rechtsgebied": row["rechtsgebied"],
+            "wet_regeling": row["wet_regeling"],
+            "artikel_lid": artikel_lid,
+            "bron_type": row["bron_type"],
+            "metadata": meta,
+            "document_id": row["document_id"],
+            "chunk_index": row["chunk_index"],
+            "created_at": row["created_at"],
+            "filename": row["filename"],
+            "collection_name": row["collection_name"],
+        }
+
+    def search_keyword(
+        self,
+        query_embedding: np.ndarray,
+        collection_id: int,
+        zoektermen: list[str],
+        rechtsgebied: str | None = None,
+        wet_regeling: str | None = None,
+        bron_type: str | None = None,
+    ) -> list[dict]:
+        """Chunks die minstens één zoekterm noemen (DEF-620, RAG fase 1).
+
+        Trefwoordkant van het zoeken met relevantiepoort. Herkenning via
+        ``utils.term_match.zoekpatronen`` (genormaliseerde tekst; het begrip
+        zelf plus vervoegde vormen als héél woord). Eerst een tekstscan zonder
+        vectoren; alleen voor de treffers worden de embeddings opgehaald.
+
+        Returns:
+            list[dict] in hetzelfde formaat als ``search_similar`` plus
+            ``trefwoord_treffers`` (aantal unieke vindplaatsen), met ``score`` =
+            cosine ten opzichte van ``query_embedding``; aflopend op score.
+        """
+        patronen = [patroon for t in (zoektermen or []) for patroon in zoekpatronen(t)]
+        if not patronen:
+            return []
+        conn = self._connect()
+        try:
+            rijen = self._lees_rijen(
+                conn,
+                collection_id,
+                rechtsgebied,
+                wet_regeling,
+                bron_type,
+                met_embedding=False,
+            )
+            treffers = {
+                rij["id"]: (rij, aantal)
+                for rij in rijen
+                if (aantal := tel_treffers_rag(self._poorttekst(rij), patronen)) > 0
+            }
+            vectoren = self._lees_embeddings(conn, list(treffers))
+        finally:
+            conn.close()
+
+        query_vec = query_embedding.astype(np.float32)
+        query_norm = float(np.linalg.norm(query_vec))
+        results: list[dict] = []
+        for chunk_id, (rij, aantal) in treffers.items():
+            vec = vectoren.get(chunk_id)
+            if vec is None:
+                continue
+            norm = float(np.linalg.norm(vec))
+            score = (
+                float(vec @ query_vec) / (norm * query_norm)
+                if norm and query_norm
+                else 0.0
+            )
+            resultaat = self._naar_resultaat(rij, score)
+            resultaat["trefwoord_treffers"] = aantal
+            results.append(resultaat)
+        results.sort(key=lambda r: r["score"], reverse=True)
+        return results
+
+    @staticmethod
+    def _poorttekst(rij: sqlite3.Row) -> str:
+        """Tekst waarop de relevantiepoort zoekt (DEF-620 fase 3).
+
+        Chunks van de wetparsers (officiële publicatie, BWB, EU) beginnen met
+        een kopregel die met de wetnaam opent ("Wet politiegegevens (…) — …
+        › Artikel 8"). Die regel hoort bij de embedding (context), maar niet bij
+        de poort: anders laat de wetnaam élk artikel van die wet door voor een
+        begrip uit de titel. Alleen het vaste kopregelformaat wordt
+        herkend; andere chunks (pdf, upload), ook als die met de wetnaam
+        beginnen, blijven ongewijzigd.
+        """
+        tekst = rij["chunk_text"] or ""
+        wet = rij["wet_regeling"] or ""
+        if not wet or "\n" not in tekst:
+            return tekst
+        kop, rest = tekst.split("\n", 1)
+        # Alleen het vaste kopregelformaat van de wetparsers:
+        #   "<wet> — <plaats> › Artikel <nr> …"  of  "<wet> › Artikel <nr> …"
+        #   "<wet> — definitie (artikel …"
+        if kop.startswith(wet) and (
+            " › Artikel " in kop[len(wet) :]
+            or kop[len(wet) :].startswith(" — definitie (")
+        ):
+            return rest
+        return tekst
+
+    @staticmethod
+    def _lees_embeddings(
+        conn: sqlite3.Connection, chunk_ids: list[int], batch: int = 500
+    ) -> dict[int, np.ndarray]:
+        """Embeddings voor de opgegeven chunks, in batches (IN-lijst)."""
+        vectoren: dict[int, np.ndarray] = {}
+        for i in range(0, len(chunk_ids), batch):
+            deel = chunk_ids[i : i + batch]
+            plaats = ",".join("?" * len(deel))
+            for chunk_id, blob in conn.execute(
+                f"SELECT id, embedding FROM rag_chunks WHERE id IN ({plaats})",
+                deel,
+            ):
+                if blob is not None:
+                    vectoren[chunk_id] = np.frombuffer(blob, dtype=np.float32)
+        return vectoren
+
     def search_similar(
         self,
         query_embedding: np.ndarray,
@@ -334,34 +509,9 @@ class EmbeddingStore:
         """
         conn = self._connect()
         try:
-            conn.row_factory = sqlite3.Row
-            # DEF-378 Bug 9: JOIN met rag_documents om filename als fallback
-            # beschikbaar te stellen voor chunks zonder bronbestand in metadata
-            # (pre-DEF-372 geïngeste documenten).
-            sql = (
-                "SELECT rc.id, rc.chunk_text, rc.embedding, rc.rechtsgebied, "
-                "rc.wet_regeling, rc.artikel_lid, rc.bron_type, "
-                "json(rc.metadata) AS metadata, "
-                "rc.document_id, rc.chunk_index, rc.created_at, "
-                "rd.filename "
-                "FROM rag_chunks rc "
-                "LEFT JOIN rag_documents rd ON rc.document_id = rd.id "
-                "WHERE rc.collection_id = ? AND rc.embedding IS NOT NULL"
+            rows = self._lees_rijen(
+                conn, collection_id, rechtsgebied, wet_regeling, bron_type
             )
-            params: list = [collection_id]
-
-            if rechtsgebied is not None:
-                sql += " AND rc.rechtsgebied = ?"
-                params.append(rechtsgebied)
-            if wet_regeling is not None:
-                sql += " AND rc.wet_regeling = ?"
-                params.append(wet_regeling)
-            if bron_type is not None:
-                sql += " AND rc.bron_type = ?"
-                params.append(bron_type)
-
-            cursor = conn.execute(sql, params)
-            rows = cursor.fetchall()
 
             if not rows:
                 return []
@@ -388,33 +538,10 @@ class EmbeddingStore:
             k = min(top_k, len(rows))
             top_indices = np.argsort(similarities)[::-1][:k]
 
-            results = []
-            for idx in top_indices:
-                row = rows[idx]
-                meta = self._parse_metadata(row["metadata"])
-
-                # Lees-conventie: metadata.artikel_nummer met fallback op
-                # legacy artikel_lid kolom
-                artikel_lid = meta.get("artikel_nummer") or row["artikel_lid"]
-
-                results.append(
-                    {
-                        "chunk_id": row["id"],
-                        "chunk_text": row["chunk_text"],
-                        "score": float(similarities[idx]),
-                        "rechtsgebied": row["rechtsgebied"],
-                        "wet_regeling": row["wet_regeling"],
-                        "artikel_lid": artikel_lid,
-                        "bron_type": row["bron_type"],
-                        "metadata": meta,
-                        "document_id": row["document_id"],
-                        "chunk_index": row["chunk_index"],
-                        "created_at": row["created_at"],
-                        "filename": row["filename"],
-                    }
-                )
-
-            return results
+            return [
+                self._naar_resultaat(rows[idx], float(similarities[idx]))
+                for idx in top_indices
+            ]
         finally:
             conn.close()
 

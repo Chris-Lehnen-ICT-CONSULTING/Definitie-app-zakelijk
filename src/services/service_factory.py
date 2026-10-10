@@ -484,6 +484,11 @@ class ServiceAdapter:
             "model": ensure_string(safe_dict_get(md, "model", "")),
         }
         for k in (
+            # DEF-620: bronnen in de prompt en RAG-status, voor de waarschuwing
+            # bij een generatie zonder bronnen.
+            "bronnen_in_prompt",
+            "bronkanalen",
+            "rag_status",
             "web_lookup_status",
             "web_lookup_available",
             "web_lookup_timeout",
@@ -629,7 +634,9 @@ class ServiceAdapter:
         de V2-orchestrator. De servicelaag lekt geen UI-dict meer (DEF-451): serialisatie
         naar de canonieke dict gebeurt apart via ``to_ui_response``.
         """
+        from config.rate_limit_config import get_endpoint_timeout
         from services.interfaces import GenerationRequest
+        from utils.generatie_deadline import generatie_deadline
         from utils.progress_callback import operation_progress
 
         # DEF-198: Clean architecture - import from utils/, callback registered by UI
@@ -719,9 +726,12 @@ class ServiceAdapter:
 
             # DEF-451: servicelaag retourneert het getypeerde domeinobject; UI-serialisatie
             # naar de canonieke dict gebeurt apart via to_ui_response.
-            return await self.orchestrator.create_definition(
-                request, context=extra_context or None
-            )
+            # DEF-842: stappen in de keten (CON-02-herhaling) zien het
+            # resterende generatiebudget — dezelfde bron als de UI-grens.
+            with generatie_deadline(get_endpoint_timeout("definition_generation")):
+                return await self.orchestrator.create_definition(
+                    request, context=extra_context or None
+                )
 
     @staticmethod
     def _betekenisconflict_uit(response: Any) -> dict[str, Any] | None:

@@ -8,6 +8,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import threading
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -41,18 +42,46 @@ class RateLimitConfig:
 
 
 class AsyncRateLimiter:
-    """Rate limiter for async API calls."""
+    """Rate limiter for async API calls.
+
+    DEF-840: één instantie wordt via ``AIServiceV2`` gedeeld door alle
+    aanroepen, terwijl de UI-bridge elke aanroep in een eigen event loop (en
+    thread) draait. Een asyncio-primitief bindt aan de loop waarin hij voor het
+    eerst moet wachten; een gedeelde ``asyncio.Lock``/``Semaphore`` gaf in de
+    volgende loop "is bound to a different event loop". Daarom:
+
+    * het verzoekbudget (per minuut/uur) is procesbreed en wordt bewaakt met
+      een ``threading.Lock`` waaronder nooit gewacht wordt;
+    * de semaphore voor gelijktijdigheid bestaat per event loop (lui
+      aangemaakt). ``max_concurrent`` geldt dus per loop.
+
+    Geen ``WeakKeyDictionary``: een gebonden semaphore verwijst zelf naar zijn
+    loop en zou die dan nooit loslaten. Semaphores van gesloten loops worden
+    bij de volgende aanvraag opgeruimd.
+    """
 
     def __init__(self, config: RateLimitConfig):
         self.config = config
         self.requests_this_minute: list[datetime] = []
         self.requests_this_hour: list[datetime] = []
-        self.semaphore = asyncio.Semaphore(config.max_concurrent)
-        self._lock = asyncio.Lock()
+        self._budget_lock = threading.Lock()
+        self._semaphores: dict[asyncio.AbstractEventLoop, asyncio.Semaphore] = {}
 
-    async def acquire(self) -> None:
-        """Acquire permission to make an API call."""
-        async with self._lock:
+    def _semaphore(self) -> asyncio.Semaphore:
+        """Semaphore van de lopende event loop; lui aangemaakt."""
+        loop = asyncio.get_running_loop()
+        with self._budget_lock:
+            for gesloten in [lp for lp in self._semaphores if lp.is_closed()]:
+                del self._semaphores[gesloten]
+            semaphore = self._semaphores.get(loop)
+            if semaphore is None:
+                semaphore = asyncio.Semaphore(self.config.max_concurrent)
+                self._semaphores[loop] = semaphore
+            return semaphore
+
+    def _reserveer(self) -> float | None:
+        """Boek een verzoek als het budget het toelaat (None), anders de wachttijd in s."""
+        with self._budget_lock:
             now = datetime.now(UTC)
 
             # Clean old requests
@@ -70,22 +99,30 @@ class AsyncRateLimiter:
             if len(self.requests_this_minute) >= self.config.requests_per_minute:
                 wait_time = 60 - (now - min(self.requests_this_minute)).total_seconds()
                 logger.info(f"Rate limit reached, waiting {wait_time:.1f}s")
-                await asyncio.sleep(wait_time)
+                return max(wait_time, 0.001)
 
             if len(self.requests_this_hour) >= self.config.requests_per_hour:
                 wait_time = 3600 - (now - min(self.requests_this_hour)).total_seconds()
                 logger.warning(f"Hourly rate limit reached, waiting {wait_time:.1f}s")
-                await asyncio.sleep(wait_time)
+                return max(wait_time, 0.001)
 
             # Record this request
             self.requests_this_minute.append(now)
             self.requests_this_hour.append(now)
+            return None
 
-        await self.semaphore.acquire()
+    async def acquire(self) -> None:
+        """Acquire permission to make an API call."""
+        # Na het wachten opnieuw toetsen: een andere loop kan de vrijgekomen
+        # plek inmiddels hebben genomen.
+        while (wait_time := self._reserveer()) is not None:
+            await asyncio.sleep(wait_time)
+
+        await self._semaphore().acquire()
 
     def release(self) -> None:
-        """Release semaphore after API call."""
-        self.semaphore.release()
+        """Release semaphore after API call (in dezelfde loop als acquire)."""
+        self._semaphore().release()
 
 
 class AsyncGPTClient:
@@ -149,6 +186,9 @@ class AsyncGPTClient:
         # providerparameters en gaan daarom niet mee in de cachesleutel.
         max_attempts = kwargs.pop("max_attempts", None)
         max_retries = kwargs.pop("max_retries", None)
+        # DEF-842 opt-in: requesttimeout per aanroep voor de providerclient
+        # (i.p.v. de clientdefault); net als hierboven niet in de cachesleutel.
+        request_timeout = kwargs.pop("request_timeout", None)
         # DEF-766 (correctieronde 3, F1): optionele callback die de volledige
         # `ChatResponse` van de providerclient ontvangt (o.a. `stop_reason`),
         # omdat deze methode contractueel alleen de tekst teruggeeft. Geen
@@ -210,6 +250,7 @@ class AsyncGPTClient:
                 max_retries=max_retries,
                 response_hook=response_hook,
                 response_schema=response_schema,
+                request_timeout=request_timeout,
                 **kwargs,
             )
 
@@ -239,6 +280,7 @@ class AsyncGPTClient:
         max_retries: int | None = None,
         response_hook: Callable[[ChatResponse], None] | None = None,
         response_schema: Mapping[str, Any] | None = None,
+        request_timeout: float | None = None,
         **kwargs: Any,
     ) -> str:
         """Make API request with exponential backoff retries.
@@ -248,8 +290,9 @@ class AsyncGPTClient:
         reist door naar de providerclient als SDK-retries per aanroep;
         ``response_hook`` ontvangt de volledige ``ChatResponse`` van de
         geslaagde poging (correctieronde 3, F1); ``response_schema`` reist
-        door naar de providerclient (DEF-836 P1). Zonder deze argumenten is
-        het gedrag exact het bestaande.
+        door naar de providerclient (DEF-836 P1); ``request_timeout`` gaat als
+        ``timeout`` per aanroep naar de providerclient (DEF-842). Zonder deze
+        argumenten is het gedrag exact het bestaande.
         """
         last_error = None
         pogingen = (
@@ -262,6 +305,8 @@ class AsyncGPTClient:
         )
         if response_schema is not None:
             clientopties["response_schema"] = response_schema
+        if request_timeout is not None:
+            clientopties["timeout"] = float(request_timeout)
 
         for attempt in range(pogingen):
             try:

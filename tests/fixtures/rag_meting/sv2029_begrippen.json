@@ -1,0 +1,92 @@
+{
+  "_toelichting": "Meetset RAG fase 2 (DEF-620): nieuw Wetboek van Strafvordering (Stb. 2026, 56 en 57; beoogde inwerkingtreding 1-4-2029), geïmporteerd per artikel uit de officiële publicatie. Het script zoekt uitsluitend in de genoemde collectie. 'patroon' is het onafhankelijke orakel (regex) of een fragment het begrip noemt: LEXICALE precisie, geen betekenis. 'homoniem' (optioneel) wordt apart geteld. 'kernartikelen' zijn artikelen die het begrip aantoonbaar centraal behandelen (zelf gekozen met grep op de geparste artikelen, 06-10-2026; kleine set, risico op overfitting). 'dagvaarding' komt in het nieuwe wetboek niet meer voor (0 treffers); daarvoor in de plaats 'procesinleiding'. Negatieven: 0 treffers in beide publicaties. Uit Stb. 2026, 57 (Boek 8, genest in wijzig-artikelen) toegevoegd: 'Europees beschermingsbevel' en 'Europese toezichtbeslissing' (kern: definitieartikel en het artikel over uitvaardigen).",
+  "collectie": "Sv (nieuw, i.w.t. 1-4-2029)",
+  "rechtsgebied": "strafrecht",
+  "top_k": 5,
+  "positief": [
+    {
+      "begrip": "onttrekking",
+      "patroon": "(?<!\\w)onttr[eo]k",
+      "homoniem": "aan het verkeer (te |kunnen worden |worden )?onttr|onttrekking aan het verkeer",
+      "kernartikelen": [
+        "2.5.24",
+        "2.5.33",
+        "2.5.34"
+      ]
+    },
+    {
+      "begrip": "voorlopige hechtenis",
+      "patroon": "voorlopige hechtenis",
+      "kernartikelen": [
+        "2.1.1",
+        "2.5.22",
+        "2.5.24",
+        "2.5.33",
+        "2.5.49",
+        "2.5.57"
+      ]
+    },
+    {
+      "begrip": "strafbeschikking",
+      "patroon": "(?<!\\w)strafbeschikking",
+      "kernartikelen": [
+        "3.3.1",
+        "3.3.2",
+        "3.3.4"
+      ]
+    },
+    {
+      "begrip": "inbeslagneming",
+      "patroon": "(?<!\\w)inbeslagneming",
+      "kernartikelen": [
+        "2.1.1",
+        "2.7.4",
+        "2.7.5",
+        "2.7.9"
+      ]
+    },
+    {
+      "begrip": "procesinleiding",
+      "patroon": "(?<!\\w)procesinleiding",
+      "kernartikelen": [
+        "4.1.1",
+        "4.1.2",
+        "3.2.1"
+      ]
+    },
+    {
+      "begrip": "verdachte",
+      "patroon": "(?<!\\w)verdachte",
+      "kernartikelen": [
+        "1.4.1",
+        "1.4.2"
+      ]
+    },
+    {
+      "begrip": "Europees beschermingsbevel",
+      "patroon": "Europe(es|se) beschermingsbevel",
+      "kernartikelen": [
+        "8.9.1",
+        "8.9.2"
+      ]
+    },
+    {
+      "begrip": "Europese toezichtbeslissing",
+      "patroon": "Europese toezichtbeslissing",
+      "kernartikelen": [
+        "8.8.1",
+        "8.8.2"
+      ]
+    }
+  ],
+  "negatief": [
+    {
+      "begrip": "zelfmelder",
+      "patroon": "zelfmeld"
+    },
+    {
+      "begrip": "ontvluchting",
+      "patroon": "ontvlucht"
+    }
+  ]
+}

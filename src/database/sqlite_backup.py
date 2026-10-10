@@ -43,6 +43,7 @@ import re
 import sqlite3
 import tempfile
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -82,6 +83,15 @@ CORE_TABLE_COLUMNS: dict[str, tuple[str, ...]] = {
     "synonym_groups": ("id", "canonical_term"),
     "synonym_group_members": ("id", "group_id", "term"),
     "import_export_logs": ("id",),
+}
+
+# Kernmanifest van het bronnenbestand data/bronnen.db (DEF-620); bron van
+# services.rag.bronnen_schema.BRONNEN_KERN (de databaselaag hangt niet van de
+# servicelaag af).
+BRONNEN_KERN_TABELLEN: dict[str, tuple[str, ...]] = {
+    "rag_collections": ("id", "collection_name", "metadata_json"),
+    "rag_documents": ("id", "collection_id", "filename", "chunk_count"),
+    "rag_chunks": ("id", "collection_id", "document_id", "chunk_text", "embedding"),
 }
 
 _GLOB_OR_CONTROL_CHARS = re.compile(r"[*?\[\]\x00\r\n]")
@@ -192,10 +202,17 @@ def integrity_ok(conn: sqlite3.Connection) -> bool:
     return conn.execute("PRAGMA integrity_check").fetchall() == [("ok",)]
 
 
-def check_core_schema(manifest: SchemaManifest) -> None:
-    """Raise ``BackupError("core_schema_incomplete")`` als een kerntabel/-kolom ontbreekt."""
+def check_core_schema(
+    manifest: SchemaManifest,
+    kern: Mapping[str, tuple[str, ...]] | None = None,
+) -> None:
+    """Raise ``BackupError("core_schema_incomplete")`` als een kerntabel/-kolom ontbreekt.
+
+    ``kern`` is standaard het kernmanifest van de definitiedatabase; het
+    bronnenbestand (DEF-620) geeft zijn eigen RAG-kerntabellen mee.
+    """
     tables = manifest.tables()
-    for table, required in CORE_TABLE_COLUMNS.items():
+    for table, required in (CORE_TABLE_COLUMNS if kern is None else kern).items():
         present = tables.get(table)
         if present is None or any(column not in present for column in required):
             raise BackupError("core_schema_incomplete")
@@ -273,6 +290,7 @@ def verify_backup_file(
     expected: SchemaManifest | None = None,
     *,
     deadline: float | None = None,
+    kern: Mapping[str, tuple[str, ...]] | None = None,
 ) -> SchemaManifest:
     """Gedeelde verifier: open ``backup`` read-only en controleer hem volledig.
 
@@ -307,7 +325,7 @@ def verify_backup_file(
         except sqlite3.Error:
             raise _classify_failure(deadline, "backup_unreadable") from None
         ensure_within_deadline(deadline)
-        check_core_schema(manifest)
+        check_core_schema(manifest, kern)
         if expected is not None and manifest != expected:
             raise BackupError("manifest_mismatch")
         return manifest
@@ -462,7 +480,11 @@ def publish_staged_file(staging: Path, destination: Path) -> None:
 # Publieke API
 # ---------------------------------------------------------------------------
 def create_verified_backup(
-    source: Path, destination: Path, *, deadline_seconds: float | None = None
+    source: Path,
+    destination: Path,
+    *,
+    deadline_seconds: float | None = None,
+    kern: Mapping[str, tuple[str, ...]] | None = None,
 ) -> SchemaManifest:
     """Maak een geverifieerde backup van ``source`` op ``destination``.
 
@@ -470,21 +492,25 @@ def create_verified_backup(
     met een veilige ``reason`` als de backup wordt geweigerd of mislukt; in dat
     geval bestaat ``destination`` niet. ``deadline_seconds`` (standaard
     ``DEFAULT_DEADLINE_SECONDS``) begrenst de totale duur van lezen en
-    kopiëren, inclusief wachten op locks.
+    kopiëren, inclusief wachten op locks. ``kern`` vervangt het kernmanifest
+    van de definitiedatabase, bijv. voor het bronnenbestand (DEF-620).
     """
     source = Path(source)
     destination = Path(destination)
     if deadline_seconds is None:
         deadline_seconds = DEFAULT_DEADLINE_SECONDS
     try:
-        return _create_verified_backup(source, destination, deadline_seconds)
+        return _create_verified_backup(source, destination, deadline_seconds, kern)
     except BackupError as exc:
         logger.error("sqlite_backup geweigerd of mislukt: %s", exc.reason)
         raise
 
 
 def _create_verified_backup(
-    source: Path, destination: Path, deadline_seconds: float
+    source: Path,
+    destination: Path,
+    deadline_seconds: float,
+    kern: Mapping[str, tuple[str, ...]] | None = None,
 ) -> SchemaManifest:
     # Het budget loopt vanaf binnenkomst; elke latere lockwacht krijgt alleen
     # wat er dan nog van over is (zie _busy_timeout_within).
@@ -501,13 +527,13 @@ def _create_verified_backup(
         _arm_deadline(source_conn, deadline)
         manifest = read_manifest(source_conn)
         ensure_within_deadline(deadline)
-        check_core_schema(manifest)
+        check_core_schema(manifest, kern)
         phase = "copy_failed"
         staging = make_staging(destination)
         _copy_snapshot(source_conn, staging, deadline)
         source_conn.close()
         source_conn = None
-        verify_backup_file(staging, manifest, deadline=deadline)
+        verify_backup_file(staging, manifest, deadline=deadline, kern=kern)
         # Geen late publicatie: ook na een geslaagde verificatie mag een
         # verlopen budget het doel niet meer laten verschijnen.
         ensure_within_deadline(deadline)
@@ -541,9 +567,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("source", type=Path, help="bestaande databasebron")
     parser.add_argument("destination", type=Path, help="nieuw backupbestand")
+    parser.add_argument(
+        "--kern",
+        choices=("definities", "bronnen"),
+        default="definities",
+        help="kernmanifest: definitiedatabase (standaard) of bronnenbestand (DEF-620)",
+    )
     args = parser.parse_args(argv)
+    kern = None
+    if args.kern == "bronnen":
+        kern = BRONNEN_KERN_TABELLEN
     try:
-        create_verified_backup(args.source, args.destination)
+        create_verified_backup(args.source, args.destination, kern=kern)
     except BackupError as exc:
         parser.exit(1, f"sqlite_backup: {exc.reason}\n")
     return 0
