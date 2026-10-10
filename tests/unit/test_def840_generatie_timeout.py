@@ -232,7 +232,16 @@ class _NepProvider:
         self.task_types: list[str] = []
         self.taken: list[asyncio.Task] = []
 
-    async def generate_definition(self, *, prompt, task_type, temperature, max_tokens):
+    async def generate_definition(
+        self,
+        *,
+        prompt,
+        task_type,
+        temperature,
+        max_tokens,
+        timeout_seconds=30,
+        request_timeout=None,
+    ):
         self.task_types.append(task_type)
         taak = asyncio.current_task()
         assert taak is not None
