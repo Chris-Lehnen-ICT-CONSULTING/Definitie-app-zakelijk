@@ -9,6 +9,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+from domain.sources.regelingen import register
 from services.rag.constants import RECHTSGEBIEDEN
 
 logger = logging.getLogger(__name__)
@@ -53,14 +54,8 @@ class ContextValidator:
 
     VALID_JURIDISCH = set(RECHTSGEBIEDEN.values())
 
-    VALID_WETTELIJK = {
-        "Wetboek van Strafvordering (huidig)",
-        "Wetboek van Strafvordering (toekomstig)",
-        "Wet op de Identificatieplicht",
-        "Wet op de politiegegevens",
-        "Wetboek van Strafrecht",
-        "Algemene verordening gegevensbescherming",
-    }
+    # DEF-846: de geldige wettelijke grondslagen komen uit het regelingenregister.
+    VALID_WETTELIJK = frozenset(register().labels())
 
     def __init__(self) -> None:
         """Initialize the validator."""

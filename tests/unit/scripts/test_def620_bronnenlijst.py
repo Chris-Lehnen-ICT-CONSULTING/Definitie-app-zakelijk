@@ -37,13 +37,17 @@ bronnen:
     versie: "2026-01-01"
     collectie: "Testwet (versie 1-1-2026)"
     wet_regeling: "Testwet (versie 1-1-2026)"
-    rechtsgebied: penitentiair_recht
+    rechtsgebieden: [penitentiair_recht, strafrecht]
   - sleutel: avg
     formaat: eu
     celex: 32016R0679
     collectie: "AVG"
     wet_regeling: "AVG"
-    rechtsgebied: europees_recht
+    rechtsgebieden: [europees_recht]
+  - sleutel: evrm
+    label: EVRM
+    naam: EVRM
+    kenmerken: [alle_rechtsgebieden]
 """
 
 
@@ -78,6 +82,42 @@ def test_echte_bronnenlijst_is_geldig(monkeypatch):
     )
 
 
+def test_regeling_zonder_bibliotheekbron_wordt_niet_geimporteerd(bl):
+    """DEF-846: kiesbare regelingen zonder formaat horen niet bij de import."""
+    mod, lijst, _tmp = bl
+    assert [b.sleutel for b in mod.lees_lijst(lijst)] == ["testwet", "avg"]
+
+
+def test_hoofdrechtsgebied_is_het_eerste_van_de_lijst(bl):
+    """Het eerste rechtsgebied gaat bij import mee als fragmentmetadata."""
+    mod, lijst, _tmp = bl
+    testwet, avg = mod.lees_lijst(lijst)
+    assert (testwet.rechtsgebied, avg.rechtsgebied) == (
+        "penitentiair_recht",
+        "europees_recht",
+    )
+
+
+def test_hoofdrechtsgebied_echte_lijst_ongewijzigd(monkeypatch):
+    """DEF-846 verandert de fragmentmetadata van bestaande collecties niet."""
+    mod = _laad("rag_bronnenlijst", monkeypatch)
+    hoofd = {
+        b.sleutel: b.rechtsgebied
+        for b in mod.lees_lijst(ROOT / "config" / "bronnenlijst.yaml")
+    }
+    assert hoofd == {
+        "sv-nieuw": "strafrecht", "sv-geldend": "strafrecht", "sr": "strafrecht",
+        "gratiewet": "strafrecht", "pbw": "penitentiair_recht",
+        "reclasseringsregeling": "strafrecht", "wet-ro": "staatsrecht",
+        "wpg": "strafrecht", "wjsg": "strafrecht", "uavg": "bestuursrecht",
+        "avg": "europees_recht", "awb": "bestuursrecht", "wdo": "bestuursrecht",
+        "bsdo": "bestuursrecht", "tbdto": "bestuursrecht",
+        "wet-brp": "bestuursrecht", "wabb": "bestuursrecht",
+        "handelsregisterwet": "ondernemingsrecht", "eidas": "europees_recht",
+        "bw1": "burgerlijk_recht", "bw2": "burgerlijk_recht",
+    }  # fmt: skip
+
+
 @pytest.mark.parametrize(
     ("vervang", "fout"),
     [
@@ -102,7 +142,7 @@ def test_bestandsnaam_met_pad_geweigerd(bl):
     lijst.write_text(
         "bronnen:\n  - sleutel: x\n    formaat: op\n    urls: [https://x/y.xml]\n"
         "    bestanden: [../buiten.xml]\n    collectie: X\n    wet_regeling: X\n"
-        "    rechtsgebied: strafrecht\n",
+        "    rechtsgebieden: [strafrecht]\n",
         encoding="utf-8",
     )
     with pytest.raises(mod.BronError, match="ongeldige bestandsnaam"):

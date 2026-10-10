@@ -1,6 +1,9 @@
 """Bronnenlijst van de bronbibliotheek: ophalen en importeren (DEF-620, RAG fase 3).
 
-Leest ``config/bronnenlijst.yaml``. Twee stappen, elk apart te draaien:
+Leest ``config/bronnenlijst.yaml``; die lijst is sinds DEF-846 ook het
+regelingenregister (``domain.sources.regelingen``). Regelingen zonder
+``formaat`` hebben geen bibliotheekbron en worden hier overgeslagen. Twee
+stappen, elk apart te draaien:
 
 ``ophalen``
     Download per bron het XML/XHTML-bestand naar de bronnenmap (standaard
@@ -82,10 +85,18 @@ def lees_lijst(pad: Path = LIJST) -> list[Bron]:
     gezien: set[str] = set()
     for item in data.get("bronnen", []):
         sleutel = item["sleutel"]
-        formaat = item["formaat"]
         if sleutel in gezien:
             raise BronError(f"dubbele sleutel in bronnenlijst: {sleutel}")
         gezien.add(sleutel)
+        # DEF-846: de lijst is ook het regelingenregister. Een regeling zonder
+        # formaat is wel kiesbaar als wettelijke basis, maar heeft geen
+        # bibliotheekbron en hoort dus niet bij ophalen/importeren.
+        formaat = item.get("formaat")
+        if not formaat:
+            continue
+        rechtsgebieden = item.get("rechtsgebieden") or []
+        if not rechtsgebieden:
+            raise BronError(f"{sleutel}: geen rechtsgebieden")
         if formaat == "bwb":
             bwb_id, versie = item["bwb_id"], str(item["versie"])
             if not re.fullmatch(r"BWBR\d{7}", bwb_id) or not re.fullmatch(
@@ -115,7 +126,9 @@ def lees_lijst(pad: Path = LIJST) -> list[Bron]:
                 formaat=formaat,
                 collectie=item["collectie"],
                 wet_regeling=item["wet_regeling"],
-                rechtsgebied=item["rechtsgebied"],
+                # Het eerste rechtsgebied is het hoofdrechtsgebied; dat gaat bij
+                # import mee als fragmentmetadata (zoals vóór DEF-846).
+                rechtsgebied=rechtsgebieden[0],
                 urls=urls,
                 bestanden=bestanden,
                 bwb_id=item.get("bwb_id"),
