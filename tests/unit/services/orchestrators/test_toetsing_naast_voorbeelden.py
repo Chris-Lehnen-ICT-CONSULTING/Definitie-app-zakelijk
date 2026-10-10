@@ -12,7 +12,10 @@ Alleen de gelijktijdigheid verandert. Deze tests leggen vast dat:
 
 * de duur ≈ het maximum is en beide stappen werkelijk overlappen;
 * de uitkomst (definitie, voorbeelden, validatieresultaat, opgeslagen
-  record) gelijk is aan de oude volgorde (voorbeelden klaar vóór de toetsing);
+  record) bij beide afrondvolgordes gelijk is aan een echt sequentiële
+  referentie (voorbeelden klaar vóór opschoning en toetsing, als 146c9d1ec),
+  en de verwachte inhoud expliciet klopt: voorbeelden per type in de
+  response, niet in het door `create_definition` opgeslagen record;
 * de voorbeelden — zoals nu — de ruwe modeltekst krijgen, ook als de
   toetsing de kandidaattekst wijzigt;
 * een fout in de voorbeelden de generatie niet raakt (lege voorbeelden) en
@@ -84,12 +87,21 @@ class Logboek:
         self.gebeurtenissen.append((wat, time.monotonic()))
 
     def tijd(self, wat: str) -> float:
-        return next(t for w, t in self.gebeurtenissen if w == wat)
+        for w, t in self.gebeurtenissen:
+            if w == wat:
+                return t
+        opgetreden = [w for w, _ in self.gebeurtenissen]
+        raise AssertionError(f"{wat!r} niet opgetreden; wel: {opgetreden}")
 
 
 def _voorbeeldentak(
-    monkeypatch, logboek: Logboek, *, duur: float, fout: Exception | None = None
+    monkeypatch,
+    logboek: Logboek,
+    *,
+    duur: float | None,
+    fout: Exception | None = None,
 ) -> None:
+    """Bevroren voorbeeldengenerator; ``duur=None`` suspendeert nooit."""
     from voorbeelden import unified_voorbeelden
 
     async def _genereer(
@@ -101,7 +113,8 @@ def _voorbeeldentak(
             {"begrip": begrip, "definitie": definitie, "context": context_dict}
         )
         try:
-            await asyncio.sleep(duur)
+            if duur is not None:
+                await asyncio.sleep(duur)
         except asyncio.CancelledError:
             logboek.geannuleerd.add("voorbeelden")
             raise
@@ -165,9 +178,11 @@ def _orchestrator(
     return orch, repo
 
 
-def _request(begrip: str = "controle") -> GenerationRequest:
+def _request(
+    begrip: str = "controle", request_id: str | None = None
+) -> GenerationRequest:
     return GenerationRequest(
-        id=str(uuid.uuid4()),
+        id=request_id or str(uuid.uuid4()),
         begrip=begrip,
         ontologische_categorie="proces",
         organisatorische_context=["Team Toets"],
@@ -207,10 +222,52 @@ def _uitkomst(response: Any, repo: DefinitionRepository) -> dict[str, Any]:
         "definitie": definitie.definitie,
         "metadata": _zonder_tijd(dict(definitie.metadata or {})),
         "validatie": _zonder_tijd(response.validation_result),
+        "opgeslagen_id": definitie.id,
         "opgeslagen_definitie": opgeslagen.definitie,
         "opgeslagen_categorie": opgeslagen.ontologische_categorie,
         "opgeslagen_metadata": _zonder_tijd(dict(opgeslagen.metadata or {})),
+        "opgeslagen_voorbeelden": repo.get_voorbeelden_by_type(definitie.id),
     }
+
+
+def _controleer_verwachte_inhoud(uitkomst: dict[str, Any]) -> None:
+    """De verwachte inhoud, los van elke vergelijking tussen runs.
+
+    Zoals op 146c9d1ec: de response draagt de voorbeelden (per type); het
+    record dat `create_definition` opslaat draagt ze niet — de UI bewaart ze
+    later uit de response (`voorbeelden_renderer.py`, `examples_block.py`).
+    Getoond = opgeslagen geldt voor de definitietekst.
+    """
+    assert uitkomst["success"]
+    voorbeelden = uitkomst["metadata"]["voorbeelden"]
+    assert set(voorbeelden) == set(VOORBEELDEN)
+    for soort, waarde in VOORBEELDEN.items():
+        assert voorbeelden[soort] == waarde, soort
+    assert uitkomst["opgeslagen_definitie"] == uitkomst["definitie"]
+    assert "voorbeelden" not in uitkomst["opgeslagen_metadata"]
+    assert uitkomst["opgeslagen_voorbeelden"] == {}
+
+
+async def _genereer_run(
+    pad, monkeypatch, *, v_duur: float | None, t_duur: float, eager: bool = False
+) -> tuple[dict[str, Any], Logboek]:
+    """Eén generatie met identieke bevroren invoer (vast request-id), eigen DB."""
+    pad.mkdir()
+    logboek = Logboek()
+    _voorbeeldentak(monkeypatch, logboek, duur=v_duur)
+    orch, repo = _orchestrator(pad, logboek, duur=t_duur)
+    loop = asyncio.get_running_loop()
+    oude_fabriek = loop.get_task_factory()
+    if eager:
+        loop.set_task_factory(asyncio.eager_task_factory)
+    try:
+        response = await orch.create_definition(_request(request_id=VAST_ID))
+    finally:
+        loop.set_task_factory(oude_fabriek)
+    return _uitkomst(response, repo), logboek
+
+
+VAST_ID = "00000000-0000-4000-8000-0000000000aa"
 
 
 # ------------------------------------------------------------------ duur
@@ -235,33 +292,40 @@ async def test_duur_is_maximum_en_takken_overlappen(tmp_path, monkeypatch):
 # ------------------------------------------------------- uitkomst gelijk
 
 
-async def test_uitkomst_gelijk_aan_oude_volgorde(tmp_path, monkeypatch):
-    """Voorbeelden vóór de toetsing klaar (oude volgorde) of erna: zelfde uitkomst."""
-    uitkomsten = []
-    volgordes = []
-    for naam, (v_duur, t_duur) in {
-        "voorbeelden_eerst": (0.0, 0.2),
-        "toetsing_eerst": (0.6, 0.0),
-    }.items():
-        logboek = Logboek()
-        _voorbeeldentak(monkeypatch, logboek, duur=v_duur)
-        (tmp_path / naam).mkdir()
-        orch, repo = _orchestrator(tmp_path / naam, logboek, duur=t_duur)
-        response = await orch.create_definition(_request())
-        uitkomsten.append(_uitkomst(response, repo))
-        volgordes.append(
-            logboek.tijd("voorbeelden_einde") < logboek.tijd("toetsing_einde_1")
+async def test_uitkomst_en_opslag_gelijk_aan_sequentiele_referentie(
+    tmp_path, monkeypatch
+):
+    """Parallel (beide afrondvolgordes) == sequentieel (gedrag van 146c9d1ec).
+
+    Referentie: met de eager task factory voert `create_task` de
+    voorbeeldentaak meteen uit tot de eerste suspensie. De bevroren
+    voorbeeldentak suspendeert niet (`duur=None`), dus de taak is volledig
+    klaar vóór `create_task` terugkeert — vóór opschoning en toetsing, precies
+    als het oude `voorbeelden = await genereer_alle_voorbeelden_async(...)`.
+    """
+    referentie, ref_logboek = await _genereer_run(
+        tmp_path / "referentie", monkeypatch, v_duur=None, t_duur=0.0, eager=True
+    )
+    # Echt sequentieel: de voorbeelden waren klaar vóórdat de toetsing begon.
+    assert ref_logboek.tijd("voorbeelden_einde") < ref_logboek.tijd("toetsing_start_1")
+    _controleer_verwachte_inhoud(referentie)
+
+    for naam, (v_duur, t_duur), voorbeelden_eerst in [
+        ("voorbeelden_eerst", (0.1, 0.4), True),
+        ("toetsing_eerst", (0.6, 0.0), False),
+    ]:
+        uitkomst, logboek = await _genereer_run(
+            tmp_path / naam, monkeypatch, v_duur=v_duur, t_duur=t_duur
         )
-
-    # De twee runs hebben werkelijk een andere afrondvolgorde.
-    assert volgordes == [True, False]
-
-    assert uitkomsten[0]["success"] and uitkomsten[1]["success"]
-    assert uitkomsten[0]["metadata"]["voorbeelden"] == VOORBEELDEN
-    # generation_id/correlation_id verschillen per request; de rest is identiek.
-    eerst, daarna = (_zonder_ids(u) for u in uitkomsten)
-    verschillen = _verschillen(eerst, daarna)
-    assert not verschillen, "\n".join(verschillen)
+        # Parallel: de toetsing begon vóór de voorbeelden klaar waren, en de
+        # afrondvolgorde is de bedoelde.
+        assert logboek.tijd("toetsing_start_1") < logboek.tijd("voorbeelden_einde")
+        assert (
+            logboek.tijd("voorbeelden_einde") < logboek.tijd("toetsing_einde_1")
+        ) is voorbeelden_eerst, naam
+        _controleer_verwachte_inhoud(uitkomst)
+        verschillen = _verschillen(_zonder_ids(referentie), _zonder_ids(uitkomst))
+        assert not verschillen, f"{naam}:\n" + "\n".join(verschillen)
 
 
 def _verschillen(a: Any, b: Any, pad: str = "") -> list[str]:
