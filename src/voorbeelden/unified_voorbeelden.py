@@ -67,6 +67,14 @@ RESILIENT_MAX_TOKENS_PER_TYPE = {
     "praktijkvoorbeelden": 3000,
     "tegenvoorbeelden": 3000,
 }
+# Timeout (s) in de resilient-route voor dezelfde typen: een volledig antwoord
+# duurt ~26-28 s (±70 tokens/s). Geldt voor de resilience-decorator én wordt
+# als timeout_seconds/request_timeout doorgegeven, anders breken de interne
+# AI-servicetimeout en de SDK-requesttimeout (beide 30 s) het eerder af.
+RESILIENT_TIMEOUT_PER_TYPE = {
+    "praktijkvoorbeelden": 60,
+    "tegenvoorbeelden": 60,
+}
 
 # DEF-840: bovengrens voor gelijktijdige voorbeeldtypen binnen één generatie.
 # Zes = alle typen tegelijk; blijft onder `rate_limit_max_concurrent` (standaard
@@ -511,7 +519,7 @@ class UnifiedExamplesGenerator:
     @with_full_resilience(
         endpoint_name="examples_generation_practical",
         priority=RequestPriority.NORMAL,
-        timeout=45.0,  # DEF-108: p99 latency coverage (was 20s → 100% timeout)
+        timeout=RESILIENT_TIMEOUT_PER_TYPE["praktijkvoorbeelden"],
         model=None,
         expected_tokens=200,
     )
@@ -522,7 +530,7 @@ class UnifiedExamplesGenerator:
     @with_full_resilience(
         endpoint_name="examples_generation_counter",
         priority=RequestPriority.NORMAL,
-        timeout=30.0,  # DEF-108: safety margin (preventive fix)
+        timeout=RESILIENT_TIMEOUT_PER_TYPE["tegenvoorbeelden"],
         model=None,
         expected_tokens=200,
     )
@@ -587,6 +595,12 @@ class UnifiedExamplesGenerator:
     async def _generate_resilient_common(self, request: ExampleRequest) -> list[str]:
         """Common resilient generation logic."""
         prompt = self._build_prompt(request)
+        timeout = RESILIENT_TIMEOUT_PER_TYPE.get(request.example_type.value)
+        timeout_opties = (
+            {"timeout_seconds": timeout, "request_timeout": timeout}
+            if timeout is not None
+            else {}
+        )
 
         try:
             response = await self.ai_service.generate_definition(
@@ -597,6 +611,7 @@ class UnifiedExamplesGenerator:
                 max_tokens=RESILIENT_MAX_TOKENS_PER_TYPE.get(
                     request.example_type.value, RESILIENT_MAX_TOKENS_STANDAARD
                 ),
+                **timeout_opties,
             )
             return self._parse_response(response.text, request.example_type)
         except Exception as e:
